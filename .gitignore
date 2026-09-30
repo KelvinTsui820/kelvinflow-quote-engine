@@ -27,6 +27,8 @@ data/tenants/*/quotes/
 data/tenants/*/backups/
 data/tenants/*/pricing_sheets/
 data/tenants/tenant_trial_*/
+data/tenants/tenant_n8n_test/
+data/tenants/tenant_test*/
 data/*_backup_*.xlsx
 data/inbound_leads.json
 data/trials.json

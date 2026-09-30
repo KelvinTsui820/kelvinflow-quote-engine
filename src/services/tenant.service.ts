@@ -88,16 +88,16 @@ export class TenantService {
    * 獲取租戶生效底價文件內容（優先用戶指定雙表，再回退租戶專屬與默認）
    */
   static getActivePricingBuffer(tenantId: string): { buffer: Buffer; sourcePath: string } | null {
-    // 1. 優先檢查用戶指定的雙表底價庫路徑 (F:\order_workflow\商品底价表\极简出厂底价表_双表.xlsx)
-    const dualSheetPath = path.join(process.cwd(), '商品底价表', '极简出厂底价表_双表.xlsx');
-    if (fs.existsSync(dualSheetPath)) {
-      return { buffer: fs.readFileSync(dualSheetPath), sourcePath: dualSheetPath };
-    }
-
-    // 2. 檢查租戶專屬獨立底價表
+    // 1. 優先檢查租戶專屬獨立底價表
     const tenantPath = this.getActivePricingPath(tenantId);
     if (fs.existsSync(tenantPath)) {
       return { buffer: fs.readFileSync(tenantPath), sourcePath: tenantPath };
+    }
+
+    // 2. 檢查用戶指定的雙表底價庫路徑 (F:\order_workflow\商品底价表\极简出厂底价表_双表.xlsx)
+    const dualSheetPath = path.join(process.cwd(), '商品底价表', '极简出厂底价表_双表.xlsx');
+    if (fs.existsSync(dualSheetPath)) {
+      return { buffer: fs.readFileSync(dualSheetPath), sourcePath: dualSheetPath };
     }
 
     // 3. 檢查全局默認底價表

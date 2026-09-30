@@ -30,10 +30,19 @@ export const POItemSchema = z.object({
   SKU: z.string().nullish().transform(val => (val ? String(val).trim() : 'UNKNOWN-ITEM')),
   Description: stringOrArrayToString,
   Quantity: safeNumber(1).transform(val => (val > 0 ? val : 1)),
-  ConfidenceScore: safeNumber(90).transform(val => Math.min(100, Math.max(0, val))),
-  MatchStatus: z.enum(['EXACT', 'FUZZY', 'UNMATCHED']).nullish().transform(val => val || 'EXACT'),
-  ConfidenceRemark: stringOrArrayToString
+  ConfidenceScore: safeNumber(90).transform(val => Math.min(100, Math.max(0, val))).default(90),
+  MatchStatus: z.enum(['EXACT', 'FUZZY', 'UNMATCHED']).nullish().transform(val => val || 'EXACT').default('EXACT'),
+  ConfidenceRemark: stringOrArrayToString.default('')
 });
+
+export type POItem = {
+  SKU: string;
+  Description: string;
+  Quantity: number;
+  ConfidenceScore?: number;
+  MatchStatus?: 'EXACT' | 'FUZZY' | 'UNMATCHED';
+  ConfidenceRemark?: string;
+};
 
 export const POExtractionSchema = z.object({
   ConfidenceScore: safeNumber(85).transform(val => Math.min(100, Math.max(0, val))),
@@ -71,8 +80,9 @@ export const POExtractionSchema = z.object({
   Items: z.array(POItemSchema).nullish().transform(val => (val && val.length > 0 ? val : []))
 });
 
-export type POExtractionResult = z.infer<typeof POExtractionSchema>;
-export type POItem = z.infer<typeof POItemSchema>;
+export type POExtractionResult = Omit<z.infer<typeof POExtractionSchema>, 'Items'> & {
+  Items: POItem[];
+};
 
 // ==========================================
 // 3. 底價表、選配庫、貿易術語、匯率與商務條款結構

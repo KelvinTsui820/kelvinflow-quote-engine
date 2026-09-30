@@ -6,6 +6,11 @@
 
 **KelvinFlow AI** 是专为外贸出口制造企业、工贸一体出海团队打造的 **全自动 AI 询盘解析、成本核价、智能配柜与高转化商业报价单（Formal Quotation）引擎**。
 
+> [!IMPORTANT]
+> **AI 协同研发与功能对齐规范**：
+> 本系统完整的业务逻辑架构、多租户数据拓扑、7-Sheet 标准底价规范、数学核价公式、API 报文定义、A4 黄金版面高度预算、IDOR 安全隔离机制及测试用例设计蓝图，已全量收录于 [**SYSTEM_SPECIFICATION.md**](./SYSTEM_SPECIFICATION.md)。
+> 所有协同 AI Agent 与开发者在开发新功能或编写自动化测试时，请务必以此说明书为唯一事实基准（Single Source of Truth）。
+
 ---
 
 ## 🌟 核心特性与架构亮点

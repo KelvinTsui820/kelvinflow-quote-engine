@@ -102,7 +102,7 @@ describe('4. PricingService 報價核算與零漏報防護測試', () => {
       UncategorizedCriticalInfo: '',
       BuyerContact: { Name: 'Michael', Email: 'michael@global.com' },
       Items: [
-        { SKU: 'st-2026-a', Description: 'Aluminum Bracket', Quantity: 1500 }
+        { SKU: 'st-2026-a', Description: 'Aluminum Bracket', Quantity: 1500, ConfidenceScore: 95, MatchStatus: 'EXACT', ConfidenceRemark: '' }
       ]
     };
 
@@ -131,8 +131,8 @@ describe('4. PricingService 報價核算與零漏報防護測試', () => {
       UncategorizedCriticalInfo: '',
       BuyerContact: { Name: 'Michael', Email: '' },
       Items: [
-        { SKU: 'ST-2026-A', Description: 'Bracket', Quantity: 1500 },
-        { SKU: 'ST-2026-B', Description: 'Fastener (Missing in DB)', Quantity: 3000 }
+        { SKU: 'ST-2026-A', Description: 'Bracket', Quantity: 1500, ConfidenceScore: 95, MatchStatus: 'EXACT', ConfidenceRemark: '' },
+        { SKU: 'ST-2026-B', Description: 'Fastener (Missing in DB)', Quantity: 3000, ConfidenceScore: 85, MatchStatus: 'FUZZY', ConfidenceRemark: '' }
       ]
     };
 

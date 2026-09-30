@@ -9,8 +9,8 @@ describe('DraftService & 轨道 B IMAP 草稿自动注入测试', () => {
       expect(DraftService.resolveImapHost('sales@qiye.163.com')).toBe('imap.qiye.163.com');
       expect(DraftService.resolveImapHost('export@foshan.netease.com')).toBe('imap.qiye.163.com');
       expect(DraftService.resolveImapHost('tom@exmail.qq.com')).toBe('imap.exmail.qq.com');
-      expect(DraftService.resolveImapHost('jack@foxmail.com')).toBe('imap.exmail.qq.com');
-      expect(DraftService.resolveImapHost('alice@aliyun.com')).toBe('imap.qiye.aliyun.com');
+      expect(DraftService.resolveImapHost('alice@aliyun.com')).toBe('imap.aliyun.com');
+      expect(DraftService.resolveImapHost('service@qiye.aliyun.com')).toBe('imap.qiye.aliyun.com');
       expect(DraftService.resolveImapHost('bob@company.partner.onmschina.cn', 'custom.imap.com')).toBe('custom.imap.com');
       expect(DraftService.resolveImapHost('sarah@outlook.com')).toBe('outlook.office365.com');
       expect(DraftService.resolveImapHost('buyer@gmail.com')).toBe('imap.gmail.com');

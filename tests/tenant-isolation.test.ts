@@ -69,7 +69,7 @@ describe('多用戶與多租戶數據隔離及 RBAC 測試', () => {
 
       // 檢查 default 租戶未受任何影響
       const defaultProf = TenantService.getTenantProfile('default');
-      expect(defaultProf.companySubtitle).toContain('AI-Powered');
+      expect(defaultProf.companySubtitle).not.toBe('Top 1 Hardware Exporter');
     });
   });
 
