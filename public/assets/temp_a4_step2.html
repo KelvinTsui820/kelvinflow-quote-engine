@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 72px 80px;
+      background: #FFFFFF;
+      width: 1654px;
+      height: 2339px;
+      box-sizing: border-box;
+      color: #0F172A;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 头部到主体内容 -->
+  <div class="space-y-8">
+    
+    <!-- 1. 顶部正式系统报表抬头 -->
+    <div class="border-b-4 border-slate-900 pb-8 flex items-start justify-between">
+      <div class="flex items-center space-x-6">
+        <div class="w-20 h-20 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-4xl font-black shadow-xl shadow-blue-500/20">
+          <i class="fa-solid fa-calculator"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-3">
+            <h1 class="text-4xl font-black tracking-tight text-slate-900">KelvinFlow · 出厂底价风控与装柜调度单</h1>
+            <span class="px-3.5 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-mono-code font-black uppercase">
+              ENGINE REPORT 02
+            </span>
+          </div>
+          <p class="text-base font-semibold text-slate-500 font-mono-code tracking-wide mt-2">
+            INTERNAL PRICE VAULT & 3D CONTAINER LOGISTICS DISPATCH REPORT
+          </p>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-emerald-50 border-2 border-emerald-500 text-emerald-700 font-bold text-sm">
+          <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+          <span>出厂底价已锁定 · 零泄露保护</span>
+        </div>
+        <div class="text-sm text-slate-400 font-mono-code mt-2.5">
+          单据编码: REF-2026-PV02 · 内部密级: 绝密
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 商务与询盘档案双卡片 (严格对应 Formal Quotation PDF) -->
+    <div class="grid grid-cols-2 gap-6 text-sm">
+      <!-- 买家与询盘上下文 -->
+      <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+        <span class="text-xs font-black text-blue-600 uppercase tracking-wider block mb-3">
+          BUYER & RFQ CONTEXT · 买家与询盘档案
+        </span>
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span class="text-slate-500">关联询盘单号:</span>
+            <span class="font-black font-mono-code text-slate-900">QT-20260904-888</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">海外买家客户:</span>
+            <span class="font-bold text-slate-900">Acme Global Sourcing GmbH (德国)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">采购对接人:</span>
+            <span class="font-bold text-slate-900">Marcus Weber (Purchasing Director)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">采购商品项:</span>
+            <span class="font-bold text-slate-900 font-mono-code">3 款 SKU / 12,500 件总量</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 汇率与利润风控基准 -->
+      <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+        <span class="text-xs font-black text-emerald-600 uppercase tracking-wider block mb-3">
+          FINANCIAL & RISK PARAMETERS · 汇率与利润刚性规则
+        </span>
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span class="text-slate-500">贸易术语条款:</span>
+            <span class="font-black text-slate-900 font-mono-code">CIF (Cost, Insurance & Freight)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">基准结算汇率:</span>
+            <span class="font-black font-mono-code text-slate-900">1 USD = 7.20 RMB (锁定汇率防浮动)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">出厂底价保护:</span>
+            <span class="font-bold text-emerald-700">私有密文脱敏存放，报价单严禁展示成本</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">阶梯利润策略:</span>
+            <span class="font-bold text-slate-900 font-mono-code">+30% ~ +40% 阶梯利润率加成</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 三大核心风控指标大黑卡 (与工作台完全同源) -->
+    <div class="grid grid-cols-3 gap-6">
+      <!-- 最终报价总额 -->
+      <div class="bg-gradient-to-br from-[#0B132B] to-[#1C2541] rounded-2xl p-7 text-white shadow-xl">
+        <div class="flex items-center justify-between text-xs text-slate-400 font-mono-code mb-2">
+          <span>FINAL QUOTATION TOTAL</span>
+          <i class="fa-solid fa-receipt text-blue-400 text-base"></i>
+        </div>
+        <div class="text-4xl font-black tracking-tight font-mono-code text-white">
+          USD 28,300.00
+        </div>
+        <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+          <span class="text-slate-300">采购品项与总量</span>
+          <span class="font-bold text-cyan-300 font-mono-code">3 款 / 12,500 件</span>
+        </div>
+      </div>
+
+      <!-- 出厂底价与毛利润锁定 -->
+      <div class="bg-gradient-to-br from-[#0B132B] to-[#1C2541] rounded-2xl p-7 text-white shadow-xl">
+        <div class="flex items-center justify-between text-xs text-slate-400 font-mono-code mb-2">
+          <span>LOCKED PROFIT VAULT</span>
+          <i class="fa-solid fa-lock text-emerald-400 text-base"></i>
+        </div>
+        <div class="text-4xl font-black tracking-tight font-mono-code text-emerald-400">
+          +USD 9,966.67
+        </div>
+        <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+          <span class="text-slate-300">预估综合毛利率</span>
+          <span class="font-bold text-emerald-300 font-mono-code">~ 35.2% (已加足利润)</span>
+        </div>
+      </div>
+
+      <!-- 整柜装箱与CBM速算 -->
+      <div class="bg-gradient-to-br from-[#0B132B] to-[#1C2541] rounded-2xl p-7 text-white shadow-xl">
+        <div class="flex items-center justify-between text-xs text-slate-400 font-mono-code mb-2">
+          <span>3D CONTAINER LOGISTICS</span>
+          <i class="fa-solid fa-ship text-indigo-400 text-base"></i>
+        </div>
+        <div class="text-4xl font-black tracking-tight font-mono-code text-cyan-300">
+          74.45 CBM
+        </div>
+        <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+          <span class="text-slate-300">装箱总体积与箱数</span>
+          <span class="font-bold text-white font-mono-code">550 箱 (Cartons)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 模块 1：出厂底价硬性锁定与阶梯加成明细表 -->
+    <div>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-black">1</span>
+          <h2 class="text-2xl font-black text-slate-900">
+            出厂底价刚性锁定与毛利加成明细表
+          </h2>
+        </div>
+        <span class="text-xs font-mono-code text-slate-500 bg-slate-100 px-3 py-1 rounded-md">
+          公式：外币单价 = [出厂底价 ÷ (1 - 设定毛利率)] ÷ 7.20 汇率
+        </span>
+      </div>
+
+      <div class="border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="bg-slate-100/90 border-b-2 border-slate-200 text-slate-700 text-xs font-black uppercase tracking-wider">
+              <th class="py-4 px-4 w-14 text-center">#</th>
+              <th class="py-4 px-5">买家采购型号 (SKU)</th>
+              <th class="py-4 px-5">匹配内部底价 SKU</th>
+              <th class="py-4 px-4 text-center">采购数量</th>
+              <th class="py-4 px-5 text-right font-mono-code bg-blue-50/50">出厂加密底价</th>
+              <th class="py-4 px-4 text-center bg-blue-50/50">设定毛利率</th>
+              <th class="py-4 px-5 text-right font-mono-code">对外单价 (USD)</th>
+              <th class="py-4 px-6 text-right font-mono-code font-black">小计金额 (USD)</th>
+              <th class="py-4 px-4 text-center">保底风控</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 text-base">
+            <!-- SKU 1 -->
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="py-5 px-4 text-center font-mono-code text-slate-400 font-bold">01</td>
+              <td class="py-5 px-5 font-bold text-slate-900 font-mono-code">
+                ACME-991
+                <div class="text-xs font-normal text-slate-500 font-sans mt-0.5">铝合金精密支架 (重型黑色款)</div>
+              </td>
+              <td class="py-5 px-5 font-mono-code text-slate-600 font-semibold text-sm">ST-2026-A</td>
+              <td class="py-5 px-4 text-center font-black font-mono-code">2,000</td>
+              <td class="py-5 px-5 text-right font-mono-code font-bold text-slate-800 bg-blue-50/40">
+                ¥ 15.50
+              </td>
+              <td class="py-5 px-4 text-center bg-blue-50/40">
+                <span class="px-3 py-1 rounded bg-blue-100 text-blue-800 font-bold font-mono-code text-xs">+30.0%</span>
+              </td>
+              <td class="py-5 px-5 text-right font-black font-mono-code text-blue-700 text-lg">
+                $ 3.34
+              </td>
+              <td class="py-5 px-6 text-right font-black font-mono-code text-slate-900 text-lg">
+                $ 6,680.00
+              </td>
+              <td class="py-5 px-4 text-center">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                  <i class="fa-solid fa-lock text-[10px] mr-1"></i>已锁底
+                </span>
+              </td>
+            </tr>
+
+            <!-- SKU 2 -->
+            <tr class="hover:bg-slate-50/80 transition-colors bg-slate-50/30">
+              <td class="py-5 px-4 text-center font-mono-code text-slate-400 font-bold">02</td>
+              <td class="py-5 px-5 font-bold text-slate-900 font-mono-code">
+                ERG-PRO-V2
+                <div class="text-xs font-normal text-slate-500 font-sans mt-0.5">人体工学网布办公椅 (执行椅款)</div>
+              </td>
+              <td class="py-5 px-5 font-mono-code text-slate-600 font-semibold text-sm">ERG-PRO-V2</td>
+              <td class="py-5 px-4 text-center font-black font-mono-code">500</td>
+              <td class="py-5 px-5 text-right font-mono-code font-bold text-slate-800 bg-blue-50/40">
+                ¥ 185.00
+              </td>
+              <td class="py-5 px-4 text-center bg-blue-50/40">
+                <span class="px-3 py-1 rounded bg-blue-100 text-blue-800 font-bold font-mono-code text-xs">+35.0%</span>
+              </td>
+              <td class="py-5 px-5 text-right font-black font-mono-code text-blue-700 text-lg">
+                $ 39.84
+              </td>
+              <td class="py-5 px-6 text-right font-black font-mono-code text-slate-900 text-lg">
+                $ 19,920.00
+              </td>
+              <td class="py-5 px-4 text-center">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                  <i class="fa-solid fa-lock text-[10px] mr-1"></i>已锁底
+                </span>
+              </td>
+            </tr>
+
+            <!-- SKU 3 -->
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="py-5 px-4 text-center font-mono-code text-slate-400 font-bold">03</td>
+              <td class="py-5 px-5 font-bold text-slate-900 font-mono-code">
+                FAST-SCREW
+                <div class="text-xs font-normal text-slate-500 font-sans mt-0.5">不锈钢外六角螺栓紧固包 (组装配件)</div>
+              </td>
+              <td class="py-5 px-5 font-mono-code text-slate-600 font-semibold text-sm">ST-2026-B</td>
+              <td class="py-5 px-4 text-center font-black font-mono-code">10,000</td>
+              <td class="py-5 px-5 text-right font-mono-code font-bold text-slate-800 bg-blue-50/40">
+                ¥ 0.85
+              </td>
+              <td class="py-5 px-4 text-center bg-blue-50/40">
+                <span class="px-3 py-1 rounded bg-blue-100 text-blue-800 font-bold font-mono-code text-xs">+40.0%</span>
+              </td>
+              <td class="py-5 px-5 text-right font-black font-mono-code text-blue-700 text-lg">
+                $ 0.17
+              </td>
+              <td class="py-5 px-6 text-right font-black font-mono-code text-slate-900 text-lg">
+                $ 1,700.00
+              </td>
+              <td class="py-5 px-4 text-center">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                  <i class="fa-solid fa-lock text-[10px] mr-1"></i>已锁底
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. 模块 2：3D 海运集装箱配载测算与智能调度 -->
+    <div>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-sm font-black">2</span>
+          <h2 class="text-2xl font-black text-slate-900">
+            3D 海运集装箱配载测算与智能物流调度
+          </h2>
+        </div>
+        <span class="text-xs font-mono-code font-bold text-indigo-600 bg-indigo-50 px-3.5 py-1.5 rounded-md border border-indigo-200">
+          货物总体积：74.45 CBM (550 箱 Cartons)
+        </span>
+      </div>
+
+      <!-- 配载进度条与三种标准柜型对比 -->
+      <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 mb-5">
+        <div class="flex items-center justify-between text-sm font-bold text-slate-700 mb-2.5">
+          <span class="text-base">40HQ 高柜配载模拟 (标称容积 68.0 CBM)</span>
+          <span class="font-mono-code text-amber-600 font-black text-base">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i>配载率: 109.5% (超出 6.45 CBM)
+          </span>
+        </div>
+        <!-- 进度条 -->
+        <div class="w-full h-6 bg-slate-200 rounded-full overflow-hidden flex relative">
+          <div class="h-full bg-blue-600 rounded-l-full" style="width: 91.3%;"></div>
+          <div class="h-full bg-amber-500" style="width: 8.7%;"></div>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-500 font-mono-code mt-2">
+          <span>0 CBM 起点</span>
+          <span class="font-bold text-blue-700">满载安全线: 68.0 CBM (1x40HQ)</span>
+          <span class="font-bold text-amber-600">实际货物总体积: 74.45 CBM</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-5 mt-6 pt-5 border-t border-slate-200 text-xs">
+          <div class="p-4 bg-white rounded-xl border border-slate-200">
+            <span class="text-slate-400 block font-bold text-xs uppercase">20GP 标箱 (28 CBM)</span>
+            <span class="text-base font-black text-slate-800 font-mono-code mt-1 block">需 2.66 个小柜 (散单不划算)</span>
+          </div>
+          <div class="p-4 bg-white rounded-xl border border-slate-200">
+            <span class="text-slate-400 block font-bold text-xs uppercase">40GP 平柜 (58 CBM)</span>
+            <span class="text-base font-black text-slate-800 font-mono-code mt-1 block">超出 16.45 CBM (单柜装不下)</span>
+          </div>
+          <div class="p-4 bg-blue-50 rounded-xl border-2 border-blue-400">
+            <span class="text-blue-600 block font-bold text-xs uppercase">40HQ 高柜 (68 CBM 优选)</span>
+            <span class="text-base font-black text-blue-900 font-mono-code mt-1 block">配载 109.5% · 智能调度就绪</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI 调度建议卡片 (自动写入草稿) -->
+      <div class="bg-blue-50/80 border-2 border-blue-200 rounded-2xl p-6 flex items-start space-x-5">
+        <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 text-xl shadow-md">
+          <i class="fa-solid fa-lightbulb"></i>
+        </div>
+        <div class="text-sm leading-relaxed">
+          <div class="font-black text-slate-900 text-base mb-1.5">
+            系统已在自动生成的英文邮件草稿中向买家推荐两大促单方案：
+          </div>
+          <div class="space-y-2 text-slate-700 text-sm">
+            <p><strong>方案 A (默认发运)</strong>：1x40HQ 整柜发运 + 超出 6.45 CBM 散货拼箱 (LCL) 发运，单据已分别列出海运费报价。</p>
+            <p><strong>方案 B (促成优化)</strong>：建议客户将办公椅数量微调为 450 件（原500件），即可完美单柜包载，为买家立省 $650 港杂费与拼箱费！</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 6. 底部双签名与防伪加密背书 (同 Formal Quotation PDF 质感) -->
+  <div class="border-t-2 border-slate-300 pt-8 mt-6">
+    <div class="grid grid-cols-2 gap-12 text-sm">
+      <div>
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">INTERNAL COST CONTROLLER · 出厂底价风控核验</span>
+        <div class="font-bold text-slate-900">KelvinFlow Autonomous AI Security Vault</div>
+        <div class="h-12 border-b border-dashed border-slate-300 flex items-end pb-1 font-mono-code text-xs text-slate-400">
+          SHA-256: 8f3c7a91b2c4e5f6... (ENCRYPTED & VERIFIED)
+        </div>
+      </div>
+      <div>
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">EXPORT LOGISTICS DISPATCHER · 集装箱配载核验</span>
+        <div class="font-bold text-slate-900">3D CBM Smart Logistics Dispatch Engine</div>
+        <div class="h-12 border-b border-dashed border-slate-300 flex items-end pb-1 font-mono-code text-xs text-slate-400">
+          DISPATCH ID: CBM-2026-40HQ-888 (AI APPROVED)
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex items-center justify-between text-xs text-slate-400 font-mono-code mt-8 pt-4 border-t border-slate-100">
+      <div class="flex items-center space-x-3">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+        <span class="font-bold text-slate-600">KELVINFLOW ENTERPRISE CORE V3.8</span>
+        <span>·</span>
+        <span>私有底价加密存储</span>
+        <span>·</span>
+        <span>防误算防亏损认证</span>
+      </div>
+      <div>
+        GENERATED: 2026-09-04 14:32:10 UTC+8 · PAGE 1 OF 1
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

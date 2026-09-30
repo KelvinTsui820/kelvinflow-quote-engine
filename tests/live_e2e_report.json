@@ -1,0 +1,159 @@
+{
+  "targetUrl": "https://quote.kelvinflow.com",
+  "timestamp": "2026-09-21T03:44:52.902Z",
+  "summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "warned": 0,
+    "totalTimeMs": 8820
+  },
+  "results": [
+    {
+      "testCase": "用例 1",
+      "stepName": "底价表全量7-Sheet解析与生效",
+      "status": "PASS",
+      "durationMs": 1233,
+      "details": "成功解析 5 款SKU (ST-2026-A, ST-2026-B, ERG-PRO-V2, AL-BASE-99, HD-ARM-08), 6种外币汇率(USD 7.2), 完整识别所有工作表，确认邮件完整",
+      "dataAssertion": {
+        "itemCount": 5,
+        "sheetsCount": 7,
+        "usdRate": 7.2
+      }
+    },
+    {
+      "testCase": "用例 2",
+      "stepName": "标准询盘匹配与自动出单",
+      "status": "PASS",
+      "durationMs": 2068,
+      "details": "AI 100% 精确提取两款商品及工艺加价(Black Coating + Laser Logo ¥3.8)。价格核算精确: ERG-PRO-V2=$35.4, ST-2026-A=$2.8, 总计=$23300 USD。成功生成合法PDF(4732 bytes)与微调链接。",
+      "dataAssertion": {
+        "aiModel": "offline-rule-engine-v1",
+        "confidence": 70,
+        "quotationNumber": "QT-RFQ-ACME-2026-Q4",
+        "totalAmount": 23300,
+        "pdfBytes": 4732,
+        "reviewUrl": "https://quote.kelvinflow.com/review/QT-RFQ-ACME-2026-Q4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3JfZGVmYXVsdF9hcGkiLCJlbWFpbCI6ImFwaUBkZWZhdWx0LmxvY2FsIiwibmFtZSI6IkRFRkFVTFQgQVBJIEJvdCIsInJvbGUiOiJhZG1pbiIsInRlbmFudElkIjoiZGVmYXVsdCIsImV4cCI6MTc5MDU2NzA4OH0.L5486YnPlU73-NyTBU0kGdTsTlWJXHJqS7sY7GxrgA0"
+      }
+    },
+    {
+      "testCase": "用例 3",
+      "stepName": "异常/未匹配SKU平稳降级与风控预警",
+      "status": "PASS",
+      "durationMs": 1255,
+      "details": "系统平稳降级未发生崩溃。未知SKU [UNKNOWN-MODEL-999] 正确标记为 NEED_MANUAL_PRICE，邮件草稿成功打上 [⚠️ INTERNAL NOTICE] 预警标记，标准商品正常核价，PDF与在线微调单就绪。",
+      "dataAssertion": {
+        "unknownItemStatus": "NEED_MANUAL_PRICE",
+        "warnings": [
+          "[ATTENTION] Item [UNKNOWN-MODEL-999] not found in pricing catalog. Price marked as Pending for manual confirmation."
+        ],
+        "reviewUrl": "https://quote.kelvinflow.com/review/QT-290105?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3JfZGVmYXVsdF9hcGkiLCJlbWFpbCI6ImFwaUBkZWZhdWx0LmxvY2FsIiwibmFtZSI6IkRFRkFVTFQgQVBJIEJvdCIsInJvbGUiOiJhZG1pbiIsInRlbmFudElkIjoiZGVmYXVsdCIsImV4cCI6MTc5MDU2NzA5MH0.8C4zRC6E6cANCXxIrrlUt3DYP8J8w3f_d2WE7oxQW9c"
+      }
+    },
+    {
+      "testCase": "用例 4",
+      "stepName": "动态底价表上传新增SKU",
+      "status": "PASS",
+      "durationMs": 244,
+      "details": "成功上传新增 SKU [TEST-DYNAMIC-01]，总在册商品数扩容至 6 款",
+      "dataAssertion": null
+    },
+    {
+      "testCase": "用例 4",
+      "stepName": "新SKU秒级热更新识别与报价",
+      "status": "PASS",
+      "durationMs": 1248,
+      "details": "新SKU [TEST-DYNAMIC-01] 立即被报价引擎识别生效！核算单价 $15.28 USD (底价¥88 + 25%毛利 / 7.2汇率)，无需重启服务。",
+      "dataAssertion": {
+        "matchedSku": "TEST-DYNAMIC-01",
+        "unitPriceForeign": 15.28
+      }
+    },
+    {
+      "testCase": "用例 4",
+      "stepName": "恢复生产原始底价表",
+      "status": "PASS",
+      "durationMs": 246,
+      "details": "成功恢复原始底价库，总商品数回滚至 5 款",
+      "dataAssertion": null
+    },
+    {
+      "testCase": "用例 5",
+      "stepName": "微调工作台页面GET /review/:id加载",
+      "status": "PASS",
+      "durationMs": 250,
+      "details": "成功返回Vue响应式审单台HTML (253269 bytes)",
+      "dataAssertion": null
+    },
+    {
+      "testCase": "用例 5",
+      "stepName": "审单数据详情接口GET /api/v1/quotes/:id",
+      "status": "PASS",
+      "durationMs": 194,
+      "details": "成功返回报价单详情: 单号 QT-RFQ-ACME-2026-Q4, 包含 2 项商品，总额 USD 23300",
+      "dataAssertion": {
+        "customerName": "Acme Global Sourcing GmbH",
+        "itemsCount": 2
+      }
+    },
+    {
+      "testCase": "用例 5",
+      "stepName": "在线微调并重新生成PDF与草稿",
+      "status": "PASS",
+      "durationMs": 256,
+      "details": "微调保存成功！重新生成最新总额 $23800 USD，PDF重新渲染完成 (6312 base64 chars)，草稿同步更新。",
+      "dataAssertion": {
+        "updatedTotal": 23800,
+        "subject": "[REVISED] Official Quotation QT-RFQ-ACME-2026-Q4 - KelvinFlow"
+      }
+    },
+    {
+      "testCase": "用例 5",
+      "stepName": "重新渲染的PDF预览与下载接口",
+      "status": "PASS",
+      "durationMs": 180,
+      "details": "成功获取重新渲染的 PDF 文件，文件大小 4734 字节，Content-Type 合法。",
+      "dataAssertion": null
+    },
+    {
+      "testCase": "用例 6.1",
+      "stepName": "官网留资线索Webhook接收与微信推送",
+      "status": "PASS",
+      "durationMs": 187,
+      "details": "成功接收留资线索，触发本地落盘与微信渠道(PushPlus/ServerChan)推送逻辑。",
+      "dataAssertion": null
+    },
+    {
+      "testCase": "用例 6.2",
+      "stepName": "留资接口防刷频限流防护",
+      "status": "PASS",
+      "durationMs": 916,
+      "details": "高频请求在第 5 次被防刷限流机制成功拦截 (429 Too Many Requests)，有效防止短信/推送轰炸。",
+      "dataAssertion": null
+    },
+    {
+      "testCase": "用例 6.3",
+      "stepName": "未授权底价修改拦截 (RBAC 安全检查)",
+      "status": "PASS",
+      "durationMs": 180,
+      "details": "无认证请求更新底价库被成功拦截 (HTTP 401)，底价表核心机密得到保护。",
+      "dataAssertion": null
+    },
+    {
+      "testCase": "用例 6.4",
+      "stepName": "业务员(Sales)越权修改出厂底价拦截",
+      "status": "PASS",
+      "durationMs": 177,
+      "details": "业务员 API Key 被 RBAC 守卫成功拦截 (HTTP 403 Forbidden: 需要 admin 权限)，防止业务员擅自压低出厂成本。",
+      "dataAssertion": null
+    },
+    {
+      "testCase": "用例 6.5",
+      "stepName": "跨租户商业机密隔离与防越权 (IDOR Guard)",
+      "status": "PASS",
+      "durationMs": 186,
+      "details": "非法/跨租户单据查询被成功隔离拦截 (HTTP 404)，无数据泄露风险。",
+      "dataAssertion": null
+    }
+  ]
+}

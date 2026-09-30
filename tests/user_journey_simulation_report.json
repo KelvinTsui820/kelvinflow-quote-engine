@@ -1,0 +1,115 @@
+{
+  "runAt": "2026-09-21T03:52:45.197Z",
+  "testUser": {
+    "phone": "13900715263",
+    "tenantId": "tenant_trial_13900715263"
+  },
+  "totalPassed": 10,
+  "totalFailed": 0,
+  "steps": [
+    {
+      "stepCode": "STEP 1.1",
+      "title": "新用户注册并开通试用",
+      "passed": true,
+      "message": "成功创建用户 [13900715263], 租户标识 [tenant_trial_13900715263], 剩余天数: 7 天",
+      "durationMs": 78,
+      "meta": {
+        "durationMs": 78,
+        "tenantId": "tenant_trial_13900715263"
+      }
+    },
+    {
+      "stepCode": "STEP 2.1",
+      "title": "底价表导入与租户隔离持久化",
+      "passed": true,
+      "message": "成功录入 5 款商品底价，完整提取选配工艺、美元汇率与港口杂费",
+      "durationMs": 42,
+      "meta": {
+        "durationMs": 42,
+        "itemsCount": 5
+      }
+    },
+    {
+      "stepCode": "STEP 3.1",
+      "title": "AI 询盘解析与多商品提取",
+      "passed": true,
+      "message": "单号: [QT-735931], 买家: [Acme Global Sourcing GmbH], 提取品项数: 2",
+      "durationMs": 20574,
+      "meta": {
+        "durationMs": 20574,
+        "quoteId": "QT-735931"
+      }
+    },
+    {
+      "stepCode": "STEP 3.2",
+      "title": "价格核算公式严密性对账",
+      "passed": true,
+      "message": "核算总额: USD $23,225 (对账差额 <= $0.05)\\n      ERG-PRO-V2: 单价 $35.25 × 数量 500 = 小计 $17625\\n      ST-2026-A: 单价 $2.8 × 数量 2000 = 小计 $5600",
+      "meta": {
+        "totalAmount": 23225
+      }
+    },
+    {
+      "stepCode": "STEP 4.1",
+      "title": "Sample PO 采购单解析与秒级建单",
+      "passed": true,
+      "message": "单号: [QT-PO-2026-EU-9812], 成功解析出 3 款核心商品 (彻底杜绝了 %PDF-1.3 乱码匹配)",
+      "durationMs": 5121,
+      "meta": {
+        "durationMs": 5121,
+        "quoteId": "QT-PO-2026-EU-9812"
+      }
+    },
+    {
+      "stepCode": "STEP 5.1",
+      "title": "未知非标SKU容错与自动风控降级",
+      "passed": true,
+      "message": "系统未发生 500 崩溃，非标商品正确打上 [待填底价/预警] 标记，支持业务员在线补录",
+      "durationMs": 13197,
+      "meta": {
+        "durationMs": 13197
+      }
+    },
+    {
+      "stepCode": "STEP 6.1",
+      "title": "审单台在线改价与实时重新渲染",
+      "passed": true,
+      "message": "微调保存成功！最新总额: $24990.00 USD，已重新生成最新正式 PDF 报价单",
+      "durationMs": 27,
+      "meta": {
+        "durationMs": 27
+      }
+    },
+    {
+      "stepCode": "STEP 7.1",
+      "title": "PDF 物理文件质量金标检验",
+      "passed": true,
+      "message": "PDF 大小: 4520 字节 | 虚假红印章: ✅ 彻底移除 | 字符乱码: ✅ 100% 纯净",
+      "meta": {
+        "sizeBytes": 4520
+      }
+    },
+    {
+      "stepCode": "STEP 8.1",
+      "title": "个人极客版(¥99) 1秒极速激活",
+      "passed": true,
+      "message": "账号成功从 trial 跃迁为 [geek]，到期时间延长至: 2026-10-29T03:51:55.313Z，已解锁双轨极客特权",
+      "durationMs": 7,
+      "meta": {
+        "durationMs": 7,
+        "expiresAt": "2026-10-29T03:51:55.313Z"
+      }
+    },
+    {
+      "stepCode": "STEP 9.1",
+      "title": "极客会员专属身份出单与持久化",
+      "passed": true,
+      "message": "单号: [QT-765180], 总额: USD $255, 试用到期阻断条 100% 消除，业务数据平稳过渡",
+      "durationMs": 10866,
+      "meta": {
+        "durationMs": 10866,
+        "quoteId": "QT-765180"
+      }
+    }
+  ]
+}

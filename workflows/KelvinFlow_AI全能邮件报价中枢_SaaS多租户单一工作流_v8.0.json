@@ -1,0 +1,228 @@
+{
+  "name": "KelvinFlow · AI全能邮件报价中枢 (SaaS多租户单一共享版 v8.0)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kelvinflow-quote-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "1. 统一多租户 Webhook 监听入口",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        200
+      ],
+      "id": "node-webhook-inbound",
+      "notes": "零静态凭证绑定！全网所有付费用户共享此 Webhook 入口，彻底消除红色感叹号"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 0. 多租户数据归一化与买家询盘文本清洗\nconst item = $input.item.json;\nconst body = item.body || item;\n\nconst tenantId = body.tenantId || 'default';\nconst userEmail = body.userEmail || body.to || 'sales@company.com';\nconst from = body.from || '';\nconst fromName = body.fromName || from;\nconst subject = body.subject || '(无主题询盘)';\nconst content = body.content || body.text || body.html || '';\nconst messageId = body.messageId || ('msg_' + Date.now());\n\n// 识别是否为有效询盘正文\nconst isSpam = /mailer-daemon|postmaster|noreply|automatic reply|out of office/i.test(from + ' ' + subject);\nconst hasContent = content.trim().length > 10;\n\nreturn {\n  json: {\n    tenantId,\n    userEmail,\n    from,\n    fromName,\n    subject,\n    content,\n    messageId,\n    isValidInquiry: !isSpam && hasContent,\n    receivedAt: new Date().toISOString()\n  }\n};"
+      },
+      "name": "2. 询盘清洗与多租户归一化",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        200
+      ],
+      "id": "node-sanitize-code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.isValidInquiry }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "3. 严格判定询盘合法性 (过滤退信/垃圾信)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        200
+      ],
+      "id": "node-if-valid"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://quote.kelvinflow.com/api/inbound/email",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tenantId\": \"{{ $json.tenantId }}\",\n  \"from\": \"{{ $json.from }}\",\n  \"to\": \"{{ $json.userEmail }}\",\n  \"subject\": \"{{ $json.subject }}\",\n  \"text\": {{ JSON.stringify($json.content) }}\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "name": "4. 调用 Gemini 最新模型与多租户报价中枢",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        980,
+        160
+      ],
+      "id": "node-core-engine-http",
+      "notes": "自动调用 Gemini 最新大模型语义提取 SKU、匹配该租户私有底价表、核算价格、渲染商业 PDF，并静默注入该付费用户的邮箱草稿箱！"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.success }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "5. 判定出单与草稿注入结果",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1240,
+        160
+      ],
+      "id": "node-if-success"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"message\": {{ $json.draftInjected ? \"'询盘已成功解析，正式 PDF 报价单与英文回信已静默注入您的草稿箱！'\" : \"'询盘已成功解析出单，待审报价单与正式 PDF 已就绪！'\" }},\n  \"deliveryMode\": \"{{ $json.deliveryMode || ($json.draftInjected ? 'mode2_draft' : 'mode1_review_email') }}\",\n  \"quotationNumber\": \"{{ $json.quotationNumber }}\",\n  \"reviewUrl\": \"{{ $json.reviewUrl }}\",\n  \"draftInjected\": {{ $json.draftInjected || false }},\n  \"draftMailbox\": \"{{ $json.draftMailbox || 'Drafts' }}\",\n  \"reviewEmailSent\": {{ $json.reviewEmailSent || false }}\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "name": "6A. 响应 Webhook 成功结果",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        80
+      ],
+      "id": "node-respond-success"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"ignored\",\n  \"message\": \"该邮件被识别为系统退信或无关通知，已自动忽略。\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "name": "6B. 响应过滤结果 (跳过处理)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        980,
+        360
+      ],
+      "id": "node-respond-skip"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"error\",\n  \"error\": \"{{ $json.error || '出单核价异常，请检查租户底价表' }}\"\n}",
+        "options": {
+          "responseCode": 500
+        }
+      },
+      "name": "6C. 响应异常结果",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        260
+      ],
+      "id": "node-respond-error"
+    }
+  ],
+  "connections": {
+    "1. 统一多租户 Webhook 监听入口": {
+      "main": [
+        [
+          {
+            "node": "2. 询盘清洗与多租户归一化",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. 询盘清洗与多租户归一化": {
+      "main": [
+        [
+          {
+            "node": "3. 严格判定询盘合法性 (过滤退信/垃圾信)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. 严格判定询盘合法性 (过滤退信/垃圾信)": {
+      "main": [
+        [
+          {
+            "node": "4. 调用 Gemini 最新模型与多租户报价中枢",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "6B. 响应过滤结果 (跳过处理)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. 调用 Gemini 最新模型与多租户报价中枢": {
+      "main": [
+        [
+          {
+            "node": "5. 判定出单与草稿注入结果",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. 判定出单与草稿注入结果": {
+      "main": [
+        [
+          {
+            "node": "6A. 响应 Webhook 成功结果",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "6C. 响应异常结果",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "kelvinflow-saas-v8.0",
+  "id": "kelvinflow-saas-v8.0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "kelvinflow-universal-instance"
+  }
+}

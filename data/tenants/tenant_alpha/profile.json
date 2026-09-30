@@ -1,0 +1,17 @@
+{
+  "tenantId": "tenant_alpha",
+  "companyName": "Alpha Global Hardware & Fasteners Ltd.",
+  "companySubtitle": "Top 1 Hardware Exporter",
+  "companyAddress": "Building 5, International High-Tech Industrial Zone, Shenzhen, China (518000)",
+  "contactEmail": "orders@alpha-export.com",
+  "contactPhone": "+86-755-8888-6666",
+  "website": "www.alpha-export.com",
+  "hideCostFromSales": true,
+  "defaultProfitMargin": 0.25,
+  "defaultCurrency": "USD",
+  "apiKeys": [
+    "key_alpha_admin_2026"
+  ],
+  "createdAt": "2026-09-04T06:56:30.365Z",
+  "updatedAt": "2026-09-16T04:33:22.757Z"
+}

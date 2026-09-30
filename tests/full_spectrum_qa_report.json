@@ -1,0 +1,207 @@
+{
+  "targetUrl": "https://quote.kelvinflow.com",
+  "executedAt": "2026-09-15T08:12:35.527Z",
+  "summary": {
+    "total": 23,
+    "passed": 18,
+    "failed": 4,
+    "warned": 1,
+    "successRate": "78.3%",
+    "totalTimeMs": 18155
+  },
+  "details": [
+    {
+      "matrixId": "矩阵 1.1",
+      "testName": "7-Sheet底价表全量解析与字段提取",
+      "status": "PASS",
+      "durationMs": 1021,
+      "details": "成功解析 5 款SKU、7项选配、5条术语、6种外币汇率与付款条款",
+      "data": {
+        "itemCount": 5,
+        "fileName": "åååºä»·è¡¨.xlsx"
+      }
+    },
+    {
+      "matrixId": "矩阵 1.2",
+      "testName": "UTF-8中文文件名无乱码校验",
+      "status": "FAIL",
+      "durationMs": 1021,
+      "details": "文件名存在乱码: [åååºä»·è¡¨.xlsx]",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 1.3",
+      "testName": "动态新增SKU原子热更新生效",
+      "status": "PASS",
+      "durationMs": 841,
+      "details": "成功热扩容至 6 款商品，新型号 [TEST-DYNAMIC-99] 立即入库",
+      "data": {
+        "itemCount": 6
+      }
+    },
+    {
+      "matrixId": "矩阵 1.4",
+      "testName": "底价库原子级回滚恢复",
+      "status": "PASS",
+      "durationMs": 242,
+      "details": "成功回滚底价库，在册商品数无损恢复至 5 款",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 2.1",
+      "testName": "未认证匿名请求拦截 (401 Unauthorized)",
+      "status": "PASS",
+      "durationMs": 173,
+      "details": "未提供 Token 或 API Key 时被系统精准阻断 (HTTP 401)",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 2.2",
+      "testName": "非法伪造API Key阻断 (401 Unauthorized)",
+      "status": "PASS",
+      "durationMs": 172,
+      "details": "伪造密钥被鉴权中间件成功拦截 (HTTP 401)",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 2.3",
+      "testName": "业务员(Sales)越权修改底价拦截 (403 Forbidden)",
+      "status": "PASS",
+      "durationMs": 190,
+      "details": "业务员 API Key 被 RBAC 守卫成功拦截 (HTTP 403: 需要 admin 权限)",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 2.4",
+      "testName": "外部微调端出厂成本底价(basePrice)脱敏审查",
+      "status": "WARN",
+      "durationMs": 184,
+      "details": "注意：公共接口返回了明文出厂底价 (basePriceRMB: ¥15.5)，当前处于全员透明核价模式，若外部买家获得链接可能窥见成本",
+      "data": {
+        "sampleSku": "ACME-991",
+        "basePriceRMB": 15.5,
+        "hideCostFromSales": false
+      }
+    },
+    {
+      "matrixId": "矩阵 3.1",
+      "testName": "工艺附加费品类隔离(椅子加价/支架0加价)",
+      "status": "PASS",
+      "durationMs": 1271,
+      "details": "ERG-PRO-V2 加工艺费 ¥3.8 (2项)，ST-2026-A 支架工艺费精确为 0 项 (防误伤验证成功)",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 3.2",
+      "testName": "交期文本防误触赊销条款(30 days ≠ OA 30)",
+      "status": "PASS",
+      "durationMs": 1271,
+      "details": "交期描述未误触发 OA 30 赊销上浮，条款正常确认为: [30% Deposit + 70% Balance (标准T/T)]",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 3.3",
+      "testName": "成本加成法单价与总价数学对账",
+      "status": "PASS",
+      "durationMs": 1271,
+      "details": "ERG-PRO-V2=$35.4, ST-2026-A=$2.8, 订单总额=$23300 USD (与预期 $23,300.00 100% 对齐)",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 3.4",
+      "testName": "合法PDF生成与在线微调链接下发",
+      "status": "PASS",
+      "durationMs": 1271,
+      "details": "生成有效 PDF (4697 bytes)，微调链接: https://quote.kelvinflow.com/review/QT-RFQ-ACME-20...",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 4.1",
+      "testName": "欧元(EUR)与EXW出厂条款询盘核算",
+      "status": "PASS",
+      "durationMs": 1223,
+      "details": "准确匹配 EUR 汇率 (7.80)，EXW 单价核算为 €2.58 EUR (符合预期 2.58 EUR)",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 4.2",
+      "testName": "显式赊销(OA 60 days)资金成本上浮条款识别",
+      "status": "FAIL",
+      "durationMs": 1282,
+      "details": "未能识别 OA 赊销: [30% Deposit + 70% Balance (标准T/T)]",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 4.3",
+      "testName": "信用证(L/C at sight)银行杂费条款识别",
+      "status": "FAIL",
+      "durationMs": 1233,
+      "details": "未识别 L/C: [30% Deposit + 70% Balance (标准T/T)]",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 5.1",
+      "testName": "未录入SKU平稳降级与人工补价预警",
+      "status": "PASS",
+      "durationMs": 1227,
+      "details": "未收录型号 [UNKNOWN-MOLD-888] 正确标记 NEED_MANUAL_PRICE，并在邮件草稿顶部插入 [⚠️ INTERNAL NOTICE]，标准品正常报价，0 崩溃",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 5.2",
+      "testName": "极小样品单(1 pc)防薅羊毛倍率(2.5x)生效",
+      "status": "PASS",
+      "durationMs": 1360,
+      "details": "自动匹配样品梯级 (Sample Tier (2.5x Rate))，单价由普通 $2.80 调整为样品打样价 $7 USD",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 5.3",
+      "testName": "大批量订单(5000 pcs)自适应阶梯底价优惠",
+      "status": "FAIL",
+      "durationMs": 1197,
+      "details": "阶梯价未命中: tier=Standard Tier, unit=2.8, expected=2.44",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 6.1",
+      "testName": "微调单据详情拉取(GET /api/v1/quotes/:id)",
+      "status": "PASS",
+      "durationMs": 182,
+      "details": "成功读取单据 [QT-RFQ-ACME-2026-Q4]，当前总额: $23300 USD",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 6.2",
+      "testName": "在线微调保存与PDF自动重新渲染",
+      "status": "PASS",
+      "durationMs": 242,
+      "details": "微调保存成功！最新总计金额更新为 $24050 USD，PDF Base64 长度: 6260",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 6.3",
+      "testName": "微调后PDF在线下载接口一致性",
+      "status": "PASS",
+      "durationMs": 175,
+      "details": "独立下载接口返回最新重新渲染的 PDF 文档 (4694 字节)",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 7.1",
+      "testName": "官网留资线索Webhook与微信渠道即时推送",
+      "status": "PASS",
+      "durationMs": 190,
+      "details": "成功落盘线索至 inbound_leads.json 并触发 PushPlus / ServerChan 微信推送",
+      "data": null
+    },
+    {
+      "matrixId": "矩阵 7.2",
+      "testName": "获客接口防高频刷单限流机制(429)",
+      "status": "PASS",
+      "durationMs": 916,
+      "details": "高频请求在第 5 次被防护机制阻断 (429 Too Many Requests)",
+      "data": null
+    }
+  ]
+}

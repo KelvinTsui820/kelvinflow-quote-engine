@@ -1,0 +1,193 @@
+{
+  "name": "KelvinFlow_方案2_事件驱动邮件转发与草稿箱静默注入工作流_v1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "inbound-email",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+      "name": "1. 接收邮件 Webhook 入口 (Cloudflare / 邮件路由)",
+      "webhookId": "kelvinflow-inbound-email"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 提取并规范化传入的邮件数据\nconst item = $input.first();\nconst body = item.json.body || item.json;\n\n// 提取发件人 (海外买家)\nlet from = body.from || body.sender || '';\nif (typeof from === 'object' && from.address) {\n  from = from.address;\n} else if (typeof from === 'string' && from.includes('<')) {\n  const match = from.match(/<([^>]+)>/);\n  if (match) from = match[1];\n}\n\n// 提取收件人 (转发目标地址，如 rfq-default@quote.kelvinflow.com)\nlet to = body.to || body.recipient || '';\nif (Array.isArray(to)) {\n  to = to[0];\n}\nif (typeof to === 'object' && to.address) {\n  to = to.address;\n} else if (typeof to === 'string' && to.includes('<')) {\n  const match = to.match(/<([^>]+)>/);\n  if (match) to = match[1];\n}\n\n// 提取主题与正文\nconst subject = body.subject || 'RFQ Inquiry';\nlet text = body.text || body.plain || body.content || '';\nif (!text && body.html) {\n  text = body.html.replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();\n}\n\n// 从目标邮箱地址中智能解析租户 ID (如 rfq-sales01@quote.kelvinflow.com -> sales01)\nlet tenantId = 'default';\nif (to) {\n  const match = to.match(/rfq-([^@]+)@/i);\n  if (match && match[1]) {\n    tenantId = match[1];\n  }\n}\n\nreturn [{\n  json: {\n    from: from || 'buyer@example.com',\n    to: to || 'rfq-default@quote.kelvinflow.com',\n    subject,\n    body: text,\n    tenantId\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        300
+      ],
+      "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "name": "2. 解析租户与标准化邮件字段"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:3000/api/inbound/email",
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.to }}"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "name": "body",
+              "value": "={{ $json.body }}"
+            },
+            {
+              "name": "tenantId",
+              "value": "={{ $json.tenantId }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+      "name": "3. 调用 KelvinFlow 核心核价引擎与草稿箱注入",
+      "notesInFlow": true,
+      "notes": "调用后端 /api/inbound/email，自动进行 Gemini 3.8 Flash 意图识别、底价核算、PDF 生成，并静默写入业务员日常邮箱草稿箱！"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-1",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ],
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "name": "4. 核价与出单是否成功？"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 记录成功运行日志与指标\nconst res = $input.first().json;\nreturn [{\n  json: {\n    status: 'SUCCESS',\n    quotationNumber: res.quotation?.quotationNumber,\n    buyerName: res.quotation?.customerName,\n    totalAmount: `${res.quotation?.currency} ${res.quotation?.totalAmountForeign}`,\n    draftInjected: res.draftResult?.injected || false,\n    reviewUrl: res.reviewUrl,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        220
+      ],
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "name": "5A. 报价成功 & 草稿箱注入完成"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 记录异常日志\nconst err = $input.first().json;\nreturn [{\n  json: {\n    status: 'FAILED',\n    error: err.error || 'Unknown error',\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        400
+      ],
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+      "name": "5B. 异常告警日志"
+    }
+  ],
+  "connections": {
+    "1. 接收邮件 Webhook 入口 (Cloudflare / 邮件路由)": {
+      "main": [
+        [
+          {
+            "node": "2. 解析租户与标准化邮件字段",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. 解析租户与标准化邮件字段": {
+      "main": [
+        [
+          {
+            "node": "3. 调用 KelvinFlow 核心核价引擎与草稿箱注入",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. 调用 KelvinFlow 核心核价引擎与草稿箱注入": {
+      "main": [
+        [
+          {
+            "node": "4. 核价与出单是否成功？",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. 核价与出单是否成功？": {
+      "main": [
+        [
+          {
+            "node": "5A. 报价成功 & 草稿箱注入完成",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "5B. 异常告警日志",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

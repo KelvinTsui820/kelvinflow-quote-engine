@@ -1,0 +1,50 @@
+From: Marcus Vance <m.vance@apex-global-supplies.com>
+To: sales@company.com
+Date: Tue, 15 Sep 2026 02:15:30 +0800
+Subject: URGENT: RFQ & Official Quotation Request for 15 Lighting & Hardware SKUs (CIF Long Beach / FOB Shenzhen)
+
+Dear Sales Team,
+
+Good day.
+
+This is Marcus Vance, Senior Procurement Director from Apex Global Supplies Inc. (California, USA). We are urgently finalizing our Q4 inventory order and need your official formal quotation for the following 15 items by today.
+
+Please provide pricing for both FOB Shenzhen and CIF Long Beach (ocean freight to Port of Long Beach, 90802).
+All items must be packaged in standard master export cartons, palletized on standard 48x40 heat-treated wooden pallets.
+
+Item Specifications & Quantities:
+-------------------------------------------------------------------------------------------------------------
+No. | Model / SKU       | Description                                 | Order Qty | Packaging Requirement
+-------------------------------------------------------------------------------------------------------------
+01  | KF-LED-100W-PRO   | 100W Industrial High Bay Light (IP65, 5000K) | 500 pcs   | 4 pcs/ctn, Palletized
+02  | KF-LED-150W-PRO   | 150W Industrial High Bay Light (IP65, 5000K) | 800 pcs   | 2 pcs/ctn, Palletized
+03  | KF-LED-200W-PRO   | 200W Industrial High Bay Light (IP65, 5000K) | 400 pcs   | 2 pcs/ctn, Palletized
+04  | KF-FL-50W-SLIM    | 50W Outdoor Slim LED Floodlight (Die-cast)  | 1,200 pcs | 10 pcs/ctn, Palletized
+05  | KF-FL-100W-SLIM   | 100W Outdoor Slim LED Floodlight (Die-cast) | 1,000 pcs | 6 pcs/ctn, Palletized
+06  | KF-FL-200W-SLIM   | 200W Outdoor Slim LED Floodlight (Die-cast) | 600 pcs   | 4 pcs/ctn, Palletized
+07  | KF-ST-60W-SOLAR   | 60W All-in-One Solar Street Light with Pole | 300 sets  | 1 set/ctn, Palletized
+08  | KF-ST-120W-SOLAR  | 120W All-in-One Solar Street Light with Pole| 250 sets  | 1 set/ctn, Palletized
+09  | KF-TP-40W-TRI     | 4ft 40W Vapor Tight Tri-Proof Fitting (IP66)| 1,500 pcs | 8 pcs/ctn, Master ctn
+10  | KF-TP-60W-TRI     | 5ft 60W Vapor Tight Tri-Proof Fitting (IP66)| 1,000 pcs | 6 pcs/ctn, Master ctn
+11  | KF-DL-15W-COB     | 15W Anti-glare Commercial Recessed Downlight| 2,000 pcs | 20 pcs/ctn, Color box
+12  | KF-DL-25W-COB     | 25W Anti-glare Commercial Recessed Downlight| 1,500 pcs | 12 pcs/ctn, Color box
+13  | KF-TR-30W-ZOOM    | 30W 3-Circuit Track Light (90 CRI, Dimmable)| 800 pcs   | 10 pcs/ctn, Color box
+14  | KF-DRV-60W-IP67   | 60W Constant Voltage Waterproof LED Driver  | 2,500 pcs | 25 pcs/ctn, Master ctn
+15  | KF-DRV-150W-IP67  | 150W Constant Voltage Waterproof Driver     | 1,200 pcs | 15 pcs/ctn, Master ctn
+-------------------------------------------------------------------------------------------------------------
+
+Requirements:
+1. Formal PDF Quotation Sheet attached with full itemized breakdown (Unit Price, Total Price, CBM, Gross Weight, Lead Time).
+2. Locked exchange rate assumptions and Ocean Freight rates to Port of Long Beach.
+3. Payment terms: 30% TT deposit, 70% against BL copy.
+4. Estimated production lead time for full 40HQ container load.
+
+Please reply directly to this email with your formal quotation as soon as possible, as our board meets at 10:00 AM PST for vendor selection.
+
+Best regards,
+
+Marcus Vance
+Director of Global Procurement
+Apex Global Supplies Inc.
+3400 E Ocean Blvd, Long Beach, CA 90802, USA
+Direct: +1 (562) 889-4120 | m.vance@apex-global-supplies.com

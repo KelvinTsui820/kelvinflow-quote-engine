@@ -1,0 +1,56 @@
+{
+  "name": "quotation-core",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "AI 外贸报价大脑核心引擎 - 支持本地 Excel/Google Sheets 语义模糊映射与多模型分级提取",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.cjs",
+    "tenant:init": "tsx scripts/init-tenant.ts",
+    "tenant:upgrade": "tsx scripts/upgrade-tenant.ts",
+    "activate": "tsx scripts/upgrade-tenant.ts"
+  },
+  "keywords": [
+    "foreign-trade",
+    "quotation-engine",
+    "gemini",
+    "ai-agent",
+    "excel-parser"
+  ],
+  "author": "Antigravity",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
+    "express": "^4.21.2",
+    "googleapis": "^144.0.0",
+    "imapflow": "^2.0.5",
+    "mailparser": "^3.9.28",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^10.0.10",
+    "pdfkit": "^0.16.0",
+    "pdfkit-table": "^0.1.99",
+    "winston": "^3.17.0",
+    "xlsx": "^0.18.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/mailparser": "^3.4.6",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.13.9",
+    "@types/nodemailer": "^8.0.1",
+    "@types/pdfkit": "^0.13.9",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.6",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

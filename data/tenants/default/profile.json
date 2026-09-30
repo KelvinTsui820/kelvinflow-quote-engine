@@ -1,0 +1,25 @@
+{
+  "tenantId": "default",
+  "companyName": "KelvinFlow Global Technology Co., Ltd.",
+  "companySubtitle": "Manufacturer & Exporter of Precision Ergonomic Hardware & Seating Solutions",
+  "companyAddress": "International High-Tech Innovation Center, Foshan, Guangdong, China (528000)",
+  "contactEmail": "sales@kelvinflow.com",
+  "contactPhone": "+86-757-8888-9999",
+  "website": "www.kelvinflow.com",
+  "hideCostFromSales": true,
+  "defaultProfitMargin": 0.3,
+  "defaultCurrency": "USD",
+  "apiKeys": [
+    "key_default_admin_2026"
+  ],
+  "createdAt": "2026-09-04T06:55:54.239Z",
+  "updatedAt": "2026-09-30T03:09:11.523Z",
+  "imapConfig": {
+    "enabled": true,
+    "email": "tom@foshan-metal.com",
+    "authCode": "mock_auth_code_2026",
+    "host": "imap.exmail.qq.com",
+    "port": 993,
+    "secure": true
+  }
+}

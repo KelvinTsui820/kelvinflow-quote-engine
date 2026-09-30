@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #FFFFFF;
+      width: 800px;
+      box-sizing: border-box;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="text-slate-900">
+
+  <!-- 顶部状态栏 -->
+  <div class="border-b-2 border-slate-900 pb-4 mb-5 flex items-start justify-between">
+    <div>
+      <div class="flex items-center space-x-2.5">
+        <span class="px-2.5 py-1 rounded bg-blue-600 text-white font-mono-code text-xs font-black uppercase">
+          ENGINE MODULE 02
+        </span>
+        <h2 class="text-xl font-black text-slate-900 tracking-tight">
+          出厂底价硬性锁定与 3D 装柜算箱引擎
+        </h2>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">
+        PRICE VAULT ENCRYPTION & CBM LOGISTICS DISPATCHER · REF: QT-20260904-888
+      </p>
+    </div>
+    <div class="text-right font-mono-code text-xs">
+      <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
+        <i class="fa-solid fa-lock text-[11px] mr-1.5 text-emerald-600"></i>底价库私密脱敏中
+      </span>
+    </div>
+  </div>
+
+  <!-- 1. 私密出厂底价库与防亏损锁定表 -->
+  <div class="mb-5">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-xs font-bold text-slate-700 uppercase font-mono-code flex items-center">
+        <i class="fa-solid fa-shield-halved text-blue-600 mr-1.5"></i>
+        1. 内部出厂底价私密保护矩阵 (严格锁死利润 · 绝不报亏)
+      </h3>
+      <span class="text-[11px] text-slate-500 font-mono-code">基准对冲汇率: 1 USD = 7.20 RMB</span>
+    </div>
+
+    <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
+      <thead class="bg-slate-100 text-slate-700 font-mono-code text-[11px] border-b border-slate-200">
+        <tr>
+          <th class="py-2.5 px-3">买家询盘 SKU</th>
+          <th class="py-2.5 px-3">采购数量</th>
+          <th class="py-2.5 px-3">内部出厂底价 (RMB)</th>
+          <th class="py-2.5 px-3">硬性锁定毛利</th>
+          <th class="py-2.5 px-3 text-right">核算 FOB 报价 (USD)</th>
+          <th class="py-2.5 px-3 text-right">风控状态</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 font-mono-code text-slate-800">
+        <tr class="bg-white hover:bg-slate-50">
+          <td class="py-2.5 px-3 font-bold text-blue-700">ACME-991</td>
+          <td class="py-2.5 px-3">2,000 件</td>
+          <td class="py-2.5 px-3 text-slate-600">
+            <span class="bg-slate-100 px-2 py-0.5 rounded border border-slate-200 font-bold text-slate-800">
+              ¥15.50 / 件
+            </span>
+          </td>
+          <td class="py-2.5 px-3 font-bold text-emerald-600">+30.0% 利润</td>
+          <td class="py-2.5 px-3 text-right font-black text-slate-900">$3.34</td>
+          <td class="py-2.5 px-3 text-right">
+            <span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+              ✓ 守住底价
+            </span>
+          </td>
+        </tr>
+        <tr class="bg-white hover:bg-slate-50">
+          <td class="py-2.5 px-3 font-bold text-blue-700">ERG-PRO-V2</td>
+          <td class="py-2.5 px-3">500 件</td>
+          <td class="py-2.5 px-3 text-slate-600">
+            <span class="bg-slate-100 px-2 py-0.5 rounded border border-slate-200 font-bold text-slate-800">
+              ¥185.00 / 件
+            </span>
+          </td>
+          <td class="py-2.5 px-3 font-bold text-emerald-600">+35.0% 利润</td>
+          <td class="py-2.5 px-3 text-right font-black text-slate-900">$39.84</td>
+          <td class="py-2.5 px-3 text-right">
+            <span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+              ✓ 守住底价
+            </span>
+          </td>
+        </tr>
+        <tr class="bg-white hover:bg-slate-50">
+          <td class="py-2.5 px-3 font-bold text-blue-700">FAST-SCREW</td>
+          <td class="py-2.5 px-3">10,000 件</td>
+          <td class="py-2.5 px-3 text-slate-600">
+            <span class="bg-slate-100 px-2 py-0.5 rounded border border-slate-200 font-bold text-slate-800">
+              ¥0.85 / 件
+            </span>
+          </td>
+          <td class="py-2.5 px-3 font-bold text-emerald-600">+40.0% 利润</td>
+          <td class="py-2.5 px-3 text-right font-black text-slate-900">$0.17</td>
+          <td class="py-2.5 px-3 text-right">
+            <span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+              ✓ 守住底价
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="text-[10px] text-slate-400 mt-1.5 flex items-center justify-between">
+      <span>* 底价数据仅保存在您本地私有目录，大模型在加密沙盒内核算，绝不向买家泄露任何成本底牌。</span>
+      <span class="text-emerald-600 font-bold font-mono-code">综合预估毛利率: 35% (安全达标)</span>
+    </div>
+  </div>
+
+  <!-- 2. 集装箱装载容积 CBM 智能配比 -->
+  <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+    <div class="flex items-center justify-between mb-2.5">
+      <h3 class="text-xs font-bold text-slate-800 uppercase font-mono-code flex items-center">
+        <i class="fa-solid fa-ship text-cyan-600 mr-1.5"></i>
+        2. 海运集装箱 CBM 空间配载测算与智能凑柜
+      </h3>
+      <span class="text-[11px] font-bold text-blue-700 font-mono-code">装箱总量: 550 箱 (Cartons)</span>
+    </div>
+
+    <!-- 容积进度条 -->
+    <div class="space-y-2 mb-3">
+      <div class="flex justify-between text-xs font-mono-code">
+        <span class="text-slate-600 font-medium">总装载体积: <strong class="text-slate-900">74.45 CBM</strong></span>
+        <span class="text-cyan-700 font-bold">超满载 40HQ 柜容基准 (68.0 CBM) ➔ 满载率 109.5%</span>
+      </div>
+      <div class="w-full h-3 rounded-full bg-slate-200 overflow-hidden p-0.5 border border-slate-300">
+        <div class="h-full rounded-full bg-gradient-to-r from-blue-600 via-cyan-500 to-amber-500" style="width: 100%;"></div>
+      </div>
+    </div>
+
+    <!-- 智能凑柜建议卡片 -->
+    <div class="bg-white border border-blue-200 rounded-xl p-3 flex items-start space-x-3 text-xs">
+      <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <i class="fa-solid fa-lightbulb text-xs"></i>
+      </div>
+      <div class="leading-relaxed">
+        <span class="font-bold text-slate-900">AI 整柜调度建议已写入英文草稿：</span>
+        <span class="text-slate-600">
+          当前订单超出 1x40HQ 高柜 6.45 CBM。系统已在自动生成的邮件中向客户推荐：
+          <strong>方案 A: 1x40HQ 整柜 + 少量拼箱散货 (LCL)</strong>；或
+          <strong>方案 B: 优化包装或微调办公椅至 450 件，即可完美单柜包载，为买家立省 $650 港杂费</strong>。
+        </span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

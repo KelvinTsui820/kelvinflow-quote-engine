@@ -1,0 +1,176 @@
+{
+  "name": "KelvinFlow AI 外贸智能报价与自动排入 Gmail 草稿箱",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "is:unread (subject:inquiry OR subject:rfq OR subject:quote OR subject:order OR subject:po OR subject:price)"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "id": "1d8b6f3c-5e92-4c28-98f1-3294c7b80a11",
+      "name": "1. 监听买家询盘邮件 (Gmail Trigger)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail_cred_1",
+          "name": "客户企业 Gmail 授权"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 提取发件人、主题、正文及附件信息\nconst item = $input.first().json;\nconst fromObj = item.from && item.from.value ? item.from.value[0] : {};\nconst senderEmail = fromObj.address || item.from || '';\nconst senderName = fromObj.name || senderEmail.split('@')[0] || 'Valued Buyer';\nconst subject = item.subject || 'Inquiry';\nconst bodyText = item.textPlain || item.snippet || item.textHtml || '';\n\nreturn [{\n  json: {\n    senderEmail,\n    senderName,\n    subject,\n    bodyText,\n    messageId: item.id,\n    threadId: item.threadId\n  },\n  binary: $input.first().binary\n}];"
+      },
+      "id": "2b9a7f4e-6d11-4f39-87a2-4382d6e90b22",
+      "name": "2. 解析邮件正文与发件人",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://quote.kelvinflow.com/api/v1/process-quote",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-tenant-id",
+              "value": "={{ $vars.KELVINFLOW_TENANT_ID || 'tenant_default' }}"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $vars.KELVINFLOW_API_KEY || 'sk_live_xxxxxx' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "poText",
+              "value": "={{ $json.bodyText }}"
+            },
+            {
+              "name": "sender_email",
+              "value": "={{ $json.senderEmail }}"
+            },
+            {
+              "name": "sales_rep_name",
+              "value": "Sales Specialist"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3c8a9d5f-7e22-4a49-98b3-5493e7f01c33",
+      "name": "3. 调用 KelvinFlow AI 报价风控中枢",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 将后端返回的 base64 还原为二进制 PDF 附件\nconst resp = $input.first().json;\nconst binaryData = {};\n\nif (resp.pdfBase64) {\n  binaryData['attachment_0'] = {\n    data: resp.pdfBase64,\n    mimeType: 'application/pdf',\n    fileName: resp.draftEmail.pdfFileName || 'Formal_Quotation.pdf'\n  };\n}\n\nreturn [{\n  json: resp,\n  binary: binaryData\n}];"
+      },
+      "id": "4d9b0e6a-8f33-4b5a-a9c4-65a4f8a12d44",
+      "name": "4. 准备 PDF 附件二进制",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "operation": "create",
+        "subject": "={{ $json.draftEmail.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.draftEmail.body }}",
+        "options": {
+          "to": "={{ $('2. 解析邮件正文与发件人').first().json.senderEmail }}",
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "attachment_0"
+              }
+            ]
+          }
+        }
+      },
+      "id": "5e0c1f7b-9a44-4c6b-bad5-76b5a9b23e55",
+      "name": "5. 静默排入 Gmail 草稿箱 (业务员10秒核验发信)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1120, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail_cred_1",
+          "name": "客户企业 Gmail 授权"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "1. 监听买家询盘邮件 (Gmail Trigger)": {
+      "main": [
+        [
+          {
+            "node": "2. 解析邮件正文与发件人",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. 解析邮件正文与发件人": {
+      "main": [
+        [
+          {
+            "node": "3. 调用 KelvinFlow AI 报价风控中枢",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. 调用 KelvinFlow AI 报价风控中枢": {
+      "main": [
+        [
+          {
+            "node": "4. 准备 PDF 附件二进制",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. 准备 PDF 附件二进制": {
+      "main": [
+        [
+          {
+            "node": "5. 静默排入 Gmail 草稿箱 (业务员10秒核验发信)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

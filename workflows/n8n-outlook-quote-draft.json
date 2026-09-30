@@ -1,0 +1,143 @@
+{
+  "name": "KelvinFlow AI 外贸智能报价与自动排入 Outlook/M365 草稿箱",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "search": "subject:inquiry OR subject:rfq OR subject:quote OR subject:order"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "name": "1. 监听买家询盘 (Outlook Trigger)",
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "credentials": {
+        "microsoftOutlookOAuth2": {
+          "id": "outlook_cred_1",
+          "name": "客户 Outlook 邮箱授权"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst senderEmail = item.from ? item.from.emailAddress.address : '';\nconst senderName = item.from ? item.from.emailAddress.name : 'Valued Buyer';\nconst subject = item.subject || 'Inquiry';\nconst bodyText = item.body ? item.body.content : '';\n\nreturn [{\n  json: {\n    senderEmail,\n    senderName,\n    subject,\n    bodyText,\n    messageId: item.id\n  },\n  binary: $input.first().binary\n}];"
+      },
+      "id": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+      "name": "2. 提取正文与买家邮箱",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://quote.kelvinflow.com/api/v1/process-quote",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-tenant-id",
+              "value": "={{ $vars.KELVINFLOW_TENANT_ID || 'tenant_default' }}"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $vars.KELVINFLOW_API_KEY || 'sk_live_xxxxxx' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "poText",
+              "value": "={{ $json.bodyText }}"
+            },
+            {
+              "name": "sender_email",
+              "value": "={{ $json.senderEmail }}"
+            },
+            {
+              "name": "sales_rep_name",
+              "value": "Export Sales"
+            }
+          ]
+        }
+      },
+      "id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+      "name": "3. KelvinFlow AI 核算",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "operation": "create",
+        "subject": "={{ $json.draftEmail.subject }}",
+        "body": "={{ $json.draftEmail.body }}",
+        "toRecipients": "={{ $('2. 提取正文与买家邮箱').first().json.senderEmail }}"
+      },
+      "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+      "name": "4. 排入 Outlook 草稿箱",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "credentials": {
+        "microsoftOutlookOAuth2": {
+          "id": "outlook_cred_1",
+          "name": "客户 Outlook 邮箱授权"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "1. 监听买家询盘 (Outlook Trigger)": {
+      "main": [
+        [
+          {
+            "node": "2. 提取正文与买家邮箱",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. 提取正文与买家邮箱": {
+      "main": [
+        [
+          {
+            "node": "3. KelvinFlow AI 核算",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. KelvinFlow AI 核算": {
+      "main": [
+        [
+          {
+            "node": "4. 排入 Outlook 草稿箱",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,530 @@
+{
+  "name": "KelvinFlow_AI全能邮件报价中枢_多邮箱自适应一体化版_v7",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "has:attachment OR subject:底价 OR subject:底價 OR subject:报价 OR subject:報價 OR subject:Inquiry OR subject:RFQ OR subject:PO OR subject:Order"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        200,
+        440
+      ],
+      "id": "3b70da11-9be0-4628-824b-dd0d8fbfc2d4",
+      "name": "1A. Gmail 监听入口",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail_cred_1",
+          "name": "企业 Gmail 授权"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "mailbox": "INBOX",
+        "postProcessAction": "read",
+        "downloadAttachments": true,
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        200,
+        680
+      ],
+      "id": "7c8d9e01-2a3b-4c5d-6e7f-8a9b0c1d2e3f",
+      "name": "1B. 通用 IMAP 监听入口 (企业邮 & QQ/163/126等个人邮箱全支持)",
+      "credentials": {
+        "imap": {
+          "id": "imap_cred_1",
+          "name": "企业 / 个人 IMAP 邮箱授权"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        920
+      ],
+      "id": "d3e4f5a6-7b8c-9d0e-1f2a-3b4c5d6e7f8a",
+      "name": "1C. Microsoft Outlook 监听入口 (Office 365 & 个人 Outlook/Hotmail)",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "outlook_cred_1",
+          "name": "Outlook / Office 365 授权"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 0. 统一不同邮件来源的数据格式，并注入渠道标签\nconst item = $input.first();\nconst json = item.json;\nconst binaries = item.binary || {};\n\n// 识别来源\nlet provider = 'imap';\nlet senderEmail = '';\nlet recipientEmail = '';\nlet subject = json.subject || '';\nlet bodyText = '';\n\nif (json.threadId || json.historyId) {\n  // 1. 来自 Gmail Trigger\n  provider = 'gmail';\n  const fromObj = json.from && json.from.value ? json.from.value[0] : {};\n  senderEmail = fromObj.address || json.from || '';\n  recipientEmail = json.to || '';\n  bodyText = json.textPlain || json.snippet || '';\n} else if (json.internetMessageId || json.conversationId || json.bodyPreview !== undefined) {\n  // 2. 来自 Microsoft Outlook / Office 365 Trigger\n  provider = 'outlook';\n  senderEmail = json.from?.emailAddress?.address || json.sender?.emailAddress?.address || '';\n  recipientEmail = json.toRecipients?.[0]?.emailAddress?.address || '';\n  bodyText = json.bodyPreview || (json.body?.content ? json.body.content.replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim() : '');\n} else {\n  // 3. 来自 通用 IMAP Trigger (腾讯企邮、阿里、网易企业邮，以及 QQ、163/126 等个人邮箱)\n  provider = 'imap';\n  senderEmail = json.from?.text || json.from?.value?.[0]?.address || json.from || '';\n  recipientEmail = json.to?.text || json.to?.value?.[0]?.address || json.to || '';\n  bodyText = json.text || json.textAsHtml || '';\n}\n\nif (!bodyText && json.html) {\n  bodyText = json.html.replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();\n}\n\nreturn [{\n  json: {\n    ...json,\n    emailProvider: provider,\n    senderEmail,\n    recipientEmail,\n    subject,\n    cleanBodyText: bodyText\n  },\n  binary: binaries\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        680
+      ],
+      "id": "1f2e3d4c-5b6a-7980-ba98-fedcba098765",
+      "name": "0. 多邮箱协议归一化与渠道打标"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.subject }}",
+              "operation": "regex",
+              "value2": "(?i)(底价|底價|更新底价|更新底價|底价表|底價表|PRICING.*UPDATE|UPDATE.*PRICING|COST.*SHEET|INTERNAL.*PRICE)"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        680
+      ],
+      "id": "2a8f2451-7b60-4b5d-9130-2ecb175187dd",
+      "name": "2. 严格判定邮件类型 (防海外买家询盘误杀)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.KELVINFLOW_URL || 'https://quote.kelvinflow.com' }}/api/v1/update-pricing",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-tenant-id",
+              "value": "={{ $env.TENANT_ID || 'default' }}"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.TENANT_API_KEY || 'key_default_admin_2026' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "pricing_file",
+              "inputDataFieldName": "attachment_0"
+            },
+            {
+              "name": "sender_email",
+              "value": "={{ $json.senderEmail }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        960,
+        520
+      ],
+      "id": "005a1d4c-699f-4ffd-ac3d-390161759bdd",
+      "name": "3A. 更新底价库 (/update-pricing)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst binaries = item.binary || {};\nconst json = item.json;\nconst binaryKeys = Object.keys(binaries);\nlet bestKey = null;\n\n// 1. 优先查找真正的采购单 (PDF 或 Excel)\nfor (const key of binaryKeys) {\n  const file = binaries[key];\n  const name = (file.fileName || '').toLowerCase();\n  if (name.endsWith('.pdf') || name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv')) {\n    bestKey = key;\n    break;\n  }\n}\n\n// 2. 查找真实商品图片 (智能过滤小于 25KB 的企业签名与 Logo 杂图)\nif (!bestKey) {\n  for (const key of binaryKeys) {\n    const file = binaries[key];\n    const name = (file.fileName || '').toLowerCase();\n    const isImage = name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg') || (file.mimeType || '').startsWith('image/');\n    const isSignature = name.includes('logo') || name.includes('icon') || name.includes('avatar') || name.includes('sig') || name.includes('image001');\n    const size = file.fileSize ? parseInt(file.fileSize, 10) : (file.data ? file.data.length * 0.75 : 0);\n    \n    if (isImage && (!isSignature || size > 25000)) {\n      bestKey = key;\n      break;\n    }\n  }\n}\n\nlet poText = json.cleanBodyText || '';\n\n// 3. 针对个人邮箱（如QQ邮箱、163/126网易邮箱）中转超大附件 (微云/网易网盘) 的智能检测与标记\nconst cloudAttachmentMatches = poText.match(/(https?:\\/\\/(?:share\\.weiyun\\.com|mail\\.qq\\.com\\/cgi-bin\\/ftnExs_download|mail\\.163\\.com\\/netfolder\\/download)[^\\s\"'>]+)/gi);\nif (cloudAttachmentMatches && cloudAttachmentMatches.length > 0) {\n  poText += `\\n\\n[系统检测提示: 发件方通过QQ微云/网易中转站发送了超大附件链接: ${cloudAttachmentMatches[0]}]`;\n}\n\nconst outBinary = {};\nif (bestKey && binaries[bestKey]) {\n  outBinary.po_file = binaries[bestKey];\n}\n\nreturn [{\n  json: {\n    ...json,\n    has_po_file: !!bestKey,\n    po_text: poText\n  },\n  binary: outBinary\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        800
+      ],
+      "id": "5c8d3e21-3a1b-4f90-8c23-7a912e4b8899",
+      "name": "2B. 智能附件筛选与纯文本提取"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.KELVINFLOW_URL || 'https://quote.kelvinflow.com' }}/api/v1/process-quote",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-tenant-id",
+              "value": "={{ $env.TENANT_ID || 'default' }}"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.TENANT_API_KEY || 'key_default_admin_2026' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "po_file",
+              "inputDataFieldName": "po_file"
+            },
+            {
+              "name": "po_text",
+              "value": "={{ $json.po_text }}"
+            },
+            {
+              "name": "sales_rep_email",
+              "value": "={{ $json.recipientEmail || $json.senderEmail }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1180,
+        800
+      ],
+      "id": "1187fc41-be6c-43da-b905-5b4e65ca968d",
+      "name": "3B. 询盘报价计算 (/process-quote)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst resp = item.json;\n\nif (!resp.success) {\n  throw new Error(`报价生成失败: ${resp.error}`);\n}\n\nconst quoteId = resp.quotation?.quotationNumber || 'QT-UNKNOWN';\nconst reviewUrl = resp.reviewUrl || `https://quote.kelvinflow.com/`;\n\nreturn [{\n  json: {\n    ...item.json,\n    quotation: resp.quotation,\n    draftEmail: resp.draftEmail,\n    reviewUrl: reviewUrl\n  },\n  binary: {\n    data: {\n      data: resp.pdfBase64,\n      mimeType: 'application/pdf',\n      fileName: resp.draftEmail?.pdfFileName || `${quoteId}_Official_Quotation.pdf`\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        800
+      ],
+      "id": "79b56060-7f14-40f7-85e5-a76a8589f99c",
+      "name": "4B. 转化 PDF 二进制与审核链接"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.emailProvider }}",
+                    "rightValue": "gmail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.emailProvider }}",
+                    "rightValue": "imap",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.emailProvider }}",
+                    "rightValue": "outlook",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1620,
+        800
+      ],
+      "id": "8a7b6c5d-4e3f-2a1b-0c9d-8e7f6a5b4c3d",
+      "name": "5B. 智能邮箱渠道分发 (Switch)"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.draftEmail.subject }}",
+        "message": "={{ $json.draftEmail.body }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          },
+          "sendTo": "={{ $json.quotation.buyerEmail || $json.senderEmail }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1860,
+        660
+      ],
+      "id": "44226fa8-5675-4853-95d3-0cae73604b98",
+      "name": "6B-1. Gmail 专属草稿箱排入",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail_cred_1",
+          "name": "企业 Gmail 授权"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.recipientEmail || 'sales@company.com' }}",
+        "toEmail": "={{ $json.recipientEmail || $json.senderEmail }}",
+        "subject": "=[待核对草稿] {{ $json.draftEmail.subject }}",
+        "html": "={{ $json.draftEmail.htmlBody || $json.draftEmail.body }}",
+        "attachments": "data",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1860,
+        800
+      ],
+      "id": "9b8a7c6d-5e4f-3a2b-1c0d-7e6f5a4b3c2d",
+      "name": "6B-2. IMAP/企业邮草稿箱同步与业务员待审信 (腾讯企邮/阿里/Foxmail/QQ/163)",
+      "credentials": {
+        "smtp": {
+          "id": "smtp_cred_1",
+          "name": "企业 / 个人 SMTP 授权"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "operation": "create",
+        "subject": "={{ $json.draftEmail.subject }}",
+        "bodyContent": "={{ $json.draftEmail.htmlBody || $json.draftEmail.body }}",
+        "additionalFields": {
+          "bodyContentType": "html",
+          "toRecipients": "={{ $json.quotation.buyerEmail || $json.senderEmail }}",
+          "attachments": {
+            "attachments": [
+              {
+                "binaryPropertyName": "data"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        940
+      ],
+      "id": "e4f5a6b7-8c9d-0e1f-2a3b-4c5d6e7f8a9b",
+      "name": "6B-3. Microsoft Outlook 草稿箱排入 (Office 365 & 个人 Outlook)",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "outlook_cred_1",
+          "name": "Outlook / Office 365 授权"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "1A. Gmail 监听入口": {
+      "main": [
+        [
+          {
+            "node": "0. 多邮箱协议归一化与渠道打标",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1B. 通用 IMAP 监听入口 (企业邮 & QQ/163/126等个人邮箱全支持)": {
+      "main": [
+        [
+          {
+            "node": "0. 多邮箱协议归一化与渠道打标",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1C. Microsoft Outlook 监听入口 (Office 365 & 个人 Outlook/Hotmail)": {
+      "main": [
+        [
+          {
+            "node": "0. 多邮箱协议归一化与渠道打标",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "0. 多邮箱协议归一化与渠道打标": {
+      "main": [
+        [
+          {
+            "node": "2. 严格判定邮件类型 (防海外买家询盘误杀)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. 严格判定邮件类型 (防海外买家询盘误杀)": {
+      "main": [
+        [
+          {
+            "node": "3A. 更新底价库 (/update-pricing)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "2B. 智能附件筛选与纯文本提取",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2B. 智能附件筛选与纯文本提取": {
+      "main": [
+        [
+          {
+            "node": "3B. 询盘报价计算 (/process-quote)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3B. 询盘报价计算 (/process-quote)": {
+      "main": [
+        [
+          {
+            "node": "4B. 转化 PDF 二进制与审核链接",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4B. 转化 PDF 二进制与审核链接": {
+      "main": [
+        [
+          {
+            "node": "5B. 智能邮箱渠道分发 (Switch)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5B. 智能邮箱渠道分发 (Switch)": {
+      "main": [
+        [
+          {
+            "node": "6B-1. Gmail 专属草稿箱排入",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "6B-2. IMAP/企业邮草稿箱同步与业务员待审信 (腾讯企邮/阿里/Foxmail/QQ/163)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "6B-3. Microsoft Outlook 草稿箱排入 (Office 365 & 个人 Outlook)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}

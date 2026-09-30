@@ -1,0 +1,106 @@
+{
+  "testRunId": "343632",
+  "timestamp": "2026-09-26T00:09:14.067Z",
+  "summary": {
+    "total": 8,
+    "passCount": 6,
+    "warnCount": 1,
+    "failCount": 1
+  },
+  "results": [
+    {
+      "caseId": "TC-01",
+      "name": "官网 Landing Page 加载与留资通道测试",
+      "status": "PASS",
+      "durationMs": 2559,
+      "details": {
+        "httpStatus": 200,
+        "htmlLength": 200128,
+        "leadSubmitted": true
+      }
+    },
+    {
+      "caseId": "TC-02",
+      "name": "7天免费试用注册与免密直通登录",
+      "status": "PASS",
+      "durationMs": 315,
+      "details": {
+        "tenantId": "tenant_trial_13888343632",
+        "remainingDays": 7,
+        "hasToken": true,
+        "accountType": "trial"
+      }
+    },
+    {
+      "caseId": "TC-03",
+      "name": "试用期状态与权限探针 (7天倒计时)",
+      "status": "PASS",
+      "durationMs": 274,
+      "details": {
+        "exists": true,
+        "isTrial": true,
+        "remainingDays": 7,
+        "expiresAt": "2026-10-03T00:09:06.503Z"
+      }
+    },
+    {
+      "caseId": "TC-04",
+      "name": "试用用户开通为正式付费用户 (升级核销闭环)",
+      "status": "PASS",
+      "durationMs": 506,
+      "details": {
+        "upgradedSuccess": true,
+        "plan": "geek",
+        "isPaid": true,
+        "expiresAt": "2027-01-01T00:09:06.503Z"
+      }
+    },
+    {
+      "caseId": "TC-05",
+      "name": "场景A: 标准海外多SKU询盘解析与自动核价出单",
+      "status": "PASS",
+      "durationMs": 1555,
+      "details": {
+        "quotationNumber": "QT-348789",
+        "deliveryMode": "mode1_review_email",
+        "reviewUrl": "https://quote.kelvinflow.com/review/QT-348789",
+        "draftInjected": false,
+        "reviewEmailSent": false
+      }
+    },
+    {
+      "caseId": "TC-06",
+      "name": "场景B: 非标未知SKU与定制工艺异常询盘平稳降级测试",
+      "status": "PASS",
+      "durationMs": 1334,
+      "details": {
+        "handled": "QT-350140",
+        "quotationNumber": "QT-350140",
+        "reviewUrl": "https://quote.kelvinflow.com/review/QT-350140"
+      }
+    },
+    {
+      "caseId": "TC-07",
+      "name": "工作台在线审单台数据拉取与利润率微调重算",
+      "status": "FAIL",
+      "durationMs": 519,
+      "details": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+    },
+    {
+      "caseId": "TC-08",
+      "name": "n8n 统一多租户共享 Webhook 连通性测试",
+      "status": "WARN",
+      "durationMs": 3368,
+      "details": {
+        "https://flow.kelvinflow.com/webhook/kelvinflow-quote-webhook": {
+          "status": 502,
+          "body": "<!DOCTYPE html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US"
+        },
+        "https://n8n.08200909.xyz/webhook/kelvinflow-quote-webhook": {
+          "status": 404,
+          "body": "{\"code\":404,\"message\":\"The requested webhook \\\"POST kelvinflow-quote-webhook\\\" is not registered.\",\"hint\":\"The workflow must be active for a productio"
+        }
+      }
+    }
+  ]
+}

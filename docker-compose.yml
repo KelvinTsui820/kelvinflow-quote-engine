@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  quotation-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quotation-core
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DEFAULT_AI_MODEL=gemini-3.7-flash
+      - FALLBACK_AI_MODEL=gemini-3.1-pro
+      - AI_CONFIDENCE_THRESHOLD=80
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+
+  # 可选：如果需要在同一台 VPS 上直接集成 n8n
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n-foreign-trade
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://${DOMAIN:-localhost}/
+      - GENERIC_TIMEZONE=Asia/Shanghai
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:

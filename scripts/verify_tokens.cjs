@@ -1,0 +1,10 @@
+const fs = require('fs');
+const html = fs.readFileSync('public/review.html', 'utf-8');
+console.log('1. Has copyEmailSubject:', html.includes('copyEmailSubject'));
+console.log('2. Has copyEmailBodyOnly:', html.includes('copyEmailBodyOnly'));
+console.log('3. Has isPaidUser:', html.includes('isPaidUser'));
+console.log('4. Has hasImapConfigured:', html.includes('hasImapConfigured'));
+console.log('5. Has downloadPdfFile:', html.includes('downloadPdfFile'));
+console.log('6. Has 微信安全提示与防风控指引:', html.includes('微信安全提示与防风控指引'));
+console.log('7. Has 直达邮件草稿箱:', html.includes('直达邮件草稿箱'));
+console.log('8. Has ⚡ 确认无误，一键出单 (下载 PDF 与复制英文邮件):', html.includes('⚡ 确认无误，一键出单 (下载 PDF 与复制英文邮件)'));

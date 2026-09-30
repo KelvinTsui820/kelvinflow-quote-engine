@@ -1,0 +1,804 @@
+import PDFDocument from 'pdfkit';
+import fs from 'fs';
+import { QuotationResult } from '../types/index.js';
+import { TenantService } from './tenant.service.js';
+
+export interface PDFOptions {
+  companyName?: string;
+  salesRepName?: string;
+  salesRepEmail?: string;
+  logoPath?: string;
+}
+
+/**
+ * 辅助函数：将美元金额转换为英文大写文字（国际贸易标准）
+ */
+function numberToWordsUSD(amount: number): string {
+  const units = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
+  const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
+  
+  const dollars = Math.floor(amount);
+  const cents = Math.round((amount - dollars) * 100);
+
+  function convertGroup(n: number): string {
+    let str = '';
+    if (n >= 100) {
+      str += units[Math.floor(n / 100)] + ' HUNDRED ';
+      n %= 100;
+    }
+    if (n >= 20) {
+      str += tens[Math.floor(n / 10)] + ' ';
+      n %= 10;
+    }
+    if (n > 0) {
+      str += units[n] + ' ';
+    }
+    return str.trim();
+  }
+
+  if (dollars === 0) return 'SAY TOTAL US DOLLARS ZERO AND ' + cents.toString().padStart(2, '0') + '/100 ONLY';
+
+  const millions = Math.floor(dollars / 1000000);
+  const thousands = Math.floor((dollars % 1000000) / 1000);
+  const remainder = dollars % 1000;
+
+  let result = 'SAY TOTAL US DOLLARS ';
+  if (millions > 0) result += convertGroup(millions) + ' MILLION ';
+  if (thousands > 0) result += convertGroup(thousands) + ' THOUSAND ';
+  if (remainder > 0) result += convertGroup(remainder) + ' ';
+
+  result += 'AND ' + cents.toString().padStart(2, '0') + '/100 ONLY';
+  return result.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * 检查文本是否包含中文字符
+ */
+function containsChinese(str?: string): boolean {
+  if (!str) return false;
+  return /[\u4e00-\u9fa5]/.test(str);
+}
+
+/**
+ * 规范化国际外贸出口商企业抬头名称（杜绝中英文混杂与 UTF-8 字节被 PDFKit 渲染为乱码）
+ */
+function cleanExporterCompanyName(rawName?: string): string {
+  if (!rawName) return 'KelvinFlow Global Technology Co., Ltd.';
+  let name = rawName
+    .replace(/外贸工作室/g, 'Global Technology Co., Ltd.')
+    .replace(/个人工作室/g, 'Export Co., Ltd.')
+    .replace(/工作室/g, 'Studio')
+    .replace(/进出口有限公司/g, 'Import & Export Co., Ltd.')
+    .replace(/进出口贸易有限公司/g, 'Import & Export Trading Co., Ltd.')
+    .replace(/贸易有限公司/g, 'Trading Co., Ltd.')
+    .replace(/实业有限公司/g, 'Industry Co., Ltd.')
+    .replace(/科技有限公司/g, 'Technology Co., Ltd.')
+    .replace(/有限公司/g, 'Co., Ltd.');
+
+  // 如果依然包含中文字符，将中文部分剔除或转换为安全英文字符
+  if (/[\u4e00-\u9fa5]/.test(name)) {
+    const latinPart = name.replace(/[\u4e00-\u9fa5]+/g, ' ').replace(/\s+/g, ' ').trim();
+    if (latinPart.length >= 3) {
+      name = latinPart.endsWith('Co., Ltd.') ? latinPart : `${latinPart} Co., Ltd.`;
+    } else {
+      name = 'KelvinFlow Global Technology Co., Ltd.';
+    }
+  }
+  return name.trim();
+}
+
+/**
+ * 格式化外贸国际电话号码（支持国内手机号自动补齐 +86 国际区号及空格微排版）
+ */
+function formatInternationalPhone(raw?: string): string {
+  if (!raw) return '+86 185 6609 0282';
+  let clean = raw.trim();
+  if (clean.includes('-')) {
+    clean = clean.replace(/-/g, ' ');
+  }
+  const digitsOnly = clean.replace(/\D/g, '');
+  if (/^1[3-9]\d{9}$/.test(digitsOnly)) {
+    return `+86 ${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 7)} ${digitsOnly.slice(7)}`;
+  }
+  if (/^861[3-9]\d{9}$/.test(digitsOnly)) {
+    const num = digitsOnly.slice(2);
+    return `+86 ${num.slice(0, 3)} ${num.slice(3, 7)} ${num.slice(7)}`;
+  }
+  return clean.startsWith('+') ? clean : `+86 ${clean}`;
+}
+
+/**
+ * 清洗外贸业务员/出口总监姓名，杜绝系统占位符 (DEFAULT Admin, Compat 等) 暴露给海外客户
+ */
+function cleanSalesRepName(raw?: string): string {
+  if (!raw) return 'Kelvin Tsui';
+  const cleaned = raw
+    .replace(/\(Compat\)/gi, '')
+    .replace(/DEFAULT\s*Admin/gi, 'Kelvin Tsui')
+    .replace(/DEFAULT/gi, 'Kelvin Tsui')
+    .replace(/Admin/gi, 'Export Specialist')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return cleaned || 'Kelvin Tsui';
+}
+
+export class PDFService {
+  /**
+   * 生成专业级国际外贸商业报价单 PDF (标准 A4 单页完美版面，大字号、高呼吸感)
+   */
+  static async generateQuotationPDF(
+    quotation: QuotationResult,
+    options: PDFOptions = {}
+  ): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const tenantId = quotation.tenantId || 'default';
+      const tenantProfile = TenantService.getTenantProfile(tenantId);
+
+      const rawCompany = options.companyName || tenantProfile.companyName || process.env.COMPANY_NAME || 'KelvinFlow Global Technology Co., Ltd.';
+      const company = cleanExporterCompanyName(rawCompany);
+      const companySubtitle = tenantProfile.companySubtitle || 'Manufacturer & Exporter of Precision Ergonomic Hardware & Seating Solutions';
+      const companyAddress = tenantProfile.companyAddress || 'International High-Tech Innovation Center, Foshan, Guangdong, China (528000)';
+      const salesRep = cleanSalesRepName(quotation.salesRepName || options.salesRepName || process.env.DEFAULT_MANAGER_NAME || 'Kelvin Tsui');
+      const salesEmail = options.salesRepEmail || tenantProfile.contactEmail || process.env.DEFAULT_MANAGER_EMAIL || 'sales@kelvinflow.com';
+      const rawPhone = tenantProfile.contactPhone || process.env.DEFAULT_MANAGER_PHONE || '18566090282';
+      const salesPhone = formatInternationalPhone(rawPhone);
+      const website = tenantProfile.website || 'www.kelvinflow.com';
+
+      // A4 规格: 595.28 x 841.89 pt。统一边距 30pt，最大可用宽度 531pt
+      const doc = new PDFDocument({ margin: 30, size: 'A4', autoFirstPage: true, bufferPages: true });
+      const buffers: Buffer[] = [];
+
+      doc.on('data', chunk => buffers.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(buffers)));
+      doc.on('error', err => reject(err));
+
+      // 注册中文字体以支持中文公司名/客户名（支持 Windows 和 Linux 生产环境路径）
+      let hasChineseFont = false;
+      const fontCandidates = [
+        'C:/Windows/Fonts/simhei.ttf',
+        'C:/Windows/Fonts/msyh.ttc',
+        '/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc',
+        '/usr/share/fonts/wqy-zenhei/wqy-zenhei.ttc',
+        '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
+        '/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc'
+      ];
+      for (const fontPath of fontCandidates) {
+        if (fs.existsSync(fontPath)) {
+          try {
+            doc.registerFont('ChineseFont', fontPath);
+            doc.registerFont('ChineseFont-Bold', fontPath);
+            hasChineseFont = true;
+            break;
+          } catch (e) {
+            // ignore font load error
+          }
+        }
+      }
+
+      const getFont = (bold = false, textToCheck = '') => {
+        if (hasChineseFont && containsChinese(textToCheck)) {
+          return bold ? 'ChineseFont-Bold' : 'ChineseFont';
+        }
+        return bold ? 'Helvetica-Bold' : 'Helvetica';
+      };
+
+      const startX = 32;
+      const pageWidth = 531;
+      let currentY = 24;
+
+      // =========================================================================
+      // 1. 公司 Header 栏与文档大标题 (标准外贸出口发票高阶版式，宽幅无遮挡)
+      // =========================================================================
+      const customLogoPath = options.logoPath || TenantService.getTenantLogoPath(tenantId);
+      const hasLogo = Boolean(customLogoPath && fs.existsSync(customLogoPath));
+
+      if (hasLogo && customLogoPath) {
+        try {
+          doc.image(customLogoPath, startX, currentY, { fit: [130, 36] });
+          const textY = currentY + 40;
+          doc
+            .fontSize(11)
+            .font(getFont(true, company))
+            .fillColor('#0f2942')
+            .text(company.toUpperCase(), startX, textY, { width: 330 });
+
+          doc
+            .fontSize(7.5)
+            .font(getFont(false, companySubtitle))
+            .fillColor('#64748b')
+            .text(companySubtitle, startX, textY + 14, { width: 330, ellipsis: true });
+
+          doc
+            .fontSize(7.5)
+            .font(getFont(false, companyAddress))
+            .fillColor('#475569')
+            .text('Address: ' + companyAddress, startX, textY + 26, { width: 330, ellipsis: true })
+            .text(`Tel: ${salesPhone}  |  Email: ${salesEmail}  |  Web: ${website}`, startX, textY + 38, { width: 330, ellipsis: true });
+
+          currentY = textY + 52;
+        } catch (imgErr) {
+          console.warn('PDF custom logo embed warning:', imgErr);
+          renderDefaultHeaderText();
+        }
+      } else {
+        renderDefaultHeaderText();
+      }
+
+      function renderDefaultHeaderText() {
+        doc
+          .fontSize(13)
+          .font(getFont(true, company))
+          .fillColor('#0f2942')
+          .text(company.toUpperCase(), startX, currentY, { width: 330 });
+
+        doc
+          .fontSize(7.5)
+          .font(getFont(false, companySubtitle))
+          .fillColor('#64748b')
+          .text(companySubtitle, startX, currentY + 16, { width: 330, ellipsis: true });
+
+        doc
+          .fontSize(7.5)
+          .font(getFont(false, companyAddress))
+          .fillColor('#475569')
+          .text('Address: ' + companyAddress, startX, currentY + 28, { width: 330, ellipsis: true })
+          .text(`Tel: ${salesPhone}  |  Email: ${salesEmail}  |  Web: ${website}`, startX, currentY + 40, { width: 330, ellipsis: true });
+
+        currentY += 56;
+      }
+
+      // 右侧：商业报价单标题与单号信息 (加粗加大，清晰可辨，排版严整)
+      doc
+        .fontSize(18)
+        .font(getFont(true))
+        .fillColor('#2563eb')
+        .text('FORMAL QUOTATION', startX + 280, 22, { width: 251, align: 'right' });
+
+      doc
+        .fontSize(9.5)
+        .font(getFont(true))
+        .fillColor('#0f2942')
+        .text('REF NO: ' + quotation.quotationNumber, startX + 280, 44, { width: 251, align: 'right' });
+
+      const issueDateStr = quotation.date || new Date().toISOString().split('T')[0];
+      const validityDays = (quotation.priceValidity && quotation.priceValidity.match(/\d+/))
+        ? parseInt(quotation.priceValidity.match(/\d+/)![0], 10)
+        : 30;
+      let validUntilStr = '';
+      try {
+        const d = new Date(issueDateStr);
+        if (!isNaN(d.getTime())) {
+          d.setDate(d.getDate() + validityDays);
+          validUntilStr = d.toISOString().split('T')[0];
+        }
+      } catch {}
+      const validityDisplay = validUntilStr
+        ? `Price Validity: ${validityDays} Days (Until: ${validUntilStr})`
+        : `Price Validity: ${validityDays} Calendar Days`;
+
+      doc
+        .fontSize(8)
+        .font(getFont(false))
+        .fillColor('#64748b')
+        .text('Date of Issue: ' + issueDateStr, startX + 280, 58, { width: 251, align: 'right' })
+        .text(validityDisplay, startX + 280, 70, { width: 251, align: 'right' })
+        .text('Export Manager: ' + salesRep, startX + 280, 82, { width: 251, align: 'right' });
+
+      currentY = Math.max(currentY, 98);
+
+      // 贯穿高质感装饰分割线
+      doc
+        .strokeColor('#2563eb')
+        .lineWidth(1.8)
+        .moveTo(startX, currentY)
+        .lineTo(startX + pageWidth, currentY)
+        .stroke();
+
+      currentY += 12;
+
+      // =========================================================================
+      // 2. 商务双卡片：买家信息 (BILL TO) 与 履约条款 (COMMERCIAL TERMS)
+      // =========================================================================
+      const boxHeight = 78;
+      const boxWidth = 259;
+
+      // 左卡片：买家企业与对接人
+      doc.roundedRect(startX, currentY, boxWidth, boxHeight, 4).fillAndStroke('#f8fafc', '#cbd5e1');
+      doc.font(getFont(true)).fontSize(8.5).fillColor('#0f2942').text('CONSIGNEE / BUYER INFORMATION:', startX + 12, currentY + 8);
+      
+      const buyerComp = quotation.customerName || 'Acme Global Trading Ltd.';
+      doc.font(getFont(true, buyerComp)).fontSize(9).fillColor('#1e293b').text(buyerComp, startX + 12, currentY + 22, { width: boxWidth - 24, ellipsis: true });
+      
+      const buyerPerson = quotation.buyerName || 'Purchasing Director';
+      doc.font(getFont(false, buyerPerson)).fontSize(8).fillColor('#475569').text('Attn: ' + buyerPerson, startX + 12, currentY + 36);
+      doc.font(getFont(false)).fontSize(8).fillColor('#475569').text('Email: ' + (quotation.buyerEmail || 'buyer@acmeglobal.de'), startX + 12, currentY + 49);
+
+      // 第 4 行：目的港口与买家区域（实现左右双卡片完全 4 行等高对称）
+      let buyerDest = 'Hamburg Port, Germany';
+      const anyQuote = quotation as any;
+      if (anyQuote.destinationPort) {
+        buyerDest = anyQuote.destinationPort;
+      } else if (anyQuote.buyerAddress && anyQuote.buyerAddress.length > 3) {
+        buyerDest = anyQuote.buyerAddress;
+      } else {
+        const fullRemarks = `${anyQuote.deliveryDetails || ''} ${anyQuote.specialRemarks || ''} ${anyQuote.termsAndConditions || ''}`;
+        const portMatch = fullRemarks.match(/(?:to|destination|cif|cfr|fob)\s*[:：]?\s*([A-Za-z\s]+(?:Port|Harbour|Harbor))/i);
+        if (portMatch && portMatch[1]) {
+          buyerDest = portMatch[1].trim();
+        } else if (quotation.customerName?.includes('GmbH') || quotation.buyerEmail?.endsWith('.de')) {
+          buyerDest = 'Hamburg Port, Germany';
+        } else if (quotation.buyerEmail?.endsWith('.uk') || quotation.customerName?.includes('UK')) {
+          buyerDest = 'Felixstowe Port, United Kingdom';
+        } else if (quotation.buyerEmail?.endsWith('.fr')) {
+          buyerDest = 'Le Havre Port, France';
+        } else if (quotation.buyerEmail?.endsWith('.nl')) {
+          buyerDest = 'Rotterdam Port, Netherlands';
+        } else if (quotation.buyerEmail?.endsWith('.us') || quotation.customerName?.includes('USA') || quotation.customerName?.includes('LLC') || quotation.customerName?.includes('Inc')) {
+          buyerDest = 'Long Beach Port, USA';
+        } else {
+          buyerDest = 'Hamburg Port, Germany';
+        }
+      }
+      doc.font(getFont(false)).fontSize(8).fillColor('#475569')
+        .text('Destination (POD): ', startX + 12, currentY + 62, { continued: true })
+        .font(getFont(true)).fillColor('#0f2942').text(buyerDest);
+
+      // 右卡片：国际贸易与交割条款
+      const rightBoxX = startX + boxWidth + 13;
+      doc.roundedRect(rightBoxX, currentY, boxWidth, boxHeight, 4).fillAndStroke('#f8fafc', '#cbd5e1');
+      doc.font(getFont(true)).fontSize(8.5).fillColor('#0f2942').text('COMMERCIAL & SHIPMENT SPECIFICATIONS:', rightBoxX + 12, currentY + 8);
+      
+      let displayIncoterm = quotation.incotermUsed || 'FOB Shenzhen';
+      if (/^CIF/i.test(displayIncoterm)) {
+        displayIncoterm = `CIF ${buyerDest}`;
+      } else if (/^CFR/i.test(displayIncoterm)) {
+        displayIncoterm = `CFR ${buyerDest}`;
+      } else if (/^FOB/i.test(displayIncoterm)) {
+        displayIncoterm = displayIncoterm.replace(/\s*\(.*?\)/g, '').trim();
+        if (!displayIncoterm.toLowerCase().includes('port') && !displayIncoterm.toLowerCase().includes('shenzhen') && !displayIncoterm.toLowerCase().includes('guangzhou')) {
+          displayIncoterm = `${displayIncoterm} Shenzhen Port, China`;
+        }
+      } else if (/^EXW/i.test(displayIncoterm)) {
+        displayIncoterm = 'EXW Foshan Factory, China';
+      } else {
+        displayIncoterm = displayIncoterm.replace(/\s*\(.*?\)/g, '').trim();
+      }
+
+      // 起运港与航线闭环 (动态自适应：优先来自询盘/租户，默认中国深水出口港)
+      const portOfLoading = anyQuote.portOfLoading || (tenantProfile as any)?.defaultPortOfLoading || 'Shenzhen Port, China';
+
+      doc.font(getFont(false)).fontSize(8).fillColor('#475569')
+        .text('Trade Terms (Incoterm): ', rightBoxX + 12, currentY + 22, { continued: true })
+        .font(getFont(true)).fillColor('#2563eb').text(displayIncoterm);
+
+      const currFullName = quotation.currency === 'USD' ? 'USD (US Dollars)' : (quotation.currency === 'EUR' ? 'EUR (Euro)' : (quotation.currency === 'GBP' ? 'GBP (British Pounds)' : quotation.currency));
+      doc.font(getFont(false)).fontSize(8).fillColor('#475569')
+        .text('Settlement Currency: ', rightBoxX + 12, currentY + 36, { continued: true })
+        .font(getFont(true)).fillColor('#0f2942').text(currFullName);
+
+      // 动态生产交期 (来自询盘/选项，并加上图纸签样前置条件)
+      const rawLead = (quotation.leadTime || '25 - 30 Working Days')
+        .replace(/upon.*$/i, '')
+        .replace(/after.*$/i, '')
+        .trim();
+      const dynamicLeadTime = rawLead ? `${rawLead} upon Approval` : '25 - 30 Working Days upon Approval';
+      doc.font(getFont(false)).fontSize(8).fillColor('#475569')
+        .text('Production Lead Time: ', rightBoxX + 12, currentY + 49, { continued: true })
+        .font(getFont(true)).fillColor('#0f2942').text(dynamicLeadTime, { width: boxWidth - 24, ellipsis: true });
+
+      // 港口航线闭环
+      const isOceanTerm = /CIF|CFR|FOB/i.test(displayIncoterm);
+      const shipmentRouteText = isOceanTerm ? `POL: ${portOfLoading}` : 'Ex-Works Loaded';
+      doc.font(getFont(false)).fontSize(8).fillColor('#475569')
+        .text('Shipment Origin: ', rightBoxX + 12, currentY + 62, { continued: true })
+        .font(getFont(true)).fillColor('#0f2942').text(shipmentRouteText);
+
+      currentY += boxHeight + 16;
+
+      // =========================================================================
+      // 3. 报价商品规格明细表 (支持动态计算行高、紧凑模式与多页自适应流式排版)
+      // =========================================================================
+      const tableHeaderHeight = 22;
+      const isCompact = quotation.items.length >= 5 && quotation.items.length <= 6;
+      const rowMinHeight = isCompact ? 28 : 34;
+
+      // 列坐标分配 (全宽 531pt，黄金重平衡：拉开单价与数量间距，消除表头粘连)
+      const colX = {
+        idx: startX + 4,
+        sku: startX + 28,
+        desc: startX + 130,
+        qty: startX + 314,
+        unitPrice: startX + 378,
+        subtotal: startX + 456
+      };
+
+      function renderTableHeader(y: number): number {
+        doc.rect(startX, y, pageWidth, tableHeaderHeight).fill('#0f2942');
+        doc.font(getFont(true)).fontSize(7.5).fillColor('#ffffff');
+        doc.text('#', colX.idx, y + 6, { width: 20, align: 'center' });
+        doc.text('ITEM / MODEL NO.', colX.sku, y + 6, { width: 96 });
+        doc.text('DESCRIPTION & SPECIFICATIONS', colX.desc, y + 6, { width: 178 });
+        doc.text('QTY (PCS)', colX.qty, y + 6, { width: 52, align: 'right' });
+        doc.text('UNIT PRICE', colX.unitPrice, y + 6, { width: 70, align: 'right' });
+        doc.text('TOTAL (' + quotation.currency + ')', colX.subtotal, y + 6, { width: 71, align: 'right' });
+        return y + tableHeaderHeight;
+      }
+
+      function renderContinuationHeader(): number {
+        let y = 24;
+        doc.font(getFont(true)).fontSize(10).fillColor('#0f2942')
+          .text('QUOTATION ITEMS LIST (CONTINUED)', startX, y);
+        doc.font(getFont(false)).fontSize(8).fillColor('#64748b')
+          .text('Quotation Ref: ' + quotation.quotationNumber, startX + 300, y, { width: 231, align: 'right' });
+        y += 16;
+        doc.strokeColor('#2563eb').lineWidth(1.5).moveTo(startX, y).lineTo(startX + pageWidth, y).stroke();
+        return y + 10;
+      }
+
+      currentY = renderTableHeader(currentY);
+
+      // 渲染商品明细行
+      quotation.items.forEach((item, index) => {
+        const isAlt = index % 2 === 1;
+        const rawDesc = item.description || 'Standard Export Appliance Spec';
+        let descText = rawDesc;
+        if (!descText.toLowerCase().includes('hs code') && !descText.toLowerCase().includes('hs:')) {
+          let hsCode = (item as any).hsCode;
+          if (!hsCode) {
+            const skuUpper = (item.sku || '').toUpperCase();
+            const descUpper = rawDesc.toUpperCase();
+            if (skuUpper.includes('CHAIR') || descUpper.includes('CHAIR') || skuUpper.includes('ERG')) {
+              hsCode = '9401.30';
+            } else if (skuUpper.includes('SCREW') || descUpper.includes('SCREW') || skuUpper.includes('BOLT')) {
+              hsCode = '7318.15';
+            } else if (skuUpper.includes('BRACKET') || descUpper.includes('BRACKET') || skuUpper.includes('AL-') || skuUpper.includes('ACME-991')) {
+              hsCode = '7616.99';
+            } else if (descUpper.includes('ALUMINUM') || descUpper.includes('ALLOY')) {
+              hsCode = '7616.99';
+            }
+          }
+          if (hsCode) {
+            descText = `[HS: ${hsCode}] ${rawDesc}`;
+          }
+        }
+
+        doc.font(getFont(false, descText)).fontSize(8);
+        const descHeight = doc.heightOfString(descText, { width: 178, lineGap: 1 });
+        const itemRowHeight = Math.max(rowMinHeight, Math.ceil(descHeight) + (isCompact ? 8 : 12));
+
+        // 智能安全分页检测 (730pt 为第一页安全阈值)
+        if (currentY + itemRowHeight > 730) {
+          doc.addPage();
+          currentY = renderContinuationHeader();
+          currentY = renderTableHeader(currentY);
+        }
+
+        if (isAlt) {
+          doc.rect(startX, currentY, pageWidth, itemRowHeight).fill('#f8fafc');
+        }
+
+        // 序号
+        doc.font(getFont(false)).fontSize(8).fillColor('#64748b');
+        doc.text(String(index + 1), colX.idx, currentY + (isCompact ? 5 : 7), { width: 20, align: 'center' });
+
+        // 买家型号 SKU
+        doc.font(getFont(true, item.sku)).fontSize(8.5).fillColor('#0f2942');
+        doc.text(item.sku, colX.sku, currentY + (isCompact ? 5 : 7), { width: 96, ellipsis: true });
+
+        // 品名与技术参数描述 (含 HS Code)
+        doc.font(getFont(false, descText)).fontSize(8).fillColor('#334155');
+        doc.text(descText, colX.desc, currentY + (isCompact ? 5 : 7), { width: 178, lineGap: 1 });
+
+        // 数量
+        doc.font(getFont(false)).fontSize(8.5).fillColor('#0f172a');
+        doc.text(Number(item.quantity).toLocaleString(), colX.qty, currentY + (isCompact ? 5 : 7), { width: 52, align: 'right' });
+
+        // 单价与小计
+        const unitPriceNum = Number(item.unitPriceForeign || 0);
+        const subtotalNum = Number(item.subTotalForeign || (item.quantity * unitPriceNum));
+
+        doc.font(getFont(false)).fontSize(8.5).fillColor('#0f172a');
+        doc.text(unitPriceNum.toFixed(2), colX.unitPrice, currentY + (isCompact ? 5 : 7), { width: 70, align: 'right' });
+
+        doc.font(getFont(true)).fontSize(9).fillColor('#0f2942');
+        doc.text(subtotalNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), colX.subtotal, currentY + (isCompact ? 5 : 7), { width: 71, align: 'right' });
+
+        // 细微行底分割线
+        doc.strokeColor('#e2e8f0').lineWidth(0.5).moveTo(startX, currentY + itemRowHeight).lineTo(startX + pageWidth, currentY + itemRowHeight).stroke();
+
+        currentY += itemRowHeight;
+      });
+
+      currentY += (isCompact ? 8 : 12);
+
+      // =========================================================================
+      // 4. 财务总计与大写金额 (Grand Total & Amount in Words)
+      // =========================================================================
+      const totalSectionHeight = isCompact ? 44 : 48;
+      if (currentY + totalSectionHeight > 730) {
+        doc.addPage();
+        currentY = renderContinuationHeader();
+      }
+
+      // 右侧总金额卡片宽度拓宽至 195pt，与上方表格更均衡；左侧大写金额宽度自动适配
+      const totalBoxWidth = 195;
+      const totalBoxX = startX + pageWidth - totalBoxWidth;
+      const inWordsWidth = pageWidth - totalBoxWidth - 10;
+
+      // 左侧：国际电汇标准英文大写金额
+      const inWords = numberToWordsUSD(quotation.totalAmountForeign);
+      doc.roundedRect(startX, currentY, inWordsWidth, totalSectionHeight, 4).fillAndStroke('#f8fafc', '#cbd5e1');
+      doc.font(getFont(true)).fontSize(7).fillColor('#64748b').text('AMOUNT IN WORDS (INTERNATIONAL TRADE STANDARD):', startX + 10, currentY + 6);
+      doc.font(getFont(true)).fontSize(8).fillColor('#0f2942').text(inWords, startX + 10, currentY + 18, { width: inWordsWidth - 20, lineGap: 1.5 });
+
+      // 右侧：官方核算总金额 (采用国际大厂上下分层结构，彻底杜绝左右撞车)
+      doc.roundedRect(totalBoxX, currentY, totalBoxWidth, totalSectionHeight, 4).lineWidth(1).fillAndStroke('#0f2942', '#1e3a5f');
+      
+      // 上层：小标签与贸易条款标识 (左侧 GRAND TOTAL，右侧贸易术语如 CIF HAMBURG)
+      const incotermCode = (quotation.incotermUsed || 'CIF').split(' ')[0];
+      const tradeDestShort = buyerDest ? buyerDest.replace(/\s*Port.*/i, '').trim() : '';
+      const termTag = tradeDestShort ? `${incotermCode} ${tradeDestShort}` : incotermCode;
+
+      doc.font(getFont(true)).fontSize(7.5).fillColor('#94a3b8').text('GRAND TOTAL', totalBoxX + 14, currentY + (isCompact ? 7 : 9));
+      doc.font(getFont(true)).fontSize(7).fillColor('#38bdf8').text(termTag.toUpperCase(), totalBoxX + 14, currentY + (isCompact ? 7 : 9), { width: totalBoxWidth - 28, align: 'right' });
+
+      // 下层：纯白超大号金额 (通栏展开，右对齐，去除重复 $ 符号)
+      const formattedTotal = quotation.currency + ' ' + quotation.totalAmountForeign.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      doc.font(getFont(true)).fontSize(16).fillColor('#ffffff').text(
+        formattedTotal,
+        totalBoxX + 14,
+        currentY + (isCompact ? 21 : 23),
+        { width: totalBoxWidth - 28, align: 'right' }
+      );
+
+      currentY += totalSectionHeight + (isCompact ? 8 : 12);
+
+      // 货柜装载容积速查与配载提示胶囊条
+      let fitRecommendation = 'Standard Ocean Freight';
+      if (quotation.containerEstimate && quotation.containerEstimate.totalCBM > 0) {
+        const ce = quotation.containerEstimate;
+        if (ce.recommendedContainer && ce.recommendedContainer !== 'Standard Ocean Freight') {
+          fitRecommendation = ce.recommendedContainer;
+        } else {
+          const cbm = ce.totalCBM;
+          if (cbm <= 15) {
+            fitRecommendation = `LCL Consolidation (Approx. ${cbm} CBM)`;
+          } else if (cbm <= 28) {
+            fitRecommendation = `1x 20'GP FCL (~${Math.round((cbm / 28) * 100)}% load)`;
+          } else if (cbm <= 58) {
+            fitRecommendation = `1x 40'GP FCL (~${Math.round((cbm / 58) * 100)}% load)`;
+          } else if (cbm <= 68) {
+            fitRecommendation = `1x 40'HQ High-Cube (~${Math.round((cbm / 68) * 100)}% load)`;
+          } else {
+            const hq = Math.floor(cbm / 68);
+            const rem = Math.round((cbm % 68) * 10) / 10;
+            fitRecommendation = rem <= 12
+              ? `${hq}x 40'HQ (68 CBM) + LCL (${rem} CBM) or 1x 20'GP`
+              : (rem <= 28 ? `${hq}x 40'HQ + 1x 20'GP` : `${hq + 1}x 40'HQ High-Cube`);
+          }
+        }
+
+        const bannerH = 18;
+        if (currentY + bannerH > 730) {
+          doc.addPage();
+          currentY = renderContinuationHeader();
+        }
+        doc.roundedRect(startX, currentY, pageWidth, bannerH, 3).fillAndStroke('#f0fdf4', '#bbf7d0');
+        doc.font(getFont(true)).fontSize(7.5).fillColor('#15803d').text('PACKAGING & CONTAINER FIT: ', startX + 8, currentY + 5, { continued: true });
+        doc.font(getFont(false)).fontSize(7.5).fillColor('#166534').text(
+          `${ce.totalCartons} Cartons  |  Approx. ${ce.totalCBM} CBM${ce.totalGW ? '  |  GW: ' + ce.totalGW.toLocaleString() + ' KG' : ''}  |  Recommended: ${fitRecommendation}`,
+          { width: pageWidth - 16, ellipsis: true }
+        );
+        currentY += bannerH + (isCompact ? 8 : 12);
+      }
+
+      // =========================================================================
+      // 5. 商业条款与合规承诺 (两列悬挂缩进排版，核心术语加粗对比)
+      // =========================================================================
+      if (currentY + 110 > 730) {
+        doc.addPage();
+        currentY = renderContinuationHeader();
+      }
+
+      doc.font(getFont(true)).fontSize(9).fillColor('#0f2942').text('COMMERCIAL TERMS & QUALITY ASSURANCE', startX, currentY);
+      doc.strokeColor('#2563eb').lineWidth(1).moveTo(startX, currentY + 13).lineTo(startX + pageWidth, currentY + 13).stroke();
+      currentY += 18;
+
+      // 1. 动态生成付款条款 (自适应支持各种不同国际付款条件)
+      let payHighlight = '30% T/T Deposit';
+      let payRest = ' upon Proforma Invoice (PI) confirmation; 70% balance paid within 5 working days against copy of Ocean Bill of Lading (B/L) and full shipping documents. All wire transfer fees outside China for Buyer\'s account.';
+
+      if (quotation.paymentTerms) {
+        const rawPt = quotation.paymentTerms;
+        if (/100%\s*(T\/T|advance)/i.test(rawPt)) {
+          payHighlight = '100% T/T in Advance';
+          payRest = ' upon Proforma Invoice (PI) confirmation prior to mass production scheduling. All wire transfer fees outside China for Buyer\'s account.';
+        } else if (/L\/?C/i.test(rawPt)) {
+          payHighlight = '100% Irrevocable L/C at Sight';
+          payRest = ' issued by first-class international bank upon order confirmation. All overseas banking charges for Buyer\'s account.';
+        } else if (/O\/?A|Net\s*\d+/i.test(rawPt)) {
+          payHighlight = rawPt;
+          payRest = ' open account credit terms subject to Sinosure (China Export & Credit Insurance Corporation) underwriting approval.';
+        } else if (/EXW/i.test(quotation.incotermUsed || '')) {
+          payHighlight = '30% T/T Deposit';
+          payRest = ' upon Proforma Invoice (PI) confirmation; 70% balance paid prior to dispatch against photo/video inspection pass certificate. Wire fees outside China for Buyer\'s account.';
+        } else {
+          payHighlight = '30% T/T Deposit';
+          payRest = ' upon Proforma Invoice (PI) confirmation; 70% balance paid within 5 working days against copy of Ocean Bill of Lading (B/L) and full shipping documents. All wire transfer fees outside China for Buyer\'s account.';
+        }
+      }
+
+      // 2. 动态生成报价有效期
+      const validityHighlight = `${validityDays} Calendar Days`;
+      const validityRest = ` strictly valid from date of issue (until ${validUntilStr || 'specified date'}). Prices subject to mutual adjustment only if foreign exchange rate fluctuates by more than ±3%. Re-confirmation required upon expiration.`;
+
+      // 3. 动态质量保障条款 (优先支持询盘要求/配置，默认 AQL抽检 + 产线全测 + 开放第三方验货)
+      const warrantyHighlight = (quotation as any).qualityStandard || 'AQL 2.5 / 4.0 Standard';
+      const warrantyRest = (quotation as any).qualityWarranty || ' pre-shipment sampling inspection & 100% functional testing on production line. 12-Month factory warranty. Buyer\'s third-party inspection (SGS / TÜV / BV) warmly welcomed prior to loading.';
+
+      // 4. 包装与防震防跌落条款 (优先支持询盘要求的托盘/电商包装，默认 ISTA-1A 5层瓦楞)
+      const packagingHighlight = (quotation as any).packagingStandard || 'Export Standard 5-Ply';
+      const packagingRest = (quotation as any).packagingTerms || ' heavy-duty corrugated cartons, reinforced with strapping bands & moisture-proof lining. ISTA-1A drop-test certified. Fumigated wooden pallets available upon request.';
+
+      const structuredTerms = [
+        { label: 'Payment Terms:', highlight: payHighlight, rest: payRest },
+        { label: 'Price & Validity:', highlight: validityHighlight, rest: validityRest },
+        { label: 'Quality Warranty:', highlight: warrantyHighlight, rest: warrantyRest },
+        { label: 'Packaging & Delivery:', highlight: packagingHighlight, rest: packagingRest }
+      ];
+
+      const labelColWidth = 105;
+      const contentColWidth = pageWidth - labelColWidth;
+
+      structuredTerms.forEach(item => {
+        const itemY = currentY;
+        doc.font(getFont(true)).fontSize(7.5).fillColor('#2563eb').text(item.label, startX, itemY, { width: labelColWidth });
+        
+        doc.font(getFont(true)).fontSize(7.5).fillColor('#0f2942')
+          .text(item.highlight, startX + labelColWidth, itemY, { continued: true, width: contentColWidth })
+          .font(getFont(false)).fillColor('#475569')
+          .text(item.rest, { width: contentColWidth, lineGap: 1.5 });
+        
+        const fullText = item.highlight + item.rest;
+        doc.font(getFont(false)).fontSize(7.5);
+        const h = Math.max(doc.heightOfString(fullText, { width: contentColWidth, lineGap: 1.5 }), 12);
+        currentY = itemY + h + (isCompact ? 4 : 6);
+      });
+
+      // =========================================================================
+      // 6. 出口增值服务与合规承诺卡片 (VALUE-ADDED SERVICES & EXPORT ASSURANCES)
+      //    在商业报价阶段，以 1% 免费备件、OEM 麦头、出货验货报告与原产地证 CO 权益促成买家立项决策
+      // =========================================================================
+      const signBlockHeight = 78;
+      const assuranceCardHeight = 44;
+      const maxContentY = 768; // 距离页脚 (794) 留出 26pt 充裕安全边距
+
+      // 只要当前 Y 坐标加上增值权益卡片高度和签名区高度不超过单页限制，即可呈现出口增值权益
+      const canFitAssuranceCard = (currentY + (isCompact ? 6 : 8) + assuranceCardHeight + 12 + signBlockHeight) <= maxContentY;
+
+      if (canFitAssuranceCard) {
+        currentY += (isCompact ? 6 : 8);
+        
+        // 增值权益卡片背景：浅灰微底 + 典雅细边框 + 品牌蓝左侧强调条
+        doc.roundedRect(startX, currentY, pageWidth, assuranceCardHeight, 4).fillAndStroke('#f8fafc', '#cbd5e1');
+        doc.rect(startX, currentY, 3, assuranceCardHeight).fill('#2563eb');
+
+        // 卡片标题
+        doc.font(getFont(true)).fontSize(7.5).fillColor('#0f2942')
+          .text('VALUE-ADDED SERVICES & EXPORT COMPLIANCE ASSURANCES (BUYER BENEFITS)', startX + 10, currentY + 6);
+
+        // 动态支持：优先读取报价自定义或租户配置的 4 项增值权益，具备工业级精炼单行兜底
+        interface AssuranceItem {
+          label: string;
+          text: string;
+          highlight?: boolean;
+        }
+        const defaultAssurances: AssuranceItem[] = [
+          { label: '1% F.O.C. Parts: ', text: 'Free maintenance spare parts included.' },
+          { label: 'Pre-Shipment QC: ', text: 'Full inspection report & photos before loading.' },
+          { label: 'OEM Marks: ', text: 'Free customized carton marks & barcodes.' },
+          { label: 'Customs Clearance: ', text: 'Certificate of Origin (CO / FTA) supported.', highlight: true }
+        ];
+
+        const rawAssurances = (quotation as any).valueAddedServices || (tenantProfile as any)?.valueAddedServices || defaultAssurances;
+        const assurances: AssuranceItem[] = Array.isArray(rawAssurances) && rawAssurances.length >= 4 ? rawAssurances : defaultAssurances;
+
+        // 左右两列 4 项核心促成交权益 (严整单行排版，限制宽度并开启省略截断，彻底杜绝折行与下底溢出)
+        const colWidth = 245;
+        const col1X = startX + 10;
+        const col2X = startX + 272;
+        const r1Y = currentY + 18;
+        const r2Y = currentY + 30;
+
+        // 第 1 列 (左上 + 左下)
+        doc.font(getFont(true)).fontSize(7).fillColor('#0f2942')
+          .text(assurances[0].label, col1X, r1Y, { continued: true, width: colWidth })
+          .font(getFont(false)).fillColor('#475569')
+          .text(assurances[0].text, { width: colWidth, ellipsis: true });
+
+        doc.font(getFont(true)).fontSize(7).fillColor('#0f2942')
+          .text(assurances[1].label, col1X, r2Y, { continued: true, width: colWidth })
+          .font(getFont(false)).fillColor('#475569')
+          .text(assurances[1].text, { width: colWidth, ellipsis: true });
+
+        // 第 2 列 (右上 + 右下)
+        doc.font(getFont(true)).fontSize(7).fillColor('#0f2942')
+          .text(assurances[2].label, col2X, r1Y, { continued: true, width: colWidth })
+          .font(getFont(false)).fillColor('#475569')
+          .text(assurances[2].text, { width: colWidth, ellipsis: true });
+
+        doc.font(getFont(true)).fontSize(7).fillColor('#0f2942')
+          .text(assurances[3].label, col2X, r2Y, { continued: true, width: colWidth })
+          .font(getFont(assurances[3].highlight ? true : false)).fillColor(assurances[3].highlight ? '#2563eb' : '#475569')
+          .text(assurances[3].text, { width: colWidth, ellipsis: true });
+
+        currentY += assuranceCardHeight + (isCompact ? 6 : 10);
+      }
+
+      // =========================================================================
+      // 7. 买卖双方正式签字盖章栏 (自适应安全高度，带官方印章签核专区与订单启动指引)
+      // =========================================================================
+      // 订单确认行动号召指引条 (CTA Notice: 消除买家疑虑，指引下一步 PI 流程)
+      const ctaY = currentY + (isCompact ? 4 : 6);
+      doc.font(getFont(true)).fontSize(6.5).fillColor('#2563eb')
+        .text('ORDER CONFIRMATION NEXT STEP: ', startX, ctaY, { continued: true });
+      doc.font(getFont(false)).fontSize(6.5).fillColor('#64748b')
+        .text('Please countersign and return to lock production. Official Proforma Invoice (PI) with banking coordinates follows immediately.');
+
+      const naturalSignY = ctaY + 18;
+      let signY = naturalSignY;
+      if (naturalSignY + signBlockHeight > maxContentY) {
+        doc.addPage();
+        currentY = renderContinuationHeader();
+        signY = currentY + 16;
+      } else {
+        signY = Math.max(naturalSignY, isCompact ? 682 : 686);
+      }
+
+      const signColWidth = 245;
+      const signLineY = signY + 48;
+
+      // 左侧：卖方官方签核
+      doc.font(getFont(true, company)).fontSize(8.5).fillColor('#0f2942').text('FOR AND ON BEHALF OF EXPORTER:', startX, signY);
+      doc.font(getFont(true, company)).fontSize(8.5).fillColor('#2563eb').text(company.toUpperCase(), startX, signY + 13, { width: signColWidth, ellipsis: true });
+      
+      // 卖方印章指引占位
+      doc.font(getFont(false)).fontSize(6.5).fillColor('#94a3b8').text('[ Official Corporate Seal & Sign-off ]', startX + signColWidth - 120, signY + 36, { width: 120, align: 'right' });
+
+      doc.strokeColor('#94a3b8').lineWidth(0.8).dash(3, { space: 2 }).moveTo(startX, signLineY).lineTo(startX + signColWidth, signLineY).stroke().undash();
+      doc.font(getFont(false)).fontSize(7.5).fillColor('#64748b').text('Authorized Signature & Corporate Stamp', startX, signLineY + 5);
+      doc.font(getFont(true)).fontSize(8).fillColor('#1e293b').text('Export Director: ' + salesRep, startX, signLineY + 16);
+
+      // 右侧：买家签回确认
+      const buyerSignX = startX + pageWidth - signColWidth;
+      doc.font(getFont(true, buyerComp)).fontSize(8.5).fillColor('#0f2942').text('ACCEPTED & CONFIRMED BY BUYER:', buyerSignX, signY);
+      doc.font(getFont(true, buyerComp)).fontSize(8.5).fillColor('#2563eb').text(buyerComp.toUpperCase(), buyerSignX, signY + 13, { width: signColWidth, ellipsis: true });
+
+      // 买家印章指引占位
+      doc.font(getFont(false)).fontSize(6.5).fillColor('#94a3b8').text('[ Buyer Corporate Stamp & Sign-off ]', buyerSignX + signColWidth - 125, signY + 36, { width: 125, align: 'right' });
+
+      doc.strokeColor('#94a3b8').lineWidth(0.8).dash(3, { space: 2 }).moveTo(buyerSignX, signLineY).lineTo(buyerSignX + signColWidth, signLineY).stroke().undash();
+      doc.font(getFont(false)).fontSize(7.5).fillColor('#64748b').text('Authorized Buyer Signature & Date', buyerSignX, signLineY + 5);
+      doc.font(getFont(true)).fontSize(8).fillColor('#1e293b').text('Representative: ' + buyerPerson, buyerSignX, signLineY + 16, { continued: true });
+      doc.font(getFont(false)).fontSize(7.5).fillColor('#94a3b8').text('   Date: _______________');
+
+      // =========================================================================
+      // 7. 页面防伪机打序列号与页脚 (统一计算总页数 Page X of Y)
+      // =========================================================================
+      const range = doc.bufferedPageRange();
+      for (let i = 0; i < range.count; i++) {
+        doc.switchToPage(i);
+        const footerY = 794;
+        doc.strokeColor('#e2e8f0').lineWidth(0.5).moveTo(startX, footerY).lineTo(startX + pageWidth, footerY).stroke();
+        doc.font(getFont(false)).fontSize(7.5).fillColor('#94a3b8').text(
+          `Page ${i + 1} of ${range.count}  |  Quotation Ref: ${quotation.quotationNumber}  |  ${company}  |  Confidential & Proprietary Commercial Offer`,
+          startX,
+          footerY + 5,
+          { width: pageWidth, align: 'center' }
+        );
+      }
+
+      doc.end();
+    });
+  }
+}

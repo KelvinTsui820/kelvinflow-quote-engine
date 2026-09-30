@@ -1,0 +1,306 @@
+{
+  "name": "AI外貿報價助手_v6_生产增强版",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "has:attachment OR subject:底价 OR subject:底價 OR subject:报价 OR subject:報價 OR subject:Inquiry OR subject:RFQ OR subject:PO OR subject:Order"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        672
+      ],
+      "id": "3b70da11-9be0-4628-824b-dd0d8fbfc2d4",
+      "name": "1. Gmail Trigger (監聽附件與詢盤郵件)",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "mzK7uf78glWd70ZE",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.subject }}",
+              "operation": "regex",
+              "value2": "(?i)(底价|底價|更新底价|更新底價|底价表|底價表|PRICING.*UPDATE|UPDATE.*PRICING|COST.*SHEET|INTERNAL.*PRICE)"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        460,
+        672
+      ],
+      "id": "2a8f2451-7b60-4b5d-9130-2ecb175187dd",
+      "name": "2. 嚴格判定郵件類型 (防海外買家詢盤誤殺)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://quote.kelvinflow.com/api/v1/update-pricing",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "pricing_file",
+              "inputDataFieldName": "attachment_0"
+            },
+            {
+              "name": "sender_email",
+              "value": "={{ $json.from }}"
+            }
+          ]
+        },
+        "options": {},
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "key_default_admin_2026"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        700,
+        512
+      ],
+      "id": "005a1d4c-699f-4ffd-ac3d-390161759bdd",
+      "name": "3A. 更新底價庫 (/update-pricing)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('1. Gmail Trigger (監聽附件與詢盤郵件)').item.json.from }}",
+        "subject": "={{ $json.replyEmail.subject || '底價庫更新狀態通知' }}",
+        "message": "={{ $json.replyEmail.body || $json.error }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        940,
+        512
+      ],
+      "id": "6e1f1bf2-6811-4be9-a815-a78accc0d05f",
+      "name": "4A. 回覆底價反饋/診斷郵件",
+      "webhookId": "ecd7a0ad-4663-4502-a863-32a01e4b71ef",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "mzK7uf78glWd70ZE",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst binaries = item.binary || {};\nconst json = item.json;\n\nconst binaryKeys = Object.keys(binaries);\nlet bestKey = null;\n\n// 1. 優先查找真正的採購單 (PDF 或 Excel)\nfor (const key of binaryKeys) {\n  const file = binaries[key];\n  const name = (file.fileName || '').toLowerCase();\n  if (name.endsWith('.pdf') || name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv')) {\n    bestKey = key;\n    break;\n  }\n}\n\n// 2. 如果沒有 PDF/Excel，查找真實商品圖片 (過濾小於 25KB 的簽名圖與 Logo)\nif (!bestKey) {\n  for (const key of binaryKeys) {\n    const file = binaries[key];\n    const name = (file.fileName || '').toLowerCase();\n    const isImage = name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg') || (file.mimeType || '').startsWith('image/');\n    const isSignature = name.includes('logo') || name.includes('icon') || name.includes('avatar') || name.includes('sig') || name.includes('image001');\n    const size = file.fileSize ? parseInt(file.fileSize, 10) : (file.data ? file.data.length * 0.75 : 0);\n    \n    if (isImage && (!isSignature || size > 25000)) {\n      bestKey = key;\n      break;\n    }\n  }\n}\n\n// 3. 提取郵件正文純文本（作為無附件時的兜底詢盤內容）\nlet emailText = json.textPlain || json.snippet || '';\nif (!emailText && json.textHtml) {\n  emailText = json.textHtml.replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();\n}\n\nconst outBinary = {};\nif (bestKey && binaries[bestKey]) {\n  outBinary.po_file = binaries[bestKey];\n}\n\nreturn [{\n  json: {\n    ...json,\n    has_po_file: !!bestKey,\n    po_text: emailText || ''\n  },\n  binary: outBinary\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        816
+      ],
+      "id": "5c8d3e21-3a1b-4f90-8c23-7a912e4b8899",
+      "name": "2B. 智能附件篩選與純文本提取"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://quote.kelvinflow.com/api/v1/process-quote",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "po_file",
+              "inputDataFieldName": "po_file"
+            },
+            {
+              "name": "po_text",
+              "value": "={{ $json.po_text }}"
+            },
+            {
+              "name": "sales_rep_email",
+              "value": "={{ $json.to }}"
+            }
+          ]
+        },
+        "options": {},
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "key_default_admin_2026"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        900,
+        816
+      ],
+      "id": "1187fc41-be6c-43da-b905-5b4e65ca968d",
+      "name": "3B. 詢盤報價計算 (/process-quote)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nif (!item.success) {\n  throw new Error(`報價生成失敗: ${item.error}`);\n}\n\n// 提取審核工作台鏈接 (支持官方正式子域名)\nconst quoteId = item.quotation?.quotationNumber || 'QT-UNKNOWN';\nconst reviewUrl = item.reviewUrl || `https://quote.kelvinflow.com/`;\n\nreturn [{\n  json: {\n    quotation: item.quotation,\n    draftEmail: item.draftEmail,\n    reviewUrl: reviewUrl\n  },\n  binary: {\n    data: {\n      data: item.pdfBase64,\n      mimeType: 'application/pdf',\n      fileName: item.draftEmail?.pdfFileName || `${quoteId}_Official_Quotation.pdf`\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        816
+      ],
+      "id": "79b56060-7f14-40f7-85e5-a76a8589f99c",
+      "name": "4B. 轉化 PDF 二進制與審核鏈接"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.draftEmail.subject }}",
+        "message": "={{ $json.draftEmail.body }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          },
+          "sendTo": "={{ $json.quotation.buyerEmail || 'test@example.com' }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1340,
+        816
+      ],
+      "id": "44226fa8-5675-4853-95d3-0cae73604b98",
+      "name": "5B. 自動生成報價郵件草稿 (帶PDF)",
+      "webhookId": "115cbda1-ad6c-488d-9b44-c107a2a587c3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "mzK7uf78glWd70ZE",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "1. Gmail Trigger (監聽附件與詢盤郵件)": {
+      "main": [
+        [
+          {
+            "node": "2. 嚴格判定郵件類型 (防海外買家詢盤誤殺)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. 嚴格判定郵件類型 (防海外買家詢盤誤殺)": {
+      "main": [
+        [
+          {
+            "node": "3A. 更新底價庫 (/update-pricing)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "2B. 智能附件篩選與純文本提取",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3A. 更新底價庫 (/update-pricing)": {
+      "main": [
+        [
+          {
+            "node": "4A. 回覆底價反饋/診斷郵件",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2B. 智能附件篩選與純文本提取": {
+      "main": [
+        [
+          {
+            "node": "3B. 詢盤報價計算 (/process-quote)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3B. 詢盤報價計算 (/process-quote)": {
+      "main": [
+        [
+          {
+            "node": "4B. 轉化 PDF 二進制與審核鏈接",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4B. 轉化 PDF 二進制與審核鏈接": {
+      "main": [
+        [
+          {
+            "node": "5B. 自動生成報價郵件草稿 (帶PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "808492b1-9b08-4432-a624-6a8d63710680",
+  "meta": {
+    "instanceId": "d8d36761f7727bf64aea87dd8a2bef6a436d76ff55fb56a4d163cce44a7f63e4"
+  },
+  "id": "NpBXYDXVvo3giqMq",
+  "tags": []
+}

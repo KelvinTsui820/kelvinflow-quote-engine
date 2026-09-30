@@ -1,0 +1,17 @@
+{
+  "tenantId": "tenant_beta",
+  "companyName": "Beta Consumer Electronics (HK) Co., Limited",
+  "companySubtitle": "Smart Home & Audio Innovation Worldwide",
+  "companyAddress": "Unit 16, 22/F, Millennium Trade Tower, Kowloon, Hong Kong",
+  "contactEmail": "sales@beta-global.com",
+  "contactPhone": "+852-3112-9988",
+  "website": "www.beta-global.com",
+  "hideCostFromSales": true,
+  "defaultProfitMargin": 0.35,
+  "defaultCurrency": "EUR",
+  "apiKeys": [
+    "key_beta_admin_2026"
+  ],
+  "createdAt": "2026-09-04T06:56:30.366Z",
+  "updatedAt": "2026-09-04T06:56:30.366Z"
+}

@@ -1,0 +1,2180 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KelvinFlow - 外贸一人公司智能出单引擎 | 海外询盘 10 秒自动出单</title>
+  <meta name="description" content="专为外贸一人公司与工贸一体打造的智能出单引擎。直接转发海外买家询盘邮件，自动匹配私有成本底价表与阶梯利润，10 秒生成国际商业 A4 PDF 报价单并写入邮箱草稿箱。">
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- 样式引擎与外部字体 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'Consolas', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#2563eb',
+              700: '#1d4ed8'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #05050a;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+    ::selection {
+      background: rgba(37, 99, 235, 0.4);
+      color: #ffffff;
+    }
+
+    /* 背景网格纹理与环境微光 */
+    .bg-grid-pattern {
+      background-size: 50px 50px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+
+    /* 苹果级玻璃态面板 */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-panel:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+
+    /* 大标题金属光泽渐变 */
+    .gradient-hero-title {
+      background: linear-gradient(180deg, #FFFFFF 15%, #E2E8F0 65%, #94A3B8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* 酷炫流光与脉冲动画 */
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.15; transform: scale(1); }
+      50% { opacity: 0.28; transform: scale(1.08); }
+    }
+    .ambient-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      animation: pulseGlow 8s infinite ease-in-out;
+    }
+
+    /* 滚动进入平滑淡入动画 (Scroll Reveal - 激活后清除 3D Transform 避免字体栅格化模糊) */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal.active {
+      opacity: 1;
+      transform: none !important;
+      will-change: auto !important;
+    }
+
+    /* FAQ 独立高清晰渲染 (取消 backdrop-filter 滤镜通道，杜绝 Chromium 次像素模糊) */
+    #faq .glass-panel {
+      background: #080913;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+    #faq .glass-panel:hover {
+      background: #0d0f1e;
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+
+    /* 手风琴抽屉现代 CSS Grid 像素贴合动画 (彻底杜绝高度变化引起的文字抖动与模糊，折叠时高度绝对为0) */
+    .faq-accordion-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+      opacity: 0;
+      overflow: hidden;
+    }
+    .faq-accordion-body > div {
+      min-height: 0;
+      overflow: hidden;
+    }
+    .faq-accordion-body.open {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+
+    /* 图标防模糊与硬件加速 */
+    .sharp-logo {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+    }
+
+    /* Linear 级卡片鼠标流光跟随动效 (Spotlight Card Effect) */
+    .spotlight-card {
+      position: relative;
+    }
+    .spotlight-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: radial-gradient(420px circle at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(56, 189, 248, 0.45), transparent 45%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+    .spotlight-card:hover::before {
+      opacity: 1;
+    }
+
+    /* 滚动时导航栏磨砂玻璃与边框加深 */
+    header.header-scrolled {
+      background-color: rgba(5, 5, 10, 0.95);
+      border-bottom-color: rgba(255, 255, 255, 0.14);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+    }
+
+    /* 自定义纤细滚动条 */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #05050a; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+  </style>
+</head>
+<body class="min-h-screen bg-[#05050a] text-slate-100 flex flex-col justify-between antialiased selection:bg-blue-600/30 selection:text-white bg-grid-pattern">
+
+  <!-- ========================================================================= -->
+  <!-- 1. 全局导航栏 (Header Navigation)                                         -->
+  <!-- ========================================================================= -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-[#05050a]/85 backdrop-blur-2xl border-b border-white/[0.08] transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- 品牌标识 (无外框极简设计，超清透明渐变 Logo，极致凸显品牌) -->
+      <a href="/" class="flex items-center space-x-2.5 sm:space-x-3 group cursor-pointer">
+        <img src="/kelvinflow_logo_transparent.png" alt="KelvinFlow" class="h-8 sm:h-9 w-auto object-contain drop-shadow-[0_0_14px_rgba(6,182,212,0.45)] group-hover:drop-shadow-[0_0_22px_rgba(6,182,212,0.7)] group-hover:scale-105 transition-all duration-300">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl font-black tracking-tight text-white group-hover:text-cyan-300 transition-colors font-sans">KelvinFlow</span>
+          <span class="hidden sm:inline-block px-2.5 py-0.5 text-[10.5px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/25 rounded-full tracking-wider">外贸智能出单</span>
+        </div>
+      </a>
+
+      <!-- 中间极简锚点导航 -->
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-400">
+        <a href="#features" class="hover:text-white transition-colors">核心突破</a>
+        <a href="#workflow" class="hover:text-white transition-colors">出单流程</a>
+        <a href="#pricing" class="hover:text-white transition-colors">极客套餐</a>
+        <a href="#faq" class="hover:text-white transition-colors">常见疑问</a>
+      </nav>
+
+      <!-- 右侧行动区 (自适应访客 / 登录状态) -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- 访客状态按钮 (统一 h-9 高度) -->
+        <button id="nav-login-btn" onclick="openInboundModal('login')" class="h-9 inline-flex items-center text-xs sm:text-sm font-medium text-slate-400 hover:text-white px-2.5 sm:px-3 transition-colors cursor-pointer">
+          登录
+        </button>
+        <button id="nav-trial-btn" onclick="openInboundModal('starter')" class="h-9 inline-flex items-center justify-center px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-md shadow-blue-600/25 active:scale-95 transition-all cursor-pointer whitespace-nowrap">
+          免费试用 7 天
+        </button>
+
+        <!-- 登录后状态组件 (严格统一 h-9 高度与字号，实现绝对水平/垂直对齐) -->
+        <button id="nav-referral-btn" onclick="openReferralShareModal()" class="hidden h-9 items-center justify-center gap-1.5 px-3 rounded-xl text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all cursor-pointer whitespace-nowrap leading-none box-border">
+          <i class="fa-solid fa-gift text-xs flex items-center justify-center shrink-0"></i>
+          <span>邀请同行 +7天</span>
+        </button>
+        <a id="nav-workbench-btn" href="/review/QT-20260904-888" class="hidden h-9 items-center justify-center gap-1.5 px-3.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-600/30 transition-all whitespace-nowrap leading-none box-border">
+          <i class="fa-solid fa-desktop text-xs text-cyan-300 flex items-center justify-center shrink-0"></i>
+          <span>工作台</span>
+        </a>
+        <div id="nav-user-chip" class="hidden h-9 items-center space-x-2 pl-2 border-l border-white/10">
+          <span id="nav-user-phone" class="hidden sm:inline-block text-xs font-mono text-slate-400 leading-none">185****0282</span>
+          <button onclick="logoutUser()" title="退出登录" class="text-slate-500 hover:text-rose-400 text-xs transition-colors cursor-pointer p-1 flex items-center justify-center">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+
+        <!-- 移动端汉堡导航切换按钮 (Mobile Menu Hamburger) -->
+        <button id="mobile-menu-btn" onclick="toggleMobileNav()" class="md:hidden text-slate-400 hover:text-white p-2 text-base transition-colors cursor-pointer flex items-center justify-center rounded-lg hover:bg-white/5" aria-label="切换移动导航">
+          <i id="mobile-menu-icon" class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 移动端下拉折叠抽屉导航 (Mobile Dropdown Drawer) -->
+    <div id="mobile-nav-drawer" class="hidden md:hidden border-t border-white/[0.08] bg-[#090a14]/95 backdrop-blur-2xl px-4 py-3.5 space-y-2 transition-all">
+      <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+        <a href="#features" onclick="closeMobileNav()" class="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-slate-300 hover:text-white hover:bg-white/[0.08] flex items-center space-x-2">
+          <i class="fa-solid fa-bolt text-cyan-400 text-xs"></i>
+          <span>核心突破</span>
+        </a>
+        <a href="#workflow" onclick="closeMobileNav()" class="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-slate-300 hover:text-white hover:bg-white/[0.08] flex items-center space-x-2">
+          <i class="fa-solid fa-route text-blue-400 text-xs"></i>
+          <span>出单流程</span>
+        </a>
+        <a href="#pricing" onclick="closeMobileNav()" class="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-slate-300 hover:text-white hover:bg-white/[0.08] flex items-center space-x-2">
+          <i class="fa-solid fa-tag text-amber-400 text-xs"></i>
+          <span>极客套餐</span>
+        </a>
+        <a href="#faq" onclick="closeMobileNav()" class="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-slate-300 hover:text-white hover:bg-white/[0.08] flex items-center space-x-2">
+          <i class="fa-solid fa-circle-question text-emerald-400 text-xs"></i>
+          <span>常见疑问</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. SCREEN 1: 极简首屏叙事 (Hero Section & Single-document Showcase)        -->
+  <!-- ========================================================================= -->
+  <section class="relative pt-32 pb-16 sm:pt-36 sm:pb-24 overflow-hidden">
+    <!-- 背景流光氛围 (Ambient Glows) -->
+    <div class="ambient-glow bg-blue-600/20 w-[750px] h-[500px] top-10 left-1/2 -translate-x-1/2"></div>
+    <div class="ambient-glow bg-cyan-500/15 w-[500px] h-[350px] top-64 left-1/4 -translate-x-1/2"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <!-- 极客胶囊 Tag -->
+      <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-6 hover:border-cyan-500/30 transition-all">
+        <span class="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping"></span>
+        <span class="text-xs font-medium text-slate-300 tracking-wide">专为外贸一人公司与工贸一体打造 · 告别手工算单</span>
+      </div>
+
+      <!-- 核心 Apple 风格大标题 (移动端响应式字号 text-3xl sm:text-5xl md:text-7xl) -->
+      <h1 class="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-5 gradient-hero-title leading-tight">
+        海外询盘，10 秒自动出单。
+      </h1>
+
+      <!-- 精炼一句话副标 (移动端优雅换行自适应) -->
+      <p class="text-xs sm:text-base md:text-lg text-slate-300 max-w-4xl mx-auto mb-8 leading-relaxed tracking-wide px-2">
+        直接把买家邮件转进系统，自动锁定出厂底价与期望利润，10 秒生成国际商业 PDF 报价单并写入草稿箱。
+      </p>
+
+      <!-- 行动号召 CTA 按钮 (彻底根除悬浮文字变粗/抖动，极简高级微交互，已移除多余副文案) -->
+      <div class="flex flex-col items-center justify-center mb-12 sm:mb-14">
+        <button id="hero-trial-btn" onclick="openInboundModal('starter')" class="px-7 sm:px-8 py-3.5 rounded-2xl text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:brightness-110 hover:shadow-xl hover:shadow-cyan-500/25 active:scale-[0.98] transition-all duration-200 flex items-center space-x-2.5 group cursor-pointer border border-white/10">
+          <i class="fa-solid fa-wand-magic-sparkles text-cyan-200 text-sm group-hover:rotate-12 transition-transform"></i>
+          <span id="hero-trial-text">免费开通 7 天试用</span>
+          <i class="fa-solid fa-arrow-right text-xs text-white/80 group-hover:translate-x-1 transition-transform"></i>
+        </button>
+      </div>
+
+      <!-- 核心视觉演进交互展台 (完全适配移动端，内边距自适应，流向指示自适应) -->
+      <div class="max-w-5xl mx-auto reveal active">
+        <div class="glass-panel rounded-3xl p-3.5 sm:p-6 lg:p-7 shadow-2xl relative border border-white/10 overflow-hidden text-left">
+          
+          <!-- 展台顶栏 (极简 Mac 风格，只保留纯净的状态指示) -->
+          <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 sm:pb-4 mb-4 sm:mb-6">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-rose-500/80"></span>
+              <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500/80"></span>
+              <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500/80"></span>
+              <span class="text-[11px] sm:text-xs font-mono text-slate-400 ml-1 sm:ml-2 truncate">KelvinFlow AI Trade Core · 自动化出单流水线</span>
+            </div>
+            <div class="text-[10px] sm:text-[11px] font-mono text-cyan-400 flex items-center gap-1.5 flex-shrink-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              <span class="hidden sm:inline">10 秒自动化引擎已就绪</span>
+              <span class="sm:hidden">10秒已就绪</span>
+            </div>
+          </div>
+
+          <!-- 双轨对比舞台 (真实邮件原件 ➔ 10秒全自动流 ➔ 正规国际商业报价单) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
+            
+            <!-- 左侧：真实海外买家询盘邮件外观 (Authentic Email Client Look) -->
+            <div class="lg:col-span-5 bg-[#0a0c18] rounded-2xl border border-white/10 p-4 sm:p-5 shadow-inner flex flex-col justify-between hover:border-blue-500/40 transition-all">
+              <div>
+                <!-- 邮件客户端信头 -->
+                <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 mb-3">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-full bg-blue-600/30 border border-blue-400/40 text-blue-300 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                      DM
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-xs font-bold text-white truncate">David Miller</div>
+                      <div class="text-[10px] text-slate-400 font-mono truncate">&lt;d.miller@apex.co.uk&gt;</div>
+                    </div>
+                  </div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20 font-medium">买家原件</span>
+                </div>
+                
+                <!-- 邮件主题与正文 -->
+                <div class="space-y-2 text-xs">
+                  <div class="text-[11px] font-semibold text-slate-200 border-b border-white/[0.04] pb-1.5 mb-2">
+                    <span class="text-slate-400 font-normal">Subject:</span> RFQ: Standing Desks & Chairs (UK Project)
+                  </div>
+                  
+                  <div class="p-3 bg-white/[0.02] rounded-xl border border-white/[0.05] text-[11px] leading-relaxed text-slate-300 space-y-2 font-sans">
+                    <p class="text-slate-400">"Hi Kelvin,</p>
+                    <p>Please quote your best FOB Shenzhen prices for our project:</p>
+                    <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-200 text-[10.5px] font-mono space-y-1">
+                      <p>• <strong>2,000 pcs ST-2026-A</strong> Dual-Motor Frames (White, EU plug)</p>
+                      <p>• <strong>500 pcs ERG-PRO-V2</strong> Mesh Chairs (Laser Logo)</p>
+                    </div>
+                    <p class="text-slate-400">Need lead time & 40HQ container packing. Terms: 30% T/T."</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 底部状态 -->
+              <div class="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-slate-400">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-inbox text-blue-400"></i> 原文无损转入</span>
+                <span class="text-emerald-400 font-bold font-mono">100% 格式自适应</span>
+              </div>
+            </div>
+
+            <!-- 中间：极简纯净的 10 秒算力管道 (无累赘标签，清爽聚焦) -->
+            <div class="lg:col-span-2 flex flex-col items-center justify-center py-4 lg:py-2 text-center relative space-y-2.5">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-cyan-500 to-emerald-400 flex items-center justify-center text-white shadow-xl shadow-cyan-500/30 animate-pulse">
+                <i class="fa-solid fa-bolt text-lg"></i>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-emerald-300 font-mono tracking-wide">10 秒智能出单</span>
+                <span class="text-[10px] text-slate-500 mt-0.5">秒级自动核算 ➔</span>
+              </div>
+            </div>
+
+            <!-- 右侧：真实 A4 国际商业单据形式发票与邮箱草稿 (Authentic Proforma Invoice Sheet) -->
+            <div class="lg:col-span-5 bg-[#0a0c18] rounded-2xl border border-emerald-500/25 p-4 sm:p-5 shadow-inner flex flex-col justify-between hover:border-emerald-500/40 transition-all">
+              <div>
+                <!-- 单据官方抬头 -->
+                <div class="flex items-center justify-between border-b border-white/[0.08] pb-2.5 mb-2.5">
+                  <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-file-invoice text-emerald-400 text-sm"></i>
+                    <span class="text-xs font-extrabold text-white tracking-wide">PROFORMA INVOICE 形式发票</span>
+                  </div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-semibold">QT-20260904-888</span>
+                </div>
+
+                <!-- 单据基本条款信息 -->
+                <div class="text-[10px] text-slate-400 flex justify-between items-center mb-2 font-mono">
+                  <span>买方: Apex Ergonomics (UK)</span>
+                  <span class="text-emerald-300">条款: FOB 深圳盐田 · 30% T/T</span>
+                </div>
+
+                <!-- 国际单据明细表格结构 -->
+                <div class="bg-white/[0.02] rounded-xl p-2.5 border border-white/[0.06] text-xs font-mono space-y-1.5">
+                  <div class="flex justify-between items-center text-[10px] text-slate-400 border-b border-white/[0.06] pb-1 font-medium">
+                    <span>产品型号 / 贸易规格</span>
+                    <span class="text-right">数量 · 单价 · 金额</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1">
+                    <div class="min-w-0 pr-2">
+                      <div class="text-white font-semibold text-xs truncate">ST-2026-A 双电机升降架</div>
+                      <div class="text-[9.5px] text-slate-400">白架 / 欧规插头 · 锁定25%毛利</div>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                      <div class="text-cyan-300 font-bold text-xs">2,000 pcs × $108.50</div>
+                      <div class="text-[10px] text-white font-bold font-mono">$217,000.00</div>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center py-1 border-t border-white/[0.04]">
+                    <div class="min-w-0 pr-2">
+                      <div class="text-white font-semibold text-xs truncate">ERG-PRO-V2 工学网椅</div>
+                      <div class="text-[9.5px] text-slate-400">激光镭雕 Logo · 锁定28%毛利</div>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                      <div class="text-cyan-300 font-bold text-xs">500 pcs × $76.20</div>
+                      <div class="text-[10px] text-white font-bold font-mono">$38,100.00</div>
+                    </div>
+                  </div>
+
+                  <!-- 装柜与总金额汇总 -->
+                  <div class="pt-1.5 border-t border-white/[0.06] flex items-center justify-between text-[10.5px]">
+                    <span class="text-slate-400">装柜: <strong class="text-cyan-300">1×40HQ + 1×20GP</strong></span>
+                    <span class="text-emerald-300 font-bold">总计: $255,100.00 USD</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 底部草稿箱就绪徽章 -->
+              <div class="mt-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between text-xs">
+                <span class="text-emerald-300 flex items-center gap-1.5 font-medium truncate pr-1">
+                  <i class="fa-solid fa-circle-check text-emerald-400 flex-shrink-0"></i>
+                  <span class="truncate">已存入企业邮箱草稿箱 (附A4 PDF)</span>
+                </span>
+                <span class="text-white bg-emerald-600/90 px-2 py-0.5 rounded text-[10px] font-bold flex-shrink-0">点开即发</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 3. SCREEN 2: 三大底层突破 (3 Bento Cards - 100% 对齐与悬浮流光动效)       -->
+  <!-- ========================================================================= -->
+  <section id="features" class="py-24 relative border-t border-white/[0.06] bg-[#07070e]/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+          为外贸痛点而生的三项底层突破
+        </h2>
+        <p class="text-slate-400 text-base">
+          不只快，更确保每一分出厂利润都被算法严格锁死。
+        </p>
+      </div>
+
+      <!-- 3 张横向 Bento Cards (桌面端严格等高对齐，底部标签统一基准线) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        
+        <!-- 卡片 1: 算法锁死底价与利润 -->
+        <div class="glass-panel spotlight-card rounded-3xl p-7 flex flex-col justify-between hover:-translate-y-2 hover:border-emerald-500/40 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 reveal group">
+          <div class="flex-1 flex flex-col">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-5 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2.5">算法锁死底价与利润</h3>
+            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
+              基于工厂私有成本底价表，根据阶梯毛利率与港口杂费分摊模型严密核算，业务员与系统绝不犯手误算漏成本。
+            </p>
+
+            <!-- 核心交互切片 1：底价算法公式 HUD 胶囊 -->
+            <div class="mb-5 p-3 rounded-2xl bg-[#080911] border border-emerald-500/20 text-[11px] font-mono space-y-1.5 shadow-inner">
+              <div class="flex justify-between items-center text-slate-400 border-b border-white/[0.05] pb-1.5">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-[10px] text-emerald-400"></i> 工厂底价 (加密保护)</span>
+                <span class="text-emerald-400 font-bold">¥88.00</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-400 border-b border-white/[0.05] pb-1.5">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-chart-line text-[10px] text-cyan-400"></i> 期望毛利率 (阶梯锁定)</span>
+                <span class="text-cyan-300 font-bold">+25.0%</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-300 font-bold pt-0.5">
+                <span class="text-white">对外 FOB 单价</span>
+                <span class="text-emerald-300 font-mono font-bold">$16.20 USD</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部微缩状态区 -->
+          <div class="h-[68px] p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05] text-[11px] font-mono text-slate-300 flex flex-col justify-center">
+            <div class="text-emerald-400 font-semibold mb-0.5 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-check text-[10px]"></i> 商业机密绝对物理隔离
+            </div>
+            <div class="text-slate-400 truncate">底价表仅内部运算，对外只输出核算外币单价</div>
+          </div>
+        </div>
+
+        <!-- 卡片 2: 国际商业单据秒级排版 -->
+        <div class="glass-panel spotlight-card rounded-3xl p-7 flex flex-col justify-between hover:-translate-y-2 hover:border-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 reveal group">
+          <div class="flex-1 flex flex-col">
+            <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl mb-5 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-file-invoice-dollar"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2.5">国际商业单据秒级排版</h3>
+            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
+              自动匹配 FOB / CIF / EXW 条款，标准国际付款条款、交期与货柜箱规速算，秒级生成国际顶级采购商认可的 A4 PDF。
+            </p>
+
+            <!-- 核心交互切片 2：正规商业 Proforma 单据与装柜条 -->
+            <div class="mb-5 p-3 rounded-2xl bg-[#080911] border border-blue-500/20 text-[11px] font-mono space-y-1.5 shadow-inner">
+              <div class="flex items-center justify-between text-slate-400 border-b border-white/[0.05] pb-1.5">
+                <span class="text-blue-300 font-semibold flex items-center gap-1.5"><i class="fa-solid fa-file-pdf text-[10px] text-blue-400"></i> PROFORMA INVOICE</span>
+                <span class="text-[9px] bg-blue-500/15 text-blue-300 px-1.5 py-0.5 rounded font-bold">A4 矢量单据</span>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>Terms: 30% T/T Deposit</span>
+                <span>FOB 深圳盐田港</span>
+              </div>
+              <div class="w-full bg-white/[0.06] rounded-full h-1.5 mt-1 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-cyan-400 h-1.5 rounded-full" style="width: 88%"></div>
+              </div>
+              <div class="flex justify-between text-[9px] text-slate-400 pt-0.5">
+                <span>40HQ 装柜空间利用率</span>
+                <span class="text-cyan-300 font-bold">88.5% (最优配柜)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部微缩状态区 -->
+          <div class="h-[68px] p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05] text-[11px] font-mono text-slate-300 flex flex-col justify-center">
+            <div class="text-cyan-300 font-semibold mb-0.5 flex items-center gap-1.5">
+              <i class="fa-solid fa-award text-[10px]"></i> 媲美世界500强外企单据规范
+            </div>
+            <div class="text-slate-400 truncate">矢量高清排版打印不走样，杜绝买家比价压价</div>
+          </div>
+        </div>
+
+        <!-- 卡片 3: 静默托管，草稿箱点开即发 -->
+        <div class="glass-panel spotlight-card rounded-3xl p-7 flex flex-col justify-between hover:-translate-y-2 hover:border-amber-500/40 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 reveal group">
+          <div class="flex-1 flex flex-col">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-5 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-envelope-circle-check"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2.5">静默托管，草稿箱点开即发</h3>
+            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
+              配置专属邮箱授权码或邮件转发，AI 在后台完成核算排版后，直接将正式报价信存入邮箱草稿箱，审阅一键即发。
+            </p>
+
+            <!-- 核心交互切片 3：邮箱草稿箱同步微视条 -->
+            <div class="mb-5 p-3 rounded-2xl bg-[#080911] border border-amber-500/20 text-[11px] font-mono space-y-1.5 shadow-inner">
+              <div class="flex items-center justify-between text-slate-400 border-b border-white/[0.05] pb-1.5">
+                <span class="text-amber-300 font-semibold flex items-center gap-1.5"><i class="fa-solid fa-inbox text-[10px]"></i> 已写入邮箱草稿箱</span>
+                <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">点开即发</span>
+              </div>
+              <div class="truncate text-[10px] text-slate-400">
+                <span class="text-slate-500">To:</span> David Miller &lt;d.miller@apex.co.uk&gt;
+              </div>
+              <div class="flex items-center justify-between text-[10px] text-slate-300 bg-white/[0.03] px-2 py-1 rounded-lg border border-white/[0.05]">
+                <span class="flex items-center gap-1 truncate"><i class="fa-solid fa-paperclip text-amber-400 text-[10px]"></i> Quotation_Apex_ST2026.pdf</span>
+                <span class="text-slate-500 text-[9px] flex-shrink-0">340 KB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部微缩状态区 -->
+          <div class="h-[68px] p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05] text-[11px] font-mono text-slate-300 flex flex-col justify-center">
+            <div class="text-amber-400 font-semibold mb-0.5 flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt text-[10px]"></i> 零门槛融入现有外贸流程
+            </div>
+            <div class="text-slate-400 truncate">无需改变日常收发信习惯，发信确认权 100% 归你</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 4. SCREEN 3: 极简 3 步线性流 (换装 8K 超清写实大图，彻底告别模糊截图)     -->
+  <!-- ========================================================================= -->
+  <section id="workflow" class="py-24 relative border-t border-white/[0.06]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+          三步完成从询盘到成交出单
+        </h2>
+        <p class="text-slate-400 text-base">
+          无需复杂的系统学习，像收发日常邮件一样自然。
+        </p>
+      </div>
+
+      <!-- 3 步卡片与 4K 实景摄影 + 结构化专业外贸能力指示 (清晰实景摄影，彻底告别不专业浮层文字) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 relative">
+        
+        <!-- 步骤 1: 邮件转入 -->
+        <div class="relative glass-panel rounded-3xl p-5 sm:p-6 border border-white/[0.08] hover:-translate-y-2 hover:border-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 reveal group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-3xl sm:text-4xl font-extrabold font-mono text-blue-500/40 group-hover:text-blue-400 transition-colors">01</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20 text-[10px] font-mono font-semibold tracking-wider">STEP 01</span>
+            </div>
+            
+            <!-- 纯净 4K 实景摄影视窗 (无任何遮挡杂乱文字，真实办公场景) -->
+            <div class="rounded-2xl overflow-hidden border border-white/10 mb-5 relative aspect-[16/10] bg-[#090b14] group-hover:border-blue-400/30 transition-all shadow-xl">
+              <img src="/assets/step1_real_workspace.jpg" alt="海外买家询盘邮件接收" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <!-- 极简高质感磨砂状态角标 -->
+              <div class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md border border-white/15 text-[10.5px] font-medium text-blue-200 flex items-center gap-1.5 shadow-lg">
+                <i class="fa-solid fa-inbox text-[10px] text-blue-400"></i>
+                <span>买家询盘接收</span>
+              </div>
+            </div>
+
+            <h3 class="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">邮件转入</h3>
+            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
+              把买家发来的复杂询盘（哪怕包含多款式、选配定制要求）直接转发至专属邮箱，或在工作台一键粘贴。
+            </p>
+          </div>
+
+          <!-- 结构化外贸能力指标区 (专业严谨卡片布局) -->
+          <div class="pt-3 border-t border-white/[0.06] space-y-2 text-xs font-mono">
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-slate-400"><i class="fa-solid fa-check text-blue-400 text-[10px]"></i> 格式识别</span>
+              <span class="text-blue-300 font-semibold">100% 格式自适应</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-slate-400"><i class="fa-solid fa-check text-blue-400 text-[10px]"></i> 选配提取</span>
+              <span class="text-slate-300 font-semibold">SKU / 喷涂 / 规格自识别</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 步骤 2: 算法核算 -->
+        <div class="relative glass-panel rounded-3xl p-5 sm:p-6 border border-white/[0.08] hover:-translate-y-2 hover:border-cyan-500/40 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 reveal group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-3xl sm:text-4xl font-extrabold font-mono text-cyan-500/40 group-hover:text-cyan-400 transition-colors">02</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 text-[10px] font-mono font-semibold tracking-wider">STEP 02</span>
+            </div>
+
+            <!-- 纯净 4K 实景摄影视窗 (全球海运集装箱码头实景，宏大专业) -->
+            <div class="rounded-2xl overflow-hidden border border-white/10 mb-5 relative aspect-[16/10] bg-[#090b14] group-hover:border-cyan-400/30 transition-all shadow-xl">
+              <img src="/assets/step2_real_terminal.jpg" alt="智能底价算法核算与海运装柜" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <!-- 极简高质感磨砂状态角标 -->
+              <div class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md border border-white/15 text-[10.5px] font-medium text-cyan-200 flex items-center gap-1.5 shadow-lg">
+                <i class="fa-solid fa-calculator text-[10px] text-cyan-400"></i>
+                <span>底价与货柜核算</span>
+              </div>
+            </div>
+
+            <h3 class="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">算法核算</h3>
+            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
+              系统秒级匹配私有商品底价表，自动折算汇率、叠加选配工艺与装柜海运成本，生成标准外贸单据。
+            </p>
+          </div>
+
+          <!-- 结构化外贸能力指标区 -->
+          <div class="pt-3 border-t border-white/[0.06] space-y-2 text-xs font-mono">
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-slate-400"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> 利润保障</span>
+              <span class="text-cyan-300 font-semibold">毛利率 25% 严密锁定</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-slate-400"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> 智能拼柜</span>
+              <span class="text-slate-300">1×40HQ 88.5% 满载速算</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 步骤 3: 审单发出 -->
+        <div class="relative glass-panel rounded-3xl p-5 sm:p-6 border border-white/[0.08] hover:-translate-y-2 hover:border-emerald-500/40 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 reveal group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-3xl sm:text-4xl font-extrabold font-mono text-emerald-500/40 group-hover:text-emerald-400 transition-colors">03</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[10px] font-mono font-semibold tracking-wider">STEP 03</span>
+            </div>
+
+            <!-- 纯净 4K 实景摄影视窗 (正规商业合同审阅实景，严谨规范) -->
+            <div class="rounded-2xl overflow-hidden border border-white/10 mb-5 relative aspect-[16/10] bg-[#090b14] group-hover:border-emerald-400/30 transition-all shadow-xl">
+              <img src="/assets/step3_real_contract.jpg" alt="正式外贸商业报价单审阅" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <!-- 极简高质感磨砂状态角标 -->
+              <div class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md border border-white/15 text-[10.5px] font-medium text-emerald-200 flex items-center gap-1.5 shadow-lg">
+                <i class="fa-solid fa-file-pdf text-[10px] text-amber-400"></i>
+                <span>A4 单据草稿就绪</span>
+              </div>
+            </div>
+
+            <h3 class="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-emerald-300 transition-colors">审单发出</h3>
+            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
+              打开邮箱草稿箱或在线审单台，滑动滑块微调期望利润率，确认无误一秒发出正式报价邮件。
+            </p>
+          </div>
+
+          <!-- 结构化外贸能力指标区 -->
+          <div class="pt-3 border-t border-white/[0.06] space-y-2 text-xs font-mono">
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-slate-400"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> 正规单据</span>
+              <span class="text-emerald-300 font-semibold">国际通用 A4 Proforma</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-slate-400"><i class="fa-solid fa-check text-emerald-400 text-[10px]"></i> 终审确认</span>
+              <span class="text-slate-300">发信权 100% 掌握在你手中</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 5. SCREEN 4: 极客套餐、FAQ 抽屉与收尾 (Conversion & Footer)               -->
+  <!-- ========================================================================= -->
+  <section id="pricing" class="py-24 relative border-t border-white/[0.06] bg-[#07070e]/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- 标题与按月/按年计费切换 -->
+      <div class="text-center max-w-3xl mx-auto mb-14 reveal">
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+          透明直观的极客版定价
+        </h2>
+        <p class="text-slate-400 text-base mb-8">
+          一个人，也能拥有媲美 10 人外贸团队的报价响应速度。
+        </p>
+
+        <!-- 计费切换按钮 -->
+        <div class="inline-flex p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md">
+          <button id="btn-billing-monthly" onclick="switchBillingCycle('monthly')" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white bg-blue-600 shadow-md cursor-pointer">
+            按月付 (¥99/月)
+          </button>
+          <button id="btn-billing-annual" onclick="switchBillingCycle('annual')" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center space-x-1.5 cursor-pointer">
+            <span>按年付 (¥890/年)</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">省 ¥298</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 单一核心极客卡片 (精简为优雅紧凑的 max-w-lg 黄金比例，告别笨重庞大) -->
+      <div class="max-w-lg mx-auto glass-panel spotlight-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl relative reveal">
+        <div class="text-center mb-6">
+          <div id="pricing-badge-text" class="inline-block text-xs font-bold text-amber-300 bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full mb-3.5">
+            🔥 限前 50 席 · 终身锁定 ¥99 特权
+          </div>
+          <div class="flex items-baseline justify-center space-x-1">
+            <span class="text-2xl font-extrabold text-white">¥</span>
+            <span id="pricing-amount" class="text-5xl sm:text-6xl font-black text-white tracking-tight">99</span>
+            <span id="pricing-cycle" class="text-slate-400 text-sm font-medium">/ 月</span>
+          </div>
+          <div class="mt-2">
+            <span id="pricing-subtext" class="inline-block text-xs text-amber-400 font-mono px-2.5 py-0.5 rounded-lg bg-amber-400/10 border border-amber-400/20 leading-relaxed">
+              (早鸟创始席位 · 正式版 ¥149 · 终身享受 ¥99)
+            </span>
+          </div>
+        </div>
+
+        <!-- 真实能力权益清单 (精炼精简，紧凑排版，杜绝臃肿) -->
+        <ul class="space-y-3 text-xs sm:text-sm text-slate-300 mb-7 border-t border-b border-white/[0.08] py-5 text-left">
+          <li class="flex items-start space-x-2.5">
+            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
+            <span><strong>极简 4 列底价导入</strong>：标准 Excel 模板，30秒一键更新工厂成本</span>
+          </li>
+          <li class="flex items-start space-x-2.5">
+            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
+            <span><strong>出厂底价算法锁死</strong>：独立加密隔离，底价绝不外泄，锁死预期毛利</span>
+          </li>
+          <li class="flex items-start space-x-2.5">
+            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
+            <span><strong>国际正规 A4 PDF 单据</strong>：合规贸易条款、40HQ/20GP 柜量速算</span>
+          </li>
+          <li class="flex items-start space-x-2.5">
+            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
+            <span><strong>发件草稿箱静默托管</strong>：后台静默存入，发信确认权 100% 属于你</span>
+          </li>
+          <li class="flex items-start space-x-2.5">
+            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
+            <span><strong>10 秒极速审单微调台</strong>：手机电脑均可随时微调单价，单据实时重绘</span>
+          </li>
+          <li class="flex items-start space-x-2.5">
+            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
+            <span><strong>7 天全功能免费试用</strong>：开箱自带演示底价库，零绑卡无扣费风险</span>
+          </li>
+        </ul>
+
+        <!-- 按钮容器 (层级清晰的主副按钮布局) -->
+        <div id="pricing-btn-container" class="space-y-2.5">
+          <button id="pricing-trial-btn" onclick="openInboundModal('starter')" class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-xl shadow-blue-500/25 active:scale-98 transition-all cursor-pointer">
+            免费开通 7 天试用 (10秒直达)
+          </button>
+          <button id="pricing-pay-btn" onclick="openPaymentModal()" class="w-full py-2.5 rounded-xl font-medium text-xs text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all flex items-center justify-center space-x-1.5 cursor-pointer">
+            <i class="fa-solid fa-crown text-amber-300 text-xs"></i>
+            <span id="btn-pay-text">立即锁定创始席位 (¥99/月)</span>
+          </button>
+        </div>
+
+        <!-- 已登录状态提示框 -->
+        <div id="pricing-logged-in-box" class="hidden mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 items-center justify-center text-xs text-emerald-300">
+          <i class="fa-solid fa-circle-check mr-1.5"></i>
+          <span id="pricing-logged-in-text">您当前处于 7 天全功能免费试用中</span>
+        </div>
+      </div>
+
+      <!-- FAQ 抽屉式手风琴 (平滑丝滑 CSS 动效展开) -->
+      <div id="faq" class="max-w-3xl mx-auto mt-24 reveal">
+        <h3 class="text-2xl font-bold text-center text-white mb-8">常见疑问解答</h3>
+        <div class="space-y-4">
+          
+          <!-- FAQ 1: 底价保密与商业隔离 -->
+          <div id="faq-card-1" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
+            <button onclick="toggleFaqSmooth(1)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
+              <span>KelvinFlow 会泄露我的出厂底价和商业机密吗？</span>
+              <i id="faq-icon-1" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
+            </button>
+            <div id="faq-body-1" class="faq-accordion-body">
+              <div>
+                <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
+                  绝对不会。系统采用租户独立数据隔离与高强度加密存储。底价库仅用于您个人账号的后端公式运算，对外生成的 PDF 商业发票与英文商务邮件中仅展示核算后的对外美元单价，任何第三方（包括买家）均绝对无法反推您的出厂成本。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 2: Excel 导入门槛 -->
+          <div id="faq-card-2" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
+            <button onclick="toggleFaqSmooth(2)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
+              <span>我现有的 Excel 底价表格式很乱/不规范，导入系统麻烦吗？</span>
+              <i id="faq-icon-2" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
+            </button>
+            <div id="faq-body-2" class="faq-accordion-body">
+              <div>
+                <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
+                  完全不麻烦。系统提供极其精简的 4 列标准模板（型号、产品品名、出厂底价、装箱规格），哪怕您先只录入 2~3 款主打走量款，30 秒即可一键上传生效。更棒的是，注册后系统已自带外贸五金与升降桌演示底价库，无需上传也能即刻体验真实 10 秒出单。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 3: 非标定制与未录入型号容错 -->
+          <div id="faq-card-3" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
+            <button onclick="toggleFaqSmooth(3)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
+              <span>如果买家的询盘中包含非标定制、工艺加配或底价表里没有的型号怎么办？</span>
+              <i id="faq-icon-3" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
+            </button>
+            <div id="faq-body-3" class="faq-accordion-body">
+              <div>
+                <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
+                  系统具备工业级智能容错机制。对于询盘中的选配工艺（如激光刻标、特殊喷涂、欧规插头等），算法会自动加价匹配；对于未收录出厂成本的特殊型号，系统会自动打上 <code class="text-amber-400 font-mono">[待人工核价]</code> 预警，并生成审单微调链接，您在手机或电脑上一秒手工填价，系统即时完成整体排版联动。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 4: 邮箱安全与防误发 -->
+          <div id="faq-card-4" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
+            <button onclick="toggleFaqSmooth(4)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
+              <span>配置邮箱授权安全吗？AI 会不会未经我确认擅自发错邮件给买家？</span>
+              <i id="faq-icon-4" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
+            </button>
+            <div id="faq-body-4" class="faq-accordion-body">
+              <div>
+                <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
+                  100% 安全，发信确认权始终掌握在您手中。系统仅通过官方标准 IMAP/SMTP 协议将生成的商业单据与正文静默存入您的「邮箱草稿箱」，绝不会直接发送给买家，更不会删除、篡改您的现有邮件。您像往常一样打开草稿箱，审阅无误后由您亲手点击发送。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 5: 免费试用到期与扣费规则 -->
+          <div id="faq-card-5" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
+            <button onclick="toggleFaqSmooth(5)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
+              <span>7 天免费试用到期后会自动扣费吗？我的底价数据会被删除吗？</span>
+              <i id="faq-icon-5" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
+            </button>
+            <div id="faq-body-5" class="faq-accordion-body">
+              <div>
+                <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
+                  绝不会自动扣费。注册试用完全零门槛，无需绑定银行卡或支付授权。试用期结束后，若暂未升级极客版，系统仅暂时停用自动出单转发功能，您的私有底价数据与历史报价单将安全封存 60 天，绝不强行划扣费用或擅自清除数据。
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 6. 全局收尾与页脚 (Minimal Footer)                                        -->
+  <!-- ========================================================================= -->
+  <footer class="py-12 border-t border-white/[0.08] bg-[#05050a] text-slate-500 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="flex items-center space-x-3">
+        <span class="text-sm font-bold text-white">KelvinFlow</span>
+        <span>·</span>
+        <span>专为外贸一人公司打造</span>
+      </div>
+      <div class="flex items-center space-x-6">
+        <a href="javascript:void(0)" onclick="openEnterpriseModal()" class="hover:text-slate-300 transition-colors">联系创始人 (微信: kt_data)</a>
+        <a href="javascript:void(0)" onclick="openInboundModal('starter')" class="hover:text-slate-300 transition-colors">开通试用</a>
+        <a href="#pricing" class="hover:text-slate-300 transition-colors">极客版方案</a>
+      </div>
+      <div>
+        <span>© 2026 KelvinFlow. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- 7. 弹窗交互组件群 (Modals: Inbound, Payment, Enterprise, Referral, Logout) -->
+  <!-- ========================================================================= -->
+
+  <!-- A. 试用开通 & 密码登录弹窗 (Inbound Modal) -->
+  <div id="inbound-modal" onclick="closeInboundModal()" class="fixed inset-0 z-[210] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto cursor-pointer">
+    <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default">
+      
+      <!-- 关闭按钮 -->
+      <button onclick="closeInboundModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <!-- 顶部 Badge -->
+      <div class="mb-4">
+        <span id="inbound-tier-badge" class="px-2.5 py-1 rounded-full text-[11px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/20">
+          免费开通 7 天全功能试用席位
+        </span>
+      </div>
+
+      <h3 id="inbound-title" class="text-2xl font-extrabold text-white mb-1.5">开启外贸智能出单体验</h3>
+      <p id="inbound-desc" class="text-xs text-slate-400 mb-6">开箱自带演示底价库 · 密码加密保护商业机密</p>
+
+      <!-- 模式切换 Tab -->
+      <div class="flex p-1 bg-white/[0.04] border border-white/10 rounded-xl mb-6">
+        <button id="inbound-subtab-reg" onclick="switchInboundFormMode('register')" class="flex-1 py-1.5 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-sm">
+          <span>开通 7 天试用</span>
+        </button>
+        <button id="inbound-subtab-login" onclick="switchInboundFormMode('login')" class="flex-1 py-1.5 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer text-slate-400 hover:text-white">
+          <span>密码登录</span>
+        </button>
+      </div>
+
+      <!-- 1. 注册表单 -->
+      <form id="inbound-form" onsubmit="handleInboundSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1.5">手机号码 (登录主账号)</label>
+          <input type="tel" id="inbound-phone" maxlength="11" placeholder="请输入 11 位手机号码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
+          <p id="phone-error-msg" class="hidden text-rose-400 text-[11px] mt-1">请输入合法的 11 位大陆手机号码</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1.5">工作邮箱 (接收草稿与报价单)</label>
+          <input type="email" id="inbound-email" placeholder="sales@yourcompany.com" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1.5">设置登录密码 (至少 6 位)</label>
+          <div class="relative">
+            <input type="password" id="inbound-password" minlength="6" placeholder="设置保护底价库的密码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
+            <button type="button" onclick="togglePasswordVisibility('inbound-password', 'reg-pwd-icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
+              <i id="reg-pwd-icon" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- 自定义深色下拉来源渠道 (不设默认值，100% 真实捕获获客来源) -->
+        <div id="custom-channel-wrapper" class="relative">
+          <label class="block text-xs font-medium text-slate-300 mb-1.5">您从哪里了解到 KelvinFlow？</label>
+          <input type="hidden" id="inbound-channel-source" value="">
+          <div id="custom-channel-trigger" onclick="toggleCustomChannelDropdown(event)" class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm flex items-center justify-between cursor-pointer hover:border-white/20 transition-colors">
+            <span id="custom-channel-label" class="flex items-center gap-2 text-slate-400">
+              <span class="text-xs">🌐</span> <span class="text-xs">请选择了解渠道 (选填)</span>
+            </span>
+            <i id="custom-channel-arrow" class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform"></i>
+          </div>
+          <!-- 下拉菜单 -->
+          <div id="custom-channel-menu" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-[#0e101a] border border-white/15 rounded-xl shadow-2xl p-1 z-30">
+            <div onclick="selectCustomChannel('xiaohongshu', '📕', '小红书 (代码佬Kelvin)')" data-val="xiaohongshu" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-2"><span>📕</span><span>小红书 (代码佬Kelvin)</span></span>
+              <i class="option-check fa-solid fa-check text-cyan-400 hidden"></i>
+            </div>
+            <div onclick="selectCustomChannel('channels', '📹', '微信视频号')" data-val="channels" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-2"><span>📹</span><span>微信视频号</span></span>
+              <i class="option-check fa-solid fa-check text-cyan-400 hidden"></i>
+            </div>
+            <div onclick="selectCustomChannel('referral', '🤝', '外贸同行/朋友推荐')" data-val="referral" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-2"><span>🤝</span><span>外贸同行/朋友推荐</span></span>
+              <i class="option-check fa-solid fa-check text-cyan-400 hidden"></i>
+            </div>
+            <div onclick="selectCustomChannel('wechat_group', '💬', '外贸行业微信群')" data-val="wechat_group" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-2"><span>💬</span><span>外贸行业微信群</span></span>
+              <i class="option-check fa-solid fa-check text-cyan-400 hidden"></i>
+            </div>
+            <div onclick="selectCustomChannel('search', '🔍', '搜索引擎 / 其它')" data-val="search" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-2"><span>🔍</span><span>搜索引擎 / 其它</span></span>
+              <i class="option-check fa-solid fa-check text-cyan-400 hidden"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- 邀请码输入区 -->
+        <div id="inbound-ref-box">
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[11px] font-medium text-slate-400">同行邀请码 (选填，开通双方各送 7 天)</label>
+            <span id="inbound-ref-badge" class="text-[10px] text-cyan-400">双方加赠</span>
+          </div>
+          <input type="text" id="inbound-ref" placeholder="输入推荐人手机号" class="w-full px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-cyan-400 transition-colors">
+          <div id="inbound-ref-applied-tip" class="hidden mt-1.5 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px]">
+            <span id="inbound-ref-applied-text"></span>
+          </div>
+        </div>
+
+        <div id="inbound-error-feedback" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs"></div>
+        <div id="inbound-success-feedback" class="hidden p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs"></div>
+
+        <button type="submit" id="inbound-submit-btn" class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+          <i class="fa-solid fa-wand-magic-sparkles text-cyan-300 text-xs"></i>
+          <span>立即开通 7 天免费试用 (10秒直达) ➔</span>
+        </button>
+      </form>
+
+      <!-- 2. 登录表单 -->
+      <form id="inbound-login-form" onsubmit="handleInboundLoginSubmit(event)" class="hidden space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1.5">手机号码</label>
+          <input type="tel" id="inbound-login-phone" maxlength="11" oninput="handleLoginPhoneInput(event)" placeholder="请输入注册手机号码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
+        </div>
+
+        <div id="login-legacy-hint" class="hidden">
+          <span id="login-legacy-hint-text"></span>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-medium text-slate-300">账户密码</label>
+            <span id="login-pwd-security-badge" class="text-[10px] text-slate-400">加密保护</span>
+          </div>
+          <div class="relative">
+            <input type="password" id="inbound-login-password" placeholder="请输入密码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
+            <button type="button" onclick="togglePasswordVisibility('inbound-login-password', 'login-pwd-icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
+              <i id="login-pwd-icon" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="inbound-login-error-feedback" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs"></div>
+        <div id="inbound-login-success-feedback" class="hidden p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs"></div>
+
+        <button type="submit" id="inbound-login-submit-btn" class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+          <i class="fa-solid fa-arrow-right-to-bracket text-cyan-300 text-xs"></i>
+          <span id="inbound-login-btn-text">验证密码并登入系统 ➔</span>
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- B. 升级极客版支付与转账弹窗 (Payment Modal) -->
+  <div id="payment-modal" onclick="closePaymentModal()" class="fixed inset-0 z-[220] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto cursor-pointer">
+    <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-center">
+      <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <div class="inline-block p-2.5 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-300 mb-4">
+        <i class="fa-solid fa-crown text-xl"></i>
+      </div>
+      <h3 class="text-xl font-extrabold text-white mb-2">升级 KelvinFlow 极客版</h3>
+      <p class="text-xs text-slate-400 mb-6">人工一对一专属对接 · 扫码添加微信立即开通</p>
+
+      <!-- 月付 / 年付切换 -->
+      <div class="grid grid-cols-2 gap-2 mb-6">
+        <button id="pay-switch-monthly" onclick="switchPaymentModalCycle('monthly')" class="py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40">
+          <span class="text-sm">月付极客版</span>
+          <span class="text-xs font-mono">¥99 / 月</span>
+        </button>
+        <button id="pay-switch-annual" onclick="switchPaymentModalCycle('annual')" class="py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent">
+          <span class="text-sm">年付极客版</span>
+          <span class="text-xs font-mono text-emerald-400">¥890 / 年 (省¥298)</span>
+        </button>
+      </div>
+
+      <!-- 微信收款码与添加说明 -->
+      <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] mb-6 flex flex-col items-center">
+        <img src="/contact_wechat_card.jpg" alt="微信收款码" class="w-48 h-48 object-contain rounded-xl shadow-lg mb-3" onerror="this.src='/contact_wechat.png'">
+        <div class="text-xs text-slate-300 space-y-1">
+          <p>微信转账请备注：<strong id="payment-note-text" class="text-amber-300 font-mono">升级极客版(¥99)</strong></p>
+          <p class="text-[11px] text-slate-500">转账完成后将立即为您开通永久特权与邮箱联动</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button onclick="copyPaymentNote()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs transition cursor-pointer">
+          <i class="fa-regular fa-copy mr-1"></i> <span id="copy-pay-note-text">复制转账备注</span>
+        </button>
+        <button onclick="copyFounderWechat()" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition cursor-pointer">
+          <i class="fa-brands fa-weixin mr-1"></i> <span id="copy-founder-wechat-text">复制微信号 (kt_data)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- C. 创始人企业洽谈弹窗 (Enterprise Modal) -->
+  <div id="enterprise-modal" onclick="closeEnterpriseModal()" class="fixed inset-0 z-[225] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto cursor-pointer">
+    <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-center">
+      <button onclick="closeEnterpriseModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-cyan-300 flex items-center justify-center text-xl mx-auto mb-4">
+        <i class="fa-solid fa-handshake"></i>
+      </div>
+      <h3 class="text-xl font-extrabold text-white mb-2">联系创始人 Kelvin</h3>
+      <p class="text-xs text-slate-400 mb-6">外贸数字化架构顾问 · 1v1 方案定制与私有化部署</p>
+
+      <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] mb-6 flex flex-col items-center">
+        <img src="/contact_wechat_card.jpg" alt="创始人微信名片" class="w-48 h-48 object-contain rounded-xl shadow-lg mb-3" onerror="this.src='/contact_wechat.png'">
+        <p class="text-xs text-slate-300">微信号：<strong class="text-cyan-300 font-mono">kt_data</strong> (扫码或添加好友)</p>
+      </div>
+
+      <button onclick="copyFounderWechat()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition cursor-pointer">
+        <i class="fa-regular fa-copy mr-1.5"></i> 一键复制微信号 (kt_data)
+      </button>
+    </div>
+  </div>
+
+  <!-- D. 同行邀请分享弹窗 (Referral Modal) -->
+  <div id="referral-share-modal" onclick="closeReferralShareModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 cursor-pointer">
+    <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-left">
+      <button onclick="closeReferralShareModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <div class="flex items-center space-x-2 text-emerald-400 text-sm font-bold mb-2">
+        <i class="fa-solid fa-gift"></i>
+        <span>同行推荐特惠计划</span>
+      </div>
+      <h3 class="text-xl font-extrabold text-white mb-2">邀请同行，双方各送 7 天</h3>
+      <p class="text-xs text-slate-400 mb-6">每成功邀请 1 位外贸同行开通试用，您的账户与对方账户各自动增加 7 天试用时长！</p>
+
+      <div class="grid grid-cols-2 gap-3 mb-6 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center">
+        <div>
+          <div class="text-[11px] text-slate-400">已成功邀请</div>
+          <div id="modal-ref-count" class="text-2xl font-black text-cyan-300 font-mono mt-0.5">0</div>
+        </div>
+        <div>
+          <div class="text-[11px] text-slate-400">累计获赠天数</div>
+          <div id="modal-ref-days" class="text-2xl font-black text-emerald-400 font-mono mt-0.5">0</div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">您的专属邀请码</label>
+          <div class="flex items-center space-x-2">
+            <div id="modal-ref-code" class="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-cyan-300 font-mono font-bold text-sm">--</div>
+            <button onclick="copyShareCode()" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition cursor-pointer">
+              <span id="btn-copy-code-text">复制邀请码</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">专属邀请链接</label>
+          <div class="flex items-center space-x-2">
+            <input type="text" id="modal-ref-link" readonly class="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-slate-300 font-mono text-xs focus:outline-none">
+            <button onclick="copyShareLink()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center space-x-1.5 flex-shrink-0">
+              <i class="fa-regular fa-copy text-xs"></i>
+              <span id="btn-copy-link-text">复制链接</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E. 退出登录确认弹窗 (Logout Modal) -->
+  <div id="logout-confirm-modal" onclick="closeLogoutModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-200 cursor-pointer">
+    <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-2xl w-full max-w-xs p-6 shadow-2xl relative cursor-default text-center">
+      <h4 class="text-base font-bold text-white mb-2">确认退出登录？</h4>
+      <p class="text-xs text-slate-400 mb-5">退出后本地将清除账号令牌，您可随时重新登录。</p>
+      <div class="flex items-center space-x-2">
+        <button onclick="closeLogoutModal()" class="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 font-medium text-xs transition cursor-pointer">取消</button>
+        <button onclick="confirmLogoutUser()" class="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition cursor-pointer">退出</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 8. 核心前端交互与状态机 (Functional JavaScript Engine)                    -->
+  <!-- ========================================================================= -->
+  <script>
+    let currentInboundTier = 'general';
+    let currentBillingCycle = 'monthly';
+    let currentPaymentCycle = 'monthly';
+    let currentInboundFormMode = 'register';
+    let phoneCheckTimer = null;
+
+    // FAQ 丝滑手风琴抽屉动画展开与收起
+    function toggleFaqSmooth(index) {
+      const body = document.getElementById(`faq-body-${index}`);
+      const icon = document.getElementById(`faq-icon-${index}`);
+      const card = document.getElementById(`faq-card-${index}`);
+      if (!body) return;
+
+      const isOpen = body.classList.contains('open');
+
+      // 关闭同组其他 FAQ (互斥丝滑展开)
+      document.querySelectorAll('.faq-accordion-body').forEach((b, i) => {
+        b.classList.remove('open');
+        const ic = document.getElementById(`faq-icon-${i + 1}`);
+        const cd = document.getElementById(`faq-card-${i + 1}`);
+        if (ic) ic.classList.remove('rotate-180');
+        if (cd) cd.classList.remove('border-cyan-500/40', 'bg-white/[0.04]');
+      });
+
+      if (!isOpen) {
+        body.classList.add('open');
+        if (icon) icon.classList.add('rotate-180');
+        if (card) card.classList.add('border-cyan-500/40', 'bg-white/[0.04]');
+      }
+    }
+
+    // 计费周期切换 (按月 / 按年)
+    function switchBillingCycle(cycle) {
+      currentBillingCycle = cycle;
+      const btnMonthly = document.getElementById('btn-billing-monthly');
+      const btnAnnual = document.getElementById('btn-billing-annual');
+      const priceAmount = document.getElementById('pricing-amount');
+      const priceCycle = document.getElementById('pricing-cycle');
+      const priceSubtext = document.getElementById('pricing-subtext');
+      const badgeText = document.getElementById('pricing-badge-text');
+      const btnPayText = document.getElementById('btn-pay-text');
+
+      if (cycle === 'annual') {
+        if (btnMonthly) btnMonthly.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer';
+        if (btnAnnual) btnAnnual.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white bg-blue-600 shadow-md flex items-center space-x-1.5 cursor-pointer';
+        if (priceAmount) priceAmount.textContent = '890';
+        if (priceCycle) priceCycle.textContent = '/ 年';
+        if (priceSubtext) {
+          priceSubtext.textContent = '(立省 ¥298 · 相当于 ¥74/月 · 赠送 3 个月)';
+          priceSubtext.className = 'inline-block text-xs text-amber-300 font-mono px-2.5 py-1 rounded-lg bg-amber-400/20 border border-amber-400/30 leading-relaxed';
+        }
+        if (badgeText) badgeText.textContent = '🔥 限前 50 席 · 终身锁定 ¥99 特权 (立省 ¥298)';
+        if (btnPayText) btnPayText.textContent = '立即开通年付极客版 (¥890/年)';
+      } else {
+        if (btnMonthly) btnMonthly.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white bg-blue-600 shadow-md cursor-pointer';
+        if (btnAnnual) btnAnnual.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center space-x-1.5 cursor-pointer';
+        if (priceAmount) priceAmount.textContent = '99';
+        if (priceCycle) priceCycle.textContent = '/ 月';
+        if (priceSubtext) {
+          priceSubtext.textContent = '(早鸟创始席位 · 正式版 ¥149 · 终身享受 ¥99)';
+          priceSubtext.className = 'inline-block text-xs text-amber-400 font-mono px-2.5 py-1 rounded-lg bg-amber-400/10 border border-amber-400/20 leading-relaxed';
+        }
+        if (badgeText) badgeText.textContent = '🔥 限前 50 席 · 终身锁定 ¥99 特权';
+        if (btnPayText) btnPayText.textContent = '立即锁定创始席位 (¥99/月)';
+      }
+    }
+
+    // 支付弹窗内周期切换
+    function switchPaymentModalCycle(cycle) {
+      currentPaymentCycle = cycle;
+      const btnMonthly = document.getElementById('pay-switch-monthly');
+      const btnAnnual = document.getElementById('pay-switch-annual');
+      const noteEl = document.getElementById('payment-note-text');
+      const phone = localStorage.getItem('kelvinflow_user_phone') || '';
+      const phoneSuffix = phone ? ` + ${phone}` : '';
+
+      if (cycle === 'annual') {
+        if (btnMonthly) btnMonthly.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent';
+        if (btnAnnual) btnAnnual.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40';
+        if (noteEl) noteEl.textContent = `升级年付极客版(¥890)${phoneSuffix}`;
+      } else {
+        if (btnMonthly) btnMonthly.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40';
+        if (btnAnnual) btnAnnual.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent';
+        if (noteEl) noteEl.textContent = `升级极客版(¥99)${phoneSuffix}`;
+      }
+    }
+
+    function openPaymentModal(cycle) {
+      closeInboundModal();
+      const targetCycle = (typeof cycle === 'string' && (cycle === 'monthly' || cycle === 'annual')) 
+        ? cycle 
+        : (currentBillingCycle || 'monthly');
+      switchPaymentModalCycle(targetCycle);
+      const modal = document.getElementById('payment-modal');
+      if (!modal) return;
+      lockBodyScroll();
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+      }, 10);
+    }
+
+    function closePaymentModal(e) {
+      const modal = document.getElementById('payment-modal');
+      if (!modal) return;
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        unlockBodyScroll();
+      }, 300);
+    }
+
+    function openEnterpriseModal() {
+      if (typeof closeInboundModal === 'function') closeInboundModal();
+      if (typeof closePaymentModal === 'function') closePaymentModal();
+      const modal = document.getElementById('enterprise-modal');
+      if (!modal) return;
+      lockBodyScroll();
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+      }, 10);
+    }
+
+    function closeEnterpriseModal(e) {
+      const modal = document.getElementById('enterprise-modal');
+      if (!modal) return;
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        unlockBodyScroll();
+      }, 300);
+    }
+
+    function copyFounderWechat() {
+      const text = 'kt_data';
+      const btnText = document.getElementById('copy-founder-wechat-text');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          if (btnText) btnText.textContent = '✅ 已复制微信号！打开微信搜索添加';
+          setTimeout(() => { if (btnText) btnText.textContent = '一键复制微信号 (kt_data)'; }, 3000);
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function copyPaymentNote() {
+      const noteEl = document.getElementById('payment-note-text');
+      const text = noteEl ? noteEl.textContent.trim() : '升级极客版';
+      const btnText = document.getElementById('copy-pay-note-text');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          if (btnText) btnText.textContent = '✅ 已复制！转账时粘贴在备注';
+          setTimeout(() => { if (btnText) btnText.textContent = '复制转账备注'; }, 3000);
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    // 登录与试用状态自适应
+    function updateNavForLoggedInUser() {
+      const phone = localStorage.getItem('kelvinflow_user_phone');
+      const token = localStorage.getItem('saas_auth_token');
+      const userPlan = localStorage.getItem('kelvinflow_user_plan') || 'trial';
+      const isPaid = localStorage.getItem('kelvinflow_user_is_paid') === 'true' || 
+                     ['geek', 'monthly', 'annual', 'pro', 'enterprise'].includes(userPlan);
+      const wbUrl = token ? `/review/QT-20260904-888?token=${encodeURIComponent(token)}` : '/review/QT-20260904-888';
+
+      const trialBtn = document.getElementById('nav-trial-btn');
+      const loginBtn = document.getElementById('nav-login-btn');
+      const refBtn = document.getElementById('nav-referral-btn');
+      const wbBtn = document.getElementById('nav-workbench-btn');
+      const userChip = document.getElementById('nav-user-chip');
+      const userPhone = document.getElementById('nav-user-phone');
+
+      const heroTrialBtn = document.getElementById('hero-trial-btn');
+      const heroTrialText = document.getElementById('hero-trial-text');
+
+      const pricingTrialBtn = document.getElementById('pricing-trial-btn');
+      const pricingPayBtn = document.getElementById('pricing-pay-btn');
+      const btnPayText = document.getElementById('btn-pay-text');
+      const pricingBtnContainer = document.getElementById('pricing-btn-container');
+      const pricingLoggedInBox = document.getElementById('pricing-logged-in-box');
+      const pricingLoggedInText = document.getElementById('pricing-logged-in-text');
+
+      if (phone) {
+        if (trialBtn) trialBtn.style.display = 'none';
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (refBtn) refBtn.style.display = window.innerWidth >= 640 ? 'inline-flex' : 'none';
+        if (wbBtn) { wbBtn.style.display = 'inline-flex'; wbBtn.href = wbUrl; }
+        if (userChip) {
+          userChip.style.display = 'inline-flex';
+          if (userPhone) {
+            userPhone.textContent = phone.length === 11 ? `${phone.substring(0, 3)}****${phone.substring(7)}` : phone;
+          }
+        }
+
+        if (heroTrialBtn) heroTrialBtn.onclick = () => { window.location.href = wbUrl; };
+        if (heroTrialText) heroTrialText.textContent = '进入工作审单台出单';
+
+        if (pricingTrialBtn) pricingTrialBtn.style.display = 'none';
+        if (pricingBtnContainer) pricingBtnContainer.className = 'w-full';
+        if (pricingLoggedInBox) pricingLoggedInBox.style.display = 'flex';
+
+        if (isPaid) {
+          if (pricingLoggedInText) pricingLoggedInText.textContent = '您已开通极客版尊享特权 (已享邮箱全自动联动)';
+          if (btnPayText) btnPayText.textContent = '已开通极客版特权';
+          if (pricingPayBtn) pricingPayBtn.onclick = () => { window.location.href = wbUrl; };
+        } else {
+          if (pricingLoggedInText) pricingLoggedInText.textContent = '您当前处于 7 天全功能免费试用中';
+          if (btnPayText) btnPayText.textContent = '立即锁定创始席位 (¥99/月)';
+          if (pricingPayBtn) pricingPayBtn.onclick = () => openPaymentModal();
+        }
+
+        if (!isPaid) {
+          fetch(`/api/v1/auth/trial-status?phone=${encodeURIComponent(phone)}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data && data.success && data.exists) {
+                if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);
+                if (data.isPaid) {
+                  localStorage.setItem('kelvinflow_user_is_paid', 'true');
+                  updateNavForLoggedInUser();
+                }
+              }
+            })
+            .catch(() => {});
+        }
+      } else {
+        if (trialBtn) trialBtn.style.display = 'inline-flex';
+        if (loginBtn) loginBtn.style.display = 'inline-flex';
+        if (refBtn) refBtn.style.display = 'none';
+        if (wbBtn) wbBtn.style.display = 'none';
+        if (userChip) userChip.style.display = 'none';
+
+        if (heroTrialBtn) heroTrialBtn.onclick = () => openInboundModal('starter');
+        if (heroTrialText) heroTrialText.textContent = '免费开通 7 天试用';
+
+        if (pricingTrialBtn) pricingTrialBtn.style.display = 'inline-flex';
+        if (pricingBtnContainer) pricingBtnContainer.className = 'space-y-2.5 w-full';
+        if (pricingLoggedInBox) pricingLoggedInBox.style.display = 'none';
+        if (btnPayText) btnPayText.textContent = '立即锁定创始席位 (¥99/月)';
+        if (pricingPayBtn) pricingPayBtn.onclick = () => openPaymentModal();
+      }
+    }
+
+    // 移动端汉堡折叠菜单切换
+    function toggleMobileNav() {
+      const drawer = document.getElementById('mobile-nav-drawer');
+      const icon = document.getElementById('mobile-menu-icon');
+      if (!drawer) return;
+      const isHidden = drawer.classList.contains('hidden');
+      if (isHidden) {
+        drawer.classList.remove('hidden');
+        if (icon) { icon.classList.remove('fa-bars'); icon.classList.add('fa-xmark'); }
+      } else {
+        drawer.classList.add('hidden');
+        if (icon) { icon.classList.remove('fa-xmark'); icon.classList.add('fa-bars'); }
+      }
+    }
+
+    function closeMobileNav() {
+      const drawer = document.getElementById('mobile-nav-drawer');
+      const icon = document.getElementById('mobile-menu-icon');
+      if (drawer) drawer.classList.add('hidden');
+      if (icon) { icon.classList.remove('fa-xmark'); icon.classList.add('fa-bars'); }
+    }
+
+    function logoutUser() {
+      const modal = document.getElementById('logout-confirm-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => modal.classList.remove('opacity-0'));
+      } else {
+        confirmLogoutUser();
+      }
+    }
+
+    function closeLogoutModal() {
+      const modal = document.getElementById('logout-confirm-modal');
+      if (modal) {
+        modal.classList.add('opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+      }
+    }
+
+    function confirmLogoutUser() {
+      localStorage.removeItem('kelvinflow_user_phone');
+      localStorage.removeItem('saas_auth_token');
+      localStorage.removeItem('kelvinflow_user_email');
+      localStorage.removeItem('kelvinflow_user_name');
+      localStorage.removeItem('kelvinflow_user_plan');
+      localStorage.removeItem('kelvinflow_user_is_paid');
+      localStorage.removeItem('kelvinflow_remaining_days');
+      closeLogoutModal();
+      updateNavForLoggedInUser();
+      window.location.reload();
+    }
+
+    async function openReferralShareModal() {
+      const phone = localStorage.getItem('kelvinflow_user_phone');
+      if (!phone) {
+        openInboundModal('starter');
+        const errBox = document.getElementById('inbound-error-feedback');
+        if (errBox) {
+          errBox.innerHTML = '<span class="text-cyan-300">💡 请先输入手机号完成 7 天免费试用激活，系统将为您生成专属的推荐邀请链接与邀请码！</span>';
+          errBox.classList.remove('hidden');
+        }
+        return;
+      }
+
+      const modal = document.getElementById('referral-share-modal');
+      const codeEl = document.getElementById('modal-ref-code');
+      const linkEl = document.getElementById('modal-ref-link');
+      const textEl = document.getElementById('modal-ref-text');
+      const countEl = document.getElementById('modal-ref-count');
+      const daysEl = document.getElementById('modal-ref-days');
+
+      const origin = window.location.origin;
+      const shareUrl = `${origin}/?ref=${phone}`;
+      const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，双方立享 14 天完整全功能试用：\n${shareUrl}\n同行邀请码：${phone}`;
+
+      if (codeEl) codeEl.textContent = phone;
+      if (linkEl) linkEl.value = shareUrl;
+      if (textEl) textEl.value = shareText;
+
+      try {
+        const res = await fetch(`/api/v1/auth/referral-info?phone=${encodeURIComponent(phone)}`);
+        const json = await res.json();
+        if (json.success && json.data) {
+          if (countEl) countEl.textContent = json.data.referralCount || 0;
+          if (daysEl) daysEl.textContent = json.data.rewardDays || 0;
+        }
+      } catch (e) {
+        console.warn('获取邀请统计异常:', e);
+      }
+
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+      }, 10);
+      lockBodyScroll();
+    }
+
+    function closeReferralShareModal() {
+      const modal = document.getElementById('referral-share-modal');
+      if (!modal) return;
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        unlockBodyScroll();
+      }, 300);
+    }
+
+    function copyShareCode() {
+      const code = document.getElementById('modal-ref-code')?.textContent.trim();
+      if (!code || code === '--') return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(() => {
+          const btn = document.getElementById('btn-copy-code-text');
+          if (btn) btn.textContent = '✅ 已复制邀请码';
+          setTimeout(() => { if (btn) btn.textContent = '复制邀请码'; }, 2500);
+        }).catch(() => fallbackCopy(code));
+      } else {
+        fallbackCopy(code);
+      }
+    }
+
+    function copyShareLink() {
+      const link = document.getElementById('modal-ref-link')?.value;
+      if (!link) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(() => {
+          const btn = document.getElementById('btn-copy-link-text');
+          if (btn) btn.textContent = '✅ 已复制链接';
+          setTimeout(() => { if (btn) btn.textContent = '复制链接'; }, 2500);
+        }).catch(() => fallbackCopy(link));
+      } else {
+        fallbackCopy(link);
+      }
+    }
+
+    function copyShareFullText() {
+      const text = document.getElementById('modal-ref-text')?.value;
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById('btn-copy-fulltext');
+          if (btn) btn.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-300"></i> <span>已复制完整推荐文案！去微信直接发送</span>';
+          setTimeout(() => {
+            if (btn) btn.innerHTML = '<i class="fa-regular fa-copy"></i> <span>一键复制推荐文案 (微信群/朋友圈)</span>';
+          }, 3000);
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function lockBodyScroll() {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      if (scrollbarWidth > 0) {
+        document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
+      }
+      document.documentElement.style.overflow = 'hidden';
+    }
+
+    function unlockBodyScroll() {
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.paddingRight = '';
+    }
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!input || !icon) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+      }
+    }
+
+    function switchInboundFormMode(mode) {
+      currentInboundFormMode = mode;
+      const subtabReg = document.getElementById('inbound-subtab-reg');
+      const subtabLogin = document.getElementById('inbound-subtab-login');
+      const formReg = document.getElementById('inbound-form');
+      const formLogin = document.getElementById('inbound-login-form');
+      const badge = document.getElementById('inbound-tier-badge');
+      const title = document.getElementById('inbound-title');
+      const desc = document.getElementById('inbound-desc');
+
+      if (mode === 'login') {
+        if (subtabReg) subtabReg.className = 'flex-1 py-1.5 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer text-slate-400 hover:text-white';
+        if (subtabLogin) subtabLogin.className = 'flex-1 py-1.5 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-sm';
+        if (formReg) formReg.classList.add('hidden');
+        if (formLogin) formLogin.classList.remove('hidden');
+
+        if (badge) badge.textContent = '已有账号登录 · 极客版/试用会员';
+        if (title) title.textContent = '欢迎登录外贸智能工作台';
+        if (desc) desc.textContent = '密码加密保护 · 安全管理私有底价库与报价草稿';
+
+        const savedPhone = localStorage.getItem('kelvinflow_user_phone');
+        const loginPhoneInput = document.getElementById('inbound-login-phone');
+        if (savedPhone && loginPhoneInput && !loginPhoneInput.value) {
+          loginPhoneInput.value = savedPhone;
+        }
+        if (loginPhoneInput && loginPhoneInput.value) {
+          handleLoginPhoneInput({ target: loginPhoneInput });
+        }
+      } else {
+        if (subtabReg) subtabReg.className = 'flex-1 py-1.5 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-sm';
+        if (subtabLogin) subtabLogin.className = 'flex-1 py-1.5 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer text-slate-400 hover:text-white';
+        if (formReg) formReg.classList.remove('hidden');
+        if (formLogin) formLogin.classList.add('hidden');
+
+        if (badge) badge.textContent = '免费开通 7 天全功能试用席位';
+        if (title) title.textContent = '开启外贸智能出单体验';
+        if (desc) desc.textContent = '开箱自带演示底价库 · 密码加密保护商业机密';
+      }
+    }
+
+    function openInboundModal(tier = 'general') {
+      currentInboundTier = tier;
+
+      if (tier === 'enterprise') {
+        openEnterpriseModal();
+        return;
+      }
+      if (tier === 'annual' || tier === 'monthly') {
+        openPaymentModal(tier);
+        return;
+      }
+
+      const token = localStorage.getItem('saas_auth_token');
+      if (token && tier !== 'login') {
+        window.location.href = `/review/QT-20260904-888?token=${encodeURIComponent(token)}`;
+        return;
+      }
+
+      const modal = document.getElementById('inbound-modal');
+      const badge = document.getElementById('inbound-tier-badge');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const activeRef = (urlParams.get('ref') || urlParams.get('code') || urlParams.get('invite') || localStorage.getItem('kelvinflow_referrer') || '').trim();
+      const refInput = document.getElementById('inbound-ref');
+      const refTip = document.getElementById('inbound-ref-applied-tip');
+      const refTipText = document.getElementById('inbound-ref-applied-text');
+
+      if (activeRef) {
+        if (refInput && !refInput.value) refInput.value = activeRef;
+        if (refTip) refTip.classList.remove('hidden');
+        if (refTipText) {
+          refTipText.innerHTML = `已自动应用同行好友 <strong class="text-cyan-300 font-mono">(${activeRef})</strong> 专属邀请！双方立享加赠，共获 14 天试用！`;
+        }
+        const refBadge = document.getElementById('inbound-ref-badge');
+        if (refBadge) {
+          refBadge.innerHTML = '已自动锁定 · 双方各享 +7 天';
+          refBadge.className = 'text-[10px] text-emerald-400 font-bold';
+        }
+        switchInboundFormMode('register');
+      } else if (tier === 'login') {
+        switchInboundFormMode('login');
+      } else {
+        switchInboundFormMode('register');
+      }
+
+      if (badge && tier !== 'login') {
+        if (activeRef) {
+          badge.textContent = `🎁 同行特惠赠礼 · 开通即享 14 天试用 (含好友 ${activeRef} 赠送 7 天)`;
+        } else {
+          badge.textContent = '免费开通 7 天全功能试用席位 (零风险体验)';
+        }
+      }
+
+      if (!modal) return;
+      lockBodyScroll();
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+      }, 10);
+    }
+
+    function closeInboundModal(e) {
+      const modal = document.getElementById('inbound-modal');
+      if (!modal) return;
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        unlockBodyScroll();
+      }, 300);
+    }
+
+    function toggleCustomChannelDropdown(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      const menu = document.getElementById('custom-channel-menu');
+      const arrow = document.getElementById('custom-channel-arrow');
+      if (!menu) return;
+      const isOpen = !menu.classList.contains('hidden');
+      if (isOpen) {
+        menu.classList.add('hidden');
+        if (arrow) arrow.classList.remove('rotate-180');
+      } else {
+        menu.classList.remove('hidden');
+        if (arrow) arrow.classList.add('rotate-180');
+      }
+    }
+
+    function selectCustomChannel(val, icon, label) {
+      const input = document.getElementById('inbound-channel-source');
+      const labelEl = document.getElementById('custom-channel-label');
+      const menu = document.getElementById('custom-channel-menu');
+      const arrow = document.getElementById('custom-channel-arrow');
+
+      if (input) input.value = val;
+      if (labelEl) labelEl.innerHTML = `<span>${icon}</span> <span class="text-white font-medium">${label}</span>`;
+      
+      document.querySelectorAll('.custom-channel-option').forEach(opt => {
+        const check = opt.querySelector('.option-check');
+        if (opt.getAttribute('data-val') === val) {
+          opt.classList.add('bg-blue-600/30', 'text-cyan-300', 'font-bold');
+          if (check) check.classList.remove('hidden');
+        } else {
+          opt.classList.remove('bg-blue-600/30', 'text-cyan-300', 'font-bold');
+          if (check) check.classList.add('hidden');
+        }
+      });
+
+      if (menu) menu.classList.add('hidden');
+      if (arrow) arrow.classList.remove('rotate-180');
+    }
+
+    document.addEventListener('click', (e) => {
+      const wrapper = document.getElementById('custom-channel-wrapper');
+      const menu = document.getElementById('custom-channel-menu');
+      const arrow = document.getElementById('custom-channel-arrow');
+      if (wrapper && !wrapper.contains(e.target) && menu && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+        if (arrow) arrow.classList.remove('rotate-180');
+      }
+    });
+
+    // 试用开通注册
+    async function handleInboundSubmit(e) {
+      e.preventDefault();
+      const phone = (document.getElementById('inbound-phone')?.value || '').trim();
+      const email = (document.getElementById('inbound-email')?.value || '').trim();
+      const password = (document.getElementById('inbound-password')?.value || '').trim();
+      const channelSource = (document.getElementById('inbound-channel-source')?.value || '').trim();
+      const phoneErr = document.getElementById('phone-error-msg');
+      const errorBox = document.getElementById('inbound-error-feedback');
+      const successBox = document.getElementById('inbound-success-feedback');
+      const submitBtn = document.getElementById('inbound-submit-btn');
+
+      if (errorBox) { errorBox.classList.add('hidden'); errorBox.innerHTML = ''; }
+      if (successBox) { successBox.classList.add('hidden'); successBox.innerHTML = ''; }
+
+      const phoneRegex = /^1[3-9]\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        if (phoneErr) phoneErr.classList.remove('hidden');
+        document.getElementById('inbound-phone')?.focus();
+        return;
+      }
+      if (phoneErr) phoneErr.classList.add('hidden');
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (errorBox) {
+          errorBox.textContent = '请输入合法的电子邮箱地址（用于接收报价单与草稿联动）';
+          errorBox.classList.remove('hidden');
+        }
+        document.getElementById('inbound-email')?.focus();
+        return;
+      }
+
+      if (!password || password.length < 6) {
+        if (errorBox) {
+          errorBox.textContent = '请设置至少 6 位的登录密码，用于保护您的私有底价';
+          errorBox.classList.remove('hidden');
+        }
+        document.getElementById('inbound-password')?.focus();
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> <span>正在验证并开通 7 天免费试用...</span>';
+        submitBtn.className = 'w-full py-3.5 rounded-xl font-bold text-sm text-white bg-blue-700 shadow-xl opacity-80 cursor-not-allowed flex items-center justify-center space-x-2';
+      }
+
+      try {
+        const refInputVal = (document.getElementById('inbound-ref')?.value || '').trim();
+        const urlParams = new URLSearchParams(window.location.search);
+        const storedRef = refInputVal || urlParams.get('ref') || urlParams.get('code') || urlParams.get('invite') || localStorage.getItem('kelvinflow_referrer') || '';
+
+        const res = await fetch('/api/v1/auth/trial-register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, email, password, channelSource, ref: storedRef })
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          if (data.canLogin) {
+            switchInboundFormMode('login');
+            const loginPhoneInput = document.getElementById('inbound-login-phone');
+            if (loginPhoneInput) loginPhoneInput.value = phone;
+            const loginErrBox = document.getElementById('inbound-login-error-feedback');
+            if (loginErrBox) {
+              loginErrBox.textContent = data.error || '该手机号已开通过试用，请在此输入密码直接登录！';
+              loginErrBox.classList.remove('hidden');
+            }
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-cyan-300 text-xs"></i> <span>立即开通 7 天免费试用 (10秒直达) ➔</span>';
+              submitBtn.className = 'w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer';
+            }
+            return;
+          }
+
+          if (errorBox) {
+            errorBox.textContent = data.error || '开通失败，请检查输入或联系创始人';
+            errorBox.classList.remove('hidden');
+          }
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-cyan-300 text-xs"></i> <span>立即开通 7 天免费试用 (10秒直达) ➔</span>';
+            submitBtn.className = 'w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer';
+          }
+          return;
+        }
+
+        if (data.token) {
+          localStorage.setItem('saas_auth_token', data.token);
+          localStorage.setItem('kelvinflow_user_phone', phone);
+          localStorage.setItem('kelvinflow_user_email', email);
+          localStorage.setItem('kelvinflow_user_name', data.user?.name || '外贸同行');
+          localStorage.setItem('kelvinflow_remaining_days', String(data.remainingDays || 7));
+          localStorage.setItem('kelvinflow_user_plan', 'trial');
+          localStorage.setItem('kelvinflow_user_is_paid', 'false');
+          updateNavForLoggedInUser();
+        }
+
+        if (successBox) {
+          successBox.innerHTML = `
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-circle-check text-emerald-400 text-lg flex-shrink-0"></i>
+              <div>
+                <strong class="text-xs text-white">${data.message || '🎉 7 天全功能免费试用开通成功！'}</strong>
+                <p class="text-[11px] text-emerald-300 mt-0.5">已为私有底价加密防护，正在跳转至审单台...</p>
+              </div>
+            </div>
+          `;
+          successBox.classList.remove('hidden');
+        }
+
+        if (submitBtn) {
+          submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i> <span>已开通！正在进入审单台...</span>';
+          submitBtn.className = 'w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-emerald-600 shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-center space-x-2';
+        }
+
+        setTimeout(() => {
+          window.location.href = `/review/QT-20260904-888?token=${encodeURIComponent(data.token)}&tour=1`;
+        }, 800);
+
+      } catch (err) {
+        console.error('试用开通异常:', err);
+        if (errorBox) {
+          errorBox.textContent = '网络连接异常，请重试或在下方联系创始人微信！';
+          errorBox.classList.remove('hidden');
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-cyan-300 text-xs"></i> <span>立即开通 7 天免费试用 (10秒直达) ➔</span>';
+          submitBtn.className = 'w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer';
+        }
+      }
+    }
+
+    // 登录手机号输入感知
+    async function handleLoginPhoneInput(e) {
+      const phone = (e.target.value || '').trim();
+      const hintEl = document.getElementById('login-legacy-hint');
+      const hintText = document.getElementById('login-legacy-hint-text');
+      const btnText = document.getElementById('inbound-login-btn-text');
+      const badge = document.getElementById('login-pwd-security-badge');
+
+      if (phoneCheckTimer) clearTimeout(phoneCheckTimer);
+      if (phone.length !== 11) {
+        if (hintText) hintText.textContent = '';
+        if (hintEl) hintEl.className = 'hidden';
+        if (btnText) btnText.textContent = '验证密码并登入系统 ➔';
+        if (badge) badge.textContent = '加密保护';
+        return;
+      }
+
+      phoneCheckTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/v1/auth/check-account?phone=${encodeURIComponent(phone)}`);
+          const data = await res.json();
+          if (data.success && data.exists) {
+            if (!data.hasPassword) {
+              if (hintEl) {
+                hintEl.className = 'p-2.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/15 border border-emerald-500/40 text-emerald-200 text-xs flex items-start space-x-2';
+              }
+              if (hintText) {
+                hintText.innerHTML = `<strong>✨ 识别到早期账号 (${phone})：</strong>当前尚未绑定密码。输入新密码系统将直接为您激活绑定并登入！`;
+              }
+              if (badge) {
+                badge.className = 'text-[10px] text-emerald-400 font-bold';
+                badge.textContent = '首次设置新密码';
+              }
+              if (btnText) btnText.textContent = '立即绑定新密码并登入 ➔';
+            } else {
+              if (hintEl) {
+                hintEl.className = 'p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs flex items-center space-x-2';
+              }
+              if (hintText) hintText.textContent = `欢迎回来！请输入账户登录密码。`;
+              if (badge) {
+                badge.className = 'text-[10px] text-slate-400';
+                badge.textContent = '已受密码保护';
+              }
+              if (btnText) btnText.textContent = '验证密码并登入系统 ➔';
+            }
+          }
+        } catch (e) {}
+      }, 250);
+    }
+
+    // 账号密码登录
+    async function handleInboundLoginSubmit(e) {
+      e.preventDefault();
+      const phone = (document.getElementById('inbound-login-phone')?.value || '').trim();
+      const password = (document.getElementById('inbound-login-password')?.value || '').trim();
+      const errorBox = document.getElementById('inbound-login-error-feedback');
+      const successBox = document.getElementById('inbound-login-success-feedback');
+      const submitBtn = document.getElementById('inbound-login-submit-btn');
+
+      if (errorBox) { errorBox.classList.add('hidden'); errorBox.innerHTML = ''; }
+      if (successBox) { successBox.classList.add('hidden'); successBox.innerHTML = ''; }
+
+      const phoneRegex = /^1[3-9]\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        if (errorBox) {
+          errorBox.innerHTML = '<span>请输入合法的 11 位手机号码</span>';
+          errorBox.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (!password) {
+        if (errorBox) {
+          errorBox.innerHTML = '<span>请输入账户登录密码</span>';
+          errorBox.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> <span>正在验证密码并登入...</span>';
+        submitBtn.className = 'w-full py-3.5 rounded-xl font-bold text-sm text-white bg-blue-700 shadow-xl opacity-80 cursor-not-allowed flex items-center justify-center space-x-2';
+      }
+
+      try {
+        const res = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, password })
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          if (errorBox) {
+            errorBox.textContent = data.error || '登录失败，请核对手机号与密码';
+            errorBox.classList.remove('hidden');
+          }
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket text-cyan-300 text-xs"></i> <span>验证密码并登入系统 ➔</span>';
+            submitBtn.className = 'w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer';
+          }
+          return;
+        }
+
+        if (data.token) {
+          localStorage.setItem('saas_auth_token', data.token);
+          localStorage.setItem('kelvinflow_user_phone', phone);
+          if (data.user?.email) localStorage.setItem('kelvinflow_user_email', data.user.email);
+          if (data.user?.name) localStorage.setItem('kelvinflow_user_name', data.user.name);
+          if (data.remainingDays !== undefined) localStorage.setItem('kelvinflow_remaining_days', String(data.remainingDays));
+          if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);
+          if (data.isPaid !== undefined) localStorage.setItem('kelvinflow_user_is_paid', String(data.isPaid));
+          updateNavForLoggedInUser();
+        }
+
+        if (successBox) {
+          successBox.innerHTML = `
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-circle-check text-emerald-400 text-lg flex-shrink-0"></i>
+              <div>
+                <strong class="text-xs text-white">🎉 登录成功！</strong>
+                <p class="text-[11px] text-emerald-300 mt-0.5">欢迎回到工作台，正在跳转...</p>
+              </div>
+            </div>
+          `;
+          successBox.classList.remove('hidden');
+        }
+
+        setTimeout(() => {
+          window.location.href = `/review/QT-20260904-888?token=${encodeURIComponent(data.token)}`;
+        }, 600);
+
+      } catch (err) {
+        if (errorBox) {
+          errorBox.textContent = '网络连接异常，请稍后重试';
+          errorBox.classList.remove('hidden');
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket text-cyan-300 text-xs"></i> <span>验证密码并登入系统 ➔</span>';
+          submitBtn.className = 'w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer';
+        }
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    // Linear 级卡片鼠标流光跟随动效监听
+    function setupSpotlightCards() {
+      const cards = document.querySelectorAll('.spotlight-card');
+      cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          card.style.setProperty('--mouse-x', `${x}px`);
+          card.style.setProperty('--mouse-y', `${y}px`);
+        });
+      });
+    }
+
+    // 首屏 10 秒智能出单极速毫秒滚表动效
+    function setupSpeedTimer() {
+      const timerEl = document.getElementById('hero-live-timer');
+      const substatusEl = document.getElementById('hero-live-substatus');
+      if (!timerEl) return;
+
+      let timerInterval = null;
+      function runCycle() {
+        let currentSec = 0.0;
+        if (timerInterval) clearInterval(timerInterval);
+        
+        timerInterval = setInterval(() => {
+          currentSec += 0.1;
+          if (currentSec >= 9.8) {
+            currentSec = 9.8;
+            clearInterval(timerInterval);
+            if (timerEl) timerEl.textContent = '9.8s';
+            if (substatusEl) substatusEl.innerHTML = '<span class="text-emerald-400 font-semibold">已存入草稿箱</span>';
+            setTimeout(runCycle, 6000); // 停顿6秒后自动开启下一轮极速测速
+            return;
+          }
+          if (timerEl) timerEl.textContent = currentSec.toFixed(1) + 's';
+          if (substatusEl) {
+            if (currentSec < 2.5) {
+              substatusEl.textContent = '语义提取中...';
+            } else if (currentSec < 6.0) {
+              substatusEl.textContent = '底价碰撞与装柜...';
+            } else {
+              substatusEl.textContent = '生成 A4 单据草稿...';
+            }
+          }
+        }, 70);
+      }
+      runCycle();
+    }
+
+    // 导航栏滚动平滑磨砂加深
+    function setupHeaderScroll() {
+      const header = document.querySelector('header');
+      if (!header) return;
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 30) {
+          header.classList.add('header-scrolled');
+        } else {
+          header.classList.remove('header-scrolled');
+        }
+      }, { passive: true });
+    }
+
+    // 滚动动画观察器 (IntersectionObserver)
+    function setupScrollReveal() {
+      const reveals = document.querySelectorAll('.reveal');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      }, { threshold: 0.15 });
+
+      reveals.forEach(el => observer.observe(el));
+    }
+
+    // 初始化运行
+    document.addEventListener('DOMContentLoaded', () => {
+      setupScrollReveal();
+      setupSpotlightCards();
+      setupSpeedTimer();
+      setupHeaderScroll();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const refVal = (urlParams.get('ref') || urlParams.get('code') || urlParams.get('invite') || '').trim();
+
+      if (refVal) {
+        localStorage.setItem('kelvinflow_referrer', refVal);
+        setTimeout(() => openInboundModal('starter'), 350);
+      }
+
+      updateNavForLoggedInUser();
+
+      if (urlParams.has('modal')) {
+        const modalTier = urlParams.get('modal') || 'starter';
+        setTimeout(() => openInboundModal(modalTier), 200);
+      }
+    });
+  </script>
+</body>
+</html>

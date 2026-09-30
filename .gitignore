@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build Output
+dist/
+build/
+
+# Environment Variables & Secrets (CRITICAL for GitHub security)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Binaries, Archives & Heavy files
+bin/cloudflared.exe
+*.exe
+project.tar.gz
+*.tar.gz
+*.zip
+
+# Runtime & Generated Customer Data
+data/quotes/
+data/tenants/*/quotes/
+data/tenants/*/backups/
+data/tenants/*/pricing_sheets/
+data/tenants/tenant_trial_*/
+data/*_backup_*.xlsx
+data/inbound_leads.json
+data/trials.json
+
+# Temporary / Scratch Test Files & Render Artifacts
+public/test_*.pdf
+public/test_*.xlsx
+public/preview_*.png
+public/*.bak
+public/*.backup.*
+scratch_crop*.png
+top_right_inspect.png
+test_freeze.xlsx
+*.bak
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
