@@ -584,10 +584,10 @@ quoteRouter.post(
       }
 
       // 1. 識別並綁定租戶 ID (支持顯式傳參或從已認證的上下文/郵箱獲取)
-      const tenantId = req.tenantId || TenantService.resolveTenantId(
-        req.body?.tenant_id || (req.query?.tenant_id as string),
-        cleanEmail
-      );
+      const explicitTenant = req.body?.tenant_id || req.body?.tenantId || (req.query?.tenant_id as string) || (req.headers['x-tenant-id'] as string);
+      const tenantId = (req.user?.role === 'admin' && explicitTenant)
+        ? TenantService.resolveTenantId(explicitTenant)
+        : (req.tenantId || TenantService.resolveTenantId(explicitTenant, cleanEmail));
 
       // 解决 Multer 在某些平台默认使用 latin1 解码导致中文文件名乱码的问题
       let fileName = req.file.originalname;
@@ -736,11 +736,11 @@ quoteRouter.post(
       const salesRepName = req.user?.name || req.body?.sales_rep_name || 'Kelvin Tsui';
       let poText = req.body?.po_text || req.body?.email_body || req.body?.text;
 
-      // 識別租戶 ID (優先從認證上下文獲取)
-      const tenantId = req.tenantId || TenantService.resolveTenantId(
-        req.body?.tenant_id || (req.query?.tenant_id as string),
-        salesRepEmail
-      );
+      // 識別租戶 ID (優先從認證上下文獲取，若為管理員且顯式指定則採用指定租戶)
+      const explicitTenant = req.body?.tenant_id || req.body?.tenantId || (req.query?.tenant_id as string) || (req.headers['x-tenant-id'] as string);
+      const tenantId = (req.user?.role === 'admin' && explicitTenant)
+        ? TenantService.resolveTenantId(explicitTenant)
+        : (req.tenantId || TenantService.resolveTenantId(explicitTenant, salesRepEmail));
 
       // 支持一鍵載入測試單或無文件時使用內置樣例 PO (附帶結構化文本，保障多模態與離線引擎 100% 精準無亂碼)
       const useSamplePo = req.body?.use_sample_po === 'true' || req.body?.use_sample_po === true || req.query?.useSamplePo === 'true' || req.query?.use_sample_po === 'true';
@@ -825,8 +825,8 @@ Items to Quote:
       if (priceItems.length === 0) {
         // 從多租戶存儲中加載
         let tenantPricing = TenantService.getActivePricingBuffer(tenantId);
-        // 如果當前租戶尚未上傳底價表，但使用的是官方樣例 PO，自動平滑回退加載官方樣例底價庫供其流暢體驗
-        if (!tenantPricing && (useSamplePo || tenantId.startsWith('tenant_trial_'))) {
+        // 仅当用户明确启用官方样例 PO (useSamplePo) 体验模式时，才自动回退加载官方标准底价库
+        if (!tenantPricing && useSamplePo) {
           console.log(`📁 [底價源] 租戶 [${tenantId}] 暫未配置專屬底價表，樣例體驗模式下自動加載官方標準底價庫...`);
           tenantPricing = TenantService.getActivePricingBuffer('default');
         }
@@ -853,7 +853,7 @@ Items to Quote:
       if (priceItems.length === 0) {
         return res.status(400).json({
           success: false,
-          error: `租戶 [${tenantId}] 尚未初始化底價庫！請發送一封主題為「底價表更新」的郵件並附帶 Excel。`
+          error: `租戶 [${tenantId}] 尚未配置出廠底價庫！請先在工作台或審單台自定義上傳您的專屬 Excel 出廠底價表。`
         });
       }
 
@@ -1242,9 +1242,9 @@ quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any>
 });
 
 // =========================================================================
-// 4. 【在線微調並重新生成 PDF (多租戶隔離 + 底價防篡改)】: POST /api/v1/quotes/:id
+// 4. 【在線微調並重新生成 PDF (多租戶隔離 + 底價防篡改)】: POST /api/v1/quotes/:id 及 /quotes/:id/update
 // =========================================================================
-quoteRouter.post('/quotes/:id', async (req: Request, res: Response): Promise<any> => {
+quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res: Response): Promise<any> => {
   try {
     const id = String(req.params.id);
     const tenantId = req.tenantId || 'default';
@@ -1279,12 +1279,41 @@ quoteRouter.post('/quotes/:id', async (req: Request, res: Response): Promise<any
       return res.status(400).json({ success: false, error: '缺少更新數據' });
     }
 
-    // 重新計算總計外幣金額
+    // 重新計算明细与總計外幣金額 (防脱敏字段丢失与毛利率变动联动折算)
     let totalForeign = 0;
     if (Array.isArray(updatedData.items)) {
-      updatedData.items.forEach((item: any) => {
-        item.subTotalForeign = Number((item.quantity * item.unitPriceForeign).toFixed(2));
-        totalForeign += item.subTotalForeign;
+      const rateUsed = Number(updatedData.rateUsed || existing.rateUsed || 7.2);
+      updatedData.items = updatedData.items.map((item: any, idx: number) => {
+        const existingItem = existing.items?.[idx] || existing.items?.find((it: any) => it.sku === item.sku);
+        const basePriceRMB = (item.basePriceRMB && item.basePriceRMB > 0) ? item.basePriceRMB : (existingItem?.basePriceRMB || 0);
+        const fobCostRMB = item.fobCostRMB !== undefined ? item.fobCostRMB : (existingItem?.fobCostRMB || 0);
+        const profitMargin = typeof item.profitMargin === 'number' ? item.profitMargin : (existingItem?.profitMargin || 0.15);
+        
+        let unitPriceForeign = item.unitPriceForeign;
+        // 若毛利率有变动或单价未指定，按公式联动计算外币单价
+        if (typeof unitPriceForeign !== 'number' || isNaN(unitPriceForeign) || (typeof item.profitMargin === 'number' && existingItem && item.profitMargin !== existingItem.profitMargin)) {
+          if (basePriceRMB > 0) {
+            unitPriceForeign = Number((((basePriceRMB + fobCostRMB) * (1 + profitMargin)) / rateUsed).toFixed(2));
+          }
+        }
+        if (typeof unitPriceForeign !== 'number' || isNaN(unitPriceForeign)) {
+          unitPriceForeign = existingItem?.unitPriceForeign || 0;
+        }
+
+        const quantity = Number(item.quantity || existingItem?.quantity || 1);
+        const subTotalForeign = Number((quantity * unitPriceForeign).toFixed(2));
+        totalForeign += subTotalForeign;
+
+        return {
+          ...existingItem,
+          ...item,
+          quantity,
+          basePriceRMB,
+          fobCostRMB,
+          profitMargin,
+          unitPriceForeign,
+          subTotalForeign
+        };
       });
     }
 

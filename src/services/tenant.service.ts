@@ -115,22 +115,34 @@ export class TenantService {
   }
 
   /**
-   * 獲取租戶生效底價文件內容（優先租戶專屬，次選「商品底价表」目錄文件，再回退默認）
+   * 獲取租戶生效底價文件內容
+   * 規則：
+   * 1. 獨立生產租戶 (tenantId !== 'default')：必須讀取租戶專屬上傳底價表，未上傳時返回 null 觸發強攔截引導；
+   * 2. 默認租戶 (tenantId === 'default' / 前台演示)：始終動態讀取「商品底价表」目錄下的有效基准底價表。
    */
   static getActivePricingBuffer(tenantId: string): { buffer: Buffer; sourcePath: string } | null {
-    // 1. 優先檢查租戶專屬獨立底價表
-    const tenantPath = this.getActivePricingPath(tenantId);
-    if (fs.existsSync(tenantPath)) {
-      return { buffer: fs.readFileSync(tenantPath), sourcePath: tenantPath };
+    // 1. 獨立企業生產租戶：優先且僅使用租戶專屬獨立底價表
+    if (tenantId && tenantId !== 'default') {
+      const tenantPath = this.getActivePricingPath(tenantId);
+      if (fs.existsSync(tenantPath)) {
+        return { buffer: fs.readFileSync(tenantPath), sourcePath: tenantPath };
+      }
+      // 生產租戶未上傳專屬底價表時，嚴禁靜默使用演示底價表，返回 null 觸發前端上傳引導
+      return null;
     }
 
-    // 2. 檢查「商品底价表」目錄下的文件 (始終使用 F:\order_workflow\商品底价表 該文件夾下的最新有效文件)
+    // 2. 默認展示租戶 (default / 官方演示展示)：動態檢索「商品底价表」目錄文件
+    const defaultCustomPath = this.getActivePricingPath('default');
+    if (fs.existsSync(defaultCustomPath)) {
+      return { buffer: fs.readFileSync(defaultCustomPath), sourcePath: defaultCustomPath };
+    }
+
     const commodityFile = this.getCommodityPricingFile();
     if (commodityFile) {
       return commodityFile;
     }
 
-    // 3. 檢查全局默認底價表
+    // 3. 檢查全局默認底價表兜底
     const defaultPath = path.join(this.BASE_DATA_DIR, 'active_pricing.xlsx');
     if (fs.existsSync(defaultPath)) {
       return { buffer: fs.readFileSync(defaultPath), sourcePath: defaultPath };

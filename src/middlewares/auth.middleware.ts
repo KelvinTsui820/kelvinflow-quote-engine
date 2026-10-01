@@ -96,6 +96,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
       (req.headers['x-tenant-id'] as string) ||
       (req.query?.tenant_id as string) ||
       req.body?.tenant_id ||
+      req.body?.tenantId ||
       req.body?.sender_email ||
       'default';
 
@@ -111,6 +112,17 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
         tenantId
       };
     }
+  }
+
+  // 如果是平台超级管理员 (admin)，且请求显式传递了租户提示，允许管理员切换租户上下文
+  const explicitTenant = 
+    (req.headers['x-tenant-id'] as string) ||
+    (req.query?.tenant_id as string) ||
+    req.body?.tenant_id ||
+    req.body?.tenantId;
+
+  if (user && user.role === 'admin' && explicitTenant) {
+    tenantId = TenantService.resolveTenantId(explicitTenant);
   }
 
   req.user = user;
