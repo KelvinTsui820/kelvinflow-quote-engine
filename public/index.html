@@ -813,67 +813,82 @@
             <div id="faq-body-1" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  绝对不会。系统采用租户独立数据隔离与高强度加密存储。底价库仅用于您个人账号的后端公式运算，对外生成的 PDF 商业发票与英文商务邮件中仅展示核算后的对外美元单价，任何第三方（包括买家）均绝对无法反推您的出厂成本。
+                  绝对不会。系统采用严格的租户物理隔离与独立存储架构，您的底价表仅在您专属租户沙箱内参与后端公式运算。对外生成的正式商业报价单（A4 PDF Quotation）与商务英文回复中，仅呈现核算后的对外美金单价，出厂净成本、加价倍率等敏感参数彻底脱敏，任何第三方及海外买家在数学和逻辑上均绝对无法逆向推算您的真实成本。
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- FAQ 2: Excel 导入门槛 -->
+          <!-- FAQ 2: 成本精算、汇率与防亏损风控 -->
           <div id="faq-card-2" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(2)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>我现有的 Excel 底价表格式很乱/不规范，导入系统麻烦吗？</span>
+              <span>汇率波动、包装箱规与海运杂费如何计算？会不会算错导致亏本？</span>
               <i id="faq-icon-2" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-2" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  完全不麻烦。系统提供极其精简的 4 列标准模板（型号、产品品名、出厂底价、装箱规格），哪怕您先只录入 2~3 款主打走量款，30 秒即可一键上传生效。更棒的是，注册后系统已自带外贸五金与升降桌演示底价库，无需上传也能即刻体验真实 10 秒出单。
+                  绝不会亏本。系统内置严密的外贸工业级精算引擎：① 自动应用企业锁定的内部结算汇率（如 USD 7.20 / EUR 7.85 等），规避汇损；② 智能识别样品单打样倍率（2.5x）与批量阶梯折扣；③ 自动根据箱规精准测算总体积（CBM）与毛重，并推荐合理集装箱配载（20'GP / 40'HQ / 拼箱）；④ 内置单品专属保底毛利率与 <span class="text-amber-400 font-semibold">8% 最低红线防穿底保护</span>，一旦价格低于盈利红线立即强力预警，从底层公式锁死利润边界。
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- FAQ 3: 非标定制与未录入型号容错 -->
+          <!-- FAQ 3: Excel 导入与热更新机制 -->
           <div id="faq-card-3" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(3)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>如果买家的询盘中包含非标定制、工艺加配或底价表里没有的型号怎么办？</span>
+              <span>我现有的 Excel 底价表格式不完全一样，导入系统麻烦吗？后续如何调价？</span>
               <i id="faq-icon-3" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-3" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  系统具备工业级智能容错机制。对于询盘中的选配工艺（如激光刻标、特殊喷涂、欧规插头等），算法会自动加价匹配；对于未收录出厂成本的特殊型号，系统会自动打上 <code class="text-amber-400 font-mono">[待人工核价]</code> 预警，并生成审单微调链接，您在手机或电脑上一秒手工填价，系统即时完成整体排版联动。
+                  非常省心。系统采用清晰的标准双表架构（全局核算参数表 + 商品出厂底价库），内置强大的表头语义智能模糊匹配算法（能自适应“出厂价 / Cost / RMB / 规格”等多种常用列名表头）。工厂更新底价时，只需在审单台点击一键上传替换或覆盖 Excel 表格，系统即时热加载生效，秒级完成全库价格原子刷新。
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- FAQ 4: 邮箱安全与防误发 -->
+          <!-- FAQ 4: 非标定制与未建档型号容错 -->
           <div id="faq-card-4" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(4)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>配置邮箱授权安全吗？AI 会不会未经我确认擅自发错邮件给买家？</span>
+              <span>如果买家的询盘中包含非标定制、底价库里没有的型号或输入错误怎么办？</span>
               <i id="faq-icon-4" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-4" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  100% 安全，发信确认权始终掌握在您手中。系统仅通过官方标准 IMAP/SMTP 协议将生成的商业单据与正文静默存入您的「邮箱草稿箱」，绝不会直接发送给买家，更不会删除、篡改您的现有邮件。您像往常一样打开草稿箱，审阅无误后由您亲手点击发送。
+                  系统配备工业级三维连续动态置信度评分引擎与买家别名映射库（Aliases），即便买家拼写略有差异也能智能归一化匹配。对于底价库尚未收录的生僻非标型号，系统会自动打上 <code class="text-amber-400 font-mono">[待人工核价]</code> 风险警报并在审单工作台醒目提示。您只需在手机或电脑审单台花费 1 秒手工填入底价，系统便会即时联动计算毛利并无缝重排正式 PDF 商业单据。
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- FAQ 5: 免费试用到期与扣费规则 -->
+          <!-- FAQ 5: 邮箱安全与发信确认权 -->
           <div id="faq-card-5" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(5)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>7 天免费试用到期后会自动扣费吗？我的底价数据会被删除吗？</span>
+              <span>配置邮箱安全吗？需要交出企业邮箱密码吗？AI 会不会擅自发错邮件？</span>
               <i id="faq-icon-5" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-5" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  绝不会自动扣费。注册试用完全零门槛，无需绑定银行卡或支付授权。试用期结束后，若暂未升级极客版，系统仅暂时停用自动出单转发功能，您的私有底价数据与历史报价单将安全封存 60 天，绝不强行划扣费用或擅自清除数据。
+                  100% 安全，AI 绝不越权群发，且支持零授权运行！系统提供双轨安全架构：① <strong class="text-white">零风控邮件自动转发模式（推荐）</strong>：您无需提供任何邮箱密码，仅需在企业邮箱设置规则自动转发询盘，系统核算后将英文草案及 PDF 报价单直接回发至您的工作邮箱；② <strong class="text-white">IMAP 极客模式</strong>：仅通过客户端独立授权码将邮件草案静默存入您的 Outlook / Foxmail 草稿箱。无论哪种方式，发信确认权 100% 由您亲手掌控。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 6: 免费试用到期与扣费规则 -->
+          <div id="faq-card-6" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
+            <button onclick="toggleFaqSmooth(6)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
+              <span>7 天免费试用到期后会自动扣费吗？我的底价数据会被删除吗？</span>
+              <i id="faq-icon-6" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
+            </button>
+            <div id="faq-body-6" class="faq-accordion-body">
+              <div>
+                <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
+                  绝不会自动扣费。开通试用完全零门槛，无需绑定信用卡或提供任何支付授权。试用期间全功能完整开放体验；7 天到期后，若暂未升级极客版，系统仅暂时停用自动化出单通道，您的私有底价数据与历史报价单将安全封存 60 天，绝无任何强制扣费或数据清空风险。
                 </div>
               </div>
             </div>
