@@ -289,7 +289,7 @@ export class TenantService {
       companyAddress: 'Global Trade Center, Export Logistics Park',
       contactEmail: `sales@${cleanId}.com`,
       contactPhone: '+86-000-0000-0000',
-      website: `www.${cleanId}.com`,
+      website: cleanId.startsWith('tenant_trial_') ? '' : `www.${cleanId}.com`,
       hideCostFromSales: true,
       defaultProfitMargin: 0.30,
       defaultCurrency: 'USD',

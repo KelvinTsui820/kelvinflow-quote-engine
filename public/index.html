@@ -804,91 +804,91 @@
         <h3 class="text-2xl font-bold text-center text-white mb-8">常见疑问解答</h3>
         <div class="space-y-4">
           
-          <!-- FAQ 1: 底价保密与商业隔离 -->
+          <!-- FAQ 1: 底价保密 -->
           <div id="faq-card-1" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(1)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>KelvinFlow 会泄露我的出厂底价和商业机密吗？</span>
+              <span>我把底价表传上去，工厂底价会不会被同行或买家看到？</span>
               <i id="faq-icon-1" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-1" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  绝对不会。系统采用严格的租户物理隔离与独立存储架构，您的底价表仅在您专属租户沙箱内参与后端公式运算。对外生成的正式商业报价单（A4 PDF Quotation）与商务英文回复中，仅呈现核算后的对外美金单价，出厂净成本、加价倍率等敏感参数彻底脱敏，任何第三方及海外买家在数学和逻辑上均绝对无法逆向推算您的真实成本。
+                  绝对不会，请放一百个心。你的底价表只有你自己能看到，纯粹用于后台算价格。发给客户的正式报价单（PDF）和英文邮件里，只会出现最终卖给他的美金售价，绝不会出现你的出厂进价。外商怎么看也绝不可能反推出你的真实成本。
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- FAQ 2: 成本精算、汇率与防亏损风控 -->
+          <!-- FAQ 2: 算价准不准/会不会亏钱 -->
           <div id="faq-card-2" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(2)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>汇率波动、包装箱规与海运杂费如何计算？会不会算错导致亏本？</span>
+              <span>汇率天天变、还要算海运费和装柜，AI 算出来的价格准吗？会不会让我亏本？</span>
               <i id="faq-icon-2" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-2" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  绝不会亏本。系统内置严密的外贸工业级精算引擎：① 自动应用企业锁定的内部结算汇率（如 USD 7.20 / EUR 7.85 等），规避汇损；② 智能识别样品单打样倍率（2.5x）与批量阶梯折扣；③ 自动根据箱规精准测算总体积（CBM）与毛重，并推荐合理集装箱配载（20'GP / 40'HQ / 拼箱）；④ 内置单品专属保底毛利率与 <span class="text-amber-400 font-semibold">8% 最低红线防穿底保护</span>，一旦价格低于盈利红线立即强力预警，从底层公式锁死利润边界。
+                  不仅准，而且坚决帮你守住利润底线。系统会严格按照你设定的内部汇率和利润率来算：大单自动给阶梯优惠，打样自动算样品价，还能根据箱规自动推荐装 20尺柜、40尺高柜还是拼箱。最关键的是，只要算出来的利润低于 8% 的保底红线，系统立刻发出警告，坚决杜绝报亏本单。
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- FAQ 3: Excel 导入与热更新机制 -->
+          <!-- FAQ 3: Excel 底价表格式 -->
           <div id="faq-card-3" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(3)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>我现有的 Excel 底价表格式不完全一样，导入系统麻烦吗？后续如何调价？</span>
+              <span>我现有的 Excel 底价表格式跟你们不一样，能直接用吗？以后调价麻烦吗？</span>
               <i id="faq-icon-3" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-3" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  非常省心。系统采用清晰的标准双表架构（全局核算参数表 + 商品出厂底价库），内置强大的表头语义智能模糊匹配算法（能自适应“出厂价 / Cost / RMB / 规格”等多种常用列名表头）。工厂更新底价时，只需在审单台点击一键上传替换或覆盖 Excel 表格，系统即时热加载生效，秒级完成全库价格原子刷新。
+                  直接就能用，以后改价也只要 10 秒钟。只要表格里有型号、品名、出厂价，系统就能自动识别出来，哪怕你的列名写成“单价”、“成本”或“RMB”都没关系。后续工厂调价时，直接把新的 Excel 表重新上传一次，全库价格立刻秒级更新。
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- FAQ 4: 非标定制与未建档型号容错 -->
+          <!-- FAQ 4: 非标定制/生僻型号 -->
           <div id="faq-card-4" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(4)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>如果买家的询盘中包含非标定制、底价库里没有的型号或输入错误怎么办？</span>
+              <span>客户询盘里有特殊定制要求，或者写的型号我底价表里没有，怎么办？</span>
               <i id="faq-icon-4" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-4" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  系统配备工业级三维连续动态置信度评分引擎与买家别名映射库（Aliases），即便买家拼写略有差异也能智能归一化匹配。对于底价库尚未收录的生僻非标型号，系统会自动打上 <code class="text-amber-400 font-mono">[待人工核价]</code> 风险警报并在审单工作台醒目提示。您只需在手机或电脑审单台花费 1 秒手工填入底价，系统便会即时联动计算毛利并无缝重排正式 PDF 商业单据。
+                  别担心，系统会提醒你手工填一下，绝不会乱报价。常见的别名或轻微拼写错误，系统能自动认出来；如果碰到底价表里真没有的特殊定制款，系统会在工作台贴心标注【待人工填价】。你在手机或电脑上花 1 秒钟把成本输进去，系统立刻自动帮你把汇率、利润和整张正式报价单排好。
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- FAQ 5: 邮箱安全与发信确认权 -->
+          <!-- FAQ 5: 邮箱授权/会不会乱发邮件 -->
           <div id="faq-card-5" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(5)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>配置邮箱安全吗？需要交出企业邮箱密码吗？AI 会不会擅自发错邮件？</span>
+              <span>我需要把企业邮箱密码给你们吗？AI 会不会擅自发错邮件给客户？</span>
               <i id="faq-icon-5" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-5" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  100% 安全，AI 绝不越权群发，且支持零授权运行！系统提供双轨安全架构：① <strong class="text-white">零风控邮件自动转发模式（推荐）</strong>：您无需提供任何邮箱密码，仅需在企业邮箱设置规则自动转发询盘，系统核算后将英文草案及 PDF 报价单直接回发至您的工作邮箱；② <strong class="text-white">IMAP 极客模式</strong>：仅通过客户端独立授权码将邮件草案静默存入您的 Outlook / Foxmail 草稿箱。无论哪种方式，发信确认权 100% 由您亲手掌控。
+                  不需要给邮箱密码，AI 更绝对不会私自给客户发邮件！你可以直接把客户询盘转发给系统，系统算好后会把写好的地道英文回信和报价单草稿发回给你自己的邮箱；每一封邮件必须由你亲自过目、确认无误后由你亲手点击发送，大权 100% 在你自己手里。
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- FAQ 6: 免费试用到期与扣费规则 -->
+          <!-- FAQ 6: 试用到期/会不会扣钱 -->
           <div id="faq-card-6" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(6)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>7 天免费试用到期后会自动扣费吗？我的底价数据会被删除吗？</span>
+              <span>7 天免费试用期过了之后，会自动扣我的钱吗？我的数据还在吗？</span>
               <i id="faq-icon-6" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-6" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  绝不会自动扣费。开通试用完全零门槛，无需绑定信用卡或提供任何支付授权。试用期间全功能完整开放体验；7 天到期后，若暂未升级极客版，系统仅暂时停用自动化出单通道，您的私有底价数据与历史报价单将安全封存 60 天，绝无任何强制扣费或数据清空风险。
+                  绝对不会自动扣费！开通试用只需要手机号，不需要绑定银行卡或信用卡，没有任何套路。7 天试用到期后，如果你暂时不想买，系统不会扣你一分钱；你上传的底价表和历史报价单还会安安全全给你保留 60 天，随时可以回来查看。
                 </div>
               </div>
             </div>
@@ -1014,9 +1014,8 @@
 
         <!-- 邀请码输入区 -->
         <div id="inbound-ref-box">
-          <div class="flex items-center justify-between mb-1">
-            <label class="text-[11px] font-medium text-slate-400">同行邀请码 (选填，开通双方各送 7 天)</label>
-            <span id="inbound-ref-badge" class="text-[10px] text-cyan-400">双方加赠</span>
+          <div class="mb-1">
+            <label class="text-[11px] font-medium text-slate-400">同行邀请码 (选填)</label>
           </div>
           <input type="text" id="inbound-ref" placeholder="输入推荐人手机号" class="w-full px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-cyan-400 transition-colors">
           <div id="inbound-ref-applied-tip" class="hidden mt-1.5 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px]">
@@ -1029,7 +1028,7 @@
 
         <button type="submit" id="inbound-submit-btn" class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer">
           <i class="fa-solid fa-wand-magic-sparkles text-cyan-300 text-xs"></i>
-          <span>立即开通 7 天免费试用 (10秒直达) ➔</span>
+          <span>立即开通 7 天免费试用 ➔</span>
         </button>
       </form>
 
@@ -1530,7 +1529,7 @@
 
       const origin = window.location.origin;
       const shareUrl = `${origin}/?ref=${phone}`;
-      const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，双方立享 14 天完整全功能试用：\n${shareUrl}\n同行邀请码：${phone}`;
+      const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，立享 7 天完整全功能试用：\n${shareUrl}\n同行邀请码：${phone}`;
 
       if (codeEl) codeEl.textContent = phone;
       if (linkEl) linkEl.value = shareUrl;
@@ -1708,12 +1707,7 @@
         if (refInput && !refInput.value) refInput.value = activeRef;
         if (refTip) refTip.classList.remove('hidden');
         if (refTipText) {
-          refTipText.innerHTML = `已自动应用同行好友 <strong class="text-cyan-300 font-mono">(${activeRef})</strong> 专属邀请！双方立享加赠，共获 14 天试用！`;
-        }
-        const refBadge = document.getElementById('inbound-ref-badge');
-        if (refBadge) {
-          refBadge.innerHTML = '已自动锁定 · 双方各享 +7 天';
-          refBadge.className = 'text-[10px] text-emerald-400 font-bold';
+          refTipText.innerHTML = `已自动应用同行推荐人 <strong class="text-cyan-300 font-mono">(${activeRef})</strong> 邀请码`;
         }
         switchInboundFormMode('register');
       } else if (tier === 'login') {
@@ -1723,11 +1717,7 @@
       }
 
       if (badge && tier !== 'login') {
-        if (activeRef) {
-          badge.textContent = `🎁 同行特惠赠礼 · 开通即享 14 天试用 (含好友 ${activeRef} 赠送 7 天)`;
-        } else {
-          badge.textContent = '免费开通 7 天全功能试用席位 (零风险体验)';
-        }
+        badge.textContent = '免费开通 7 天全功能试用席位 (零风险体验)';
       }
 
       if (!modal) return;

@@ -243,15 +243,11 @@ export class TrialService {
       }
     }
 
-    let trialDays = 7;
-    let newRewardDays = 0;
+    const trialDays = 7;
+    const newRewardDays = 0;
 
     if (referrerUser) {
-      // 双方各享 +7 天！新用户获赠 7 天额外时长，共 14 天
-      trialDays = 14;
-      newRewardDays = 7;
-
-      // 自动给推荐人延长 +7 天！
+      // 推荐人获得邀请奖励：+7 天时长！
       const refCurrentExp = new Date(referrerUser.expiresAt);
       const refBase = refCurrentExp.getTime() > Date.now() ? refCurrentExp.getTime() : Date.now();
       const refNewExp = new Date(refBase + 7 * 24 * 3600 * 1000);
@@ -265,7 +261,7 @@ export class TrialService {
         expiresAt: referrerUser.expiresAt,
         status: 'active'
       });
-      console.log(`🎁 [同行推荐双向奖励] 推荐人 [${referrerUser.name} (${referrerUser.phone})] 与新用户各获得 +7 天时长！新用户试用期共 ${trialDays} 天`);
+      console.log(`🎁 [同行推荐奖励] 推荐人 [${referrerUser.name} (${referrerUser.phone})] 获得 +7 天时长！新用户试用期为标准的 7 天`);
     }
 
     const expiresAtDate = new Date(Date.now() + trialDays * 24 * 3600 * 1000);
@@ -797,7 +793,7 @@ export class TrialService {
     const inviteCode = trial.phone;
     const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
     const shareUrl = `${cleanBaseUrl}/?ref=${inviteCode}`;
-    const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，双方立享 14 天完整全功能试用：\n${shareUrl}\n同行邀请码：${inviteCode}`;
+    const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，立享 7 天完整全功能试用：\n${shareUrl}\n同行邀请码：${inviteCode}`;
 
     return {
       phone: trial.phone,

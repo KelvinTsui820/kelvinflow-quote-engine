@@ -187,35 +187,45 @@ export class PDFService {
       let currentY = 24;
 
       // =========================================================================
-      // 1. 公司 Header 栏与文档大标题 (标准外贸出口发票高阶版式，宽幅无遮挡)
+      // 1. 公司 Header 栏与文档大标题 (标准外贸出口高阶版式，图文并排、左右对称)
       // =========================================================================
       const customLogoPath = options.logoPath || TenantService.getTenantLogoPath(tenantId);
       const hasLogo = Boolean(customLogoPath && fs.existsSync(customLogoPath));
 
+      // 智能清洗联系方式行 (过滤测试租户假域名，确保单行优雅展示绝不折行压线)
+      const cleanWebsite = (website && !website.includes('tenant_trial_') && !website.includes('tenant_') && website !== 'www.kelvinflow.com' && website.includes('.'))
+        ? website
+        : '';
+      const contactParts = [`Tel: ${salesPhone}`, `Email: ${salesEmail}`];
+      if (cleanWebsite) {
+        contactParts.push(`Web: ${cleanWebsite}`);
+      }
+      const contactText = contactParts.join('  |  ');
+
       if (hasLogo && customLogoPath) {
         try {
-          doc.image(customLogoPath, startX, currentY, { fit: [130, 36] });
-          const textY = currentY + 40;
+          doc.image(customLogoPath, startX, 22, { fit: [60, 44] });
+          const textStartX = startX + 68;
+          const textWidth = 220;
+
           doc
             .fontSize(11)
             .font(getFont(true, company))
             .fillColor('#0f2942')
-            .text(company.toUpperCase(), startX, textY, { width: 330 });
+            .text(company.toUpperCase(), textStartX, 22, { width: textWidth, ellipsis: true });
 
           doc
             .fontSize(7.5)
             .font(getFont(false, companySubtitle))
             .fillColor('#64748b')
-            .text(companySubtitle, startX, textY + 14, { width: 330, ellipsis: true });
+            .text(companySubtitle, textStartX, 36, { width: textWidth, ellipsis: true });
 
           doc
-            .fontSize(7.5)
+            .fontSize(7)
             .font(getFont(false, companyAddress))
             .fillColor('#475569')
-            .text('Address: ' + companyAddress, startX, textY + 26, { width: 330, ellipsis: true })
-            .text(`Tel: ${salesPhone}  |  Email: ${salesEmail}  |  Web: ${website}`, startX, textY + 38, { width: 330, ellipsis: true });
-
-          currentY = textY + 52;
+            .text('Address: ' + companyAddress, textStartX, 48, { width: textWidth, ellipsis: true })
+            .text(contactText, textStartX, 59, { width: textWidth, ellipsis: true });
         } catch (imgErr) {
           console.warn('PDF custom logo embed warning:', imgErr);
           renderDefaultHeaderText();
@@ -226,39 +236,40 @@ export class PDFService {
 
       function renderDefaultHeaderText() {
         doc
-          .fontSize(13)
+          .fontSize(12)
           .font(getFont(true, company))
           .fillColor('#0f2942')
-          .text(company.toUpperCase(), startX, currentY, { width: 330 });
+          .text(company.toUpperCase(), startX, 22, { width: 280, ellipsis: true });
 
         doc
           .fontSize(7.5)
           .font(getFont(false, companySubtitle))
           .fillColor('#64748b')
-          .text(companySubtitle, startX, currentY + 16, { width: 330, ellipsis: true });
+          .text(companySubtitle, startX, 36, { width: 280, ellipsis: true });
 
         doc
-          .fontSize(7.5)
+          .fontSize(7)
           .font(getFont(false, companyAddress))
           .fillColor('#475569')
-          .text('Address: ' + companyAddress, startX, currentY + 28, { width: 330, ellipsis: true })
-          .text(`Tel: ${salesPhone}  |  Email: ${salesEmail}  |  Web: ${website}`, startX, currentY + 40, { width: 330, ellipsis: true });
-
-        currentY += 56;
+          .text('Address: ' + companyAddress, startX, 48, { width: 280, ellipsis: true })
+          .text(contactText, startX, 59, { width: 280, ellipsis: true });
       }
 
       // 右侧：商业报价单标题与单号信息 (加粗加大，清晰可辨，排版严整)
+      const rightStartX = startX + 296;
+      const rightWidth = pageWidth - 296;
+
       doc
-        .fontSize(18)
+        .fontSize(17)
         .font(getFont(true))
         .fillColor('#2563eb')
-        .text('FORMAL QUOTATION', startX + 280, 22, { width: 251, align: 'right' });
+        .text('FORMAL QUOTATION', rightStartX, 22, { width: rightWidth, align: 'right' });
 
       doc
         .fontSize(9.5)
         .font(getFont(true))
         .fillColor('#0f2942')
-        .text('REF NO: ' + quotation.quotationNumber, startX + 280, 44, { width: 251, align: 'right' });
+        .text('REF NO: ' + quotation.quotationNumber, rightStartX, 42, { width: rightWidth, align: 'right' });
 
       const issueDateStr = quotation.date || new Date().toISOString().split('T')[0];
       const validityDays = (quotation.priceValidity && quotation.priceValidity.match(/\d+/))
@@ -277,19 +288,23 @@ export class PDFService {
         : `Price Validity: ${validityDays} Calendar Days`;
 
       doc
-        .fontSize(8)
+        .fontSize(7.5)
         .font(getFont(false))
         .fillColor('#64748b')
-        .text('Date of Issue: ' + issueDateStr, startX + 280, 58, { width: 251, align: 'right' })
-        .text(validityDisplay, startX + 280, 70, { width: 251, align: 'right' })
-        .text('Export Manager: ' + salesRep, startX + 280, 82, { width: 251, align: 'right' });
+        .text('Date of Issue: ' + issueDateStr, rightStartX, 55, { width: rightWidth, align: 'right' })
+        .text(validityDisplay, rightStartX, 66, { width: rightWidth, align: 'right' });
 
-      currentY = Math.max(currentY, 98);
+      doc
+        .fontSize(7.5)
+        .font(getFont(false))
+        .fillColor('#475569')
+        .text('Export Manager: ' + salesRep, rightStartX, 77, { width: rightWidth, align: 'right' });
 
-      // 贯穿高质感装饰分割线
+      // 贯穿高质感装饰分割线 (高度固定在 Y=92，绝不与上方文字重叠)
+      currentY = 92;
       doc
         .strokeColor('#2563eb')
-        .lineWidth(1.8)
+        .lineWidth(1.5)
         .moveTo(startX, currentY)
         .lineTo(startX + pageWidth, currentY)
         .stroke();
