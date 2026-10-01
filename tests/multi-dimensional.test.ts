@@ -625,9 +625,8 @@ describe('外貿智能報價引擎 - 企業級數據治理與多租戶架構全�
     });
 
     it('8.3 7-Sheet 終極企業版 Excel 完整解析驗證：應順利跳過 ReadMe 與 Container_Calc，並 100% 提取商品與匯率', () => {
-      const targetPath = fs.existsSync('F:/order_workflow/商品底价表.xlsx')
-        ? 'F:/order_workflow/商品底价表.xlsx'
-        : 'F:/order_workflow/商品底价表/极简出厂底价表_双表.xlsx';
+      const commodityFile = TenantService.getCommodityPricingFile();
+      const targetPath = commodityFile ? commodityFile.sourcePath : path.join(process.cwd(), '商品底价表', '出厂底价表.xlsx');
       const parsed = ExcelAdapter.parse(targetPath);
 
       expect(parsed.success).toBe(true);

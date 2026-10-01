@@ -85,7 +85,37 @@ export class TenantService {
   }
 
   /**
-   * 獲取租戶生效底價文件內容（優先用戶指定雙表，再回退租戶專屬與默認）
+   * 智能定位「商品底价表」目录下的有效底价表文件
+   * 规则：始终动态检索 F:\order_workflow\商品底价表 目录，获取该目录下的有效 .xlsx 文件（忽略 ~$ 临时锁文件）
+   * 无论未来文件名如何变更（如 出厂底价表.xlsx 或其他自定义名称），均自动命中生效。
+   */
+  static getCommodityPricingFile(): { buffer: Buffer; sourcePath: string } | null {
+    const dir = path.join(process.cwd(), '商品底价表');
+    if (!fs.existsSync(dir)) return null;
+
+    try {
+      const files = fs.readdirSync(dir)
+        .filter(f => f.toLowerCase().endsWith('.xlsx') && !f.startsWith('~$'));
+      
+      if (files.length === 0) return null;
+
+      // 优先匹配出厂底价表.xlsx，其次包含“底价”字样，最后取第一个有效 xlsx
+      const targetFile = files.find(f => f === '出厂底价表.xlsx') ||
+                         files.find(f => f.includes('底价')) ||
+                         files[0];
+
+      const fullPath = path.join(dir, targetFile);
+      if (fs.existsSync(fullPath)) {
+        return { buffer: fs.readFileSync(fullPath), sourcePath: fullPath };
+      }
+    } catch (err) {
+      console.warn('⚠️ 读取商品底价表目录异常:', err);
+    }
+    return null;
+  }
+
+  /**
+   * 獲取租戶生效底價文件內容（優先租戶專屬，次選「商品底价表」目錄文件，再回退默認）
    */
   static getActivePricingBuffer(tenantId: string): { buffer: Buffer; sourcePath: string } | null {
     // 1. 優先檢查租戶專屬獨立底價表
@@ -94,10 +124,10 @@ export class TenantService {
       return { buffer: fs.readFileSync(tenantPath), sourcePath: tenantPath };
     }
 
-    // 2. 檢查用戶指定的雙表底價庫路徑 (F:\order_workflow\商品底价表\极简出厂底价表_双表.xlsx)
-    const dualSheetPath = path.join(process.cwd(), '商品底价表', '极简出厂底价表_双表.xlsx');
-    if (fs.existsSync(dualSheetPath)) {
-      return { buffer: fs.readFileSync(dualSheetPath), sourcePath: dualSheetPath };
+    // 2. 檢查「商品底价表」目錄下的文件 (始終使用 F:\order_workflow\商品底价表 該文件夾下的最新有效文件)
+    const commodityFile = this.getCommodityPricingFile();
+    if (commodityFile) {
+      return commodityFile;
     }
 
     // 3. 檢查全局默認底價表
