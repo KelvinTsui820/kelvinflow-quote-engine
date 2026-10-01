@@ -3,6 +3,12 @@ import os
 import time
 import paramiko
 
+try:
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
+
 def deploy(password):
     host = "192.255.145.11"
     port = 22
@@ -55,7 +61,10 @@ def deploy(password):
         stdin, stdout, stderr = ssh.exec_command(full_cmd, get_pty=True)
 
         for line in iter(stdout.readline, ""):
-            print(line, end="")
+            try:
+                print(line, end="")
+            except Exception:
+                print(line.encode('ascii', 'replace').decode('ascii'), end="")
 
         exit_status = stdout.channel.recv_exit_status()
         if exit_status == 0:
