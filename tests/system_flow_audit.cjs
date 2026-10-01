@@ -280,8 +280,8 @@ Contact: Peter Hans (p.hans@german-tech.de)`,
   const indexHtml = fs.readFileSync('public/index.html', 'utf-8');
   assert('index.html 文件存在且体积正常', indexHtml.length > 10000);
   assert('index.html 中不包含 PushPlus 微信通知假提示', !indexHtml.includes('pushplus') && !indexHtml.includes('微信即时推送提醒'));
-  assert('index.html 包含出厂底价表模板下载链接', indexHtml.includes('/template/pricing-sheet') || indexHtml.includes('pricing_template'));
-  assert('index.html 包含极速询盘提交表单', indexHtml.includes('inquiryText') || indexHtml.includes('email_body') || indexHtml.includes('quick-quote'));
+  assert('index.html 包含注册与登录试用弹窗 (inbound-modal)', indexHtml.includes('inbound-modal') && indexHtml.includes('openInboundModal'));
+  assert('index.html 未暴露免登录出单旁路 (严格维护登录与工作台闭环)', !indexHtml.includes('quick-quote-modal') && !indexHtml.includes('免登录'));
 
   // 3.2 审单工作台 public/review.html 审计
   const reviewHtml = fs.readFileSync('public/review.html', 'utf-8');

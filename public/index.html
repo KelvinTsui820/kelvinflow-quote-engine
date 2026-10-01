@@ -287,30 +287,13 @@
         直接把买家邮件转进系统，自动锁定出厂底价与期望利润，10 秒生成国际商业 PDF 报价单并写入草稿箱。
       </p>
 
-      <!-- 行动号召 CTA 按钮与快速体验区 -->
+      <!-- 行动号召 CTA 按钮 (彻底根除悬浮文字变粗/抖动，极简高级微交互，已移除多余副文案) -->
       <div class="flex flex-col items-center justify-center mb-12 sm:mb-14">
-        <div class="flex flex-wrap items-center justify-center gap-3.5 mb-4">
-          <button id="hero-trial-btn" onclick="openInboundModal('starter')" class="px-7 sm:px-8 py-3.5 rounded-2xl text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:brightness-110 hover:shadow-xl hover:shadow-cyan-500/25 active:scale-[0.98] transition-all duration-200 flex items-center space-x-2.5 group cursor-pointer border border-white/10">
-            <i class="fa-solid fa-wand-magic-sparkles text-cyan-200 text-sm group-hover:rotate-12 transition-transform"></i>
-            <span id="hero-trial-text">免费开通 7 天试用</span>
-            <i class="fa-solid fa-arrow-right text-xs text-white/80 group-hover:translate-x-1 transition-transform"></i>
-          </button>
-          <button id="hero-quick-quote-btn" onclick="openQuickQuoteModal()" class="px-6 sm:px-7 py-3.5 rounded-2xl text-sm sm:text-base font-semibold text-cyan-300 bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/30 hover:border-cyan-400 active:scale-[0.98] transition-all duration-200 flex items-center space-x-2 cursor-pointer shadow-lg shadow-cyan-950/50">
-            <i class="fa-solid fa-bolt text-cyan-400"></i>
-            <span>极速测单体验 (免登录)</span>
-          </button>
-        </div>
-        <div class="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400">
-          <a href="/api/v1/template/pricing-sheet?type=minimal" download class="hover:text-cyan-300 transition-colors flex items-center gap-1.5 underline underline-offset-4 decoration-slate-600 hover:decoration-cyan-400">
-            <i class="fa-solid fa-download text-cyan-400"></i>
-            <span>下载极简出厂底价表模板 (.xlsx)</span>
-          </a>
-          <span class="text-slate-600">|</span>
-          <a href="/api/v1/template/pricing-sheet?type=advanced" download class="hover:text-cyan-300 transition-colors flex items-center gap-1.5 underline underline-offset-4 decoration-slate-600 hover:decoration-cyan-400">
-            <i class="fa-solid fa-file-excel text-cyan-400"></i>
-            <span>企业级 7-Sheet 底价库模板</span>
-          </a>
-        </div>
+        <button id="hero-trial-btn" onclick="openInboundModal('starter')" class="px-7 sm:px-8 py-3.5 rounded-2xl text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:brightness-110 hover:shadow-xl hover:shadow-cyan-500/25 active:scale-[0.98] transition-all duration-200 flex items-center space-x-2.5 group cursor-pointer border border-white/10">
+          <i class="fa-solid fa-wand-magic-sparkles text-cyan-200 text-sm group-hover:rotate-12 transition-transform"></i>
+          <span id="hero-trial-text">免费开通 7 天试用</span>
+          <i class="fa-solid fa-arrow-right text-xs text-white/80 group-hover:translate-x-1 transition-transform"></i>
+        </button>
       </div>
 
       <!-- 核心视觉演进交互展台 (完全适配移动端，内边距自适应，流向指示自适应) -->
@@ -846,14 +829,6 @@
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
                   完全不麻烦。系统提供极其精简的 4 列标准模板（型号、产品品名、出厂底价、装箱规格），哪怕您先只录入 2~3 款主打走量款，30 秒即可一键上传生效。更棒的是，注册后系统已自带外贸五金与升降桌演示底价库，无需上传也能即刻体验真实 10 秒出单。
-                  <div class="mt-3 flex flex-wrap gap-2.5">
-                    <a href="/api/v1/template/pricing-sheet?type=minimal" download class="inline-flex items-center text-xs font-semibold text-cyan-400 hover:text-cyan-300 bg-cyan-950/40 border border-cyan-800/50 px-3 py-1.5 rounded-lg transition-all">
-                      <i class="fa-solid fa-download mr-1.5"></i>下载极简底价表模板 (.xlsx)
-                    </a>
-                    <a href="/api/v1/template/pricing-sheet?type=advanced" download class="inline-flex items-center text-xs font-semibold text-slate-300 hover:text-white bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg transition-all">
-                      <i class="fa-solid fa-file-excel mr-1.5"></i>企业进阶 7-Sheet 模板 (.xlsx)
-                    </a>
-                  </div>
                 </div>
               </div>
             </div>
@@ -932,89 +907,8 @@
   </footer>
 
   <!-- ========================================================================= -->
-  <!-- 7. 弹窗交互组件群 (Modals: Quick Quote, Inbound, Payment, Enterprise, Referral, Logout) -->
+  <!-- 7. 弹窗交互组件群 (Modals: Inbound, Payment, Enterprise, Referral, Logout) -->
   <!-- ========================================================================= -->
-
-  <!-- A0. 极速在线测单体验弹窗 (Quick Quote Modal) -->
-  <div id="quick-quote-modal" onclick="closeQuickQuoteModal()" class="fixed inset-0 z-[210] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto cursor-pointer">
-    <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-5 sm:p-7 shadow-2xl relative cursor-default">
-      
-      <!-- 关闭按钮 -->
-      <button onclick="closeQuickQuoteModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-
-      <div class="mb-3">
-        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 inline-flex items-center gap-1.5">
-          <i class="fa-solid fa-bolt text-cyan-400"></i>
-          <span>在线真实出单体验 · 零门槛即测</span>
-        </span>
-      </div>
-
-      <h3 class="text-xl sm:text-2xl font-extrabold text-white mb-1.5">粘贴买家询盘，10 秒见证智能出单</h3>
-      <p class="text-xs text-slate-400 mb-4 leading-relaxed">
-        系统自动提取采购型号、精准匹配出厂底价、折算期望利润，生成正式英文 A4 PDF 报价单与微调链接。
-      </p>
-
-      <form id="quick-quote-form" onsubmit="handleQuickQuoteSubmit(event)" class="space-y-4">
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label class="text-xs font-semibold text-slate-300">海外买家询盘文本 (Email / RFQ 正文)</label>
-            <button type="button" onclick="fillQuickQuoteSample()" class="text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer flex items-center gap-1">
-              <i class="fa-solid fa-file-import text-[10px]"></i>
-              <span>填入样品询盘</span>
-            </button>
-          </div>
-          <textarea id="quick-quote-inquiry" name="inquiryText" rows="5" placeholder="请在此粘贴买家发来的询盘正文，例如：
-Hi Kelvin, please quote FOB Shenzhen for 2000 pcs ST-2026-A Dual-Motor Desk Frames and 500 pcs ERG-PRO-V2 Mesh Chairs. Customer: Apex Ergonomics (UK)..." class="w-full bg-white/[0.04] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 font-mono leading-relaxed" required></textarea>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-xs font-medium text-slate-400 block mb-1">买方企业名称 (可选)</label>
-            <input type="text" id="quick-quote-buyer" placeholder="如 Apex Trading Ltd" class="w-full bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500">
-          </div>
-          <div>
-            <label class="text-xs font-medium text-slate-400 block mb-1">期望毛利率</label>
-            <select id="quick-quote-margin" class="w-full bg-[#121320] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
-              <option value="0.15">15% (标准走量)</option>
-              <option value="0.20">20% (常规贸易)</option>
-              <option value="0.25" selected>25% (稳健毛利)</option>
-              <option value="0.30">30% (高品质定制)</option>
-            </select>
-          </div>
-        </div>
-
-        <button type="submit" id="quick-quote-submit-btn" class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-500 hover:brightness-110 shadow-lg shadow-cyan-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer">
-          <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
-          <span>立即极速出单 (约需 8~10 秒) ➔</span>
-        </button>
-      </form>
-
-      <!-- 出单结果反馈区 -->
-      <div id="quick-quote-result" class="hidden mt-4 pt-4 border-t border-white/10 space-y-3">
-        <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-start gap-3">
-          <i class="fa-solid fa-circle-check text-emerald-400 text-lg mt-0.5 shrink-0"></i>
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between">
-              <strong class="text-xs text-white" id="qq-result-quote-no">QT-xxxxxx</strong>
-              <span class="text-[10px] text-emerald-400 font-mono font-bold" id="qq-result-total">$0.00 USD</span>
-            </div>
-            <p class="text-[11px] text-slate-300 mt-1" id="qq-result-summary">已匹配底价库并生成正式商业单据！</p>
-          </div>
-        </div>
-
-        <div class="flex gap-2">
-          <a id="qq-result-review-btn" href="#" target="_blank" class="flex-1 py-2.5 rounded-xl text-center text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow">
-            <i class="fa-solid fa-desktop mr-1.5"></i>前往微调审单台
-          </a>
-          <button id="qq-result-pdf-btn" onclick="downloadQuickQuotePdf()" class="py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 transition-colors cursor-pointer">
-            <i class="fa-solid fa-file-pdf mr-1"></i>下载 PDF
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- A. 试用开通 & 密码登录弹窗 (Inbound Modal) -->
   <div id="inbound-modal" onclick="closeInboundModal()" class="fixed inset-0 z-[210] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto cursor-pointer">
@@ -1766,99 +1660,6 @@ Hi Kelvin, please quote FOB Shenzhen for 2000 pcs ST-2026-A Dual-Motor Desk Fram
         if (title) title.textContent = '开启外贸智能出单体验';
         if (desc) desc.textContent = '开箱自带演示底价库 · 密码加密保护商业机密';
       }
-    }
-
-    // 极速测单体验交互函数
-    function openQuickQuoteModal() {
-      const modal = document.getElementById('quick-quote-modal');
-      if (!modal) return;
-      lockBodyScroll();
-      modal.classList.remove('hidden');
-      setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        modal.classList.add('opacity-100');
-      }, 10);
-    }
-
-    function closeQuickQuoteModal() {
-      const modal = document.getElementById('quick-quote-modal');
-      if (!modal) return;
-      modal.classList.remove('opacity-100');
-      modal.classList.add('opacity-0');
-      setTimeout(() => {
-        modal.classList.add('hidden');
-        unlockBodyScroll();
-      }, 300);
-    }
-
-    function fillQuickQuoteSample() {
-      const ta = document.getElementById('quick-quote-inquiry');
-      if (ta) {
-        ta.value = `Dear Kelvin,\nPlease quote your best FOB Shenzhen prices for:\n1. Model: ST-2026-A Dual-Motor Standing Desk Frame, Quantity: 2000 PCS, Finish: White Coating, European 220V plug.\n2. Model: ERG-PRO-V2 Ergonomic Mesh Office Chair, Quantity: 500 PCS.\nDelivery terms: FOB Shenzhen. Payment: 30% T/T deposit, 70% balance before shipment.\nBuyer: Apex Ergonomics Ltd (UK)\nContact: David Miller (d.miller@apex.co.uk)`;
-      }
-      const buyerInput = document.getElementById('quick-quote-buyer');
-      if (buyerInput) buyerInput.value = 'Apex Ergonomics Ltd';
-    }
-
-    let currentQuickQuotePdfBase64 = null;
-    let currentQuickQuotePdfName = 'Quotation.pdf';
-
-    async function handleQuickQuoteSubmit(e) {
-      e.preventDefault();
-      const inquiryText = (document.getElementById('quick-quote-inquiry')?.value || '').trim();
-      const buyerName = (document.getElementById('quick-quote-buyer')?.value || '').trim() || 'Valued Customer';
-      const margin = document.getElementById('quick-quote-margin')?.value || '0.25';
-      const btn = document.getElementById('quick-quote-submit-btn');
-      const resultBox = document.getElementById('quick-quote-result');
-
-      if (!inquiryText) return;
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> <span>AI 正在核对底价与排版单据...</span>';
-      }
-
-      try {
-        const res = await fetch('/api/inbound/quick-quote', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            inquiryText,
-            buyerName,
-            targetProfitMargin: parseFloat(margin)
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          currentQuickQuotePdfBase64 = data.pdfBase64;
-          currentQuickQuotePdfName = data.pdfFileName || `${data.quotationNumber}.pdf`;
-
-          document.getElementById('qq-result-quote-no').textContent = data.quotationNumber || 'QT-Done';
-          document.getElementById('qq-result-total').textContent = `${data.quotation?.currency || 'USD'} ${Number(data.quotation?.totalAmountForeign || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-          document.getElementById('qq-result-summary').textContent = `成功提取 ${data.quotation?.items?.length || 0} 款产品，交期 ${data.quotation?.leadTime || '标准交期'}，条款 ${data.quotation?.incotermUsed || 'FOB'}`;
-          
-          const reviewBtn = document.getElementById('qq-result-review-btn');
-          if (reviewBtn) reviewBtn.href = data.reviewUrl;
-
-          if (resultBox) resultBox.classList.remove('hidden');
-        } else {
-          alert('出单失败: ' + (data.error || '请检查询盘内容'));
-        }
-      } catch (err) {
-        alert('网络请求异常，请稍后重试');
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles mr-2"></i> <span>重新快速出单 ➔</span>';
-        }
-      }
-    }
-
-    function downloadQuickQuotePdf() {
-      if (!currentQuickQuotePdfBase64) return;
-      const link = document.createElement('a');
-      link.href = 'data:application/pdf;base64,' + currentQuickQuotePdfBase64;
-      link.download = currentQuickQuotePdfName;
-      link.click();
     }
 
     function openInboundModal(tier = 'general') {
