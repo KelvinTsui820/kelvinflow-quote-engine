@@ -791,15 +791,20 @@ export class TrialService {
     const expTime = new Date(trial.expiresAt).getTime();
     const remainingDays = Math.max(0, Math.ceil((expTime - now) / (24 * 3600 * 1000)));
     const inviteCode = trial.phone;
-    const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
+    let cleanBaseUrl = baseUrl.replace(/\/+$/, '');
+    if (cleanBaseUrl.includes('quote.kelvinflow.com')) {
+      cleanBaseUrl = cleanBaseUrl.replace('quote.kelvinflow.com', 'kelvinflow.com');
+    }
     const shareUrl = `${cleanBaseUrl}/?ref=${inviteCode}`;
     const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，立享 7 天完整全功能试用：\n${shareUrl}\n同行邀请码：${inviteCode}`;
+
+    const bonusDays = (trial.referralCount || 0) * 7;
 
     return {
       phone: trial.phone,
       inviteCode,
       referralCount: trial.referralCount || 0,
-      rewardDays: trial.rewardDays || 0,
+      rewardDays: bonusDays,
       expiresAt: trial.expiresAt,
       remainingDays,
       status: trial.status,

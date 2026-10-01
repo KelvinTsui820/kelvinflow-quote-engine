@@ -2495,16 +2495,16 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 </span>
               </div>
 
-            <!-- 推荐规则关键词一键复制栏 -->
-            <div class="flex items-center justify-between flex-wrap gap-2 p-2 rounded-lg bg-blue-50/80 border border-blue-200/80">
-              <div class="flex items-center gap-1.5 text-[11px] text-slate-700 flex-wrap">
-                <i class="fa-solid fa-key text-blue-600 text-xs"></i>
-                <span class="font-medium">推荐触发关键词：</span>
-                <span class="font-mono font-bold text-blue-900 bg-white/90 border border-blue-200 px-1.5 py-0.5 rounded text-[10.5px]">RFQ, Inquiry, Quote, Price, Quotation</span>
+            <!-- 推荐规则关键词一键复制栏 (单行整洁常驻，按钮宽度锁定杜绝跳动) -->
+            <div class="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-blue-50/80 border border-blue-200/80">
+              <div class="flex items-center gap-1.5 text-[11px] text-slate-700 min-w-0">
+                <i class="fa-solid fa-key text-blue-600 text-xs shrink-0"></i>
+                <span class="font-medium shrink-0">推荐触发关键词：</span>
+                <span class="font-mono font-bold text-blue-900 bg-white/90 border border-blue-200 px-1.5 py-0.5 rounded text-[10.5px] truncate sm:whitespace-normal">RFQ, Inquiry, Quote, Price, Quotation</span>
               </div>
-              <button type="button" @click="copyRuleKeywords" class="text-[11px] font-bold text-blue-700 hover:text-blue-800 bg-white hover:bg-blue-100/80 border border-blue-300 px-2.5 py-1 rounded-md transition shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-95">
+              <button type="button" @click="copyRuleKeywords" class="shrink-0 text-[11px] font-bold text-blue-700 hover:text-blue-800 bg-white hover:bg-blue-100/80 border border-blue-300 px-3 py-1 rounded-md transition shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-95 min-w-[95px] justify-center">
                 <i :class="copiedRuleKeywords ? 'fa-solid fa-check text-emerald-600' : 'fa-regular fa-copy text-blue-600'"></i>
-                <span>{{ copiedRuleKeywords ? '已复制关键词' : '一键复制推荐关键词' }}</span>
+                <span>{{ copiedRuleKeywords ? '已复制' : '复制关键词' }}</span>
               </button>
             </div>
 
@@ -2798,36 +2798,80 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
         <!-- Tab 2: 草稿箱直达 (只写不读 · 选配授权码) -->
         <div v-else class="space-y-3.5">
-          <!-- 进阶特权轻量说明条 (Pro 专属特权 / 试用期预览) -->
-          <div class="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 flex items-center justify-between gap-3 text-xs">
-            <div class="flex items-center space-x-2.5 min-w-0">
-              <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-600 flex items-center justify-center shrink-0">
-                <i class="fa-solid fa-crown text-amber-500 text-sm"></i>
-              </div>
-              <div class="min-w-0">
-                <div class="font-bold text-slate-900 flex items-center gap-1.5">
-                  <span>👑 专业版/企业版专属特权</span>
-                  <span class="text-[10px] font-normal px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200" v-if="!isPaidUser">试用期功能预览</span>
+          <!-- 非付费用户 (试用期)：仅展示专业版专属特权说明与升级入口，隐藏具体配置表单 -->
+          <div v-if="!isPaidUser" class="p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-white border border-amber-500/25 text-center space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/15 text-amber-600 flex items-center justify-center mx-auto text-2xl shadow-inner">
+              <i class="fa-solid fa-crown text-amber-500"></i>
+            </div>
+            <div class="max-w-md mx-auto space-y-1.5">
+              <h4 class="text-base font-extrabold text-slate-900">👑 极客草稿箱直达为专业版专属特权</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                升级专业版后，配置日常外贸邮箱授权码，AI 算出的所有单据与地道英文回信将<strong class="text-amber-800">自动静默存入您的 Outlook / Foxmail 发件草稿箱</strong>，业务员打开邮箱即可一键发送，彻底省去手动复制粘贴与下载附件的繁琐步骤！
+              </p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto text-left pt-1">
+              <div class="p-3 rounded-xl bg-white border border-amber-200/70 shadow-2xs">
+                <div class="text-[11px] font-bold text-amber-800 flex items-center gap-1.5 mb-0.5">
+                  <i class="fa-solid fa-bolt text-amber-500"></i>
+                  <span>0 秒复制等待</span>
                 </div>
-                <div class="text-[11px] text-slate-500 truncate sm:whitespace-normal">配置客户端授权码后，AI 出单将静默写入日常邮箱【发件草稿箱】，点开直接发送</div>
+                <div class="text-[10.5px] text-slate-500 leading-tight">询盘核价后直接写入草稿箱，开箱即发</div>
+              </div>
+              <div class="p-3 rounded-xl bg-white border border-amber-200/70 shadow-2xs">
+                <div class="text-[11px] font-bold text-amber-800 flex items-center gap-1.5 mb-0.5">
+                  <i class="fa-solid fa-paperclip text-amber-500"></i>
+                  <span>自动附带 A4 PDF</span>
+                </div>
+                <div class="text-[10.5px] text-slate-500 leading-tight">草稿中自动挂载正式商业报价单附件</div>
+              </div>
+              <div class="p-3 rounded-xl bg-white border border-amber-200/70 shadow-2xs">
+                <div class="text-[11px] font-bold text-amber-800 flex items-center gap-1.5 mb-0.5">
+                  <i class="fa-solid fa-shield-halved text-amber-500"></i>
+                  <span>客户端独立授权</span>
+                </div>
+                <div class="text-[10.5px] text-slate-500 leading-tight">只写不读，绝不触碰您邮箱的历史信件</div>
               </div>
             </div>
-            <button v-if="!isPaidUser" @click="openUpgradeModal('monthly')" type="button" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-bold text-xs whitespace-nowrap shadow-sm shadow-amber-500/25 cursor-pointer shrink-0 active:scale-95 transition">
-              升级解锁 ➔
-            </button>
+            <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+              <button @click="openUpgradeModal('monthly')" type="button" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-extrabold text-xs shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-crown text-amber-200"></i>
+                <span>立即升级专业版解锁特权 (¥99/月起)</span>
+              </button>
+              <button @click="imapModal.tab = 'forward'" type="button" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer transition">
+                <span>继续使用模式 1 (邮件转发·免费)</span>
+              </button>
+            </div>
           </div>
 
-          <!-- 与 Tab 1 100% 统一的 6 大主流外贸邮箱服务商预设 (含个人与企业) -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <label class="block text-xs font-bold text-slate-700">选择您的邮箱类型 (点击自动配置 IMAP)：</label>
-              <span class="text-[10px] text-blue-600 font-medium">支持个人邮箱与企业邮箱</span>
+          <!-- 付费用户 (已开通专业版/企业版)：完整呈现 IMAP 邮箱配置与连接测试表单 -->
+          <div v-else class="space-y-3.5">
+            <!-- 进阶特权轻量说明条 -->
+            <div class="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center space-x-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-600 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-crown text-amber-500 text-sm"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>👑 专业版/企业版专属特权</span>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">已开通特权</span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 truncate sm:whitespace-normal">配置客户端授权码后，AI 出单将静默写入日常邮箱【发件草稿箱】，点开直接发送</div>
+                </div>
+              </div>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-              <button type="button" @click="selectEmailProvider('tencent')" 
-                      class="py-2.5 px-1.5 text-center rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center gap-1.5 shadow-2xs"
-                      :class="(imapModal.provider === 'tencent' || imapModal.provider === 'qq_corp') ? 'border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-500/20' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
-                <i class="fa-solid fa-briefcase text-sm text-blue-600"></i>
+
+            <!-- 与 Tab 1 100% 统一的 6 大主流外贸邮箱服务商预设 (含个人与企业) -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="block text-xs font-bold text-slate-700">选择您的邮箱类型 (点击自动配置 IMAP)：</label>
+                <span class="text-[10px] text-blue-600 font-medium">支持个人邮箱与企业邮箱</span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                <button type="button" @click="selectEmailProvider('tencent')" 
+                        class="py-2.5 px-1.5 text-center rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center gap-1.5 shadow-2xs"
+                        :class="(imapModal.provider === 'tencent' || imapModal.provider === 'qq_corp') ? 'border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-500/20' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
+                  <i class="fa-solid fa-briefcase text-sm text-blue-600"></i>
                 <span class="text-[10.5px] leading-tight">腾讯企业邮 / Foxmail</span>
               </button>
               <button type="button" @click="selectEmailProvider('qq')" 
@@ -5222,8 +5266,11 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             (currentTenant.value?.contactPhone || '');
           
           const code = phone || '13800000000';
-          const origin = window.location.origin;
-          const shareUrl = `${origin}/?ref=${code}`;
+          let basePortal = window.location.origin;
+          if (window.location.hostname.includes('kelvinflow.com')) {
+            basePortal = 'https://kelvinflow.com';
+          }
+          const shareUrl = `${basePortal}/?ref=${code}`;
           const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，立享 7 天完整全功能试用：\n${shareUrl}\n同行邀请码：${code}`;
 
           referralModal.value.inviteCode = code;
@@ -5246,6 +5293,9 @@ Acme Global Sourcing GmbH, Munich, Germany`;
                 if (json.data.inviteCode) referralModal.value.inviteCode = json.data.inviteCode;
                 if (json.data.shareUrl) referralModal.value.shareUrl = json.data.shareUrl;
                 if (json.data.shareText) referralModal.value.shareText = json.data.shareText;
+                if (json.data.remainingDays !== undefined) {
+                  trialState.value.remainingDays = json.data.remainingDays;
+                }
               }
             }
           } catch (e) {
