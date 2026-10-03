@@ -233,9 +233,9 @@
       <div class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
         <div class="flex items-center space-x-2 sm:space-x-3.5 min-w-0 flex-shrink-0">
           <!-- 1. 左侧：企业 Logo 与 品牌徽标 (点击返回官网首页) -->
-          <a href="/?landing=1" title="返回 KelvinFlow 官方门户" class="flex items-center space-x-1.5 flex-shrink-0 transition-opacity duration-300 ease-out hover:opacity-75 active:opacity-60 cursor-pointer">
-            <img :src="tenantLogoUrl || '/kelvinflow_emblem.png'" alt="Logo" class="h-6 sm:h-8 w-auto max-w-[120px] object-contain block select-none" />
-            <span class="text-sm font-black tracking-tight text-white font-sans sm:hidden">{{ tenantCompanyName || 'KelvinFlow' }}</span>
+          <a href="/?landing=1" title="返回 KelvinFlow 官方门户" class="flex items-center space-x-1.5 flex-shrink-0 transition-opacity duration-300 ease-out hover:opacity-75 active:opacity-60 cursor-pointer min-w-0">
+            <img :src="tenantLogoUrl || '/kelvinflow_emblem.png'" alt="Logo" class="h-6 sm:h-8 w-auto max-w-[100px] object-contain block select-none flex-shrink-0" />
+            <span class="text-xs font-black tracking-tight text-white font-sans sm:hidden max-w-[85px] truncate">{{ tenantCompanyName || 'KelvinFlow' }}</span>
           </a>
           <!-- 2. 右侧：官方纯白文字体系 (桌面端展示完整标题与副标语) -->
           <div class="min-w-0 hidden sm:block">
@@ -278,18 +278,18 @@
             <span class="sm:hidden text-xs">底价</span>
           </button>
 
-          <!-- 🎨 报价单企业 Logo 设置 -->
-          <button @click="openLogoModal" class="inline-flex items-center space-x-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="上传企业商标，自动印于导出的 A4 PDF 报价单抬头">
+          <!-- 🎨 报价单企业 Logo 设置 (超窄屏幕隐藏以保核心功能) -->
+          <button @click="openLogoModal" class="hidden min-[520px]:inline-flex items-center space-x-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="上传企业商标，自动印于导出的 A4 PDF 报价单抬头">
             <i class="fa-solid fa-image text-cyan-400 text-xs"></i>
             <span class="hidden sm:inline">报价单Logo</span>
             <span class="sm:hidden text-xs">Logo</span>
           </button>
 
           <!-- 📬 邮箱自动出单 -->
-          <button v-if="isLoggedIn" @click="openImapModal" class="inline-flex items-center space-x-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/40 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="设置专属自动转发收信与邮箱草稿箱直达">
+          <button v-if="isLoggedIn" @click="openImapModal" class="hidden min-[480px]:inline-flex items-center space-x-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/40 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="设置专属自动转发收信与邮箱草稿箱直达">
             <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
             <span class="hidden sm:inline">邮箱自动出单</span>
-            <span class="sm:hidden hidden min-[420px]:inline text-xs">自动出单</span>
+            <span class="sm:hidden text-xs">自动出单</span>
           </button>
 
           <!-- 👤 用户登录身份栏 / 切换 / 开通按钮 -->
@@ -1180,8 +1180,8 @@
 
           <!-- Email Draft Editor Column -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-3 flex flex-col justify-between">
-            <div class="space-y-3">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1 border-b border-slate-100">
+            <div class="space-y-3 flex-1 flex flex-col">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1 border-b border-slate-100 flex-shrink-0">
                 <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center space-x-2">
                   <i class="fa-solid fa-envelope-open-text text-blue-600 flex-shrink-0"></i>
                   <span>回复买家英文邮件草稿 <span class="text-slate-400 font-normal text-[11px] hidden sm:inline">(支持自由打字编辑)</span></span>
@@ -1198,8 +1198,8 @@
                 </div>
               </div>
 
-              <div class="space-y-2">
-                <div>
+              <div class="space-y-2.5 flex-1 flex flex-col">
+                <div class="flex-shrink-0">
                   <label class="block text-[11px] text-slate-500 font-bold mb-1">邮件主题 (Subject):</label>
                   <div class="relative flex items-center group">
                     <input v-model="editableEmailSubject" class="w-full bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-lg pl-3 pr-8 py-2 text-xs font-bold text-slate-900 font-mono transition outline-none">
@@ -1209,10 +1209,10 @@
                   </div>
                 </div>
 
-                <div>
+                <div class="flex-1 flex flex-col min-h-0">
                   <label class="block text-[11px] text-slate-500 font-bold mb-1">邮件正文 (可直接修改、个性化定制):</label>
-                  <div class="relative group">
-                    <textarea v-model="editableEmailBody" rows="10" placeholder="英文报价回复邮件正文..." class="w-full bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-xl p-3 pr-14 text-xs text-slate-800 font-mono leading-relaxed transition resize-y shadow-inner outline-none"></textarea>
+                  <div class="relative group flex-1 flex flex-col min-h-0">
+                    <textarea v-model="editableEmailBody" rows="18" placeholder="英文报价回复邮件正文..." class="w-full flex-1 min-h-[380px] sm:min-h-[430px] bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-xl p-3.5 pr-14 text-xs text-slate-800 font-mono leading-relaxed transition resize-y shadow-inner outline-none"></textarea>
                     <!-- 右上角悬浮操作组 (对齐样品政策轻量极简交互：鼠标移入/聚焦时显现) -->
                     <div class="absolute right-2.5 top-2.5 flex items-center space-x-1">
                       <button type="button" @click="openEmailFullscreen" title="全屏沉浸式编辑与排版" class="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer">
@@ -1888,8 +1888,8 @@
 
         <div class="space-y-2">
           <button @click="copyWechatId" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-md shadow-emerald-500/20 active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer">
-            <i class="fa-regular fa-copy"></i>
-            <span>一键复制微信号: kt_data</span>
+            <i :class="copiedWechatId ? 'fa-solid fa-check' : 'fa-regular fa-copy'"></i>
+            <span>{{ copiedWechatId ? '✅ 已复制微信号 (kt_data)' : '一键复制微信号: kt_data' }}</span>
           </button>
           <div class="text-[11px] text-slate-400">
             打开手机微信扫一扫，或添加上方微信号，随时在线答疑
@@ -2403,18 +2403,18 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             </button>
           </div>
 
-          <!-- 双轨选项卡切换导航 -->
-          <div class="flex items-center space-x-1.5 sm:space-x-2 pt-0.5">
+          <!-- 双轨选项卡切换导航 (精致圆角边框容器与轻盈微质感药丸卡片) -->
+          <div class="p-1.5 bg-slate-100/90 border border-slate-200/90 rounded-2xl flex items-center gap-1.5 shadow-2xs">
             <button type="button" @click="imapModal.tab = 'forward'"
-                    class="flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 sm:space-x-1.5 cursor-pointer"
-                    :class="imapModal.tab !== 'draft' ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/25' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'">
+                    class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer border"
+                    :class="imapModal.tab !== 'draft' ? 'bg-white text-blue-600 border-blue-200 shadow-sm shadow-blue-500/10 font-black' : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-white/60'">
               <i class="fa-solid fa-paper-plane text-xs flex-shrink-0"></i>
               <span class="sm:hidden">1. 邮件转发</span>
               <span class="hidden sm:inline">1. 邮件自动转发 (0风控通道)</span>
             </button>
             <button type="button" @click="imapModal.tab = 'draft'"
-                    class="flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 sm:space-x-1.5 cursor-pointer"
-                    :class="imapModal.tab === 'draft' ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/25' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'">
+                    class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer border"
+                    :class="imapModal.tab === 'draft' ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm shadow-emerald-500/20 font-black' : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-white/60'">
               <i class="fa-solid fa-crown text-amber-300 text-xs flex-shrink-0"></i>
               <span class="sm:hidden">2. 草稿直达</span>
               <span class="hidden sm:inline">2. 草稿箱直达 (👑 专业版专属)</span>
@@ -2468,319 +2468,259 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             </div>
           </div>
 
-          <!-- 6 大外贸主流服务商 30 秒快捷指引抽屉 (按需折叠，清爽不压迫) -->
-          <div class="border border-slate-200 rounded-xl bg-slate-50/70 overflow-hidden shadow-2xs">
+          <!-- 6 大外贸主流服务商 30 秒快捷指引抽屉 (重新设计：结构化两步流、清晰排版与高辨识度标签) -->
+          <div class="border border-slate-200/90 rounded-2xl bg-white overflow-hidden shadow-2xs">
             <button type="button" @click="imapModal.showGuideDrawer = !imapModal.showGuideDrawer"
-                    class="w-full p-3 sm:p-3.5 flex items-center justify-between hover:bg-slate-100/70 transition cursor-pointer text-left">
-              <div class="flex items-center space-x-2 text-xs font-bold text-slate-800">
-                <i class="fa-solid fa-book-open text-blue-600 text-xs"></i>
-                <span>查看主流外贸邮箱 30 秒规则设置教程 (腾讯/QQ/阿里/网易/Outlook/Gmail)</span>
+                    class="w-full p-3.5 sm:p-4 flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer text-left bg-white">
+              <div class="flex items-center space-x-2.5">
+                <div class="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center text-xs flex-shrink-0">
+                  <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                  <div class="text-xs sm:text-sm font-bold text-slate-900">主流外贸邮箱 30 秒规则设置指引</div>
+                  <div class="text-[11px] text-slate-400 font-normal">支持腾讯、阿里、网易、Outlook、Gmail 等全主流服务商</div>
+                </div>
               </div>
               <div class="flex items-center space-x-1.5 text-xs text-blue-600 font-bold shrink-0">
-                <span>{{ imapModal.showGuideDrawer ? '收起教程' : '展开教程' }}</span>
+                <span>{{ imapModal.showGuideDrawer ? '收起教程' : '查看指引' }}</span>
                 <i :class="imapModal.showGuideDrawer ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'" class="text-[10px]"></i>
               </div>
             </button>
 
             <!-- 抽屉内容区 (仅在展开时显示) -->
-            <div v-if="imapModal.showGuideDrawer" class="p-3.5 pt-2 border-t border-slate-200/80 space-y-3 animate-in fade-in duration-150">
-              <div class="flex items-center justify-between flex-wrap gap-1.5 pb-0.5">
-                <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <i class="fa-solid fa-hand-pointer text-blue-600 text-xs"></i>
-                  <span>选择您的外贸邮箱服务商查看指引：</span>
-                </span>
-                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-100/90 px-2.5 py-0.5 rounded-full border border-blue-200 shrink-0">
-                  <i class="fa-solid fa-hand-pointer text-[9px] animate-bounce"></i>
-                  <span>左右滑动切换服务商 ➔</span>
-                </span>
+            <div v-if="imapModal.showGuideDrawer" class="p-4 pt-3 border-t border-slate-100 bg-slate-50/50 space-y-3.5 animate-in fade-in duration-150">
+              <!-- 推荐关键词一键复制栏 (常驻清晰置顶) -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-blue-50/80 border border-blue-200/80">
+                <div class="flex items-center gap-2 text-xs text-slate-700 min-w-0">
+                  <i class="fa-solid fa-key text-blue-600 text-xs shrink-0"></i>
+                  <span class="font-medium shrink-0">推荐规则触发词：</span>
+                  <span class="font-mono font-bold text-blue-900 bg-white border border-blue-200/80 px-2 py-0.5 rounded-md text-[11px] truncate">RFQ, Inquiry, Quote, Price</span>
+                </div>
+                <button type="button" @click="copyRuleKeywords" class="self-end sm:self-auto shrink-0 text-xs font-bold text-blue-700 hover:text-blue-800 bg-white hover:bg-blue-100 border border-blue-300 px-3 py-1 rounded-lg transition shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-95">
+                  <i :class="copiedRuleKeywords ? 'fa-solid fa-check text-emerald-600' : 'fa-regular fa-copy text-blue-600'"></i>
+                  <span>{{ copiedRuleKeywords ? '已复制关键词' : '一键复制关键词' }}</span>
+                </button>
               </div>
 
-            <!-- 推荐规则关键词一键复制栏 (单行整洁常驻，按钮宽度锁定杜绝跳动) -->
-            <div class="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-blue-50/80 border border-blue-200/80">
-              <div class="flex items-center gap-1.5 text-[11px] text-slate-700 min-w-0">
-                <i class="fa-solid fa-key text-blue-600 text-xs shrink-0"></i>
-                <span class="font-medium shrink-0">推荐触发关键词：</span>
-                <span class="font-mono font-bold text-blue-900 bg-white/90 border border-blue-200 px-1.5 py-0.5 rounded text-[10.5px] truncate sm:whitespace-normal">RFQ, Inquiry, Quote, Price, Quotation</span>
-              </div>
-              <button type="button" @click="copyRuleKeywords" class="shrink-0 text-[11px] font-bold text-blue-700 hover:text-blue-800 bg-white hover:bg-blue-100/80 border border-blue-300 px-3 py-1 rounded-md transition shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-95 min-w-[95px] justify-center">
-                <i :class="copiedRuleKeywords ? 'fa-solid fa-check text-emerald-600' : 'fa-regular fa-copy text-blue-600'"></i>
-                <span>{{ copiedRuleKeywords ? '已复制' : '复制关键词' }}</span>
-              </button>
-            </div>
-
-            <!-- Provider Tabs (支持左右自由顺滑滚动 + 覆盖个人与企业) -->
-            <div class="relative">
-              <div class="flex items-center space-x-1.5 border-b border-slate-200 pb-2 overflow-x-auto text-xs font-bold" style="-webkit-overflow-scrolling: touch;">
+              <!-- 邮箱服务商标签组 (5 个主流选项，清晰网格排布，告别横向溢出滚动与晃眼动画) -->
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 text-xs font-bold">
                 <button type="button" @click="imapModal.guideTab = 'tencent'"
-                        class="px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0"
-                        :class="(imapModal.guideTab || 'tencent') === 'tencent' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-200/60'">
+                        class="p-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer border text-center"
+                        :class="(imapModal.guideTab || 'tencent') === 'tencent' ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
                   <i class="fa-solid fa-briefcase text-xs" :class="(imapModal.guideTab || 'tencent') === 'tencent' ? 'text-white' : 'text-blue-500'"></i>
-                  <span>腾讯企业邮 / Foxmail</span>
+                  <span class="truncate">腾讯 / Foxmail</span>
                 </button>
-                <button type="button" @click="imapModal.guideTab = 'qq'"
-                        class="px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0"
-                        :class="imapModal.guideTab === 'qq' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-200/60'">
-                  <i class="fa-brands fa-qq text-xs" :class="imapModal.guideTab === 'qq' ? 'text-white' : 'text-indigo-500'"></i>
-                  <span>QQ 个人邮箱 (@qq.com)</span>
-                </button>
+
                 <button type="button" @click="imapModal.guideTab = 'aliyun'"
-                        class="px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0"
-                        :class="imapModal.guideTab === 'aliyun' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-200/60'">
+                        class="p-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer border text-center"
+                        :class="imapModal.guideTab === 'aliyun' ? 'bg-orange-600 text-white border-orange-600 shadow-sm shadow-orange-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
                   <i class="fa-solid fa-cloud text-xs" :class="imapModal.guideTab === 'aliyun' ? 'text-white' : 'text-orange-500'"></i>
-                  <span>阿里企业邮 / 钉钉</span>
+                  <span class="truncate">阿里 / 钉钉</span>
                 </button>
+
                 <button type="button" @click="imapModal.guideTab = 'netease'"
-                        class="px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0"
-                        :class="imapModal.guideTab === 'netease' ? 'bg-red-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-200/60'">
+                        class="p-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer border text-center"
+                        :class="imapModal.guideTab === 'netease' ? 'bg-red-600 text-white border-red-600 shadow-sm shadow-red-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
                   <i class="fa-solid fa-at text-xs" :class="imapModal.guideTab === 'netease' ? 'text-white' : 'text-red-500'"></i>
-                  <span>网易 163/126 (个人/企业)</span>
+                  <span class="truncate">网易 163 / 企业</span>
                 </button>
+
                 <button type="button" @click="imapModal.guideTab = 'microsoft'"
-                        class="px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0"
-                        :class="imapModal.guideTab === 'microsoft' ? 'bg-cyan-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-200/60'">
+                        class="p-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer border text-center"
+                        :class="imapModal.guideTab === 'microsoft' ? 'bg-cyan-600 text-white border-cyan-600 shadow-sm shadow-cyan-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
                   <i class="fa-brands fa-microsoft text-xs" :class="imapModal.guideTab === 'microsoft' ? 'text-white' : 'text-cyan-600'"></i>
-                  <span>微软 Outlook / 365</span>
+                  <span class="truncate">微软 Outlook</span>
                 </button>
+
                 <button type="button" @click="imapModal.guideTab = 'gmail'"
-                        class="px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0"
-                        :class="imapModal.guideTab === 'gmail' ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-200/60'">
+                        class="col-span-2 sm:col-span-1 p-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer border text-center"
+                        :class="imapModal.guideTab === 'gmail' ? 'bg-rose-600 text-white border-rose-600 shadow-sm shadow-rose-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
                   <i class="fa-brands fa-google text-xs" :class="imapModal.guideTab === 'gmail' ? 'text-white' : 'text-rose-500'"></i>
-                  <span>谷歌 Gmail (个人/商业)</span>
+                  <span class="truncate">谷歌 Gmail</span>
                 </button>
               </div>
-            </div>
 
-            <!-- Provider 1: 腾讯企业邮 / Foxmail -->
-            <div v-if="(imapModal.guideTab || 'tencent') === 'tencent'" class="space-y-2.5 text-xs text-slate-700">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 text-[10px] flex items-center justify-center font-bold">1</span>
-                    <span>登录网页版进设置</span>
+              <!-- 选定邮箱操作指引卡片 (清晰两步，带直达后台链接) -->
+              <div class="bg-white rounded-xl p-3.5 border border-slate-200 space-y-3">
+                <!-- 腾讯 / Foxmail -->
+                <div v-if="(imapModal.guideTab || 'tencent') === 'tencent'" class="space-y-3">
+                  <div class="flex items-center justify-between text-xs pb-1.5 border-b border-slate-100">
+                    <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                      腾讯企业邮 / Foxmail 转发规则指引
+                    </span>
+                    <a href="https://exmail.qq.com" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1 text-[11px] underline">
+                      <span>前往腾讯企业邮后台</span>
+                      <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    打开 <a href="https://exmail.qq.com" target="_blank" class="text-blue-600 underline">exmail.qq.com</a> 登录，点击右上角【设置】➔【收信规则】。
-                  </p>
-                </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 text-[10px] flex items-center justify-center font-bold">2</span>
-                    <span>新建转发规则</span>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-[10px] flex items-center justify-center font-bold">1</span>
+                        <span>设置过滤条件</span>
+                      </div>
+                      <p class="text-[11px] text-slate-600 leading-relaxed">
+                        网页版点击【设置】➔【收信规则】➔【新建收信规则】，条件设为主题包含 <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-mono font-bold">RFQ/Inquiry/Quote</code>。
+                      </p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-[10px] flex items-center justify-center font-bold">2</span>
+                        <span>自动转发并保存</span>
+                      </div>
+                      <p class="text-[11px] text-slate-600 leading-relaxed">
+                        动作勾选【自动转发给】，粘贴上方专属中枢地址，并勾选【在原收件箱保留备份】后保存。
+                      </p>
+                    </div>
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    点击【新建收信规则】，条件设为主题包含 <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-mono">RFQ</code>, <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-mono">Inquiry</code>, <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-mono">Quote</code> 或 <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-mono">Price</code>（满足任一词即触发）。
-                  </p>
                 </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 text-[10px] flex items-center justify-center font-bold">3</span>
-                    <span>填入专属地址保存</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    操作勾选【自动转发给】，填入上方专属地址，并勾选【在原收件箱保留备份】保存。
-                  </p>
-                </div>
-              </div>
-              <div class="p-2 rounded-lg bg-blue-50 border border-blue-200 text-[11px] text-blue-900 flex items-center justify-between">
-                <span>✓ 腾讯企业邮官方收信规则原生触发 · 1 秒内自动同步出单</span>
-                <span class="font-bold text-blue-700">Foxmail 客户端完全无感兼容</span>
-              </div>
-            </div>
 
-            <!-- Provider 2: QQ 个人邮箱 (@qq.com) -->
-            <div v-else-if="imapModal.guideTab === 'qq'" class="space-y-2.5 text-xs text-slate-700">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-indigo-100 text-indigo-700 text-[10px] flex items-center justify-center font-bold">1</span>
-                    <span>打开 QQ 邮箱设置</span>
+                <!-- 阿里 / 钉钉 -->
+                <div v-else-if="imapModal.guideTab === 'aliyun'" class="space-y-3">
+                  <div class="flex items-center justify-between text-xs pb-1.5 border-b border-slate-100">
+                    <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                      阿里企业邮 / 钉钉邮箱 转发规则指引
+                    </span>
+                    <a href="https://qiye.aliyun.com" target="_blank" class="text-orange-600 hover:text-orange-800 font-bold flex items-center gap-1 text-[11px] underline">
+                      <span>前往阿里邮箱后台</span>
+                      <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    打开 <a href="https://mail.qq.com" target="_blank" class="text-indigo-600 underline">mail.qq.com</a> 登录个人邮箱，点击顶部【设置】➔【收信规则】。
-                  </p>
-                </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-indigo-100 text-indigo-700 text-[10px] flex items-center justify-center font-bold">2</span>
-                    <span>添加收信过滤条件</span>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-700 text-[10px] flex items-center justify-center font-bold">1</span>
+                        <span>添加收信规则</span>
+                      </div>
+                      <p class="text-[11px] text-slate-600 leading-relaxed">
+                        进入右上角【设置】➔【邮件收发】➔【收信规则】➔【添加规则】，设置主题包含触发关键词。
+                      </p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-700 text-[10px] flex items-center justify-center font-bold">2</span>
+                        <span>设置转发目标</span>
+                      </div>
+                      <p class="text-[11px] text-slate-600 leading-relaxed">
+                        动作勾选【转发至】：填入专属中枢接收地址，勾选【保留备份】保存生效。
+                      </p>
+                    </div>
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    点击【添加收信规则】，执行条件设置为：主题包含 <code class="bg-indigo-50 text-indigo-700 px-1 py-0.5 rounded font-mono">RFQ</code>, <code class="bg-indigo-50 text-indigo-700 px-1 py-0.5 rounded font-mono">Inquiry</code>, <code class="bg-indigo-50 text-indigo-700 px-1 py-0.5 rounded font-mono">Quote</code> 或 <code class="bg-indigo-50 text-indigo-700 px-1 py-0.5 rounded font-mono">Price</code>。
-                  </p>
                 </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-indigo-100 text-indigo-700 text-[10px] flex items-center justify-center font-bold">3</span>
-                    <span>勾选转发并保存</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    满足条件时执行动作勾选【自动转发给】，粘贴上方专属收信地址，保存即可！
-                  </p>
-                </div>
-              </div>
-              <div class="p-2 rounded-lg bg-indigo-50 border border-indigo-200 text-[11px] text-indigo-900 flex items-center justify-between">
-                <span>✓ 完美支持所有个人 @qq.com 邮箱 · 个人创业者/小型外贸作坊 0 成本接入</span>
-                <span class="font-bold text-indigo-700">无需自建域名即可起步</span>
-              </div>
-            </div>
 
-            <!-- Provider 3: 阿里企业邮 / 钉钉 -->
-            <div v-else-if="imapModal.guideTab === 'aliyun'" class="space-y-2.5 text-xs text-slate-700">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 text-[10px] flex items-center justify-center font-bold">1</span>
-                    <span>登录阿里邮箱设置</span>
+                <!-- 网易 163 / 企业 -->
+                <div v-else-if="imapModal.guideTab === 'netease'" class="space-y-3">
+                  <div class="flex items-center justify-between text-xs pb-1.5 border-b border-slate-100">
+                    <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                      网易 163 / 126 / 企业邮箱 规则指引
+                    </span>
+                    <a href="https://qiye.163.com" target="_blank" class="text-red-600 hover:text-red-800 font-bold flex items-center gap-1 text-[11px] underline">
+                      <span>前往网易邮箱后台</span>
+                      <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    打开 <a href="https://qiye.aliyun.com" target="_blank" class="text-orange-600 underline">qiye.aliyun.com</a> 或钉钉邮箱网页版，点击右上角齿轮【设置】➔【邮件收发】➔【收信规则】。
-                  </p>
-                </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 text-[10px] flex items-center justify-center font-bold">2</span>
-                    <span>添加触发规则</span>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-red-100 text-red-700 text-[10px] flex items-center justify-center font-bold">1</span>
+                        <span>进入收信规则</span>
+                      </div>
+                      <p class="text-[11px] text-slate-600 leading-relaxed">
+                        点击顶部【设置】➔【收信规则】➔【添加收信规则】，执行条件设置为主题包含关键词。
+                      </p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-red-100 text-red-700 text-[10px] flex items-center justify-center font-bold">2</span>
+                        <span>指定自动转发</span>
+                      </div>
+                      <p class="text-[11px] text-slate-600 leading-relaxed">
+                        动作勾选【自动转发到】：填入专属接收地址，勾选【同时在收件箱保留一封】并保存。
+                      </p>
+                    </div>
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    点击【添加规则】，条件选择主题包含 <code class="bg-orange-50 text-orange-700 px-1 py-0.5 rounded font-mono">RFQ</code>, <code class="bg-orange-50 text-orange-700 px-1 py-0.5 rounded font-mono">Inquiry</code>, <code class="bg-orange-50 text-orange-700 px-1 py-0.5 rounded font-mono">Quote</code> 或 <code class="bg-orange-50 text-orange-700 px-1 py-0.5 rounded font-mono">Price</code>。
-                  </p>
                 </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 text-[10px] flex items-center justify-center font-bold">3</span>
-                    <span>填入转发地址保存</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    操作勾选【转发至】：粘贴专属收信地址，勾选【保留备份】后保存生效！
-                  </p>
-                </div>
-              </div>
-              <div class="p-2 rounded-lg bg-orange-50 border border-orange-200 text-[11px] text-orange-900 flex items-center justify-between">
-                <span>✓ 阿里企业邮箱与钉钉外贸组织架构 100% 官方收信兼容</span>
-                <span class="font-bold text-orange-700">100% 国内原厂合规通道 · 极致稳定</span>
-              </div>
-            </div>
 
-            <!-- Provider 4: 网易 163/126 (个人/企业版) -->
-            <div v-else-if="imapModal.guideTab === 'netease'" class="space-y-2.5 text-xs text-slate-700">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-red-100 text-red-700 text-[10px] flex items-center justify-center font-bold">1</span>
-                    <span>进入常规设置</span>
+                <!-- 微软 Outlook -->
+                <div v-else-if="imapModal.guideTab === 'microsoft'" class="space-y-3">
+                  <div class="flex items-center justify-between text-xs pb-1.5 border-b border-slate-100">
+                    <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-cyan-600"></span>
+                      微软 Office 365 / Outlook 规则指引
+                    </span>
+                    <a href="https://outlook.office.com" target="_blank" class="text-cyan-600 hover:text-cyan-800 font-bold flex items-center gap-1 text-[11px] underline">
+                      <span>前往 Outlook 网页版</span>
+                      <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    登录网页版（企业版 <a href="https://qiye.163.com" target="_blank" class="text-red-600 underline">qiye.163.com</a> 或个人版 <a href="https://mail.163.com" target="_blank" class="text-red-600 underline">mail.163.com</a>），点击顶部【设置】➔【收信规则】。
-                  </p>
-                </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-red-100 text-red-700 text-[10px] flex items-center justify-center font-bold">2</span>
-                    <span>添加收信规则</span>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-cyan-100 text-cyan-700 text-[10px] flex items-center justify-center font-bold">1</span>
+                        <span>新建邮件规则</span>
+                      </div>
+                      <p class="text-[11px] text-slate-600 leading-relaxed">
+                        齿轮【设置】➔【邮件】➔【规则】➔【添加新规则】，条件选择主题包含关键词。
+                      </p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-cyan-100 text-cyan-700 text-[10px] flex items-center justify-center font-bold">2</span>
+                        <span>配置转发动作</span>
+                      </div>
+                      <p class="text-[11px] text-slate-600 leading-relaxed">
+                        操作选择【转发至 (Forward to)】，粘贴专属接收地址，点击保存完成。
+                      </p>
+                    </div>
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    点击【添加收信规则】，执行条件设置为主题包含 <code class="bg-red-50 text-red-700 px-1 py-0.5 rounded font-mono">RFQ</code>, <code class="bg-red-50 text-red-700 px-1 py-0.5 rounded font-mono">Inquiry</code>, <code class="bg-red-50 text-red-700 px-1 py-0.5 rounded font-mono">Quote</code> 或 <code class="bg-red-50 text-red-700 px-1 py-0.5 rounded font-mono">Price</code>。
-                  </p>
                 </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-red-100 text-red-700 text-[10px] flex items-center justify-center font-bold">3</span>
-                    <span>指定自动转发保存</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    动作勾选【自动转发到】：填入专属接收地址，勾选【同时在收件箱保留一封】保存。
-                  </p>
-                </div>
-              </div>
-              <div class="p-2 rounded-lg bg-red-50 border border-red-200 text-[11px] text-red-900 flex items-center justify-between">
-                <span>✓ 支持网易灵犀办公、163/126/yeah 个人与企业域名全版本</span>
-                <span class="font-bold text-red-700">国内老牌大厂原厂通道</span>
-              </div>
-            </div>
 
-            <!-- Provider 5: 微软 Office 365 / Outlook (个人与商业版) -->
-            <div v-else-if="imapModal.guideTab === 'microsoft'" class="space-y-2.5 text-xs text-slate-700">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-cyan-100 text-cyan-700 text-[10px] flex items-center justify-center font-bold">1</span>
-                    <span>打开 Outlook 规则</span>
+                <!-- 谷歌 Gmail -->
+                <div v-else class="space-y-3">
+                  <div class="flex items-center justify-between text-xs pb-1.5 border-b border-slate-100">
+                    <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                      谷歌 Gmail / Google Workspace 规则指引
+                    </span>
+                    <a href="https://mail.google.com" target="_blank" class="text-rose-600 hover:text-rose-800 font-bold flex items-center gap-1 text-[11px] underline">
+                      <span>前往 Gmail 设置</span>
+                      <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    登录网页版（企业版 <a href="https://outlook.office.com" target="_blank" class="text-cyan-600 underline">outlook.office.com</a> 或个人版 <a href="https://outlook.live.com" target="_blank" class="text-cyan-600 underline">outlook.live.com</a>），点击右上角齿轮【设置】➔【邮件】➔【规则】。
-                  </p>
-                </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-cyan-100 text-cyan-700 text-[10px] flex items-center justify-center font-bold">2</span>
-                    <span>新建收件规则</span>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-700 text-[10px] flex items-center justify-center font-bold">1</span>
+                        <span>添加转发地址</span>
+                      </div>
+                      <p class="text-[11px] text-slate-600 leading-relaxed">
+                        齿轮【查看所有设置】➔【转发和 POP/IMAP】➔【添加转发地址】填入专属接收地址。
+                      </p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-700 text-[10px] flex items-center justify-center font-bold">2</span>
+                        <span>创建过滤规则</span>
+                      </div>
+                      <p class="text-[11px] text-slate-600 leading-relaxed">
+                        在【过滤器和屏蔽地址】新建规则：主题包含关键词 ➔ 转发到专属地址并保留副本。
+                      </p>
+                    </div>
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    点击【添加新规则】，条件选择【主题包含】并添加关键词 <code class="bg-cyan-50 text-cyan-700 px-1 py-0.5 rounded font-mono">RFQ</code>, <code class="bg-cyan-50 text-cyan-700 px-1 py-0.5 rounded font-mono">Inquiry</code>, <code class="bg-cyan-50 text-cyan-700 px-1 py-0.5 rounded font-mono">Quote</code> 或 <code class="bg-cyan-50 text-cyan-700 px-1 py-0.5 rounded font-mono">Price</code>。
-                  </p>
                 </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-cyan-100 text-cyan-700 text-[10px] flex items-center justify-center font-bold">3</span>
-                    <span>选择转发保存</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    操作选择【转发至 (Forward to)】，填入专属转发地址并保存即可！
-                  </p>
-                </div>
-              </div>
-              <div class="p-2 rounded-lg bg-cyan-50 border border-cyan-200 text-[11px] text-cyan-900 flex items-center justify-between">
-                <span>✓ 支持 Office 365 商业版、Exchange 及 Outlook/Hotmail 个人免费版</span>
-                <span class="font-bold text-cyan-700">100% 微软合规规则</span>
-              </div>
-            </div>
 
-            <!-- Provider 6: 谷歌 Gmail (个人与商业版) -->
-            <div v-else class="space-y-2.5 text-xs text-slate-700">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-rose-100 text-rose-700 text-[10px] flex items-center justify-center font-bold">1</span>
-                    <span>登录 Gmail 设置</span>
+                <!-- 智能防垃圾误报技巧提示 -->
+                <div class="p-2.5 rounded-xl bg-blue-50/70 border border-blue-200/60 text-[11px] text-slate-700 flex items-start gap-2 shadow-2xs">
+                  <i class="fa-solid fa-wand-magic-sparkles text-blue-600 mt-0.5 flex-shrink-0 text-xs"></i>
+                  <div class="leading-relaxed">
+                    <strong class="text-blue-900">💡 终极免配置秘籍：</strong>
+                    您也可以直接将所有外部邮件自动转发给中枢地址。系统内置 Gemini AI 询盘防火墙，会自动静默过滤垃圾广告与物流推销，仅为真实询盘核算出单！
                   </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    打开 <a href="https://mail.google.com" target="_blank" class="text-rose-600 underline">mail.google.com</a> 登录（个人 @gmail.com 或 Google Workspace 商业版），点击右上角齿轮【查看所有设置】➔【转发和 POP/IMAP】。
-                  </p>
-                </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-rose-100 text-rose-700 text-[10px] flex items-center justify-center font-bold">2</span>
-                    <span>添加并验证转发地址</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    点击【添加转发地址】，粘贴上方专属收信地址。系统将自动接收并协助通过验证。
-                  </p>
-                </div>
-                <div class="p-2.5 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div class="font-bold text-slate-900 flex items-center gap-1">
-                    <span class="w-4 h-4 rounded-full bg-rose-100 text-rose-700 text-[10px] flex items-center justify-center font-bold">3</span>
-                    <span>创建转发过滤规则</span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 leading-relaxed">
-                    在【过滤器和屏蔽的地址】中新建规则，设置主题包含 <code class="bg-rose-50 text-rose-700 px-1 py-0.5 rounded font-mono">RFQ</code>, <code class="bg-rose-50 text-rose-700 px-1 py-0.5 rounded font-mono">Inquiry</code>, <code class="bg-rose-50 text-rose-700 px-1 py-0.5 rounded font-mono">Quote</code> 自动转发并保留副本。
-                  </p>
                 </div>
               </div>
-              <div class="p-2 rounded-lg bg-rose-50 border border-rose-200 text-[11px] text-rose-900 flex items-center justify-between">
-                <span>✓ 谷歌 Gmail / Google Workspace 原生云端秒级流转</span>
-                <span class="font-bold text-rose-700">全球跨国买家与独立站标配</span>
-              </div>
-            </div>
-
-            <!-- AI 智能防垃圾误报提示 -->
-            <div class="p-2.5 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50/70 border border-blue-200/60 text-[11px] text-slate-700 flex items-start gap-2 shadow-2xs">
-              <i class="fa-solid fa-wand-magic-sparkles text-blue-600 mt-0.5 flex-shrink-0 text-xs"></i>
-              <div class="leading-relaxed">
-                <span class="font-bold text-slate-900">💡 终极省心技巧：</span>
-                如果担心客户标题太随意导致漏单，可直接在邮箱设置<strong class="text-blue-800">“所有外部新邮件”全量自动转发</strong>。KelvinFlow 核心引擎内置 Gemini AI 询盘防火墙，遇到物流广告、新闻推销等非询盘内容将<strong>全自动静默忽略</strong>，绝不会乱出单！
-              </div>
-            </div>
-
             </div>
           </div>
 
@@ -2832,13 +2772,10 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 <div class="text-[10.5px] text-slate-500 leading-tight">只写不读，绝不触碰您邮箱的历史信件</div>
               </div>
             </div>
-            <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
-              <button @click="openUpgradeModal('monthly')" type="button" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-extrabold text-xs shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 transition flex items-center justify-center gap-1.5">
+            <div class="pt-2 flex items-center justify-center">
+              <button @click="openUpgradeModal('monthly')" type="button" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-extrabold text-xs shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-crown text-amber-200"></i>
                 <span>立即升级专业版解锁特权 (¥99/月起)</span>
-              </button>
-              <button @click="imapModal.tab = 'forward'" type="button" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer transition">
-                <span>继续使用模式 1 (邮件转发·免费)</span>
               </button>
             </div>
           </div>
@@ -3314,7 +3251,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               <div class="text-xs font-bold text-white flex items-center justify-center gap-1.5">
                 <span>微信扫码添加创始人 Kelvin (微信号: <strong class="text-cyan-300 font-mono">kt_data</strong>)</span>
                 <button type="button" @click="copyWechatId" title="复制微信号" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-slate-200 text-[10px] transition cursor-pointer active:scale-95">
-                  复制
+                  {{ copiedWechatId ? '✅ 已复制' : '复制' }}
                 </button>
               </div>
             </div>
@@ -3724,12 +3661,15 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
-    <!-- 全局独立悬浮 Toast 提示 (脱离常规文档流，绝对杜绝任何页面拉伸或跳动) -->
-    <div class="fixed top-18 sm:top-20 right-4 sm:right-6 z-50 pointer-events-none max-w-sm w-full">
+    <!-- 全局独立悬浮 Toast 提示 (z-[9999] 置于所有弹窗与遮罩层最顶端，保障 100% 可见) -->
+    <div class="fixed top-6 sm:top-8 right-4 sm:right-6 z-[9999] pointer-events-none max-w-sm w-full">
       <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div v-if="toast.show" v-cloak class="pointer-events-auto bg-white rounded-xl shadow-2xl border border-slate-200 p-3.5 flex items-center space-x-3 ring-1 ring-black/5">
-          <i :class="toast.type === 'success' ? 'fa-solid fa-circle-check text-emerald-500' : 'fa-solid fa-circle-info text-blue-500'" class="text-lg"></i>
-          <div class="flex-1 text-xs font-bold text-slate-800">{{ toast.message }}</div>
+        <div v-if="toast.show" v-cloak class="pointer-events-auto bg-[#0B132B] text-white rounded-2xl shadow-2xl border border-slate-700/80 p-4 flex items-center space-x-3.5 ring-2 ring-emerald-500/20 backdrop-blur-md">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+               :class="toast.type === 'error' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : (toast.type === 'warning' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30')">
+            <i :class="toast.type === 'error' ? 'fa-solid fa-triangle-exclamation' : (toast.type === 'warning' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-check')" class="text-sm"></i>
+          </div>
+          <div class="flex-1 text-xs font-bold text-slate-100 leading-snug">{{ toast.message }}</div>
         </div>
       </transition>
     </div>
@@ -3841,8 +3781,10 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
         const isPaidUser = computed(() => {
           if (trialState.value?.isPaid) return true;
+          if (trialState.value?.isTrial && !trialState.value?.isPaid) return false;
           const localIsPaid = localStorage.getItem('kelvinflow_user_is_paid') === 'true';
           const localPlan = localStorage.getItem('kelvinflow_user_plan');
+          if (localPlan === 'trial') return false;
           if (localIsPaid || ['geek', 'monthly', 'annual', 'starter', 'pro', 'enterprise'].includes(localPlan)) return true;
           if (!currentTenant.value) return false;
           const p = currentTenant.value.plan;
@@ -4651,16 +4593,19 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           return map[prov] || '外贸邮箱';
         };
 
+        const copiedWechatId = ref(false);
         const copyWechatId = () => {
           const wechatId = 'kt_data';
+          copiedWechatId.value = true;
+          setTimeout(() => { copiedWechatId.value = false; }, 2500);
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(wechatId).then(() => {
-              showToast('已复制微信号 kt_data，去微信搜索添加即可！');
+              showToast('已复制微信号 kt_data，去微信搜索添加即可！', 'success');
             }).catch(() => {
-              showToast('微信号：kt_data');
+              showToast('微信号：kt_data', 'success');
             });
           } else {
-            showToast('微信号：kt_data');
+            showToast('微信号：kt_data', 'success');
           }
         };
 
@@ -6457,6 +6402,7 @@ Sales Team | KelvinFlow Global Technology`;
           isDemoQuote,
           getProviderName,
           copyWechatId,
+          copiedWechatId,
           trialState,
           trialModal,
           openTrialModal,

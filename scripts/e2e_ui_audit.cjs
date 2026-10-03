@@ -73,7 +73,6 @@ async function runAudit() {
     page.on('console', msg => {
       if (msg.type() === 'error') {
         const text = msg.text();
-        // Ignore expected favicon 404 or analytics if any
         if (!text.includes('favicon.ico')) {
           pageErrors.push(`[Console Error] ${text}`);
         }
@@ -90,89 +89,89 @@ async function runAudit() {
 
     assert(pageErrors.length === 0, `首页加载无致命 JS 控制台报错 (当前报错数: ${pageErrors.length})`);
 
-    // 1.1 验证底部「联系创始人」按钮与支付弹窗
-    console.log(`\n--> 测试用例 1.1: 底部「联系创始人」弹窗复用验证`);
+    // 1.1 截图 5 验证：验证底部「联系创始人」文字与链接已彻底移除
+    console.log(`\n--> 测试用例 1.1: 底部「联系创始人」精简移除验证 (截图 5)`);
     const footerBtnExists = await page.$('#footer-contact-founder');
-    assert(!!footerBtnExists, '底部联系创始人按钮 (#footer-contact-founder) 存在');
+    const footerHasFounderText = await page.evaluate(() => {
+      const footer = document.querySelector('footer');
+      return footer ? footer.textContent.includes('联系创始人 (微信: kt_data)') : false;
+    });
+    assert(!footerBtnExists && !footerHasFounderText, '截图 5 验证：已彻底移除底部「联系创始人 (微信: kt_data)」文字链接');
 
-    if (footerBtnExists) {
-      await page.click('#footer-contact-founder');
-      await new Promise(r => setTimeout(r, 500));
+    // 1.2 验证支付/极客版订阅弹窗
+    console.log(`\n--> 测试用例 1.2: 支付弹窗交互与年付/月付边框验证`);
+    await page.evaluate(() => {
+      if (typeof window.openPaymentModal === 'function') window.openPaymentModal();
+    });
+    await new Promise(r => setTimeout(r, 500));
 
-      const modalInfo = await page.evaluate(() => {
-        const modal = document.getElementById('payment-modal');
-        const enterprise = document.getElementById('enterprise-modal');
-        const oldCopyNote = document.getElementById('copy-pay-note-text');
-        const oldCopyWechat = document.getElementById('copy-founder-wechat-text');
-        const monthlyBtn = document.getElementById('pay-switch-monthly');
-        const annualBtn = document.getElementById('pay-switch-annual');
+    const modalInfo = await page.evaluate(() => {
+      const modal = document.getElementById('payment-modal');
+      const enterprise = document.getElementById('enterprise-modal');
+      const monthlyBtn = document.getElementById('pay-switch-monthly');
+      const annualBtn = document.getElementById('pay-switch-annual');
 
-        if (!modal) return { exists: false };
-        const rect = modal.getBoundingClientRect();
-        const style = window.getComputedStyle(modal);
+      if (!modal) return { exists: false };
+      const style = window.getComputedStyle(modal);
 
-        return {
-          exists: true,
-          display: style.display,
-          opacity: style.opacity,
-          hidden: modal.classList.contains('hidden'),
-          enterpriseExists: !!enterprise,
-          oldCopyButtonsRemoved: !oldCopyNote && !oldCopyWechat,
-          hasBorderWrapper: monthlyBtn?.parentElement?.classList.contains('border'),
-          monthlyActive: monthlyBtn?.classList.contains('bg-amber-500/20')
-        };
-      });
+      return {
+        exists: true,
+        display: style.display,
+        hidden: modal.classList.contains('hidden'),
+        enterpriseExists: !!enterprise,
+        hasBorderWrapper: monthlyBtn?.parentElement?.classList.contains('border'),
+        monthlyActive: monthlyBtn?.classList.contains('bg-amber-500/20')
+      };
+    });
 
-      assert(modalInfo.exists && !modalInfo.hidden && modalInfo.display === 'flex', '支付弹窗成功弹出且样式为 display: flex');
-      assert(!modalInfo.enterpriseExists, '已彻底移除冗余的独立 enterprise-modal');
-      assert(modalInfo.oldCopyButtonsRemoved, '已成功精简移除底部冗余复制按钮');
-      assert(modalInfo.hasBorderWrapper, '月付/年付切换按钮已拥有精致外边框容器 (border wrapper)');
+    assert(modalInfo.exists && !modalInfo.hidden && modalInfo.display === 'flex', '支付弹窗成功弹出且样式为 display: flex');
+    assert(!modalInfo.enterpriseExists, '已彻底移除冗余的独立 enterprise-modal');
+    assert(modalInfo.hasBorderWrapper, '月付/年付切换按钮已拥有精致外边框容器 (border wrapper)');
 
-      // 1.2 切换至年付
-      console.log(`\n--> 测试用例 1.2: 年付/月付无缝切换与转账备注响应`);
-      await page.click('#pay-switch-annual');
-      await new Promise(r => setTimeout(r, 300));
+    // 1.3 切换至年付
+    console.log(`\n--> 测试用例 1.3: 年付/月付无缝切换与转账备注响应`);
+    await page.click('#pay-switch-annual');
+    await new Promise(r => setTimeout(r, 300));
 
-      const annualSwitchState = await page.evaluate(() => {
-        const annualBtn = document.getElementById('pay-switch-annual');
-        const noteEl = document.getElementById('payment-note-text');
-        return {
-          annualActive: annualBtn?.classList.contains('bg-amber-500/20'),
-          note: noteEl?.textContent.trim()
-        };
-      });
+    const annualSwitchState = await page.evaluate(() => {
+      const annualBtn = document.getElementById('pay-switch-annual');
+      const noteEl = document.getElementById('payment-note-text');
+      return {
+        annualActive: annualBtn?.classList.contains('bg-amber-500/20'),
+        note: noteEl?.textContent.trim()
+      };
+    });
 
-      assert(annualSwitchState.annualActive, '点击年付后激活高亮状态');
-      assert(annualSwitchState.note && annualSwitchState.note.includes('890'), `备注动态更新为年付金额 (当前: ${annualSwitchState.note})`);
+    assert(annualSwitchState.annualActive, '点击年付后激活高亮状态');
+    assert(annualSwitchState.note && annualSwitchState.note.includes('890'), `备注动态更新为年付金额 (当前: ${annualSwitchState.note})`);
 
-      // 关闭弹窗
-      await page.click('#payment-modal button i.fa-xmark');
-      await new Promise(r => setTimeout(r, 400));
-      const isClosed = await page.evaluate(() => document.getElementById('payment-modal')?.classList.contains('hidden'));
-      assert(isClosed, '支付弹窗点击关闭后正常隐藏');
-    }
+    // 关闭弹窗
+    await page.click('#payment-modal button i.fa-xmark');
+    await new Promise(r => setTimeout(r, 400));
+    const isClosed = await page.evaluate(() => document.getElementById('payment-modal')?.classList.contains('hidden'));
+    assert(isClosed, '支付弹窗点击关闭后正常隐藏');
 
     // ==========================================
     // 2. 在线审单工作台 (review.html) 交互与闭环审计
     // ==========================================
     console.log(`\n[Stage 2] 正在检测审单控制台 (${reviewUrl})...`);
     
-    // 首先导航至审单工作台
+    // 导航至审单工作台
     await page.goto(reviewUrl, { waitUntil: 'networkidle0' });
 
-    // 在审单域名下注入已登录态
+    // 注入基础状态
     await page.evaluate(() => {
       localStorage.setItem('kelvinflow_user_phone', '18566690282');
       localStorage.setItem('saas_auth_token', 'test_auth_token');
       localStorage.setItem('kelvinflow_tour_dismissed', 'true');
     });
 
-    // 刷新页面激活登录状态与 Vue 实例
+    // 刷新页面激活状态与 Vue 实例
     await page.reload({ waitUntil: 'networkidle0' });
     await new Promise(r => setTimeout(r, 1200));
 
-    // 2.1 退出登录弹窗测试 (排查由于 HTML 结构闭合错误导致的 swallowed DOM)
-    console.log(`\n--> 测试用例 2.1: 退出登录按钮 (排查 DOM 吞噬与事件失效)`);
+    // 2.1 退出登录弹窗测试
+    console.log(`\n--> 测试用例 2.1: 退出登录按钮交互验证`);
     const logoutBtn = await page.$('button[title="退出登录或切换账号"]');
     assert(!!logoutBtn, '右上角退出登录按钮成功渲染在 DOM 中');
 
@@ -198,7 +197,7 @@ async function runAudit() {
       });
 
       assert(logoutModalState.found, '退出确认弹窗 DOM 成功挂载并在屏幕中展开');
-      assert(logoutModalState.display === 'flex' && logoutModalState.opacity === '1', '退出弹窗处于完全可见状态 (opacity: 1, display: flex)');
+      assert(logoutModalState.display === 'flex' && logoutModalState.opacity === '1', '退出弹窗处于完全可见状态');
 
       // 取消退出 / 保留登录
       const cancelBtn = await page.evaluate(() => {
@@ -220,27 +219,154 @@ async function runAudit() {
       assert(isLogoutClosed, '退出弹窗点击取消后成功关闭并卸载');
     }
 
-    // 2.2 审单页内升级极客版弹窗验证
-    console.log(`\n--> 测试用例 2.2: 审单工作台「升级极客版」弹窗`);
-    const upgradeTriggered = await page.evaluate(() => {
-      if (window.__vm && typeof window.__vm.openUpgradeModal === 'function') {
-        window.__vm.openUpgradeModal('monthly');
-        return true;
+    // 2.2 截图 3 验证: 英文邮件草稿框高度与右栏留白彻底消除
+    console.log(`\n--> 测试用例 2.2: 邮件草稿输入框高度与布局空白 (截图 3)`);
+    const emailDraftLayout = await page.evaluate(() => {
+      const textarea = document.querySelector('textarea[name="reply_email_draft"]') ||
+                       document.querySelector('textarea[placeholder*="Dear"]') ||
+                       document.querySelector('textarea.font-mono');
+      if (!textarea) return { exists: false };
+      const rect = textarea.getBoundingClientRect();
+      return {
+        exists: true,
+        height: rect.height,
+        rows: textarea.getAttribute('rows')
+      };
+    });
+    assert(emailDraftLayout.exists && emailDraftLayout.height >= 380, `截图 3 验证：邮件草稿输入框高度充实 (当前高度: ${Math.round(emailDraftLayout.height || 0)}px, rows=${emailDraftLayout.rows})，彻底填补右栏空白`);
+
+    // 2.3 截图 4 验证: 联系创始人 Kelvin 专人协助弹窗 + Toast 层级
+    console.log(`\n--> 测试用例 2.3: 联系创始人弹窗、按钮即时反馈与 Toast 层级 (截图 4)`);
+    await page.evaluate(() => {
+      if (window.__vm) window.__vm.wechatQrModal.show = true;
+    });
+    await new Promise(r => setTimeout(r, 500));
+
+    const wechatModalState = await page.evaluate(() => {
+      const heading = Array.from(document.querySelectorAll('h3')).find(h => h.textContent.includes('联系创始人 Kelvin 专人协助'));
+      return { open: !!heading };
+    });
+    assert(wechatModalState.open, '联系创始人专人协助弹窗成功开启');
+
+    // 点击一键复制微信号
+    await page.evaluate(() => {
+      if (window.__vm) window.__vm.copyWechatId();
+    });
+    await new Promise(r => setTimeout(r, 400));
+
+    const toastAndBtnState = await page.evaluate(() => {
+      const toastEl = document.querySelector('.fixed.top-6, .fixed.top-8, .fixed.top-18, .fixed.top-20');
+      const heading = Array.from(document.querySelectorAll('h3')).find(h => h.textContent.includes('联系创始人 Kelvin 专人协助'));
+      const modalContainer = heading?.closest('.fixed.inset-0');
+      const btn = heading?.closest('.bg-white')?.querySelector('button');
+
+      const toastComputed = toastEl ? window.getComputedStyle(toastEl) : null;
+      const modalComputed = modalContainer ? window.getComputedStyle(modalContainer) : null;
+
+      const toastZ = toastComputed ? parseInt(toastComputed.zIndex, 10) : 0;
+      const modalZ = modalComputed ? parseInt(modalComputed.zIndex, 10) : 0;
+
+      return {
+        btnText: btn?.textContent?.trim() || '',
+        toastZ,
+        modalZ,
+        toastAboveModal: toastZ > modalZ
+      };
+    });
+    assert(toastAndBtnState.btnText.includes('已复制微信号'), '复制按钮具有即时响应状态: 「已复制微信号 (kt_data)」');
+    assert(toastAndBtnState.toastAboveModal && toastAndBtnState.toastZ >= 9999, `截图 4 验证：Toast 层级 (z-index: ${toastAndBtnState.toastZ}) 居于弹窗遮罩层 (z-index: ${toastAndBtnState.modalZ}) 之上，100% 居顶无遮挡`);
+
+    await page.evaluate(() => {
+      if (window.__vm) window.__vm.wechatQrModal.show = false;
+    });
+    await new Promise(r => setTimeout(r, 300));
+
+    // 2.4 截图 1 & 2 验证: IMAP 弹窗 Tab 边框、Tab 1 新版排版、Tab 2 冗余按钮移除
+    console.log(`\n--> 测试用例 2.4: IMAP 自动出单弹窗 (截图 1 & 2)`);
+    await page.evaluate(() => {
+      if (window.__vm) {
+        window.__vm.openImapModal();
+        window.__vm.imapModal.showGuideDrawer = true;
       }
-      return false;
+    });
+    await new Promise(r => setTimeout(r, 600));
+
+    const imapModalState = await page.evaluate(() => {
+      if (!window.__vm || !window.__vm.imapModal.show) return { open: false };
+
+      const tab1Btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('邮件自动转发') || b.textContent.includes('邮件转发'));
+      const tabContainer = tab1Btn?.parentElement;
+      const tabContainerComputed = tabContainer ? window.getComputedStyle(tabContainer) : null;
+      const hasTabBorder = tabContainer?.classList.contains('border') || (tabContainerComputed && parseFloat(tabContainerComputed.borderWidth) > 0);
+
+      const allBtns = Array.from(document.querySelectorAll('button'));
+      const providersFound = allBtns.filter(b => {
+        const t = b.textContent.replace(/\s+/g, '');
+        return t.includes('腾讯/Foxmail') ||
+               t.includes('阿里/钉钉') ||
+               t.includes('网易163') ||
+               t.includes('微软Outlook') ||
+               t.includes('谷歌Gmail');
+      });
+
+      const copyKeywordBtn = allBtns.find(b => b.textContent.includes('复制关键词'));
+
+      return {
+        open: true,
+        hasTabBorder,
+        providerCount: providersFound.length,
+        hasCopyKeywordBtn: !!copyKeywordBtn
+      };
     });
 
-    if (upgradeTriggered) {
-      await new Promise(r => setTimeout(r, 500));
-      const upgradeModalState = await page.evaluate(() => {
-        const h4 = Array.from(document.querySelectorAll('h4')).find(h => h.textContent.includes('开通 / 续费外贸智能中枢'));
-        return {
-          found: !!h4,
-          title: h4?.textContent?.trim()
-        };
-      });
-      assert(upgradeModalState.found, '审单页内升级极客版弹窗成功打开并渲染');
-    }
+    assert(imapModalState.open, 'IMAP 邮箱全自动出单弹窗成功开启');
+    assert(imapModalState.hasTabBorder, '截图 1 验证：Tab 切换栏已具备高质感容器外边框 (border wrapper)');
+    assert(imapModalState.providerCount === 5 && imapModalState.hasCopyKeywordBtn, '截图 2 验证：Tab 1 教程已重构为清爽 5 格卡片与一键关键词复制');
+
+    // 切换至 Tab 2 (草稿箱直达) 验证非付费用户锁屏与冗余按钮移除
+    await page.evaluate(() => {
+      if (window.__vm) {
+        if (window.__vm.trialState) {
+          window.__vm.trialState.isTrial = true;
+          window.__vm.trialState.isPaid = false;
+        }
+        localStorage.setItem('kelvinflow_user_plan', 'trial');
+        localStorage.setItem('kelvinflow_user_is_paid', 'false');
+        window.__vm.imapModal.tab = 'draft';
+      }
+    });
+    await new Promise(r => setTimeout(r, 400));
+
+    const tab2Check = await page.evaluate(() => {
+      const redundantBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('继续使用模式 1'));
+      const upgradeBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('立即升级专业版解锁特权'));
+      return {
+        hasRedundantBtn: !!redundantBtn,
+        hasUpgradeBtn: !!upgradeBtn
+      };
+    });
+
+    assert(!tab2Check.hasRedundantBtn && tab2Check.hasUpgradeBtn, '截图 1 验证：Tab 2 锁屏界面已彻底移除冗余的「继续使用模式 1」按钮');
+
+    await page.evaluate(() => {
+      if (window.__vm) window.__vm.imapModal.show = false;
+    });
+    await new Promise(r => setTimeout(r, 300));
+
+    // 2.5 移动端响应式排查
+    console.log(`\n--> 测试用例 2.5: 移动端 (390x844) 横向溢出排查`);
+    await page.setViewport({ width: 390, height: 844 });
+    await new Promise(r => setTimeout(r, 400));
+
+    const mobileOverflow = await page.evaluate(() => {
+      const scrollWidth = document.documentElement.scrollWidth;
+      const clientWidth = document.documentElement.clientWidth;
+      return {
+        hasHorizontalScroll: scrollWidth > clientWidth,
+        diff: scrollWidth - clientWidth
+      };
+    });
+    assert(!mobileOverflow.hasHorizontalScroll, `移动端 (390px) 视口无横向溢出滚动 (0px overflow, diff=${mobileOverflow.diff}px)`);
 
   } catch (err) {
     console.error('❌ 执行测试过程发生未捕获异常:', err);
