@@ -783,8 +783,10 @@
 
         <!-- 按钮容器 (层级清晰的主副按钮布局) -->
         <div id="pricing-btn-container" class="space-y-2.5">
-          <button id="pricing-trial-btn" onclick="openInboundModal('starter')" class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-xl shadow-blue-500/25 active:scale-98 transition-all cursor-pointer">
-            免费开通 7 天试用
+          <button id="pricing-trial-btn" onclick="openInboundModal('starter')" class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-xl shadow-blue-500/25 active:scale-98 transition-all cursor-pointer flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-cyan-200 text-xs"></i>
+            <span>免费开通 7 天试用</span>
+            <i class="fa-solid fa-arrow-right text-xs text-white/80"></i>
           </button>
           <button id="pricing-pay-btn" onclick="openPaymentModal()" class="w-full py-2.5 rounded-xl font-medium text-xs text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all flex items-center justify-center space-x-1.5 cursor-pointer">
             <i class="fa-solid fa-crown text-amber-300 text-xs"></i>
@@ -834,16 +836,16 @@
             </div>
           </div>
 
-          <!-- FAQ 3: Excel 底价表格式 -->
+          <!-- FAQ 3: Excel 底价表格式与导入规范 -->
           <div id="faq-card-3" class="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden transition-all duration-300">
             <button onclick="toggleFaqSmooth(3)" class="w-full p-4 sm:p-5 text-left flex items-center justify-between font-semibold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors cursor-pointer">
-              <span>我现有的 Excel 底价表格式跟你们不一样，能直接用吗？以后调价麻烦吗？</span>
+              <span>我该如何导入自己的工厂底价？一定要用你们的模板吗？以后工厂调价麻烦吗？</span>
               <i id="faq-icon-3" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-300"></i>
             </button>
             <div id="faq-body-3" class="faq-accordion-body">
               <div>
                 <div class="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-white/[0.04] pt-3">
-                  直接就能用，以后改价也只要 10 秒钟。只要表格里有型号、品名、出厂价，系统就能自动识别出来，哪怕你的列名写成“单价”、“成本”或“RMB”都没关系。后续工厂调价时，直接把新的 Excel 表重新上传一次，全库价格立刻秒级更新。
+                  为了彻底避免公式错乱和格式冲突、确保算价 100% 精准不亏本，我们建议直接下载官方提供的【极简出厂底价表模板】。模板只有最核心的几列（型号、品名、出厂底价、装箱规格），你只需把工厂成本填进去，1 分钟即可完成导入。后续工厂若有调价，随时修改表格中的底价数字重新上传一次，全库价格 10 秒内即可秒级生效更新。
                 </div>
               </div>
             </div>
@@ -906,9 +908,10 @@
   <footer class="py-12 border-t border-white/[0.08] bg-[#05050a] text-slate-500 text-xs">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
       <div class="flex items-center space-x-3">
-        <span class="text-sm font-bold text-white">KelvinFlow</span>
-        <span>·</span>
-        <span>专为外贸一人公司打造</span>
+        <span class="text-sm font-bold text-white tracking-tight">KelvinFlow</span>
+        <span class="text-slate-600">·</span>
+        <span class="text-slate-300 font-medium">AI 外贸智能出单中枢</span>
+        <span class="hidden md:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20">让出单快人一步</span>
       </div>
       <div class="flex items-center space-x-6">
         <a href="javascript:void(0)" onclick="openEnterpriseModal()" class="hover:text-slate-300 transition-colors">联系创始人 (微信: kt_data)</a>
@@ -1447,7 +1450,7 @@
         if (heroTrialBtn) heroTrialBtn.onclick = () => openInboundModal('starter');
         if (heroTrialText) heroTrialText.textContent = '免费开通 7 天试用';
 
-        if (pricingTrialBtn) pricingTrialBtn.style.display = 'inline-flex';
+        if (pricingTrialBtn) pricingTrialBtn.style.display = 'flex';
         if (pricingBtnContainer) pricingBtnContainer.className = 'space-y-2.5 w-full';
         if (pricingLoggedInBox) pricingLoggedInBox.style.display = 'none';
         if (btnPayText) btnPayText.textContent = '立即锁定创始席位 (¥99/月)';

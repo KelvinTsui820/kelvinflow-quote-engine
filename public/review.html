@@ -299,8 +299,8 @@
             <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hidden md:inline">
               余{{ trialState.remainingDays }}天
             </span>
-            <button @click="openLogoutModal" class="text-slate-400 hover:text-rose-400 transition cursor-pointer p-1 ml-0.5 flex items-center justify-center rounded hover:bg-white/10" title="退出登录或切换账号">
-              <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+            <button @click.stop="openLogoutModal" class="text-slate-400 hover:text-rose-400 transition cursor-pointer p-1 ml-0.5 flex items-center justify-center rounded hover:bg-white/10" title="退出登录或切换账号">
+              <i class="fa-solid fa-arrow-right-from-bracket text-xs pointer-events-none"></i>
             </button>
           </div>
           <button v-else @click="openTrialModal" class="inline-flex items-center space-x-1 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs shadow-md shadow-blue-600/30 active:scale-95 transition cursor-pointer flex-shrink-0">
@@ -3216,8 +3216,13 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
     </div>
 
     <!-- 退出登录与切换账号二次确认弹窗 (Custom Dark-Glass Logout Modal) -->
-    <div v-if="logoutModal.show" v-cloak @click.self="logoutModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-      <div class="bg-[#0B132B] border border-rose-500/30 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-white animate-in fade-in zoom-in duration-200">
+    <div v-if="logoutModal.show" @click.self="logoutModal.show = false" class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+      <div class="relative bg-[#0B132B] border border-rose-500/30 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-white animate-in fade-in zoom-in duration-200">
+        <!-- 右上角快捷关闭按钮 -->
+        <button @click="logoutModal.show = false" class="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center text-xs transition cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
         <div class="flex items-center space-x-3.5">
           <div class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center text-xl flex-shrink-0">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -4973,8 +4978,18 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           localStorage.removeItem('kelvinflow_remaining_days');
           localStorage.removeItem('kelvinflow_user_plan');
           localStorage.removeItem('kelvinflow_user_is_paid');
+          localStorage.removeItem('kelvinflow_active_tenant');
+          localStorage.removeItem('kelvinflow_trial_state');
+          if (trialState.value) {
+            trialState.value.isTrial = false;
+            trialState.value.expired = false;
+            trialState.value.tenantId = '';
+            trialState.value.isPaid = false;
+          }
+          logoutModal.value.show = false;
           const url = new URL(window.location.href);
           url.searchParams.delete('token');
+          url.searchParams.delete('tenant');
           window.location.href = url.pathname;
         };
 
