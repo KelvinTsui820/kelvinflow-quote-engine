@@ -914,7 +914,7 @@
         <span class="hidden md:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20">让出单快人一步</span>
       </div>
       <div class="flex items-center space-x-6">
-        <a href="javascript:void(0)" onclick="openEnterpriseModal()" class="hover:text-slate-300 transition-colors">联系创始人 (微信: kt_data)</a>
+        <a id="footer-contact-founder" href="javascript:void(0)" onclick="openPaymentModal()" class="hover:text-slate-300 transition-colors">联系创始人 (微信: kt_data)</a>
         <a href="javascript:void(0)" onclick="openInboundModal('starter')" class="hover:text-slate-300 transition-colors">开通试用</a>
         <a href="#pricing" class="hover:text-slate-300 transition-colors">极客版方案</a>
       </div>
@@ -1084,59 +1084,26 @@
       <h3 class="text-xl font-extrabold text-white mb-2">升级 KelvinFlow 极客版</h3>
       <p class="text-xs text-slate-400 mb-6">人工一对一专属对接 · 扫码添加微信立即开通</p>
 
-      <!-- 月付 / 年付切换 -->
-      <div class="grid grid-cols-2 gap-2 mb-6">
-        <button id="pay-switch-monthly" onclick="switchPaymentModalCycle('monthly')" class="py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40">
+      <!-- 月付 / 年付切换 (精致边框与双模式卡片) -->
+      <div class="p-1.5 bg-white/[0.04] border border-white/10 rounded-2xl grid grid-cols-2 gap-2 mb-6">
+        <button id="pay-switch-monthly" onclick="switchPaymentModalCycle('monthly')" class="py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-sm">
           <span class="text-sm">月付极客版</span>
           <span class="text-xs font-mono">¥99 / 月</span>
         </button>
-        <button id="pay-switch-annual" onclick="switchPaymentModalCycle('annual')" class="py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent">
+        <button id="pay-switch-annual" onclick="switchPaymentModalCycle('annual')" class="py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]">
           <span class="text-sm">年付极客版</span>
           <span class="text-xs font-mono text-emerald-400">¥890 / 年 (省¥298)</span>
         </button>
       </div>
 
       <!-- 微信收款码与添加说明 -->
-      <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] mb-6 flex flex-col items-center">
+      <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] mb-2 flex flex-col items-center">
         <img src="/contact_wechat_card.jpg" alt="微信收款码" class="w-48 h-48 object-contain rounded-xl shadow-lg mb-3" onerror="this.src='/contact_wechat.png'">
-        <div class="text-xs text-slate-300 space-y-1">
-          <p>微信转账请备注：<strong id="payment-note-text" class="text-amber-300 font-mono">升级极客版(¥99)</strong></p>
-          <p class="text-[11px] text-slate-500">转账完成后将立即为您开通永久特权与邮箱联动</p>
+        <div class="text-xs text-slate-300 space-y-1.5">
+          <p>微信转账请备注：<strong id="payment-note-text" class="text-amber-300 font-mono select-all font-bold">升级极客版(¥99)</strong></p>
+          <p class="text-[11px] text-slate-400">扫码转账或添加创始人微信 (<strong class="text-cyan-300 font-mono select-all">kt_data</strong>) 即刻开通</p>
         </div>
       </div>
-
-      <div class="flex items-center space-x-2">
-        <button onclick="copyPaymentNote()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs transition cursor-pointer">
-          <i class="fa-regular fa-copy mr-1"></i> <span id="copy-pay-note-text">复制转账备注</span>
-        </button>
-        <button onclick="copyFounderWechat()" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition cursor-pointer">
-          <i class="fa-brands fa-weixin mr-1"></i> <span id="copy-founder-wechat-text">复制微信号 (kt_data)</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- C. 创始人企业洽谈弹窗 (Enterprise Modal) -->
-  <div id="enterprise-modal" onclick="closeEnterpriseModal()" class="fixed inset-0 z-[225] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto cursor-pointer">
-    <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-center">
-      <button onclick="closeEnterpriseModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-
-      <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-cyan-300 flex items-center justify-center text-xl mx-auto mb-4">
-        <i class="fa-solid fa-handshake"></i>
-      </div>
-      <h3 class="text-xl font-extrabold text-white mb-2">联系创始人 Kelvin</h3>
-      <p class="text-xs text-slate-400 mb-6">外贸数字化架构顾问 · 1v1 方案定制与私有化部署</p>
-
-      <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] mb-6 flex flex-col items-center">
-        <img src="/contact_wechat_card.jpg" alt="创始人微信名片" class="w-48 h-48 object-contain rounded-xl shadow-lg mb-3" onerror="this.src='/contact_wechat.png'">
-        <p class="text-xs text-slate-300">微信号：<strong class="text-cyan-300 font-mono">kt_data</strong> (扫码或添加好友)</p>
-      </div>
-
-      <button onclick="copyFounderWechat()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition cursor-pointer">
-        <i class="fa-regular fa-copy mr-1.5"></i> 一键复制微信号 (kt_data)
-      </button>
     </div>
   </div>
 
@@ -1283,12 +1250,12 @@
       const phoneSuffix = phone ? ` + ${phone}` : '';
 
       if (cycle === 'annual') {
-        if (btnMonthly) btnMonthly.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent';
-        if (btnAnnual) btnAnnual.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40';
+        if (btnMonthly) btnMonthly.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]';
+        if (btnAnnual) btnAnnual.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-sm';
         if (noteEl) noteEl.textContent = `升级年付极客版(¥890)${phoneSuffix}`;
       } else {
-        if (btnMonthly) btnMonthly.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40';
-        if (btnAnnual) btnAnnual.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent';
+        if (btnMonthly) btnMonthly.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-sm';
+        if (btnAnnual) btnAnnual.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]';
         if (noteEl) noteEl.textContent = `升级极客版(¥99)${phoneSuffix}`;
       }
     }
@@ -1321,27 +1288,11 @@
     }
 
     function openEnterpriseModal() {
-      if (typeof closeInboundModal === 'function') closeInboundModal();
-      if (typeof closePaymentModal === 'function') closePaymentModal();
-      const modal = document.getElementById('enterprise-modal');
-      if (!modal) return;
-      lockBodyScroll();
-      modal.classList.remove('hidden');
-      setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        modal.classList.add('opacity-100');
-      }, 10);
+      openPaymentModal('annual');
     }
 
     function closeEnterpriseModal(e) {
-      const modal = document.getElementById('enterprise-modal');
-      if (!modal) return;
-      modal.classList.remove('opacity-100');
-      modal.classList.add('opacity-0');
-      setTimeout(() => {
-        modal.classList.add('hidden');
-        unlockBodyScroll();
-      }, 300);
+      closePaymentModal(e);
     }
 
     function copyFounderWechat() {

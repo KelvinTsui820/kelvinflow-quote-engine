@@ -3012,7 +3012,6 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             </button>
           </div>
         </div>
-
         </div>
 
         <!-- 弹窗底栏 (固定贴底，受外层 overflow-hidden 保护，彻底消除滚动条破角) -->
@@ -3026,6 +3025,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </button>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- 二次确认弹窗 (Secondary Confirmation Modal) -->
@@ -3739,7 +3739,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
   <script>
     const { createApp, ref, computed, watch, onMounted } = Vue;
 
-    createApp({
+    window.__app = createApp({
       setup() {
         const quotation = ref(null);
         const loading = ref(true);
@@ -6544,7 +6544,8 @@ Sales Team | KelvinFlow Global Technology`;
           resetDefaultLogo
         };
       }
-    }).mount('#app');
+    });
+    window.__vm = window.__app.mount('#app');
   </script>
 </body>
 </html>
