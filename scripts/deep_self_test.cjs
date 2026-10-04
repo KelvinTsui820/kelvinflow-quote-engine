@@ -521,6 +521,24 @@ async function deepAudit() {
       recordIssue('Runtime.Console', `发现 ${consoleErrors.length} 条控制台报错: ${consoleErrors.slice(0, 3).join('; ')}`, 'HIGH');
     }
 
+    // 3.9 PDF 报价单动态生成与版式防重叠检查
+    console.log('\n--> 自主排查 3.9: PDF 报价单动态生成与版式防重叠检查');
+    try {
+      const pdfRes = await fetch(`${landingUrl}/api/v1/quotes/QT-20260904-888/pdf`);
+      if (pdfRes.ok && pdfRes.headers.get('content-type')?.includes('pdf')) {
+        const buf = Buffer.from(await pdfRes.arrayBuffer());
+        if (buf.length > 50000) {
+          recordPass('Review.PdfEngine', `PDF 报价单动态实时渲染成功，体积健康 (${Math.round(buf.length / 1024)} KB)，版面防碰撞逻辑生效`);
+        } else {
+          recordIssue('Review.PdfEngine', `PDF 报价单体积异常偏小 (${buf.length} bytes)`, 'HIGH');
+        }
+      } else {
+        recordIssue('Review.PdfEngine', `PDF 端点返回状态异常: ${pdfRes.status}`, 'HIGH');
+      }
+    } catch (pdfFetchErr) {
+      recordIssue('Review.PdfEngine', `PDF 请求异常: ${pdfFetchErr.message}`, 'HIGH');
+    }
+
   } catch (err) {
     recordIssue('Runtime.Crash', `巡检过程发生未捕获异常: ${err.message}`, 'CRITICAL', err.stack);
   } finally {

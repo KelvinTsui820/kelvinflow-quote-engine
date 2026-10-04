@@ -144,8 +144,8 @@ export class PDFService {
       const salesPhone = formatInternationalPhone(rawPhone);
       const website = tenantProfile.website || 'www.kelvinflow.com';
 
-      // A4 规格: 595.28 x 841.89 pt。统一边距 30pt，最大可用宽度 531pt
-      const doc = new PDFDocument({ margin: 30, size: 'A4', autoFirstPage: true, bufferPages: true });
+      // A4 规格: 595.28 x 841.89 pt。统一边距 left/right: 30pt, bottom: 20pt, 最大可用宽度 531pt
+      const doc = new PDFDocument({ margins: { top: 24, bottom: 20, left: 30, right: 30 }, size: 'A4', autoFirstPage: true, bufferPages: true });
       const buffers: Buffer[] = [];
 
       doc.on('data', chunk => buffers.push(chunk));
@@ -187,12 +187,12 @@ export class PDFService {
       let currentY = 24;
 
       // =========================================================================
-      // 1. 公司 Header 栏与文档大标题 (标准外贸出口高阶版式，图文并排、左右对称)
+      // 1. 公司 Header 栏与文档大标题 (高阶自适应外贸版式，左右分栏，动态行高防碰撞)
       // =========================================================================
-      const customLogoPath = options.logoPath || TenantService.getTenantLogoPath(tenantId);
+      const customLogoPath = (options.logoPath !== undefined) ? options.logoPath : TenantService.getTenantLogoPath(tenantId);
       const hasLogo = Boolean(customLogoPath && fs.existsSync(customLogoPath));
 
-      // 智能清洗联系方式行 (过滤测试租户假域名，确保单行优雅展示绝不折行压线)
+      // 智能清洗联系方式行 (过滤测试租户假域名，确保单行优雅展示)
       const cleanWebsite = (website && !website.includes('tenant_trial_') && !website.includes('tenant_') && website !== 'www.kelvinflow.com' && website.includes('.'))
         ? website
         : '';
@@ -202,74 +202,79 @@ export class PDFService {
       }
       const contactText = contactParts.join('  |  ');
 
+      // 左右分栏几何参数设定 (全宽 531pt，两栏之间强制保留 16pt 以上安全呼吸通道，杜绝水平重叠)
+      const rightWidth = 205;
+      const rightStartX = startX + pageWidth - rightWidth;
+      const maxLeftTextX = rightStartX - 16;
+      
+      let textStartX = startX;
+      let logoBottomY = 20;
+
       if (hasLogo && customLogoPath) {
         try {
-          doc.image(customLogoPath, startX, 22, { fit: [60, 44] });
-          const textStartX = startX + 68;
-          const textWidth = 220;
-
-          doc
-            .fontSize(11)
-            .font(getFont(true, company))
-            .fillColor('#0f2942')
-            .text(company.toUpperCase(), textStartX, 22, { width: textWidth, ellipsis: true });
-
-          doc
-            .fontSize(7.5)
-            .font(getFont(false, companySubtitle))
-            .fillColor('#64748b')
-            .text(companySubtitle, textStartX, 36, { width: textWidth, ellipsis: true });
-
-          doc
-            .fontSize(7)
-            .font(getFont(false, companyAddress))
-            .fillColor('#475569')
-            .text('Address: ' + companyAddress, textStartX, 48, { width: textWidth, ellipsis: true })
-            .text(contactText, textStartX, 59, { width: textWidth, ellipsis: true });
+          doc.image(customLogoPath, startX, 20, { fit: [54, 46] });
+          textStartX = startX + 62;
+          logoBottomY = 20 + 46;
         } catch (imgErr) {
           console.warn('PDF custom logo embed warning:', imgErr);
-          renderDefaultHeaderText();
+          textStartX = startX;
         }
-      } else {
-        renderDefaultHeaderText();
       }
 
-      function renderDefaultHeaderText() {
-        doc
-          .fontSize(12)
-          .font(getFont(true, company))
-          .fillColor('#0f2942')
-          .text(company.toUpperCase(), startX, 22, { width: 280, ellipsis: true });
+      const leftMaxWidth = Math.max(180, maxLeftTextX - textStartX);
 
-        doc
-          .fontSize(7.5)
-          .font(getFont(false, companySubtitle))
-          .fillColor('#64748b')
-          .text(companySubtitle, startX, 36, { width: 280, ellipsis: true });
+      // 左侧企业信息动态流水排版 (严格根据每段文字实际折行与高度累加 Y 坐标，彻底杜绝任何重叠碰撞)
+      let leftY = 20;
 
-        doc
-          .fontSize(7)
-          .font(getFont(false, companyAddress))
-          .fillColor('#475569')
-          .text('Address: ' + companyAddress, startX, 48, { width: 280, ellipsis: true })
-          .text(contactText, startX, 59, { width: 280, ellipsis: true });
+      // 1. 出口企业法定/英文抬头 (根据长短自适应选择 10.5pt 或 9.5pt，确保高视觉冲击力)
+      const companyUpper = company.toUpperCase();
+      let compFontSize = 10.5;
+      doc.font(getFont(true, companyUpper)).fontSize(compFontSize);
+      if (doc.widthOfString(companyUpper) > leftMaxWidth) {
+        compFontSize = 9.5;
+        doc.fontSize(compFontSize);
+      }
+      doc.fillColor('#0f2942').text(companyUpper, textStartX, leftY, { width: leftMaxWidth, lineGap: 1 });
+      leftY += doc.heightOfString(companyUpper, { width: leftMaxWidth, lineGap: 1 }) + 3;
+
+      // 2. 企业副标题 / 业务范围 Slogan
+      if (companySubtitle) {
+        doc.font(getFont(false, companySubtitle)).fontSize(7).fillColor('#64748b');
+        doc.text(companySubtitle, textStartX, leftY, { width: leftMaxWidth, lineGap: 1 });
+        leftY += doc.heightOfString(companySubtitle, { width: leftMaxWidth, lineGap: 1 }) + 2.5;
       }
 
-      // 右侧：商业报价单标题与单号信息 (加粗加大，清晰可辨，排版严整)
-      const rightStartX = startX + 296;
-      const rightWidth = pageWidth - 296;
+      // 3. 企业生产与办公实体地址
+      if (companyAddress) {
+        const fullAddress = companyAddress.toLowerCase().startsWith('address') ? companyAddress : 'Address: ' + companyAddress;
+        doc.font(getFont(false, fullAddress)).fontSize(7).fillColor('#475569');
+        doc.text(fullAddress, textStartX, leftY, { width: leftMaxWidth, lineGap: 1 });
+        leftY += doc.heightOfString(fullAddress, { width: leftMaxWidth, lineGap: 1 }) + 2.5;
+      }
+
+      // 4. 外贸联络方式 (电话、外销邮箱、官方网址)
+      if (contactText) {
+        doc.font(getFont(false, contactText)).fontSize(7).fillColor('#475569');
+        doc.text(contactText, textStartX, leftY, { width: leftMaxWidth, lineGap: 1 });
+        leftY += doc.heightOfString(contactText, { width: leftMaxWidth, lineGap: 1 });
+      }
+
+      // 右侧：商业报价单标题与单号信息 (加粗加大，清晰可辨，排版严整，右对齐)
+      let rightY = 20;
 
       doc
         .fontSize(17)
         .font(getFont(true))
         .fillColor('#2563eb')
-        .text('FORMAL QUOTATION', rightStartX, 22, { width: rightWidth, align: 'right' });
+        .text('FORMAL QUOTATION', rightStartX, rightY, { width: rightWidth, align: 'right' });
+      rightY += 19;
 
       doc
         .fontSize(9.5)
         .font(getFont(true))
         .fillColor('#0f2942')
-        .text('REF NO: ' + quotation.quotationNumber, rightStartX, 42, { width: rightWidth, align: 'right' });
+        .text('REF NO: ' + quotation.quotationNumber, rightStartX, rightY, { width: rightWidth, align: 'right' });
+      rightY += 13;
 
       const issueDateStr = quotation.date || new Date().toISOString().split('T')[0];
       const validityDays = (quotation.priceValidity && quotation.priceValidity.match(/\d+/))
@@ -291,25 +296,35 @@ export class PDFService {
         .fontSize(7.5)
         .font(getFont(false))
         .fillColor('#64748b')
-        .text('Date of Issue: ' + issueDateStr, rightStartX, 55, { width: rightWidth, align: 'right' })
-        .text(validityDisplay, rightStartX, 66, { width: rightWidth, align: 'right' });
+        .text('Date of Issue: ' + issueDateStr, rightStartX, rightY, { width: rightWidth, align: 'right' });
+      rightY += 11;
+
+      doc
+        .fontSize(7.5)
+        .font(getFont(false))
+        .fillColor('#64748b')
+        .text(validityDisplay, rightStartX, rightY, { width: rightWidth, align: 'right' });
+      rightY += 11;
 
       doc
         .fontSize(7.5)
         .font(getFont(false))
         .fillColor('#475569')
-        .text('Export Manager: ' + salesRep, rightStartX, 77, { width: rightWidth, align: 'right' });
+        .text('Export Manager: ' + salesRep, rightStartX, rightY, { width: rightWidth, align: 'right' });
+      rightY += 11;
 
-      // 贯穿高质感装饰分割线 (高度固定在 Y=92，绝不与上方文字重叠)
-      currentY = 92;
+      // 贯穿高质感装饰分割线 (自适应沉降到所有 Header 元素最底端之下，留足 6pt 安全呼吸边距)
+      const headerBottomY = Math.max(leftY, rightY, logoBottomY, 82);
+      const dividerY = headerBottomY + 6;
+
       doc
         .strokeColor('#2563eb')
         .lineWidth(1.5)
-        .moveTo(startX, currentY)
-        .lineTo(startX + pageWidth, currentY)
+        .moveTo(startX, dividerY)
+        .lineTo(startX + pageWidth, dividerY)
         .stroke();
 
-      currentY += 12;
+      currentY = dividerY + 12;
 
       // =========================================================================
       // 2. 商务双卡片：买家信息 (BILL TO) 与 履约条款 (COMMERCIAL TERMS)
@@ -322,7 +337,7 @@ export class PDFService {
       doc.font(getFont(true)).fontSize(8.5).fillColor('#0f2942').text('CONSIGNEE / BUYER INFORMATION:', startX + 12, currentY + 8);
       
       const buyerComp = quotation.customerName || 'Acme Global Trading Ltd.';
-      doc.font(getFont(true, buyerComp)).fontSize(9).fillColor('#1e293b').text(buyerComp, startX + 12, currentY + 22, { width: boxWidth - 24, ellipsis: true });
+      doc.font(getFont(true, buyerComp)).fontSize(9).fillColor('#1e293b').text(buyerComp, startX + 12, currentY + 22, { width: boxWidth - 24, height: 12, ellipsis: true });
       
       const buyerPerson = quotation.buyerName || 'Purchasing Director';
       doc.font(getFont(false, buyerPerson)).fontSize(8).fillColor('#475569').text('Attn: ' + buyerPerson, startX + 12, currentY + 36);
@@ -399,7 +414,7 @@ export class PDFService {
       const dynamicLeadTime = rawLead ? `${rawLead} upon Approval` : '25 - 30 Working Days upon Approval';
       doc.font(getFont(false)).fontSize(8).fillColor('#475569')
         .text('Production Lead Time: ', rightBoxX + 12, currentY + 49, { continued: true })
-        .font(getFont(true)).fillColor('#0f2942').text(dynamicLeadTime, { width: boxWidth - 24, ellipsis: true });
+        .font(getFont(true)).fillColor('#0f2942').text(dynamicLeadTime, { width: boxWidth - 24, height: 12, ellipsis: true });
 
       // 港口航线闭环
       const isOceanTerm = /CIF|CFR|FOB/i.test(displayIncoterm);
@@ -677,22 +692,23 @@ export class PDFService {
         const fullText = item.highlight + item.rest;
         doc.font(getFont(false)).fontSize(7.5);
         const h = Math.max(doc.heightOfString(fullText, { width: contentColWidth, lineGap: 1.5 }), 12);
-        currentY = itemY + h + (isCompact ? 4 : 6);
+        currentY = itemY + h + (isCompact ? 3.5 : 4.5);
       });
 
       // =========================================================================
       // 6. 出口增值服务与合规承诺卡片 (VALUE-ADDED SERVICES & EXPORT ASSURANCES)
       //    在商业报价阶段，以 1% 免费备件、OEM 麦头、出货验货报告与原产地证 CO 权益促成买家立项决策
       // =========================================================================
-      const signBlockHeight = 78;
+      const signBlockHeight = 72;
       const assuranceCardHeight = 44;
-      const maxContentY = 768; // 距离页脚 (794) 留出 26pt 充裕安全边距
+      const maxContentY = 782; // 距离页脚 (794) 留出 12pt 安全边距
 
-      // 只要当前 Y 坐标加上增值权益卡片高度和签名区高度不超过单页限制，即可呈现出口增值权益
-      const canFitAssuranceCard = (currentY + (isCompact ? 6 : 8) + assuranceCardHeight + 12 + signBlockHeight) <= maxContentY;
+      // 精确空间演算：确保只有当卡片与签字区都能在当前页完整呈现时才渲染增值卡片，绝不产生单孤签字页
+      const spaceNeededForBoth = (isCompact ? 4 : 6) + assuranceCardHeight + 8 + 14 + signBlockHeight;
+      const canFitAssuranceCard = (currentY + spaceNeededForBoth) <= maxContentY;
 
       if (canFitAssuranceCard) {
-        currentY += (isCompact ? 6 : 8);
+        currentY += (isCompact ? 4 : 6);
         
         // 增值权益卡片背景：浅灰微底 + 典雅细边框 + 品牌蓝左侧强调条
         doc.roundedRect(startX, currentY, pageWidth, assuranceCardHeight, 4).fillAndStroke('#f8fafc', '#cbd5e1');
@@ -747,27 +763,30 @@ export class PDFService {
           .font(getFont(assurances[3].highlight ? true : false)).fillColor(assurances[3].highlight ? '#2563eb' : '#475569')
           .text(assurances[3].text, { width: colWidth, ellipsis: true });
 
-        currentY += assuranceCardHeight + (isCompact ? 6 : 10);
+        currentY += assuranceCardHeight + (isCompact ? 4 : 6);
       }
 
       // =========================================================================
       // 7. 买卖双方正式签字盖章栏 (自适应安全高度，带官方印章签核专区与订单启动指引)
       // =========================================================================
       // 订单确认行动号召指引条 (CTA Notice: 消除买家疑虑，指引下一步 PI 流程)
-      const ctaY = currentY + (isCompact ? 4 : 6);
+      const ctaY = currentY + 4;
       doc.font(getFont(true)).fontSize(6.5).fillColor('#2563eb')
         .text('ORDER CONFIRMATION NEXT STEP: ', startX, ctaY, { continued: true });
       doc.font(getFont(false)).fontSize(6.5).fillColor('#64748b')
         .text('Please countersign and return to lock production. Official Proforma Invoice (PI) with banking coordinates follows immediately.');
 
-      const naturalSignY = ctaY + 18;
+      const naturalSignY = ctaY + 14;
       let signY = naturalSignY;
       if (naturalSignY + signBlockHeight > maxContentY) {
         doc.addPage();
         currentY = renderContinuationHeader();
         signY = currentY + 16;
       } else {
-        signY = Math.max(naturalSignY, isCompact ? 682 : 686);
+        const anchorBottomY = 696;
+        signY = (naturalSignY < anchorBottomY && (anchorBottomY + signBlockHeight <= maxContentY))
+          ? anchorBottomY
+          : naturalSignY;
       }
 
       const signColWidth = 245;
@@ -805,11 +824,12 @@ export class PDFService {
         doc.switchToPage(i);
         const footerY = 794;
         doc.strokeColor('#e2e8f0').lineWidth(0.5).moveTo(startX, footerY).lineTo(startX + pageWidth, footerY).stroke();
-        doc.font(getFont(false)).fontSize(7.5).fillColor('#94a3b8').text(
-          `Page ${i + 1} of ${range.count}  |  Quotation Ref: ${quotation.quotationNumber}  |  ${company}  |  Confidential & Proprietary Commercial Offer`,
+        const cleanFooterComp = company.length > 40 ? (company.slice(0, 37) + '...') : company;
+        doc.font(getFont(false)).fontSize(7).fillColor('#94a3b8').text(
+          `Page ${i + 1} of ${range.count}  |  Quotation Ref: ${quotation.quotationNumber}  |  ${cleanFooterComp}  |  Confidential & Proprietary Commercial Offer`,
           startX,
-          footerY + 5,
-          { width: pageWidth, align: 'center' }
+          footerY + 4,
+          { width: pageWidth, align: 'center', lineBreak: false, ellipsis: true }
         );
       }
 
