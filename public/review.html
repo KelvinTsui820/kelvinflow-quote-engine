@@ -331,12 +331,12 @@
       <div class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-2 text-xs text-slate-200 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center space-x-2 text-xs text-emerald-300 font-medium">
           <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
-          <span>您已开通极客尊享版 · 邮箱全自动出单与草稿箱静默联动已激活！</span>
+          <span>您已开通极客尊享版（有效期剩余 <strong class="text-amber-300 font-mono font-bold">{{ trialState.remainingDays }} 天</strong>）· 邮箱全自动出单与草稿箱直达已激活！</span>
         </div>
         <div class="flex items-center space-x-2.5">
           <button @click="openReferralShareModal" class="px-3 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 font-bold text-xs transition flex items-center space-x-1.5 cursor-pointer">
             <i class="fa-solid fa-gift text-emerald-400 text-xs"></i>
-            <span>邀请同行 (+30天/人)</span>
+            <span>邀请同行 (+7天/人)</span>
           </button>
         </div>
       </div>
@@ -1293,13 +1293,13 @@
                   :class="isPaidUser ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 shadow-indigo-600/30 ring-2 ring-amber-400/40' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/30'">
             <template v-if="isPaidUser">
               <i class="fa-solid fa-paper-plane mr-1.5 sm:mr-2 text-xs sm:text-sm text-amber-300"></i>
-              <span class="hidden sm:inline">🚀 确认无误，直达邮件草稿箱 (常用邮箱/企业邮)</span>
-              <span class="sm:hidden">🚀 直达草稿箱</span>
+              <span class="hidden sm:inline">一键直达草稿箱</span>
+              <span class="sm:hidden">直达草稿箱</span>
             </template>
             <template v-else>
-              <i class="fa-solid fa-bolt mr-1.5 sm:mr-2 text-xs sm:text-sm text-blue-200"></i>
-              <span class="hidden sm:inline">⚡ 确认无误，一键出单 (下载 PDF 与复制英文邮件)</span>
-              <span class="sm:hidden">⚡ 下载PDF/复制邮件</span>
+              <i class="fa-solid fa-bolt mr-1.5 sm:mr-2 text-xs sm:text-sm text-amber-300"></i>
+              <span class="hidden sm:inline">一键出单 (生成PDF与邮件)</span>
+              <span class="sm:hidden">一键出单</span>
             </template>
           </button>
         </div>
@@ -3548,7 +3548,9 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           <span>同行推荐特惠计划</span>
         </div>
         <h3 class="text-xl font-extrabold text-white mb-2">邀请同行，双方各送 7 天</h3>
-        <p class="text-xs text-slate-400 mb-6">每成功邀请 1 位外贸同行开通试用，您的账户与对方账户各自动增加 7 天试用时长！</p>
+        <p class="text-xs text-slate-400 mb-6">
+          每成功邀请 1 位外贸同行注册体验，您的账户（免费试用或极客版）均直接累加 7 天全功能使用时长（天数自动累加，上不封顶）！
+        </p>
 
         <div class="grid grid-cols-2 gap-3 mb-6 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center">
           <div>

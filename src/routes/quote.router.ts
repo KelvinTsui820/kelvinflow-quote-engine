@@ -351,10 +351,13 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
       if (profile.plan === 'trial' || profile.expiresAt) {
         const { expired, expiresAt } = TenantService.isTenantExpired(tenantId);
         const remainingDays = expired ? 0 : (expiresAt ? Math.max(1, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (24 * 3600 * 1000))) : 7);
+        const isPaid = Boolean(profile.plan && profile.plan !== 'trial');
         return res.json({
           success: true,
           exists: true,
-          isTrial: true,
+          isTrial: !isPaid,
+          isPaid,
+          plan: profile.plan || (isPaid ? 'geek' : 'trial'),
           expired,
           remainingDays,
           expiresAt,
