@@ -231,7 +231,8 @@ export interface TenantProfile {
   website?: string;
   logoUrl?: string;            // 企業自定義 Logo 圖片網址 (如 /uploads/logos/default.png)
   logoPath?: string;           // 企業自定義 Logo 本地文件絕對路徑
-  hideCostFromSales: boolean;  // 是否對普通業務員隱藏出廠底價 (防洩密)
+  noLogo?: boolean;            // 是否強制不顯示任何 Logo (純文字商務排版)
+  hideCostFromSales: boolean;  // 是否對普通業務員隱藏出廠底价 (防洩密)
   defaultProfitMargin: number; // 默認毛利率 (如 0.3)
   defaultCurrency: string;     // 默認幣種 (如 USD)
   plan?: 'trial' | 'monthly' | 'annual' | 'geek' | 'starter' | 'pro' | 'enterprise';

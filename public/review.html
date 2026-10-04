@@ -232,28 +232,20 @@
     <header class="bg-[#0B132B] text-white shadow-xl sticky top-0 z-40 border-b border-blue-950/70 backdrop-blur-md">
       <div class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
         <div class="flex items-center space-x-2 sm:space-x-3.5 min-w-0 flex-shrink-0">
-          <!-- 1. 左侧：企业 Logo 与 品牌徽标 (点击返回官网首页) -->
-          <a href="/?landing=1" title="返回 KelvinFlow 官方门户" class="flex items-center space-x-1.5 flex-shrink-0 transition-opacity duration-300 ease-out hover:opacity-75 active:opacity-60 cursor-pointer min-w-0">
-            <img :src="tenantLogoUrl || '/kelvinflow_emblem.png'" alt="Logo" class="h-6 sm:h-8 w-auto max-w-[100px] object-contain block select-none flex-shrink-0" />
-            <span class="text-xs font-black tracking-tight text-white font-sans sm:hidden max-w-[85px] truncate">{{ tenantCompanyName || 'KelvinFlow' }}</span>
+          <!-- 1. 左侧：KelvinFlow 官方品牌徽标与名称 (点击返回官网首页) -->
+          <a href="/?landing=1" title="返回 KelvinFlow 官方门户" class="flex items-center space-x-2 flex-shrink-0 transition-opacity duration-300 ease-out hover:opacity-85 active:opacity-70 cursor-pointer min-w-0">
+            <img src="/kelvinflow_emblem.png" alt="KelvinFlow" class="h-6 sm:h-7 w-auto object-contain block select-none flex-shrink-0" />
+            <span class="text-base sm:text-lg font-black tracking-tight text-white font-sans select-none">KelvinFlow</span>
           </a>
-          <!-- 2. 右侧：官方纯白文字体系 (桌面端展示完整标题与副标语) -->
-          <div class="min-w-0 hidden sm:block">
-            <div class="flex items-center space-x-1.5 sm:space-x-2">
-              <span class="text-sm sm:text-lg font-black tracking-tight text-white flex items-center select-none font-sans">
-                {{ tenantCompanyName || 'KelvinFlow' }}
-              </span>
-              <span class="text-slate-600 hidden sm:inline">|</span>
-              <h1 class="text-xs sm:text-sm font-semibold text-slate-200 truncate hidden sm:inline">
-                AI 外贸智能出单中枢
-              </h1>
-              <span class="hidden md:inline-block text-[10px] uppercase font-mono tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-blue-600/20 text-blue-300 border border-blue-500/40 flex-shrink-0">
-                Workspace
-              </span>
-            </div>
-            <p class="hidden md:flex text-[11px] text-slate-400 mt-0.5 items-center space-x-2 whitespace-nowrap">
-              <span class="text-slate-400 font-mono tracking-wide">{{ tenantCompanySubtitle || 'AI Automation Systems' }}</span>
-            </p>
+          <!-- 2. 中枢系统标题与个人极客版标识 (标准 SaaS 工作台版式，杜绝个人/公司名称挤占错位) -->
+          <div class="items-center space-x-2 hidden sm:flex min-w-0">
+            <span class="text-slate-600 font-light select-none">|</span>
+            <h1 class="text-xs sm:text-sm font-semibold text-slate-200 tracking-tight truncate">
+              AI 外贸智能出单中枢
+            </h1>
+            <span class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/30 flex-shrink-0 shadow-xs">
+              <i class="fa-solid fa-bolt text-amber-400 text-[9px]"></i> 个人极客版
+            </span>
           </div>
         </div>
 
@@ -2387,14 +2379,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 <i class="fa-solid fa-crown"></i>
               </div>
               <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-1.5">
-                  <h3 class="text-sm sm:text-base font-black text-slate-900 truncate">邮箱全自动出单中枢</h3>
-                  <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                        :class="imapModal.savedConfig?.enabled ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-blue-50 text-blue-700 border border-blue-200'">
-                    <span class="w-1.5 h-1.5 rounded-full mr-1.5" :class="imapModal.savedConfig?.enabled ? 'bg-emerald-500 animate-pulse' : 'bg-blue-500'"></span>
-                    {{ imapModal.savedConfig?.enabled ? '模式2：草稿直达' : '模式1：待审就绪' }}
-                  </span>
-                </div>
+                <h3 class="text-sm sm:text-base font-black text-slate-900 truncate">邮箱全自动出单中枢</h3>
                 <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 truncate max-w-[210px] sm:max-w-none">自动接收买家询盘并由 AI 核价出单</p>
               </div>
             </div>
@@ -3632,8 +3617,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </p>
         </div>
 
-        <!-- 上传控件 -->
-        <input type="file" ref="logoFileInput" class="hidden" accept=".png,.jpg,.jpeg,.svg,.webp" @change="onLogoFileSelected">
+        <!-- 上传控件 (严谨限制为 PDFKit 兼容的 PNG/JPG 格式) -->
+        <input type="file" ref="logoFileInput" class="hidden" accept=".png,.jpg,.jpeg" @change="onLogoFileSelected">
         
         <div class="space-y-2.5">
           <button type="button" @click="$refs.logoFileInput.click()" :disabled="logoModal.uploading" class="w-full py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition flex items-center justify-center space-x-2 shadow-lg shadow-cyan-600/20 cursor-pointer disabled:opacity-50">
@@ -3642,20 +3627,28 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <span>{{ logoModal.uploading ? '正在上传保存...' : '上传新 Logo (PNG 透明底最佳)' }}</span>
           </button>
 
-          <button v-if="tenantLogoUrl" type="button" @click="resetDefaultLogo" :disabled="logoModal.uploading" class="w-full py-2 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-xs transition flex items-center justify-center space-x-1.5 cursor-pointer border border-white/10">
-            <i class="fa-solid fa-rotate-left text-slate-400"></i>
-            <span>恢复默认官方徽标</span>
-          </button>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" @click="setNoLogo" :disabled="logoModal.uploading" class="py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-xs transition flex items-center justify-center space-x-1.5 cursor-pointer border border-white/10" title="PDF抬头将仅显示纯文字公司英文名，不显示任何Logo">
+              <i class="fa-solid fa-font text-cyan-400"></i>
+              <span>纯文字抬头 (无Logo)</span>
+            </button>
+
+            <button type="button" @click="resetDefaultLogo" :disabled="logoModal.uploading" class="py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-xs transition flex items-center justify-center space-x-1.5 cursor-pointer border border-white/10">
+              <i class="fa-solid fa-rotate-left text-slate-400"></i>
+              <span>恢复官方徽标</span>
+            </button>
+          </div>
         </div>
 
         <!-- 说明小提示 -->
-        <div class="p-3 rounded-xl bg-blue-950/40 border border-blue-500/20 text-[11px] text-slate-300 space-y-1">
+        <div class="p-3.5 rounded-xl bg-blue-950/40 border border-blue-500/20 text-[11px] text-slate-300 space-y-1.5">
           <div class="flex items-center space-x-1.5 text-cyan-300 font-bold">
-            <i class="fa-solid fa-circle-info"></i>
-            <span>温馨建议：</span>
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>版式自适应与格式保障说明：</span>
           </div>
-          <p class="leading-relaxed text-slate-400">
-            推荐使用 PNG 透明底图片，高度大于 80px，长宽比约为 2:1 至 4:1，导出 PDF 时将自动自适应至最佳视觉比例。
+          <p class="leading-relaxed text-slate-400 text-[10.5px]">
+            • <b>零遮挡与零混乱</b>：系统采用等比缩放沙盒限制（54×46pt），无论上传正方形、横条长图或竖图，均绝不遮挡文字且绝不破坏版式。<br>
+            • <b>格式要求</b>：严格支持 PNG 与 JPG/JPEG 图片文件，长宽比建议 2:1 至 4:1。
           </p>
         </div>
       </div>
@@ -3753,27 +3746,54 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         };
 
         const resetDefaultLogo = async () => {
-          if (!confirm('确定恢复为默认官方品牌 Logo 吗？')) return;
+          if (!confirm('确定恢复为默认官方品牌徽标吗？')) return;
           logoModal.value.uploading = true;
           try {
             const token = getTokenFromUrl();
-            const headers = {};
+            const headers = { 'Content-Type': 'application/json' };
             if (token) headers['Authorization'] = `Bearer ${token}`;
 
-            const res = await fetch('/api/v1/tenant/logo', {
+            await fetch('/api/v1/tenant/logo', {
               method: 'DELETE',
               headers
+            });
+            await fetch('/api/v1/tenant/profile', {
+              method: 'PUT',
+              headers,
+              body: JSON.stringify({ noLogo: false })
+            });
+            tenantLogoUrl.value = '/kelvinflow_emblem.png';
+            showToast('已成功恢复为默认官方 Logo', 'success');
+            logoModal.value.show = false;
+          } catch (err) {
+            showToast('重置失败: ' + err.message, 'error');
+          } finally {
+            logoModal.value.uploading = false;
+          }
+        };
+
+        const setNoLogo = async () => {
+          logoModal.value.uploading = true;
+          try {
+            const token = getTokenFromUrl();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const res = await fetch('/api/v1/tenant/profile', {
+              method: 'PUT',
+              headers,
+              body: JSON.stringify({ noLogo: true })
             });
             const data = await res.json();
             if (data.success) {
               tenantLogoUrl.value = null;
-              showToast('已成功恢复为默认官方 Logo', 'success');
+              showToast('已成功切换为纯文字商务抬头 (无Logo)', 'success');
               logoModal.value.show = false;
             } else {
-              showToast(data.error || '重置 Logo 失败', 'error');
+              showToast(data.error || '切换失败', 'error');
             }
           } catch (err) {
-            showToast('重置失败: ' + err.message, 'error');
+            showToast('设置失败: ' + err.message, 'error');
           } finally {
             logoModal.value.uploading = false;
           }
@@ -6487,7 +6507,8 @@ Sales Team | KelvinFlow Global Technology`;
           logoModal,
           openLogoModal,
           onLogoFileSelected,
-          resetDefaultLogo
+          resetDefaultLogo,
+          setNoLogo
         };
       }
     });

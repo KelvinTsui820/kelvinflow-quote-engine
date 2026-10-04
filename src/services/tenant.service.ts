@@ -368,13 +368,16 @@ export class TenantService {
   static getTenantLogoPath(tenantId: string): string | null {
     const cleanId = this.resolveTenantId(tenantId);
     const profile = this.getTenantProfile(cleanId);
+    if (profile.noLogo) {
+      return null;
+    }
     if (profile.logoPath && fs.existsSync(profile.logoPath)) {
       return profile.logoPath;
     }
 
-    // 檢查常見上傳位置
+    // 檢查常見上傳位置 (僅限 PDFKit 原生安全支持的 PNG / JPG)
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'logos');
-    const extensions = ['.png', '.jpg', '.jpeg', '.svg', '.webp'];
+    const extensions = ['.png', '.jpg', '.jpeg'];
     for (const ext of extensions) {
       const candidate = path.join(uploadsDir, `${cleanId}${ext}`);
       if (fs.existsSync(candidate)) {
@@ -397,13 +400,16 @@ export class TenantService {
   static getTenantLogoUrl(tenantId: string): string | null {
     const cleanId = this.resolveTenantId(tenantId);
     const profile = this.getTenantProfile(cleanId);
+    if (profile.noLogo) {
+      return null;
+    }
     if (profile.logoUrl) {
       const localPath = path.join(process.cwd(), 'public', profile.logoUrl.replace(/^\//, ''));
       if (fs.existsSync(localPath)) return profile.logoUrl;
     }
 
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'logos');
-    const extensions = ['.png', '.jpg', '.jpeg', '.svg', '.webp'];
+    const extensions = ['.png', '.jpg', '.jpeg'];
     for (const ext of extensions) {
       const candidate = path.join(uploadsDir, `${cleanId}${ext}`);
       if (fs.existsSync(candidate)) {
@@ -421,7 +427,7 @@ export class TenantService {
   }
 
   /**
-   * 保存租戶自定義 Logo
+   * 保存租戶自定義 Logo (嚴格限制為 PNG / JPG / JPEG)
    */
   static saveTenantLogo(tenantId: string, fileBuffer: Buffer, originalName = 'logo.png'): { logoUrl: string; logoPath: string } {
     const cleanId = this.resolveTenantId(tenantId);
@@ -431,7 +437,7 @@ export class TenantService {
     }
 
     const rawExt = path.extname(originalName).toLowerCase();
-    const ext = ['.png', '.jpg', '.jpeg', '.svg', '.webp'].includes(rawExt) ? rawExt : '.png';
+    const ext = ['.png', '.jpg', '.jpeg'].includes(rawExt) ? rawExt : '.png';
     const filename = `${cleanId}${ext}`;
     const targetPath = path.join(uploadsDir, filename);
 
@@ -440,28 +446,42 @@ export class TenantService {
 
     this.updateTenantProfile(cleanId, {
       logoUrl,
-      logoPath: targetPath
+      logoPath: targetPath,
+      noLogo: false
     });
 
     return { logoUrl, logoPath: targetPath };
   }
 
   /**
-   * 刪除或重置租戶自定義 Logo
+   * 刪除或重置租戶自定義 Logo (僅刪除用戶上傳文件，嚴禁誤刪官方底圖)
    */
   static deleteTenantLogo(tenantId: string): boolean {
     const cleanId = this.resolveTenantId(tenantId);
-    const logoPath = this.getTenantLogoPath(cleanId);
-    if (logoPath && fs.existsSync(logoPath)) {
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'logos');
+    const extensions = ['.png', '.jpg', '.jpeg', '.svg', '.webp'];
+    for (const ext of extensions) {
+      const candidate = path.join(uploadsDir, `${cleanId}${ext}`);
+      if (fs.existsSync(candidate)) {
+        try {
+          fs.unlinkSync(candidate);
+        } catch (e) {
+          console.warn('Failed to delete logo file:', e);
+        }
+      }
+    }
+    const profile = this.getTenantProfile(cleanId);
+    if (profile.logoPath && profile.logoPath.includes('uploads') && fs.existsSync(profile.logoPath)) {
       try {
-        fs.unlinkSync(logoPath);
+        fs.unlinkSync(profile.logoPath);
       } catch (e) {
-        console.warn('Failed to delete logo file:', e);
+        console.warn('Failed to delete custom logo:', e);
       }
     }
     this.updateTenantProfile(cleanId, {
       logoUrl: undefined,
-      logoPath: undefined
+      logoPath: undefined,
+      noLogo: false
     });
     return true;
   }
