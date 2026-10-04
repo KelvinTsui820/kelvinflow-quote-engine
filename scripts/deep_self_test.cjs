@@ -333,7 +333,7 @@ async function deepAudit() {
 
     const tab2Check = await page.evaluate(() => {
       const redundantBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('继续使用模式 1'));
-      const upgradeBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('立即升级专业版解锁特权'));
+      const upgradeBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('立即升级极客版解锁特权'));
       return {
         hasRedundantBtn: !!redundantBtn,
         hasUpgradeBtn: !!upgradeBtn
@@ -341,7 +341,7 @@ async function deepAudit() {
     });
 
     if (!tab2Check.hasRedundantBtn && tab2Check.hasUpgradeBtn) {
-      recordPass('Review.ImapModal', '截图 1 验证：Tab 2 中已成功移除冗余的「继续使用模式 1」按钮，仅保留唯一的升级主动作');
+      recordPass('Review.ImapModal', '命名与锁屏验证：Tab 2 锁屏界面统一为「极客版」特权且已彻底移除冗余的模式 1 按钮');
     } else {
       recordIssue('Review.ImapModal', `截图 1 遗留：Tab 2 按钮结构不符合预期 (hasRedundantBtn=${tab2Check.hasRedundantBtn}, hasUpgradeBtn=${tab2Check.hasUpgradeBtn})`, 'MEDIUM');
     }

@@ -339,14 +339,14 @@ async function runAudit() {
 
     const tab2Check = await page.evaluate(() => {
       const redundantBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('继续使用模式 1'));
-      const upgradeBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('立即升级专业版解锁特权'));
+      const upgradeBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('立即升级极客版解锁特权'));
       return {
         hasRedundantBtn: !!redundantBtn,
         hasUpgradeBtn: !!upgradeBtn
       };
     });
 
-    assert(!tab2Check.hasRedundantBtn && tab2Check.hasUpgradeBtn, '截图 1 验证：Tab 2 锁屏界面已彻底移除冗余的「继续使用模式 1」按钮');
+    assert(!tab2Check.hasRedundantBtn && tab2Check.hasUpgradeBtn, '版本命名与冗余按钮验证：Tab 2 锁屏界面统一为「极客版」特权且已彻底移除冗余的模式 1 按钮');
 
     await page.evaluate(() => {
       if (window.__vm) window.__vm.imapModal.show = false;

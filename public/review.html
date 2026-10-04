@@ -2378,7 +2378,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
     <!-- 3. 📬 极客专属特权 · 企业邮箱全自动化出单中枢 (IMAP & Forwarding Modal) -->
     <div v-if="imapModal.show" v-cloak @click.self="imapModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
-      <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100/80 overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100/80 overflow-hidden animate-in fade-in zoom-in duration-200">
         <!-- 固定顶栏 (消除滚动破角，保持标题与Tab固定) -->
         <div class="p-5 sm:p-6 pb-3.5 border-b border-slate-100 flex-shrink-0 space-y-3 bg-white">
           <div class="flex items-start sm:items-center justify-between gap-2">
@@ -2417,7 +2417,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                     :class="imapModal.tab === 'draft' ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm shadow-emerald-500/20 font-black' : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-white/60'">
               <i class="fa-solid fa-crown text-amber-300 text-xs flex-shrink-0"></i>
               <span class="sm:hidden">2. 草稿直达</span>
-              <span class="hidden sm:inline">2. 草稿箱直达 (👑 专业版专属)</span>
+              <span class="hidden sm:inline">2. 草稿箱直达 (👑 极客版专属)</span>
             </button>
           </div>
         </div>
@@ -2502,41 +2502,41 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 </button>
               </div>
 
-              <!-- 邮箱服务商标签组 (5 个主流选项，清晰网格排布，告别横向溢出滚动与晃眼动画) -->
-              <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 text-xs font-bold">
+              <!-- 邮箱服务商标签组 (5 个主流选项，清晰网格排布，完整呈现全称，杜绝省略号) -->
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs font-bold">
                 <button type="button" @click="imapModal.guideTab = 'tencent'"
-                        class="p-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer border text-center"
+                        class="p-2 sm:py-2.5 sm:px-1 rounded-xl transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center shadow-2xs"
                         :class="(imapModal.guideTab || 'tencent') === 'tencent' ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
-                  <i class="fa-solid fa-briefcase text-xs" :class="(imapModal.guideTab || 'tencent') === 'tencent' ? 'text-white' : 'text-blue-500'"></i>
-                  <span class="truncate">腾讯 / Foxmail</span>
+                  <i class="fa-solid fa-briefcase text-xs flex-shrink-0" :class="(imapModal.guideTab || 'tencent') === 'tencent' ? 'text-white' : 'text-blue-500'"></i>
+                  <span class="text-[11px] leading-tight whitespace-nowrap">腾讯 / Foxmail</span>
                 </button>
 
                 <button type="button" @click="imapModal.guideTab = 'aliyun'"
-                        class="p-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer border text-center"
+                        class="p-2 sm:py-2.5 sm:px-1 rounded-xl transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center shadow-2xs"
                         :class="imapModal.guideTab === 'aliyun' ? 'bg-orange-600 text-white border-orange-600 shadow-sm shadow-orange-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
-                  <i class="fa-solid fa-cloud text-xs" :class="imapModal.guideTab === 'aliyun' ? 'text-white' : 'text-orange-500'"></i>
-                  <span class="truncate">阿里 / 钉钉</span>
+                  <i class="fa-solid fa-cloud text-xs flex-shrink-0" :class="imapModal.guideTab === 'aliyun' ? 'text-white' : 'text-orange-500'"></i>
+                  <span class="text-[11px] leading-tight whitespace-nowrap">阿里 / 钉钉</span>
                 </button>
 
                 <button type="button" @click="imapModal.guideTab = 'netease'"
-                        class="p-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer border text-center"
+                        class="p-2 sm:py-2.5 sm:px-1 rounded-xl transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center shadow-2xs"
                         :class="imapModal.guideTab === 'netease' ? 'bg-red-600 text-white border-red-600 shadow-sm shadow-red-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
-                  <i class="fa-solid fa-at text-xs" :class="imapModal.guideTab === 'netease' ? 'text-white' : 'text-red-500'"></i>
-                  <span class="truncate">网易 163 / 企业</span>
+                  <i class="fa-solid fa-at text-xs flex-shrink-0" :class="imapModal.guideTab === 'netease' ? 'text-white' : 'text-red-500'"></i>
+                  <span class="text-[11px] leading-tight whitespace-nowrap">网易 163 / 企业</span>
                 </button>
 
                 <button type="button" @click="imapModal.guideTab = 'microsoft'"
-                        class="p-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer border text-center"
+                        class="p-2 sm:py-2.5 sm:px-1 rounded-xl transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center shadow-2xs"
                         :class="imapModal.guideTab === 'microsoft' ? 'bg-cyan-600 text-white border-cyan-600 shadow-sm shadow-cyan-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
-                  <i class="fa-brands fa-microsoft text-xs" :class="imapModal.guideTab === 'microsoft' ? 'text-white' : 'text-cyan-600'"></i>
-                  <span class="truncate">微软 Outlook</span>
+                  <i class="fa-brands fa-microsoft text-xs flex-shrink-0" :class="imapModal.guideTab === 'microsoft' ? 'text-white' : 'text-cyan-600'"></i>
+                  <span class="text-[11px] leading-tight whitespace-nowrap">微软 Outlook</span>
                 </button>
 
                 <button type="button" @click="imapModal.guideTab = 'gmail'"
-                        class="col-span-2 sm:col-span-1 p-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer border text-center"
+                        class="col-span-2 sm:col-span-1 p-2 sm:py-2.5 sm:px-1 rounded-xl transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center shadow-2xs"
                         :class="imapModal.guideTab === 'gmail' ? 'bg-rose-600 text-white border-rose-600 shadow-sm shadow-rose-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
-                  <i class="fa-brands fa-google text-xs" :class="imapModal.guideTab === 'gmail' ? 'text-white' : 'text-rose-500'"></i>
-                  <span class="truncate">谷歌 Gmail</span>
+                  <i class="fa-brands fa-google text-xs flex-shrink-0" :class="imapModal.guideTab === 'gmail' ? 'text-white' : 'text-rose-500'"></i>
+                  <span class="text-[11px] leading-tight whitespace-nowrap">谷歌 Gmail</span>
                 </button>
               </div>
 
@@ -2738,15 +2738,15 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
         <!-- Tab 2: 草稿箱直达 (只写不读 · 选配授权码) -->
         <div v-else class="space-y-3.5">
-          <!-- 非付费用户 (试用期)：仅展示专业版专属特权说明与升级入口，隐藏具体配置表单 -->
+          <!-- 非付费用户 (试用期)：仅展示极客版专属特权说明与升级入口，隐藏具体配置表单 -->
           <div v-if="!isPaidUser" class="p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-white border border-amber-500/25 text-center space-y-4">
             <div class="w-14 h-14 rounded-2xl bg-amber-500/15 text-amber-600 flex items-center justify-center mx-auto text-2xl shadow-inner">
               <i class="fa-solid fa-crown text-amber-500"></i>
             </div>
             <div class="max-w-md mx-auto space-y-1.5">
-              <h4 class="text-base font-extrabold text-slate-900">👑 极客草稿箱直达为专业版专属特权</h4>
+              <h4 class="text-base font-extrabold text-slate-900">👑 极客草稿箱直达为极客版专属特权</h4>
               <p class="text-xs text-slate-600 leading-relaxed">
-                升级专业版后，配置日常外贸邮箱授权码，AI 算出的所有单据与地道英文回信将<strong class="text-amber-800">自动静默存入您的 Outlook / Foxmail 发件草稿箱</strong>，业务员打开邮箱即可一键发送，彻底省去手动复制粘贴与下载附件的繁琐步骤！
+                升级极客版后，配置日常外贸邮箱授权码，AI 算出的所有单据与地道英文回信将<strong class="text-amber-800">自动静默存入您的 Outlook / Foxmail 发件草稿箱</strong>，业务员打开邮箱即可一键发送，彻底省去手动复制粘贴与下载附件的繁琐步骤！
               </p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto text-left pt-1">
@@ -2775,12 +2775,12 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <div class="pt-2 flex items-center justify-center">
               <button @click="openUpgradeModal('monthly')" type="button" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-extrabold text-xs shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-crown text-amber-200"></i>
-                <span>立即升级专业版解锁特权 (¥99/月起)</span>
+                <span>立即升级极客版解锁特权 (¥99/月起)</span>
               </button>
             </div>
           </div>
 
-          <!-- 付费用户 (已开通专业版/企业版)：完整呈现 IMAP 邮箱配置与连接测试表单 -->
+          <!-- 付费用户 (已开通极客版/企业版)：完整呈现 IMAP 邮箱配置与连接测试表单 -->
           <div v-else class="space-y-3.5">
             <!-- 进阶特权轻量说明条 -->
             <div class="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 flex items-center justify-between gap-3 text-xs">
@@ -2790,7 +2790,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 </div>
                 <div class="min-w-0">
                   <div class="font-bold text-slate-900 flex items-center gap-1.5">
-                    <span>👑 专业版/企业版专属特权</span>
+                    <span>👑 极客尊享出单特权</span>
                     <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">已开通特权</span>
                   </div>
                   <div class="text-[11px] text-slate-500 truncate sm:whitespace-normal">配置客户端授权码后，AI 出单将静默写入日常邮箱【发件草稿箱】，点开直接发送</div>
