@@ -13,12 +13,18 @@ export interface PDFOptions {
 /**
  * 辅助函数：将美元金额转换为英文大写文字（国际贸易标准）
  */
-function numberToWordsUSD(amount: number): string {
+export function numberToWordsUSD(amount?: number | null): string {
+  if (amount === undefined || amount === null || isNaN(amount) || amount < 0) {
+    return 'SAY TOTAL US DOLLARS ZERO AND 00/100 ONLY';
+  }
+
   const units = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
   const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
   
-  const dollars = Math.floor(amount);
-  const cents = Math.round((amount - dollars) * 100);
+  // Total cents avoids the 100/100 rounding overflow
+  const totalCents = Math.round(amount * 100);
+  const dollars = Math.floor(totalCents / 100);
+  const cents = totalCents % 100;
 
   function convertGroup(n: number): string {
     let str = '';
@@ -36,13 +42,17 @@ function numberToWordsUSD(amount: number): string {
     return str.trim();
   }
 
-  if (dollars === 0) return 'SAY TOTAL US DOLLARS ZERO AND ' + cents.toString().padStart(2, '0') + '/100 ONLY';
+  if (dollars === 0) {
+    return 'SAY TOTAL US DOLLARS ZERO AND ' + cents.toString().padStart(2, '0') + '/100 ONLY';
+  }
 
-  const millions = Math.floor(dollars / 1000000);
+  const billions = Math.floor(dollars / 1000000000);
+  const millions = Math.floor((dollars % 1000000000) / 1000000);
   const thousands = Math.floor((dollars % 1000000) / 1000);
   const remainder = dollars % 1000;
 
   let result = 'SAY TOTAL US DOLLARS ';
+  if (billions > 0) result += convertGroup(billions) + ' BILLION ';
   if (millions > 0) result += convertGroup(millions) + ' MILLION ';
   if (thousands > 0) result += convertGroup(thousands) + ' THOUSAND ';
   if (remainder > 0) result += convertGroup(remainder) + ' ';
@@ -468,7 +478,7 @@ export class PDFService {
       currentY = renderTableHeader(currentY);
 
       // 渲染商品明细行
-      quotation.items.forEach((item, index) => {
+      (quotation.items || []).forEach((item, index) => {
         const isAlt = index % 2 === 1;
         const rawDesc = item.description || 'Standard Export Appliance Spec';
         let descText = rawDesc;
@@ -512,8 +522,9 @@ export class PDFService {
         doc.text(String(index + 1), colX.idx, currentY + (isCompact ? 5 : 7), { width: 20, align: 'center' });
 
         // 买家型号 SKU
-        doc.font(getFont(true, item.sku)).fontSize(8.5).fillColor('#0f2942');
-        doc.text(item.sku, colX.sku, currentY + (isCompact ? 5 : 7), { width: 96, ellipsis: true });
+        const skuSafe = item.sku || `ITEM-${index + 1}`;
+        doc.font(getFont(true, skuSafe)).fontSize(8.5).fillColor('#0f2942');
+        doc.text(skuSafe, colX.sku, currentY + (isCompact ? 5 : 7), { width: 96, ellipsis: true });
 
         // 品名与技术参数描述 (含 HS Code)
         doc.font(getFont(false, descText)).fontSize(8).fillColor('#334155');
@@ -521,7 +532,8 @@ export class PDFService {
 
         // 数量
         doc.font(getFont(false)).fontSize(8.5).fillColor('#0f172a');
-        doc.text(Number(item.quantity).toLocaleString(), colX.qty, currentY + (isCompact ? 5 : 7), { width: 52, align: 'right' });
+        const qtyNum = Number(item.quantity) || 1;
+        doc.text(qtyNum.toLocaleString(), colX.qty, currentY + (isCompact ? 5 : 7), { width: 52, align: 'right' });
 
         // 单价与小计
         const unitPriceNum = Number(item.unitPriceForeign || 0);
@@ -573,7 +585,8 @@ export class PDFService {
       doc.font(getFont(true)).fontSize(7).fillColor('#38bdf8').text(termTag.toUpperCase(), totalBoxX + 14, currentY + (isCompact ? 7 : 9), { width: totalBoxWidth - 28, align: 'right' });
 
       // 下层：纯白超大号金额 (通栏展开，右对齐，去除重复 $ 符号)
-      const formattedTotal = quotation.currency + ' ' + quotation.totalAmountForeign.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const totalAmountSafe = Number(quotation.totalAmountForeign) || 0;
+      const formattedTotal = (quotation.currency || 'USD') + ' ' + totalAmountSafe.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       doc.font(getFont(true)).fontSize(16).fillColor('#ffffff').text(
         formattedTotal,
         totalBoxX + 14,

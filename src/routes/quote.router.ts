@@ -1104,7 +1104,7 @@ quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any>
     if (!isOwnerOrStaff) {
       safeQuotation = {
         ...quotation,
-        items: quotation.items.map(it => ({
+        items: (quotation.items || []).map(it => ({
           ...it,
           basePriceRMB: 0,
           profitMargin: 0,
@@ -1287,20 +1287,23 @@ quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res
     if (Array.isArray(updatedData.items)) {
       const rateUsed = Number(updatedData.rateUsed || existing.rateUsed || 7.2);
       updatedData.items = updatedData.items.map((item: any, idx: number) => {
-        const existingItem = existing.items?.[idx] || existing.items?.find((it: any) => it.sku === item.sku);
+        // 关键修复：优先按 SKU 精准对齐匹配，防止删除、插入或重排序时按索引串位
+        const existingItem = (item.sku ? existing.items?.find((it: any) => it.sku === item.sku) : undefined)
+          || (item.matchedSku ? existing.items?.find((it: any) => it.matchedSku === item.matchedSku) : undefined)
+          || (existing.items?.[idx]?.sku === item.sku ? existing.items[idx] : undefined);
+
         const basePriceRMB = (item.basePriceRMB && item.basePriceRMB > 0) ? item.basePriceRMB : (existingItem?.basePriceRMB || 0);
         const fobCostRMB = item.fobCostRMB !== undefined ? item.fobCostRMB : (existingItem?.fobCostRMB || 0);
         const profitMargin = typeof item.profitMargin === 'number' ? item.profitMargin : (existingItem?.profitMargin || 0.15);
         
         let unitPriceForeign = item.unitPriceForeign;
-        // 若毛利率有变动或单价未指定，按公式联动计算外币单价
-        if (typeof unitPriceForeign !== 'number' || isNaN(unitPriceForeign) || (typeof item.profitMargin === 'number' && existingItem && item.profitMargin !== existingItem.profitMargin)) {
+        // 若用户明确提供了数字单价，则严格保留用户手工设定的单价；若未提供单价或单价为 NaN，才通过底价和毛利折算
+        if (typeof unitPriceForeign !== 'number' || isNaN(unitPriceForeign)) {
           if (basePriceRMB > 0) {
             unitPriceForeign = Number((((basePriceRMB + fobCostRMB) * (1 + profitMargin)) / rateUsed).toFixed(2));
+          } else {
+            unitPriceForeign = existingItem?.unitPriceForeign || 0;
           }
-        }
-        if (typeof unitPriceForeign !== 'number' || isNaN(unitPriceForeign)) {
-          unitPriceForeign = existingItem?.unitPriceForeign || 0;
         }
 
         const quantity = Number(item.quantity || existingItem?.quantity || 1);
