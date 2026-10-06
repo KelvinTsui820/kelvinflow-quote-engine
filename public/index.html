@@ -227,7 +227,7 @@
         </a>
         <div id="nav-user-chip" class="hidden h-9 items-center space-x-2 pl-2 border-l border-white/10">
           <span id="nav-user-phone" class="hidden sm:inline-block text-xs font-mono text-slate-400 leading-none">185****0282</span>
-          <button onclick="logoutUser()" title="退出登录" class="text-slate-500 hover:text-rose-400 text-xs transition-colors cursor-pointer p-1 flex items-center justify-center">
+          <button onclick="logoutUser()" title="退出登录" aria-label="退出登录" class="text-slate-500 hover:text-rose-400 text-xs transition-colors cursor-pointer p-1 flex items-center justify-center">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
           </button>
         </div>
@@ -932,7 +932,7 @@
     <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default">
       
       <!-- 关闭按钮 -->
-      <button onclick="closeInboundModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
+      <button onclick="closeInboundModal()" aria-label="关闭试用开通窗口" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 
@@ -973,7 +973,7 @@
           <label class="block text-xs font-medium text-slate-300 mb-1.5">设置登录密码 (至少 6 位)</label>
           <div class="relative">
             <input type="password" id="inbound-password" minlength="6" placeholder="设置保护底价库的密码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
-            <button type="button" onclick="togglePasswordVisibility('inbound-password', 'reg-pwd-icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
+            <button type="button" onclick="togglePasswordVisibility('inbound-password', 'reg-pwd-icon')" aria-label="切换密码明文显示" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
               <i id="reg-pwd-icon" class="fa-solid fa-eye"></i>
             </button>
           </div>
@@ -1052,7 +1052,7 @@
           </div>
           <div class="relative">
             <input type="password" id="inbound-login-password" placeholder="请输入密码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
-            <button type="button" onclick="togglePasswordVisibility('inbound-login-password', 'login-pwd-icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
+            <button type="button" onclick="togglePasswordVisibility('inbound-login-password', 'login-pwd-icon')" aria-label="切换登录密码明文显示" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
               <i id="login-pwd-icon" class="fa-solid fa-eye"></i>
             </button>
           </div>
@@ -1073,7 +1073,7 @@
   <!-- B. 升级极客版支付与转账弹窗 (Payment Modal) -->
   <div id="payment-modal" onclick="closePaymentModal()" class="fixed inset-0 z-[220] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto cursor-pointer">
     <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-center">
-      <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
+      <button onclick="closePaymentModal()" aria-label="关闭支付窗口" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 
@@ -1109,7 +1109,7 @@
   <!-- D. 同行邀请分享弹窗 (Referral Modal) -->
   <div id="referral-share-modal" onclick="closeReferralShareModal()" class="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 cursor-pointer">
     <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-left">
-      <button onclick="closeReferralShareModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
+      <button onclick="closeReferralShareModal()" aria-label="关闭邀请分享窗口" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 

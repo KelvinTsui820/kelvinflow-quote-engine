@@ -1044,7 +1044,10 @@ quoteRouter.get('/catalog', async (req: Request, res: Response): Promise<any> =>
 // =========================================================================
 quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any> => {
   try {
-    let id = String(req.params.id);
+    let id = String(req.params.id || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '');
+    if (!id) {
+      return res.status(400).json({ success: false, error: '无效的报价单号' });
+    }
     const tenantId = req.tenantId || 'default';
 
     // 容錯機制：如果請求的是 review.html、latest 或默認占位符，自動定位當前租戶下最新的報價單
@@ -1249,7 +1252,10 @@ quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any>
 // =========================================================================
 quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res: Response): Promise<any> => {
   try {
-    const id = String(req.params.id);
+    const id = String(req.params.id || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '');
+    if (!id) {
+      return res.status(400).json({ success: false, error: '无效的报价单号' });
+    }
     const tenantId = req.tenantId || 'default';
 
     let existing = QuoteStoreService.getQuote(id, tenantId);
@@ -1402,7 +1408,10 @@ quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res
 // =========================================================================
 quoteRouter.get('/quotes/:id/pdf', async (req: Request, res: Response): Promise<any> => {
   try {
-    let id = String(req.params.id);
+    let id = String(req.params.id || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '');
+    if (!id) {
+      return res.status(400).json({ success: false, error: '无效的报价单号' });
+    }
     const tenantId = req.tenantId || 'default';
 
     if (id === 'review.html' || id === 'latest' || id === 'default') {

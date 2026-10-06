@@ -7,10 +7,22 @@ import { inboundRouter } from './routes/inbound.router.js';
 const app = express();
 const port = process.env.PORT || 3000;
 
+// 安全加固：禁用 Express 默认技术栈指纹响应头 (OWASP A05: Security Misconfiguration)
+app.disable('x-powered-by');
+
 app.set('trust proxy', true);
 app.use(cors());
 app.use(express.json({ limit: '30mb' }));
 app.use(express.urlencoded({ extended: true, limit: '30mb' }));
+
+// 全局安全加固响应头 (OWASP 安全基准防御)
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
 
 // 註冊 API 路由
 app.use('/api/v1', quoteRouter);
@@ -21,6 +33,7 @@ import path from 'path';
 // 1. 若攜帶邀請參數 (?ref=, ?code=, ?invite=) 或訪問官網，始終呈現首頁 index.html (自動帶入邀請碼並拉起開通彈窗)
 // 2. 若直接訪問 /review 或 /review/:id 或 /QT-xxxxxx，呈現外貿審單台 review.html
 app.get('/', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   const hasRef = !!(req.query.ref || req.query.code || req.query.invite);
   const wantsLanding = req.query.landing === '1' || req.query.portal === '1';
   if (hasRef || wantsLanding) {
@@ -37,6 +50,7 @@ app.get('/', (req, res) => {
 
 // 審單工作台直達路由
 app.get('/review', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.sendFile(path.join(process.cwd(), 'public', 'review.html'));
 });
 
@@ -44,17 +58,29 @@ app.get('/review', (req, res) => {
 app.get('/:id', (req, res, next) => {
   const id = req.params.id;
   if (id.startsWith('QT-') || id === 'latest') {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     return res.sendFile(path.join(process.cwd(), 'public', 'review.html'));
   }
   next();
 });
 
 app.get('/review/:id', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.sendFile(path.join(process.cwd(), 'public', 'review.html'));
 });
 
-// 靜態資源（禁用默認 index.html 攔截，確保上面的自定義根路由正常生效）
-app.use(express.static(path.join(process.cwd(), 'public'), { index: false }));
+// 靜態資源（禁用默認 index.html 攔截，配置性能優化緩存與 HTML 即時更新策略）
+app.use(express.static(path.join(process.cwd(), 'public'), {
+  index: false,
+  maxAge: '1d',
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    } else if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+    }
+  }
+}));
 
 
 import { ModelDiscoveryService } from './services/model-discovery.service.js';

@@ -13,15 +13,23 @@ def deploy(password):
     host = "192.255.145.11"
     port = 22
     username = "root"
-    local_tar = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "project.tar.gz")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    local_tar = os.path.join(root_dir, "project.tar.gz")
     remote_tar = "/root/project.tar.gz"
 
-    if not os.path.exists(local_tar):
-        print(f"❌ 本地代码包不存在: {local_tar}")
-        return False
+    # 自动打包本地最新代码与 dist 编译目录
+    print("📦 正在自动构建与打包最新代码...")
+    import tarfile
+    exclude_dirs = {'node_modules', '.git', '.github', '.cache', 'scratch', 'tmp'}
+    exclude_exts = {'.tar.gz', '.log'}
+    with tarfile.open(local_tar, "w:gz") as tar:
+        for item in os.listdir(root_dir):
+            if item in exclude_dirs or any(item.endswith(ext) for ext in exclude_exts):
+                continue
+            tar.add(os.path.join(root_dir, item), arcname=item)
 
     file_size_mb = os.path.getsize(local_tar) / (1024 * 1024)
-    print(f"📦 准备上传部署包: {local_tar} ({file_size_mb:.2f} MB)")
+    print(f"📦 部署包构建完成: {local_tar} ({file_size_mb:.2f} MB)")
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())

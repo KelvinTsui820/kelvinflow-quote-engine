@@ -58,7 +58,9 @@ export class QuoteStoreService {
    * 獲取指定的報價單數據 (嚴格校驗租戶隔離權限)
    */
   static getQuote(id: string, requestTenantId?: string): QuotationResult | null {
+    if (!id || typeof id !== 'string') return null;
     const cleanId = id.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!cleanId) return null;
 
     // 1. 如果指定了租戶，優先從該租戶目錄讀取
     if (requestTenantId) {
@@ -129,7 +131,9 @@ export class QuoteStoreService {
    * 獲取指定的 PDF 緩存 (嚴格校驗租戶隔離權限)
    */
   static getQuotePDF(id: string, requestTenantId?: string): Buffer | null {
+    if (!id || typeof id !== 'string') return null;
     const cleanId = id.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!cleanId) return null;
 
     if (requestTenantId) {
       const tenantId = TenantService.resolveTenantId(requestTenantId);
@@ -179,27 +183,32 @@ export class QuoteStoreService {
     newPdfBuffer?: Buffer,
     requestTenantId?: string
   ): boolean {
+    if (!id || typeof id !== 'string') return false;
+    const cleanId = id.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!cleanId) return false;
+
     const tenantId = TenantService.resolveTenantId(
       requestTenantId || updatedQuotation.tenantId || 'default'
     );
     updatedQuotation.tenantId = tenantId;
+    updatedQuotation.quotationNumber = cleanId;
 
     const tenantQuotesDir = this.getTenantQuotesDir(tenantId);
-    const jsonPath = path.join(tenantQuotesDir, `${id}.json`);
+    const jsonPath = path.join(tenantQuotesDir, `${cleanId}.json`);
     fs.writeFileSync(jsonPath, JSON.stringify(updatedQuotation, null, 2), 'utf-8');
 
     if (newPdfBuffer) {
-      const pdfPath = path.join(tenantQuotesDir, `${id}.pdf`);
+      const pdfPath = path.join(tenantQuotesDir, `${cleanId}.pdf`);
       fs.writeFileSync(pdfPath, newPdfBuffer);
     }
 
     // 同步更新 default 租戶的 legacy
     if (tenantId === 'default') {
       this.ensureLegacyDir();
-      const legacyJson = path.join(this.legacyStorageDir, `${id}.json`);
+      const legacyJson = path.join(this.legacyStorageDir, `${cleanId}.json`);
       fs.writeFileSync(legacyJson, JSON.stringify(updatedQuotation, null, 2), 'utf-8');
       if (newPdfBuffer) {
-        const legacyPdf = path.join(this.legacyStorageDir, `${id}.pdf`);
+        const legacyPdf = path.join(this.legacyStorageDir, `${cleanId}.pdf`);
         fs.writeFileSync(legacyPdf, newPdfBuffer);
       }
     }
