@@ -302,7 +302,7 @@
           
           <!-- 展台顶栏 (极简 Mac 风格，只保留纯净的状态指示) -->
           <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 sm:pb-4 mb-4 sm:mb-6">
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 min-w-0 pr-2">
               <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-rose-500/80"></span>
               <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500/80"></span>
               <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500/80"></span>
@@ -1107,7 +1107,7 @@
   </div>
 
   <!-- D. 同行邀请分享弹窗 (Referral Modal) -->
-  <div id="referral-share-modal" onclick="closeReferralShareModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 cursor-pointer">
+  <div id="referral-share-modal" onclick="closeReferralShareModal()" class="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 cursor-pointer">
     <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-left">
       <button onclick="closeReferralShareModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
         <i class="fa-solid fa-xmark text-lg"></i>
@@ -1152,12 +1152,23 @@
             </button>
           </div>
         </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">完整推荐文案 (直接发送同行或微信群)</label>
+          <div class="relative">
+            <textarea id="modal-ref-text" rows="3" readonly class="w-full p-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-slate-300 font-mono text-[11px] leading-relaxed resize-none focus:outline-none"></textarea>
+            <button id="btn-copy-fulltext" onclick="copyShareFullText()" class="mt-1.5 w-full py-2 rounded-xl bg-white/[0.06] hover:bg-white/10 border border-white/10 text-cyan-300 font-medium text-xs transition cursor-pointer flex items-center justify-center space-x-1.5">
+              <i class="fa-regular fa-copy"></i>
+              <span>一键复制推荐文案 (微信群/朋友圈)</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- E. 退出登录确认弹窗 (Logout Modal) -->
-  <div id="logout-confirm-modal" onclick="closeLogoutModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-200 cursor-pointer">
+  <div id="logout-confirm-modal" onclick="closeLogoutModal()" class="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-200 cursor-pointer">
     <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-2xl w-full max-w-xs p-6 shadow-2xl relative cursor-default text-center">
       <h4 class="text-base font-bold text-white mb-2">确认退出登录？</h4>
       <p class="text-xs text-slate-400 mb-5">退出后本地将清除账号令牌，您可随时重新登录。</p>
