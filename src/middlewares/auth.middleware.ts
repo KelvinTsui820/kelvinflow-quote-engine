@@ -45,7 +45,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
   // 2. 檢查 URL Query 中的 token (瀏覽器直接打開鏈接時常用)
   if (!user && req.query?.token && typeof req.query.token === 'string') {
     const rawToken = req.query.token.trim();
-    if (rawToken === 'mock-token-admin') {
+    if (process.env.NODE_ENV === 'test' && rawToken === 'mock-token-admin') {
       user = {
         id: 'usr_default_admin',
         email: 'admin@foshan-kelvin.com',
@@ -54,7 +54,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
         tenantId: 'default'
       };
       tenantId = 'default';
-    } else if (rawToken === 'mock-token-sales') {
+    } else if (process.env.NODE_ENV === 'test' && rawToken === 'mock-token-sales') {
       user = {
         id: 'usr_default_sales',
         email: 'sales@foshan-kelvin.com',

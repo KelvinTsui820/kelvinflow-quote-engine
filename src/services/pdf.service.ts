@@ -150,8 +150,8 @@ export class PDFService {
       const companyAddress = tenantProfile.companyAddress || 'International High-Tech Innovation Center, Foshan, Guangdong, China (528000)';
       const salesRep = cleanSalesRepName(quotation.salesRepName || options.salesRepName || process.env.DEFAULT_MANAGER_NAME || 'Kelvin Tsui');
       const salesEmail = options.salesRepEmail || tenantProfile.contactEmail || process.env.DEFAULT_MANAGER_EMAIL || 'sales@kelvinflow.com';
-      const rawPhone = tenantProfile.contactPhone || process.env.DEFAULT_MANAGER_PHONE || '18566090282';
-      const salesPhone = formatInternationalPhone(rawPhone);
+      const rawPhone = tenantProfile.contactPhone || process.env.DEFAULT_MANAGER_PHONE || '';
+      const salesPhone = rawPhone ? formatInternationalPhone(rawPhone) : '';
       const website = tenantProfile.website || 'www.kelvinflow.com';
 
       // A4 规格: 595.28 x 841.89 pt。统一边距 left/right: 30pt, bottom: 20pt, 最大可用宽度 531pt
@@ -206,10 +206,10 @@ export class PDFService {
       const cleanWebsite = (website && !website.includes('tenant_trial_') && !website.includes('tenant_') && website !== 'www.kelvinflow.com' && website.includes('.'))
         ? website
         : '';
-      const contactParts = [`Tel: ${salesPhone}`, `Email: ${salesEmail}`];
-      if (cleanWebsite) {
-        contactParts.push(`Web: ${cleanWebsite}`);
-      }
+      const contactParts: string[] = [];
+      if (salesPhone) contactParts.push(`Tel: ${salesPhone}`);
+      if (salesEmail) contactParts.push(`Email: ${salesEmail}`);
+      if (cleanWebsite) contactParts.push(`Web: ${cleanWebsite}`);
       const contactText = contactParts.join('  |  ');
 
       // 左右分栏几何参数设定 (全宽 531pt，两栏之间强制保留 16pt 以上安全呼吸通道，杜绝水平重叠)
