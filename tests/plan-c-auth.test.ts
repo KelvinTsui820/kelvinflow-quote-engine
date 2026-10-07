@@ -108,10 +108,9 @@ describe('Plan C: Work Email Authentication & Risk Control Tests', () => {
       const sendResult = await EmailVerificationService.sendCode(email);
 
       expect(sendResult.success).toBe(true);
-      expect(sendResult.debugCode).toBeDefined();
-      expect(sendResult.debugCode?.length).toBe(6);
-
-      const code = sendResult.debugCode!;
+      const code = EmailVerificationService.getLatestCodeForTest(email)!;
+      expect(code).toBeDefined();
+      expect(code.length).toBe(6);
 
       // 1. Wrong code fails
       const wrongCheck = EmailVerificationService.verifyCode(email, '000000');

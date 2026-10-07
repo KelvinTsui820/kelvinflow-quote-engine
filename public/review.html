@@ -3367,7 +3367,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 <label class="block text-xs font-bold text-slate-300 mb-1">
                   邮箱验证码 (6 位数字) <span class="text-blue-400">*</span>
                 </label>
-                <input type="text" v-model.trim="trialModal.code" placeholder="输入邮件收到的 6 位验证码" maxlength="6" required
+                <input type="text" v-model.trim="trialModal.code" placeholder="请输入 6 位邮件验证码" maxlength="6" required
                   class="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:bg-white/[0.08] transition font-mono tracking-widest" />
               </div>
 
@@ -3375,13 +3375,13 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               <div>
                 <div class="flex items-center justify-between mb-1">
                   <label class="text-xs font-bold text-slate-300">
-                    设置登录密码 (保护私有底价机密) <span class="text-blue-400">*</span>
+                    设置登录密码 (6-20位) <span class="text-blue-400">*</span>
                   </label>
-                  <span class="text-[10px] text-slate-400">至少 6 位密码</span>
+                  <span class="text-[10px] text-slate-400">加密保护</span>
                 </div>
                 <div class="relative">
-                  <input :type="trialModal.showPassword ? 'text' : 'password'" v-model.trim="trialModal.password" placeholder="设置保护私有底价的登录密码" required minlength="6"
-                    class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:bg-white/[0.08] transition font-mono" />
+                  <input :type="trialModal.showPassword ? 'text' : 'password'" v-model.trim="trialModal.password" placeholder="请设置您的工作台登录密码 (6-20位)" required minlength="6" maxlength="20"
+                    class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:bg-white/[0.08] transition" />
                   <button type="button" @click="trialModal.showPassword = !trialModal.showPassword" aria-label="切换密码显示状态" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition cursor-pointer text-xs">
                     <i :class="trialModal.showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
                   </button>
@@ -3426,8 +3426,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                     <i class="fa-solid fa-circle-check"></i>已自动填入
                   </span>
                 </div>
-                <input type="text" v-model.trim="trialModal.ref" placeholder="如好友邀请码或邮箱 (选填)"
-                  class="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/10 text-cyan-300 placeholder-slate-500 text-xs focus:outline-none focus:border-cyan-400 transition font-mono"
+                <input type="text" v-model.trim="trialModal.ref" placeholder="输入推荐人邀请码或工作邮箱"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 transition"
                   :class="trialModal.ref ? 'border-emerald-500/50 bg-emerald-950/25 text-emerald-300 font-bold' : ''" />
               </div>
 
@@ -3510,25 +3510,6 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 </button>
               </div>
 
-              <!-- 错误反馈 -->
-              <div v-if="trialModal.errorMessage" class="p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-200 text-xs flex items-center space-x-2 animate-shake">
-                <i class="fa-solid fa-circle-exclamation text-rose-400 flex-shrink-0"></i>
-                <div class="flex-1">{{ trialModal.errorMessage }}</div>
-              </div>
-
-              <!-- 登录按钮 -->
-              <button type="submit" :disabled="trialModal.loading"
-                class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 active:scale-95 transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50">
-                <i v-if="trialModal.loading" class="fa-solid fa-spinner fa-spin"></i>
-                <i v-else class="fa-solid fa-arrow-right-to-bracket text-cyan-300 text-xs"></i>
-                <span>{{ trialModal.loading ? '正在安全登入...' : (trialModal.isLegacyAccount ? '立即绑定新密码并进入工作台 ➔' : '验证密码并进入工作台 ➔') }}</span>
-              </button>
-
-              <div class="text-center pt-1">
-                <button type="button" @click="setTrialMode('register')" class="text-xs text-slate-400 hover:text-cyan-300 transition cursor-pointer">
-                  还没有账号？点击此处免费开通 7 天试用 ➔
-                </button>
-              </div>
 
               <!-- 隐私提示 -->
               <div class="text-[11px] text-slate-400 flex items-center justify-center gap-2 pt-0.5">
@@ -4934,25 +4915,36 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           return !qNum || qNum === 'QT-20260904-888' || qNum.startsWith('QT-DEMO');
         });
 
+        // 自动清理旧版手机号残留，全面接入邮箱体系
+        try {
+          if (localStorage.getItem('kelvinflow_user_phone')) {
+            localStorage.removeItem('kelvinflow_user_phone');
+          }
+        } catch (_) {}
+
         const maskedPhone = computed(() => {
           const email = localStorage.getItem('kelvinflow_user_email');
           if (email && email.includes('@')) {
             const [prefix, domain] = email.split('@');
             return prefix.length > 2 ? `${prefix.slice(0, 2)}***@${domain}` : `${prefix}***@${domain}`;
           }
-          const p = localStorage.getItem('kelvinflow_user_phone') || trialState.value.tenantId?.replace(/^tenant_trial_/, '') || '';
-          if (!p) return '外贸同行';
-          if (p.length === 11) return `${p.slice(0, 3)}****${p.slice(7)}`;
-          return p;
+          const tId = trialState.value.tenantId;
+          if (tId && !tId.startsWith('default') && !tId.includes('185')) {
+            const clean = tId.replace(/^tenant_trial_/, '');
+            if (clean.includes('@')) {
+              const [prefix, domain] = clean.split('@');
+              return prefix.length > 2 ? `${prefix.slice(0, 2)}***@${domain}` : `${prefix}***@${domain}`;
+            }
+          }
+          return '外贸同行';
         });
 
         const isLoggedIn = computed(() => {
+          const hasEmail = !!localStorage.getItem('kelvinflow_user_email');
           return !!(
             localStorage.getItem('saas_auth_token') || 
-            localStorage.getItem('kelvinflow_user_phone') || 
-            trialState.value.isPaid ||
-            (trialState.value.plan && trialState.value.plan !== 'trial') ||
-            (trialState.value.isTrial && !trialState.value.expired)
+            (hasEmail && (trialState.value.isPaid || (trialState.value.isTrial && !trialState.value.expired))) ||
+            (trialState.value.plan && trialState.value.plan !== 'trial' && hasEmail)
           );
         });
 
@@ -5076,9 +5068,6 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             if (!data.success) {
               trialModal.value.errorMessage = data.error || '验证码发送受阻，请检查邮箱';
               return;
-            }
-            if (data.debugCode && !trialModal.value.code) {
-              trialModal.value.code = data.debugCode;
             }
             showToast('验证码已发送至邮箱，请查收', 'success');
             trialCodeCooldown.value = 60;

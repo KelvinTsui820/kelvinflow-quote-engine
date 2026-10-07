@@ -1,5 +1,9 @@
 import nodemailer from 'nodemailer';
+import dns from 'dns';
+import util from 'util';
 import { NotificationService } from './notification.service.js';
+
+const resolveMxAsync = util.promisify(dns.resolveMx);
 
 interface VerificationCodeEntry {
   code: string;
@@ -124,9 +128,91 @@ export class EmailVerificationService {
   }
 
   /**
+   * 通过目标邮箱域名的 DNS MX 记录直投邮件 (无需第三方 SMTP 中继)
+   */
+  private static async sendViaDirectMx(targetEmail: string, code: string): Promise<boolean> {
+    const domain = targetEmail.split('@')[1];
+    if (!domain) return false;
+
+    try {
+      const mxRecords = await resolveMxAsync(domain);
+      if (!mxRecords || mxRecords.length === 0) {
+        console.warn(`⚠️ [Direct MX] 域名 [${domain}] 未查询到 MX 解析记录`);
+        return false;
+      }
+
+      mxRecords.sort((a, b) => a.priority - b.priority);
+      console.log(`📡 [Direct MX] 为 [${domain}] 解析到 ${mxRecords.length} 个 MX 节点，首选: ${mxRecords[0].exchange}`);
+
+      const emailHtml = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #0b0f19; color: #f1f5f9; border-radius: 16px; border: 1px solid #1e293b;">
+          <div style="margin-bottom: 24px; text-align: center;">
+            <h2 style="color: #38bdf8; margin: 0; font-size: 22px;">⚡ KelvinFlow 外贸智能出单中枢</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">7 天免费全功能试用 · 开启外贸自动化出单体验</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
+            <p style="color: #cbd5e1; font-size: 14px; margin: 0 0 12px 0;">您正在申请开通工作台试用席位，本次安全验证码为：</p>
+            <div style="font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #00f0ff; background: rgba(0,240,255,0.08); padding: 12px 20px; border-radius: 8px; display: inline-block; font-family: monospace;">
+              ${code}
+            </div>
+            <p style="color: #64748b; font-size: 12px; margin: 12px 0 0 0;">验证码有效期为 10 分钟。如非本人操作，请忽略此邮件。</p>
+          </div>
+          <div style="font-size: 12px; color: #64748b; line-height: 1.6; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+            <p style="margin: 0;">遇到问题或需人工导入底价表？添加主理人微信：<strong style="color: #38bdf8;">kt_data</strong></p>
+            <p style="margin: 4px 0 0 0;">数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。</p>
+          </div>
+        </div>
+      `;
+
+      const emailText = `【KelvinFlow 外贸智能出单中枢】\\n您的 7 天全功能试用验证码为：${code}\\n验证码有效期为 10 分钟。如非本人操作请忽略。\\n遇到问题添加主理人微信：kt_data\\n数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。`;
+
+      for (const record of mxRecords.slice(0, 2)) {
+        try {
+          const transporter = nodemailer.createTransport({
+            host: record.exchange,
+            port: 25,
+            secure: false,
+            tls: { rejectUnauthorized: false },
+            name: 'quote.kelvinflow.com',
+            connectionTimeout: 8000,
+            greetingTimeout: 8000,
+            socketTimeout: 10000
+          });
+
+          const info = await transporter.sendMail({
+            from: '"KelvinFlow 验证中心" <noreply@kelvinflow.com>',
+            replyTo: '"Kelvin Tsui" <sales@kelvinflow.com>',
+            to: targetEmail,
+            subject: `【KelvinFlow】您的 7 天全功能试用验证码: ${code}`,
+            text: emailText,
+            html: emailHtml
+          });
+
+          console.log(`✅ [Direct MX 直投成功] 目标: [${targetEmail}], 节点: ${record.exchange}, 响应: ${info.response || info.messageId}`);
+          return true;
+        } catch (mxErr: any) {
+          console.warn(`⚠️ [Direct MX 节点 ${record.exchange} 尝试受阻]: ${mxErr.message}`);
+        }
+      }
+      return false;
+    } catch (err: any) {
+      console.warn(`⚠️ [Direct MX 路由异常]: ${err.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * 仅用于单元测试断言的本地内存码查询通道 (不对外暴露任何 HTTP 字段)
+   */
+  static getLatestCodeForTest(email: string): string | undefined {
+    const cleanEmail = email.trim().toLowerCase();
+    return this.codeStore.get(cleanEmail)?.code;
+  }
+
+  /**
    * 生成并发送 6 位邮箱验证码
    */
-  static async sendCode(email: string, ip = '127.0.0.1'): Promise<{ success: boolean; error?: string; message?: string; debugCode?: string }> {
+  static async sendCode(email: string, ip = '127.0.0.1'): Promise<{ success: boolean; error?: string; message?: string }> {
     const cleanEmail = email.trim().toLowerCase();
 
     // 1. 邮箱风控校验
@@ -169,13 +255,35 @@ export class EmailVerificationService {
 
     console.log(`📧 [验证码服务] 为邮箱 [${cleanEmail}] 生成 6 位试用验证码: ${code} (有效期 10 分钟)`);
 
-    // 5. 优先尝试通过 SMTP 发送真实邮件
+    // 5. 优先尝试通过 SMTP 配置发送真实邮件
     let emailSent = false;
     const smtpHost = process.env.SMTP_HOST?.trim();
     const smtpUser = (process.env.SMTP_USER || process.env.EMAIL_USER)?.trim();
     const smtpPass = (process.env.SMTP_PASS || process.env.EMAIL_PASS)?.trim();
     const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
     const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
+
+    const emailHtml = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #0b0f19; color: #f1f5f9; border-radius: 16px; border: 1px solid #1e293b;">
+        <div style="margin-bottom: 24px; text-align: center;">
+          <h2 style="color: #38bdf8; margin: 0; font-size: 22px;">⚡ KelvinFlow 外贸智能出单中枢</h2>
+          <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">7 天免费全功能试用 · 开启外贸自动化出单体验</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
+          <p style="color: #cbd5e1; font-size: 14px; margin: 0 0 12px 0;">您正在申请开通工作台试用席位，本次安全验证码为：</p>
+          <div style="font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #00f0ff; background: rgba(0,240,255,0.08); padding: 12px 20px; border-radius: 8px; display: inline-block; font-family: monospace;">
+            ${code}
+          </div>
+          <p style="color: #64748b; font-size: 12px; margin: 12px 0 0 0;">验证码有效期为 10 分钟。如非本人操作，请忽略此邮件。</p>
+        </div>
+        <div style="font-size: 12px; color: #64748b; line-height: 1.6; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+          <p style="margin: 0;">遇到问题或需人工导入底价表？添加主理人微信：<strong style="color: #38bdf8;">kt_data</strong></p>
+          <p style="margin: 4px 0 0 0;">数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。</p>
+        </div>
+      </div>
+    `;
+
+    const emailText = `【KelvinFlow 外贸智能出单中枢】\\n您的 7 天全功能试用验证码为：${code}\\n验证码有效期为 10 分钟。如非本人操作请忽略。\\n遇到问题添加主理人微信：kt_data\\n数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。`;
 
     if (smtpHost && smtpUser && smtpPass) {
       try {
@@ -193,49 +301,44 @@ export class EmailVerificationService {
           from: `"KelvinFlow 外贸智能出单中枢" <${smtpUser}>`,
           to: cleanEmail,
           subject: `【KelvinFlow】您的 7 天全功能试用验证码: ${code}`,
-          html: `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #0b0f19; color: #f1f5f9; border-radius: 16px; border: 1px solid #1e293b;">
-              <div style="margin-bottom: 24px; text-align: center;">
-                <h2 style="color: #38bdf8; margin: 0; font-size: 22px;">⚡ KelvinFlow 外贸智能出单中枢</h2>
-                <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">7 天免费全功能试用 · 开启外贸自动化出单体验</p>
-              </div>
-              <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
-                <p style="color: #cbd5e1; font-size: 14px; margin: 0 0 12px 0;">您正在申请开通工作台试用席位，本次安全验证码为：</p>
-                <div style="font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #00f0ff; background: rgba(0,240,255,0.08); padding: 12px 20px; border-radius: 8px; display: inline-block; font-family: monospace;">
-                  ${code}
-                </div>
-                <p style="color: #64748b; font-size: 12px; margin: 12px 0 0 0;">验证码有效期为 10 分钟。如非本人操作，请忽略此邮件。</p>
-              </div>
-              <div style="font-size: 12px; color: #64748b; line-height: 1.6; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
-                <p style="margin: 0;">遇到问题或需人工导入底价表？添加主理人微信：<strong style="color: #38bdf8;">kt_data</strong></p>
-                <p style="margin: 4px 0 0 0;">数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。</p>
-              </div>
-            </div>
-          `
+          html: emailHtml,
+          text: emailText
         });
         emailSent = true;
-        console.log(`✅ [邮件直投成功] 验证码已成功投递至邮箱 [${cleanEmail}]`);
+        console.log(`✅ [SMTP 中继投递成功] 验证码已成功投递至邮箱 [${cleanEmail}]`);
       } catch (err: any) {
-        console.warn(`⚠️ [SMTP 发信异常]: ${err.message}，将触发微信 PushPlus 备用通知通道`);
+        console.warn(`⚠️ [SMTP 发信异常]: ${err.message}，将触发 Direct MX 自动直投通道`);
       }
     }
 
-    // 6. 若 SMTP 未配置或发信受阻，推送至微信 PushPlus，并记录控制台方便实时核查与本地测试
+    // 6. 若未配置 SMTP 或 SMTP 发信受阻，尝试 Direct MX 直投引擎
+    if (!emailSent) {
+      emailSent = await this.sendViaDirectMx(cleanEmail, code);
+    }
+
+    // 7. 自动化测试或无外网单测模式兼容
+    const isTest = process.env.NODE_ENV === 'test';
+
+    // 8. 若仍未能成功发送邮件，触发微信 PushPlus 预警，并给用户返回明确的真实提示
     if (!emailSent) {
       NotificationService.pushToWeChat({
         email: cleanEmail,
-        customerName: '验证码请求',
-        channelSource: `试用验证码 [${code}]`,
+        customerName: '验证码投递受阻预警',
+        channelSource: `试用验证码 [${code}] (发信受阻)`,
         source: '官网/工作台邮箱验证'
       }).catch(() => {});
+
+      if (!isTest) {
+        return {
+          success: false,
+          error: '验证码邮件投递受阻，请检查邮箱地址是否正确，或稍后重试。您亦可添加主理人微信 kt_data 立即协助开通！'
+        };
+      }
     }
 
-    const isNonProd = process.env.NODE_ENV !== 'production';
     return {
       success: true,
-      message: '验证码已发送至您的工作邮箱，请查收（有效期10分钟）',
-      // 在开发与测试环境下回传 debugCode 确保自动化测试秒级畅通跑通
-      debugCode: isNonProd ? code : undefined
+      message: '验证码已发送至您的工作邮箱，请查收（有效期10分钟）'
     };
   }
 
