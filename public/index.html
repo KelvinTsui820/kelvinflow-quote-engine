@@ -956,14 +956,14 @@
         </button>
       </div>
 
-      <!-- 1. 注册表单 (Plan C: 工作邮箱主标识 + 6位验证码 + 30天数据保留) -->
+      <!-- 1. 注册表单 (纯工作邮箱驱动 + 6位验证码 + 30天数据保留) -->
       <form id="inbound-form" onsubmit="handleInboundSubmit(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1.5">
             工作邮箱 (登录主账号) <span class="text-cyan-400">*</span>
           </label>
           <div class="flex gap-2">
-            <input type="email" id="inbound-email" placeholder="sales@yourcompany.com 或常用邮箱" required class="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
+            <input type="email" id="inbound-email" placeholder="sales@yourcompany.com 或常用外贸邮箱" required class="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
             <button type="button" id="btn-send-code" onclick="sendInboundVerificationCode()" class="px-3.5 py-2.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 font-bold text-xs whitespace-nowrap transition cursor-pointer flex items-center justify-center min-w-[96px]">
               <span id="btn-send-code-text">获取验证码</span>
             </button>
@@ -986,19 +986,11 @@
             设置登录密码 (至少 6 位) <span class="text-cyan-400">*</span>
           </label>
           <div class="relative">
-            <input type="password" id="inbound-password" minlength="6" placeholder="设置保护私有底价的密码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
+            <input type="password" id="inbound-password" minlength="6" placeholder="设置保护私有底价的登录密码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
             <button type="button" onclick="togglePasswordVisibility('inbound-password', 'reg-pwd-icon')" aria-label="切换密码明文显示" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
               <i id="reg-pwd-icon" class="fa-solid fa-eye"></i>
             </button>
           </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1.5">
-            手机号码 / 微信 <span class="text-slate-500 text-[11px] font-normal">(选填 · 用于 1v1 协助导入底价)</span>
-          </label>
-          <input type="tel" id="inbound-phone" maxlength="11" placeholder="选填，需创始人协助配置时可填写" class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
-          <p id="phone-error-msg" class="hidden text-rose-400 text-[11px] mt-1">请输入合法的 11 位手机号码</p>
         </div>
 
         <!-- 自定义深色下拉来源渠道 (不设默认值，100% 真实捕获获客来源) -->
@@ -1041,7 +1033,7 @@
           <div class="mb-1">
             <label class="text-[11px] font-medium text-slate-400">同行邀请码 (选填 · 各享 +7 天额外时长)</label>
           </div>
-          <input type="text" id="inbound-ref" placeholder="输入推荐人邮箱或手机号" class="w-full px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-cyan-400 transition-colors">
+          <input type="text" id="inbound-ref" placeholder="输入推荐人邮箱或邀请码" class="w-full px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-cyan-400 transition-colors">
           <div id="inbound-ref-applied-tip" class="hidden mt-1.5 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px]">
             <span id="inbound-ref-applied-text"></span>
           </div>
@@ -1062,15 +1054,11 @@
         </button>
       </form>
 
-      <!-- 2. 登录表单 (支持工作邮箱或手机号) -->
+      <!-- 2. 登录表单 (纯工作邮箱 + 密码) -->
       <form id="inbound-login-form" onsubmit="handleInboundLoginSubmit(event)" class="hidden space-y-4">
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1.5">工作邮箱 / 手机号码</label>
-          <input type="text" id="inbound-login-account" oninput="handleLoginAccountInput(event)" placeholder="请输入注册邮箱或手机号码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
-        </div>
-
-        <div id="login-legacy-hint" class="hidden">
-          <span id="login-legacy-hint-text"></span>
+          <label class="block text-xs font-medium text-slate-300 mb-1.5">工作邮箱</label>
+          <input type="email" id="inbound-login-email" placeholder="请输入注册工作邮箱" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
         </div>
 
         <div>
@@ -1079,7 +1067,7 @@
             <span id="login-pwd-security-badge" class="text-[10px] text-slate-400">加密保护</span>
           </div>
           <div class="relative">
-            <input type="password" id="inbound-login-password" placeholder="请输入密码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
+            <input type="password" id="inbound-login-password" placeholder="请输入账户登录密码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
             <button type="button" onclick="togglePasswordVisibility('inbound-login-password', 'login-pwd-icon')" aria-label="切换登录密码明文显示" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
               <i id="login-pwd-icon" class="fa-solid fa-eye"></i>
             </button>
@@ -1108,19 +1096,23 @@
       <h3 class="text-xl font-extrabold text-white mb-1">🎉 免费试用开通成功！</h3>
       <p class="text-xs text-slate-400 mb-4">欢迎加入 KelvinFlow · 外贸自动化智能出单</p>
 
-      <!-- 权益亮点 -->
-      <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 text-left space-y-2 mb-4">
+      <!-- 权益亮点卡片 -->
+      <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 text-left space-y-2.5 mb-4">
         <div class="flex items-center gap-2 text-xs text-emerald-300">
-          <i class="fa-solid fa-circle-check text-emerald-400"></i>
+          <i class="fa-solid fa-circle-check text-emerald-400 flex-shrink-0"></i>
           <span>已开通 7 天全功能工作台与演示底价库</span>
         </div>
         <div class="flex items-center gap-2 text-xs text-cyan-300">
-          <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+          <i class="fa-solid fa-shield-halved text-cyan-400 flex-shrink-0"></i>
           <span>底价表与历史报价单为您安全保留 30 天</span>
         </div>
         <div class="flex items-center gap-2 text-xs text-amber-300">
-          <i class="fa-solid fa-file-shield text-amber-400"></i>
-          <span>赠送《外贸报价避坑清单》+ 1v1 免费底价表导入协助</span>
+          <i class="fa-solid fa-file-shield text-amber-400 flex-shrink-0"></i>
+          <span>附赠<strong>《外贸报价 10 大血亏陷阱与防坑手册》</strong></span>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-sky-300">
+          <i class="fa-solid fa-screwdriver-wrench text-sky-400 flex-shrink-0"></i>
+          <span>专属福利：加微信免费 1v1 协助导入并调试私有底价表</span>
         </div>
       </div>
 
@@ -1135,7 +1127,7 @@
           </button>
         </div>
         <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">
-          添加微信发送注册邮箱领取《避坑清单》；试用到期后如需升级极客版 (¥99/月) 亦可直接微信直联开通！
+          扫码备注「<span class="text-cyan-300 font-mono">外贸试用</span>」领防坑手册；遇到任何底价表导入难题，主理人亲自协助；到期升级极客版 (¥99/月) 亦可微信直联开通！
         </p>
       </div>
 
@@ -1333,17 +1325,17 @@
       const btnMonthly = document.getElementById('pay-switch-monthly');
       const btnAnnual = document.getElementById('pay-switch-annual');
       const noteEl = document.getElementById('payment-note-text');
-      const phone = localStorage.getItem('kelvinflow_user_phone') || '';
-      const phoneSuffix = phone ? ` + ${phone}` : '';
+      const account = localStorage.getItem('kelvinflow_user_email') || localStorage.getItem('kelvinflow_user_phone') || '';
+      const accountSuffix = account ? ` + ${account}` : '';
 
       if (cycle === 'annual') {
         if (btnMonthly) btnMonthly.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]';
         if (btnAnnual) btnAnnual.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-sm';
-        if (noteEl) noteEl.textContent = `升级年付极客版(¥890)${phoneSuffix}`;
+        if (noteEl) noteEl.textContent = `升级年付极客版(¥890)${accountSuffix}`;
       } else {
         if (btnMonthly) btnMonthly.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-sm';
         if (btnAnnual) btnAnnual.className = 'py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]';
-        if (noteEl) noteEl.textContent = `升级极客版(¥99)${phoneSuffix}`;
+        if (noteEl) noteEl.textContent = `升级极客版(¥99)${accountSuffix}`;
       }
     }
 
@@ -1411,7 +1403,7 @@
 
     // 登录与试用状态自适应
     function updateNavForLoggedInUser() {
-      const phone = localStorage.getItem('kelvinflow_user_phone');
+      const email = localStorage.getItem('kelvinflow_user_email') || localStorage.getItem('kelvinflow_user_phone');
       const token = localStorage.getItem('saas_auth_token');
       const userPlan = localStorage.getItem('kelvinflow_user_plan') || 'trial';
       const isPaid = localStorage.getItem('kelvinflow_user_is_paid') === 'true' || 
@@ -1435,7 +1427,7 @@
       const pricingLoggedInBox = document.getElementById('pricing-logged-in-box');
       const pricingLoggedInText = document.getElementById('pricing-logged-in-text');
 
-      if (phone) {
+      if (email) {
         if (trialBtn) trialBtn.style.display = 'none';
         if (loginBtn) loginBtn.style.display = 'none';
         if (refBtn) refBtn.style.display = window.innerWidth >= 640 ? 'inline-flex' : 'none';
@@ -1443,7 +1435,14 @@
         if (userChip) {
           userChip.style.display = 'inline-flex';
           if (userPhone) {
-            userPhone.textContent = phone.length === 11 ? `${phone.substring(0, 3)}****${phone.substring(7)}` : phone;
+            if (email.includes('@')) {
+              const [prefix, domain] = email.split('@');
+              userPhone.textContent = prefix.length > 2 ? `${prefix.slice(0, 2)}***@${domain}` : `${prefix}***@${domain}`;
+            } else if (email.length === 11) {
+              userPhone.textContent = `${email.substring(0, 3)}****${email.substring(7)}`;
+            } else {
+              userPhone.textContent = email;
+            }
           }
         }
 
@@ -1465,7 +1464,10 @@
         }
 
         if (!isPaid) {
-          fetch(`/api/v1/auth/trial-status?phone=${encodeURIComponent(phone)}`)
+          const statusUrl = email.includes('@')
+            ? `/api/v1/auth/trial-status?email=${encodeURIComponent(email)}`
+            : `/api/v1/auth/trial-status?phone=${encodeURIComponent(email)}`;
+          fetch(statusUrl)
             .then(res => res.json())
             .then(data => {
               if (data && data.success && data.exists) {
@@ -1550,12 +1552,12 @@
     }
 
     async function openReferralShareModal() {
-      const phone = localStorage.getItem('kelvinflow_user_phone');
-      if (!phone) {
+      const account = localStorage.getItem('kelvinflow_user_email') || localStorage.getItem('kelvinflow_user_phone');
+      if (!account) {
         openInboundModal('starter');
         const errBox = document.getElementById('inbound-error-feedback');
         if (errBox) {
-          errBox.innerHTML = '<span class="text-cyan-300">💡 请先输入手机号完成 7 天免费试用激活，系统将为您生成专属的推荐邀请链接与邀请码！</span>';
+          errBox.innerHTML = '<span class="text-cyan-300">💡 请先输入工作邮箱完成 7 天免费试用激活，系统将为您生成专属的推荐邀请链接与邀请码！</span>';
           errBox.classList.remove('hidden');
         }
         return;
@@ -1569,15 +1571,16 @@
       const daysEl = document.getElementById('modal-ref-days');
 
       const origin = window.location.origin;
-      const shareUrl = `${origin}/?ref=${phone}`;
-      const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，立享 7 天完整全功能试用：\n${shareUrl}\n同行邀请码：${phone}`;
+      const shareUrl = `${origin}/?ref=${encodeURIComponent(account)}`;
+      const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，立享 7 天完整全功能试用：\n${shareUrl}\n同行邀请码：${account}`;
 
-      if (codeEl) codeEl.textContent = phone;
+      if (codeEl) codeEl.textContent = account;
       if (linkEl) linkEl.value = shareUrl;
       if (textEl) textEl.value = shareText;
 
       try {
-        const res = await fetch(`/api/v1/auth/referral-info?phone=${encodeURIComponent(phone)}`);
+        const queryParam = account.includes('@') ? `email=${encodeURIComponent(account)}` : `phone=${encodeURIComponent(account)}`;
+        const res = await fetch(`/api/v1/auth/referral-info?${queryParam}`);
         const json = await res.json();
         if (json.success && json.data) {
           if (countEl) countEl.textContent = json.data.referralCount || 0;
@@ -1697,13 +1700,10 @@
         if (title) title.textContent = '欢迎登录外贸智能工作台';
         if (desc) desc.textContent = '密码加密保护 · 安全管理私有底价库与报价草稿';
 
-        const savedAccount = localStorage.getItem('kelvinflow_user_email') || localStorage.getItem('kelvinflow_user_phone');
-        const loginAccountInput = document.getElementById('inbound-login-account');
-        if (savedAccount && loginAccountInput && !loginAccountInput.value) {
-          loginAccountInput.value = savedAccount;
-        }
-        if (loginAccountInput && loginAccountInput.value) {
-          handleLoginAccountInput({ target: loginAccountInput });
+        const savedAccount = localStorage.getItem('kelvinflow_user_email') || '';
+        const loginEmailInput = document.getElementById('inbound-login-email');
+        if (savedAccount && loginEmailInput && !loginEmailInput.value) {
+          loginEmailInput.value = savedAccount;
         }
       } else {
         if (subtabReg) subtabReg.className = 'flex-1 py-1.5 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-sm';
@@ -1928,16 +1928,13 @@
       const email = (document.getElementById('inbound-email')?.value || '').trim();
       const code = (document.getElementById('inbound-code')?.value || '').trim();
       const password = (document.getElementById('inbound-password')?.value || '').trim();
-      const phone = (document.getElementById('inbound-phone')?.value || '').trim();
       const channelSource = (document.getElementById('inbound-channel-source')?.value || '').trim();
-      const phoneErr = document.getElementById('phone-error-msg');
       const riskErr = document.getElementById('email-risk-error-msg');
       const errorBox = document.getElementById('inbound-error-feedback');
       const successBox = document.getElementById('inbound-success-feedback');
       const submitBtn = document.getElementById('inbound-submit-btn');
 
       if (riskErr) { riskErr.classList.add('hidden'); riskErr.textContent = ''; }
-      if (phoneErr) { phoneErr.classList.add('hidden'); phoneErr.textContent = ''; }
       if (errorBox) { errorBox.classList.add('hidden'); errorBox.innerHTML = ''; }
       if (successBox) { successBox.classList.add('hidden'); successBox.innerHTML = ''; }
 
@@ -1968,12 +1965,6 @@
         return;
       }
 
-      if (phone && !/^1[3-9]\d{9}$/.test(phone)) {
-        if (phoneErr) phoneErr.classList.remove('hidden');
-        document.getElementById('inbound-phone')?.focus();
-        return;
-      }
-
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> <span>正在验证并开通 7 天免费试用...</span>';
@@ -1988,15 +1979,15 @@
         const res = await fetch('/api/v1/auth/trial-register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, code, password, phone, channelSource, ref: storedRef })
+          body: JSON.stringify({ email, code, password, channelSource, ref: storedRef })
         });
         const data = await res.json();
 
         if (!data.success) {
           if (data.canLogin) {
             switchInboundFormMode('login');
-            const loginAccountInput = document.getElementById('inbound-login-account');
-            if (loginAccountInput) loginAccountInput.value = email;
+            const loginEmailInput = document.getElementById('inbound-login-email');
+            if (loginEmailInput) loginEmailInput.value = email;
             const loginErrBox = document.getElementById('inbound-login-error-feedback');
             if (loginErrBox) {
               loginErrBox.textContent = data.error || '该邮箱已开通过试用，请在此输入密码直接登录！';
@@ -2025,7 +2016,6 @@
         if (data.token) {
           localStorage.setItem('saas_auth_token', data.token);
           localStorage.setItem('kelvinflow_user_email', email);
-          if (phone) localStorage.setItem('kelvinflow_user_phone', phone);
           localStorage.setItem('kelvinflow_user_name', data.user?.name || '外贸同行');
           localStorage.setItem('kelvinflow_remaining_days', String(data.remainingDays || 7));
           localStorage.setItem('kelvinflow_user_plan', 'trial');
@@ -2100,61 +2090,10 @@
       }
     }
 
-    // 登录账号输入感知 (支持邮箱或手机号)
-    let accountCheckTimer = null;
-    async function handleLoginAccountInput(e) {
-      const account = (e.target.value || '').trim();
-      const hintEl = document.getElementById('login-legacy-hint');
-      const hintText = document.getElementById('login-legacy-hint-text');
-      const btnText = document.getElementById('inbound-login-btn-text');
-      const badge = document.getElementById('login-pwd-security-badge');
-
-      if (accountCheckTimer) clearTimeout(accountCheckTimer);
-      if (!account || (account.length < 5 && !account.includes('@'))) {
-        if (hintText) hintText.textContent = '';
-        if (hintEl) hintEl.className = 'hidden';
-        if (btnText) btnText.textContent = '验证密码并登入系统 ➔';
-        if (badge) badge.textContent = '加密保护';
-        return;
-      }
-
-      accountCheckTimer = setTimeout(async () => {
-        try {
-          const res = await fetch(`/api/v1/auth/check-account?account=${encodeURIComponent(account)}`);
-          const data = await res.json();
-          if (data.success && data.exists) {
-            if (!data.hasPassword) {
-              if (hintEl) {
-                hintEl.className = 'p-2.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/15 border border-emerald-500/40 text-emerald-200 text-xs flex items-start space-x-2';
-              }
-              if (hintText) {
-                hintText.innerHTML = `<strong>✨ 识别到早期账号 (${account})：</strong>当前尚未绑定密码。输入新密码系统将直接为您激活绑定并登入！`;
-              }
-              if (badge) {
-                badge.className = 'text-[10px] text-emerald-400 font-bold';
-                badge.textContent = '首次设置新密码';
-              }
-              if (btnText) btnText.textContent = '立即绑定新密码并登入 ➔';
-            } else {
-              if (hintEl) {
-                hintEl.className = 'p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs flex items-center space-x-2';
-              }
-              if (hintText) hintText.textContent = `欢迎回来！请输入账户登录密码。`;
-              if (badge) {
-                badge.className = 'text-[10px] text-slate-400';
-                badge.textContent = '已受密码保护';
-              }
-              if (btnText) btnText.textContent = '验证密码并登入系统 ➔';
-            }
-          }
-        } catch (e) {}
-      }, 300);
-    }
-
-    // 账号密码登录 (支持工作邮箱或手机号)
+    // 工作邮箱 + 密码安全登录
     async function handleInboundLoginSubmit(e) {
       e.preventDefault();
-      const account = (document.getElementById('inbound-login-account')?.value || '').trim();
+      const email = (document.getElementById('inbound-login-email')?.value || '').trim();
       const password = (document.getElementById('inbound-login-password')?.value || '').trim();
       const errorBox = document.getElementById('inbound-login-error-feedback');
       const successBox = document.getElementById('inbound-login-success-feedback');
@@ -2163,11 +2102,12 @@
       if (errorBox) { errorBox.classList.add('hidden'); errorBox.innerHTML = ''; }
       if (successBox) { successBox.classList.add('hidden'); successBox.innerHTML = ''; }
 
-      if (!account) {
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         if (errorBox) {
-          errorBox.innerHTML = '<span>请输入工作邮箱或手机号码</span>';
+          errorBox.innerHTML = '<span>请输入注册的工作邮箱（如 yourname@company.com）</span>';
           errorBox.classList.remove('hidden');
         }
+        document.getElementById('inbound-login-email')?.focus();
         return;
       }
 
@@ -2176,6 +2116,7 @@
           errorBox.innerHTML = '<span>请输入账户登录密码</span>';
           errorBox.classList.remove('hidden');
         }
+        document.getElementById('inbound-login-password')?.focus();
         return;
       }
 
@@ -2189,13 +2130,13 @@
         const res = await fetch('/api/v1/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ account, password })
+          body: JSON.stringify({ email, password })
         });
         const data = await res.json();
 
         if (!data.success) {
           if (errorBox) {
-            errorBox.textContent = data.error || '登录失败，请核对账号与密码';
+            errorBox.textContent = data.error || '登录失败，请核对工作邮箱与密码';
             errorBox.classList.remove('hidden');
           }
           if (submitBtn) {
@@ -2208,12 +2149,7 @@
 
         if (data.token) {
           localStorage.setItem('saas_auth_token', data.token);
-          if (account.includes('@')) {
-            localStorage.setItem('kelvinflow_user_email', account);
-          } else {
-            localStorage.setItem('kelvinflow_user_phone', account);
-          }
-          if (data.user?.email) localStorage.setItem('kelvinflow_user_email', data.user.email);
+          localStorage.setItem('kelvinflow_user_email', data.user?.email || email);
           if (data.user?.name) localStorage.setItem('kelvinflow_user_name', data.user.name);
           if (data.remainingDays !== undefined) localStorage.setItem('kelvinflow_remaining_days', String(data.remainingDays));
           if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);

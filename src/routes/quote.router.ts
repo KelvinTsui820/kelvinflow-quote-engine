@@ -170,9 +170,9 @@ quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any
     const { account, phone, email, password } = req.body;
     const clientIp = ((req.headers['x-forwarded-for'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
 
-    const accountIdentifier = (account || email || phone || '').trim();
+    const accountIdentifier = (email || account || phone || '').trim();
     if (!accountIdentifier) {
-      return res.status(400).json({ success: false, error: '请提供工作邮箱或手机号码' });
+      return res.status(400).json({ success: false, error: '请提供工作邮箱' });
     }
     if (!password) {
       return res.status(400).json({ success: false, error: '请输入登录密码' });
@@ -223,9 +223,9 @@ quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any
  */
 quoteRouter.get('/auth/check-account', async (req: Request, res: Response): Promise<any> => {
   try {
-    const identifier = (req.query.account || req.query.email || req.query.phone || '').toString().trim();
+    const identifier = (req.query.email || req.query.account || req.query.phone || '').toString().trim();
     if (!identifier) {
-      return res.status(400).json({ success: false, error: '请提供查询邮箱或手机号' });
+      return res.status(400).json({ success: false, error: '请提供查询邮箱' });
     }
     const status = TrialService.checkAccountStatus(identifier);
     return res.json({ success: true, ...status });

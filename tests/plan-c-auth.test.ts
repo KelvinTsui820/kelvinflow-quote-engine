@@ -1,4 +1,6 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterAll } from '@jest/globals';
+import fs from 'fs';
+import path from 'path';
 import { EmailVerificationService } from '../src/services/email-verification.service.js';
 import { TrialService, TrialRecord } from '../src/services/trial.service.js';
 import { TenantService } from '../src/services/tenant.service.js';
@@ -6,6 +8,23 @@ import { TenantService } from '../src/services/tenant.service.js';
 describe('Plan C: Work Email Authentication & Risk Control Tests', () => {
   beforeEach(() => {
     TenantService.init();
+  });
+
+  afterAll(() => {
+    TrialService.saveTrials([]);
+    const leadsPath = path.resolve('data/inbound_leads.json');
+    if (fs.existsSync(leadsPath)) {
+      fs.writeFileSync(leadsPath, '[]\n', 'utf-8');
+    }
+    const tenantsDir = path.resolve('data/tenants');
+    if (fs.existsSync(tenantsDir)) {
+      const items = fs.readdirSync(tenantsDir);
+      for (const item of items) {
+        if (item.startsWith('tenant_trial_')) {
+          fs.rmSync(path.join(tenantsDir, item), { recursive: true, force: true });
+        }
+      }
+    }
   });
 
   // =========================================================================
@@ -232,10 +251,10 @@ describe('Plan C: Work Email Authentication & Risk Control Tests', () => {
   });
 
   // =========================================================================
-  // 5. 账号密码登录灵活性 (Login by Email or Phone)
+  // 5. 工作邮箱与密码登录验证 (Pure Work Email + Password Login)
   // =========================================================================
-  describe('Login Flexibility (Email or Phone + Password)', () => {
-    it('allows logging in with registered email and password', async () => {
+  describe('Pure Work Email + Password Login Flow', () => {
+    it('allows logging in with registered work email and password', async () => {
       const email = `login_email_${Date.now()}@gmail.com`;
       const reg = await TrialService.registerOrLoginTrial({
         email,
@@ -245,7 +264,7 @@ describe('Plan C: Work Email Authentication & Risk Control Tests', () => {
       expect(reg.success).toBe(true);
 
       const login = await TrialService.loginTrial({
-        account: email,
+        email,
         password: 'SecurePassword123!'
       });
 
@@ -254,26 +273,32 @@ describe('Plan C: Work Email Authentication & Risk Control Tests', () => {
       expect(login.user?.email).toBe(email);
     });
 
-    it('allows logging in with optional phone number if provided at registration', async () => {
-      const email = `login_phone_${Date.now()}@163.com`;
-      const phone = '13888' + Math.floor(100000 + Math.random() * 900000).toString();
-
-      const reg = await TrialService.registerOrLoginTrial({
+    it('rejects login with wrong password', async () => {
+      const email = `login_wrong_pwd_${Date.now()}@163.com`;
+      await TrialService.registerOrLoginTrial({
         email,
-        phone,
         code: '888888',
-        password: 'SecurePassword123!'
-      });
-      expect(reg.success).toBe(true);
-
-      const loginByPhone = await TrialService.loginTrial({
-        account: phone,
-        password: 'SecurePassword123!'
+        password: 'CorrectPassword123!'
       });
 
-      expect(loginByPhone.success).toBe(true);
-      expect(loginByPhone.token).toBeDefined();
-      expect(loginByPhone.user?.email).toBe(email);
+      const badLogin = await TrialService.loginTrial({
+        email,
+        password: 'WrongPassword999!'
+      });
+
+      expect(badLogin.success).toBe(false);
+      expect(badLogin.error).toContain('登录密码错误');
+    });
+
+    it('rejects login with unregistered email', async () => {
+      const unregistered = `unregistered_${Date.now()}@hot-enterprise.com`;
+      const res = await TrialService.loginTrial({
+        email: unregistered,
+        password: 'AnyPassword123!'
+      });
+
+      expect(res.success).toBe(false);
+      expect(res.error).toContain('未找到该邮箱关联的试用记录');
     });
   });
 });

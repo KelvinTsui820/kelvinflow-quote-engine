@@ -90,9 +90,23 @@ export class TrialService {
   }
 
   /**
-   * 根据手机号或邮箱精确匹配试用记录 (防薅羊毛核心检索)
+   * 根据邮箱精确匹配试用记录 (核心检索)
+   */
+  static findTrialByEmail(email?: string): TrialRecord | null {
+    if (!email) return null;
+    const clean = email.toLowerCase().trim();
+    const trials = this.getAllTrials();
+    return trials.find(t => t.email.toLowerCase() === clean) || null;
+  }
+
+  /**
+   * 根据手机号或邮箱匹配试用记录 (兼顾多条件查询)
    */
   static findTrialByPhoneOrEmail(phone?: string, email?: string): TrialRecord | null {
+    if (email) {
+      const match = this.findTrialByEmail(email);
+      if (match) return match;
+    }
     const trials = this.getAllTrials();
     const cleanPhone = (phone || '').replace(/\D/g, '');
     const cleanEmail = (email || '').toLowerCase().trim();
@@ -208,16 +222,8 @@ export class TrialService {
       };
     }
 
-    // 5. 可选手机号校验（如提供则校验 11 位大陆手机格式）
-    if (cleanPhone && !/^1[3-9]\d{9}$/.test(cleanPhone)) {
-      return {
-        success: false,
-        error: '如提供手机号码，请输入合法的 11 位中国大陆手机号'
-      };
-    }
-
-    // 6. 检索历史试用记录 (防薅羊毛与拦截重复注册)
-    const existing = this.findTrialByPhoneOrEmail(cleanPhone, cleanEmail);
+    // 5. 检索历史试用记录 (按邮箱严格防薅羊毛与拦截重复注册)
+    const existing = this.findTrialByEmail(cleanEmail) || (cleanPhone ? this.findTrialByPhoneOrEmail(cleanPhone) : null);
     const now = new Date();
 
     if (existing) {
@@ -252,11 +258,11 @@ export class TrialService {
       }
     }
 
-    // 7. 全新用户开通试用：以邮箱为核心租户标识
+    // 6. 全新用户开通试用：纯邮箱驱动租户标识
     const emailPrefix = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
     const domainPrefix = (cleanEmail.split('@')[1] || '').split('.')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
-    const tenantId = cleanPhone ? `tenant_trial_${cleanPhone}` : `tenant_trial_${emailPrefix}_${domainPrefix}`;
-    const userId = cleanPhone ? `usr_trial_${cleanPhone}` : `usr_trial_${emailPrefix}`;
+    const tenantId = `tenant_trial_${emailPrefix}_${domainPrefix}`;
+    const userId = `usr_trial_${emailPrefix}`;
 
     // 7.1 检索推荐人信息与同行裂变激励
     let referrerUser: TrialRecord | null = null;
@@ -331,7 +337,7 @@ export class TrialService {
 
     // 7.4 登记试用主账本
     const newRecord: TrialRecord = {
-      id: `trial_${cleanPhone || emailPrefix}`,
+      id: `trial_${emailPrefix}_${domainPrefix}`,
       phone: cleanPhone || '',
       email: cleanEmail,
       passwordHash: this.hashPassword(rawPassword),
@@ -411,23 +417,22 @@ export class TrialService {
   }
 
   /**
-   * 已有用户安全密码登录 (支持工作邮箱或手机号 + 密码)
+   * 工作邮箱 + 密码安全登录
    */
   static async loginTrial(params: {
-    account?: string;
-    phone?: string;
     email?: string;
+    account?: string;
     password?: string;
     ip?: string;
   }): Promise<TrialRegisterResult> {
-    const rawAccount = (params.account || params.email || params.phone || '').trim();
+    const rawAccount = (params.email || params.account || '').trim();
     const rawPassword = (params.password || '').trim();
     const ip = params.ip || '127.0.0.1';
 
     if (!rawAccount) {
       return {
         success: false,
-        error: '请输入工作邮箱或手机号码'
+        error: '请输入工作邮箱'
       };
     }
 
@@ -438,41 +443,22 @@ export class TrialService {
       };
     }
 
-    const cleanEmail = rawAccount.includes('@') ? rawAccount.toLowerCase() : '';
-    const cleanPhone = !rawAccount.includes('@') ? rawAccount.replace(/\D/g, '') : '';
-
-    const existing = this.findTrialByPhoneOrEmail(cleanPhone, cleanEmail);
+    const cleanEmail = rawAccount.toLowerCase();
+    const existing = this.findTrialByEmail(cleanEmail) || this.findTrialByPhoneOrEmail(undefined, cleanEmail);
     if (!existing) {
       return {
         success: false,
-        error: '未找到该账号关联的试用记录，请先切换至「开通试用」完成免费注册！'
+        error: '未找到该邮箱关联的试用记录，请先完成免费注册！'
       };
     }
 
-    // 密码校验 (若存量旧账号尚未录入密码哈希，则初次登入时自动绑定该密码)
-    let isLegacyBound = false;
-    if (existing.passwordHash) {
-      const inputHash = this.hashPassword(rawPassword);
-      if (existing.passwordHash !== inputHash) {
-        return {
-          success: false,
-          error: '登录密码错误，请重新核对后输入（如需找回密码请扫码添加创始人微信协助）'
-        };
-      }
-    } else {
-      // 存量老账号首次补录密码：校验密码复杂度
-      const complexity = this.validatePasswordComplexity(rawPassword);
-      if (!complexity.valid) {
-        return {
-          success: false,
-          error: `检测到您是早期特邀老账号（尚未设置登录密码），请设置符合安全规则的新密码：${complexity.error}`
-        };
-      }
-      existing.passwordHash = this.hashPassword(rawPassword);
-      const all = this.getAllTrials().map(t => t.id === existing.id ? existing : t);
-      this.saveTrials(all);
-      isLegacyBound = true;
-      console.log(`🔐 [存量账号补全密码] 账号 [${existing.email || existing.phone}] 首次登录已成功绑定密码！`);
+    // 密码校验 (纯净哈希比对)
+    const inputHash = this.hashPassword(rawPassword);
+    if (existing.passwordHash !== inputHash) {
+      return {
+        success: false,
+        error: '登录密码错误，请重新核对后输入（如需重置密码请扫码添加主理人微信协助）'
+      };
     }
 
     const now = new Date();
@@ -514,16 +500,12 @@ export class TrialService {
     const token = AuthService.generateToken(user, remainingDays * 24 * 3600);
     const tenant = TenantService.getTenantProfile(existing.tenantId);
 
-    console.log(`🔑 [密码登录成功] 账号 [${existing.email || existing.phone}] 租户 [${existing.tenantId}] 剩余有效期: ${remainingDays} 天${isLegacyBound ? ' (首次绑定密码)' : ''}`);
-
-    const successMessage = isLegacyBound
-      ? `🎉 欢迎归来！已自动为您将本次输入的密码绑定为正式登录密码，请妥善保管。正在进入工作台...`
-      : `登录成功！欢迎回来，您的全功能试用尚在有效期内（剩余 ${remainingDays} 天）`;
+    console.log(`🔑 [密码登录成功] 工作邮箱 [${existing.email}] 租户 [${existing.tenantId}] 剩余有效期: ${remainingDays} 天`);
 
     const isPaid = Boolean((tenant?.plan && tenant.plan !== 'trial') || existing.status === 'converted');
     return {
       success: true,
-      message: successMessage,
+      message: `登录成功！欢迎回来，您的全功能试用尚在有效期内（剩余 ${remainingDays} 天）`,
       token,
       tenantId: existing.tenantId,
       remainingDays,
@@ -531,13 +513,12 @@ export class TrialService {
       user,
       tenant,
       isPaid,
-      plan: tenant?.plan || (isPaid ? 'geek' : 'trial'),
-      isLegacyBound
+      plan: tenant?.plan || (isPaid ? 'geek' : 'trial')
     };
   }
 
   /**
-   * 查询账户当前状态 (支持手机号或邮箱，用于前端登录框智能感知老用户及密码状态)
+   * 查询账户当前状态 (以邮箱为主)
    */
   static checkAccountStatus(identifier: string): {
     exists: boolean;
@@ -545,14 +526,12 @@ export class TrialService {
     isExpired?: boolean;
     remainingDays?: number;
     name?: string;
-    phone?: string;
     email?: string;
   } {
     const raw = (identifier || '').trim();
     if (!raw) return { exists: false };
-    const cleanEmail = raw.includes('@') ? raw.toLowerCase() : '';
-    const cleanPhone = !raw.includes('@') ? raw.replace(/\D/g, '') : '';
-    const trial = this.findTrialByPhoneOrEmail(cleanPhone, cleanEmail);
+    const cleanEmail = raw.toLowerCase();
+    const trial = this.findTrialByEmail(cleanEmail) || this.findTrialByPhoneOrEmail(undefined, cleanEmail);
     if (!trial) return { exists: false };
     const now = new Date();
     const expiryDate = new Date(trial.expiresAt);
@@ -564,7 +543,6 @@ export class TrialService {
       isExpired,
       remainingDays,
       name: trial.name,
-      phone: trial.phone,
       email: trial.email
     };
   }
@@ -832,12 +810,12 @@ export class TrialService {
     const now = Date.now();
     const expTime = new Date(trial.expiresAt).getTime();
     const remainingDays = Math.max(0, Math.ceil((expTime - now) / (24 * 3600 * 1000)));
-    const inviteCode = trial.phone;
+    const inviteCode = trial.email || trial.phone;
     let cleanBaseUrl = baseUrl.replace(/\/+$/, '');
     if (cleanBaseUrl.includes('quote.kelvinflow.com')) {
       cleanBaseUrl = cleanBaseUrl.replace('quote.kelvinflow.com', 'kelvinflow.com');
     }
-    const shareUrl = `${cleanBaseUrl}/?ref=${inviteCode}`;
+    const shareUrl = `${cleanBaseUrl}/?ref=${encodeURIComponent(inviteCode)}`;
     const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，立享 7 天完整全功能试用：\n${shareUrl}\n同行邀请码：${inviteCode}`;
 
     const bonusDays = (trial.referralCount || 0) * 7;
