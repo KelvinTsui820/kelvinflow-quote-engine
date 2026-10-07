@@ -169,7 +169,7 @@ export function requireActiveTenant(req: Request, res: Response, next: NextFunct
   const { expired, expiresAt, dataRetentionUntil } = TenantService.isTenantExpired(tenantId);
   if (expired) {
     const expiryStr = expiresAt ? new Date(expiresAt).toLocaleDateString('zh-CN') : '已到期';
-    const retentionStr = dataRetentionUntil ? new Date(dataRetentionUntil).toLocaleDateString('zh-CN') : '60天内 (2个月)';
+    const retentionStr = dataRetentionUntil ? new Date(dataRetentionUntil).toLocaleDateString('zh-CN') : '30天内';
     return res.status(403).json({
       success: false,
       code: 'TENANT_EXPIRED',

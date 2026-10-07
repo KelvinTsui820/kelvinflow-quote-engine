@@ -350,7 +350,7 @@
             🔒 试用已到期
           </span>
           <span class="text-rose-200">
-            您的 7 天全功能试用已到期，单据与底价数据已安全封存。如需继续使用请升级极客版或扫码联系创始人微信恢复自动出单！
+            您的 7 天全功能试用已到期，底价表与历史单据将安全保留 30 天。如需继续使用请升级极客版或扫码联系创始人微信恢复自动出单！
           </span>
         </div>
         <div class="flex items-center space-x-2">
@@ -5037,7 +5037,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         const openTrialExpiredModal = () => {
           trialModal.value.show = true;
           trialModal.value.isExpired = true;
-          trialModal.value.expiredMessage = '您的 7 天全功能免费试用已到期。为保障平台算法算力与数据公平，免费名额限体验 1 次。如需继续出单，请升级极客版或扫码添加创始人微信进行商务开通！';
+          trialModal.value.expiredMessage = '您的 7 天全功能免费试用已到期。您的底价表与历史报价数据将为您安全保留 30 天。为保障平台算法算力与数据公平，免费名额限体验 1 次。如需继续出单，请升级极客版或扫码添加创始人微信进行商务开通！';
         };
 
         const applyTrialAuthSuccess = async (data, phone, email) => {

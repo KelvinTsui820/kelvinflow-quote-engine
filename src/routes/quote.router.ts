@@ -13,6 +13,7 @@ import { AuthService } from '../services/auth.service.js';
 import { TrialService } from '../services/trial.service.js';
 import { DraftService } from '../services/draft.service.js';
 import { NotificationService } from '../services/notification.service.js';
+import { EmailVerificationService } from '../services/email-verification.service.js';
 import { authMiddleware, requireRole, requireActiveTenant } from '../middlewares/auth.middleware.js';
 import { ProcessQuoteResponse, StandardPriceItem, StandardExchangeRate, QuotationResult } from '../types/index.js';
 
@@ -88,25 +89,54 @@ function extractSpreadsheetId(input?: string): string | null {
 // =========================================================================
 
 /**
- * 7 天免費全功能試用註冊與快速登錄 (防薅羊毛核心閉環)
+ * 发送 6 位工作邮箱试用验证码 (Plan C 核心防刷风控)
+ * POST /api/v1/auth/send-verification-code
+ */
+quoteRouter.post('/auth/send-verification-code', async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { email } = req.body;
+    const clientIp = ((req.headers['x-forwarded-for'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: '请提供接收验证码的外贸工作邮箱'
+      });
+    }
+
+    const result = await EmailVerificationService.sendCode(email, clientIp);
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    return res.json(result);
+  } catch (error: any) {
+    console.error('❌ 发送邮箱验证码异常:', error);
+    return res.status(500).json({ success: false, error: error.message || '发送失败，请稍后再试' });
+  }
+});
+
+/**
+ * 7 天免費全功能試用註冊 (Plan C: 工作邮箱为主 + 6位验证码真验证 + 30天数据保留)
  * POST /api/v1/auth/trial-register
  */
 quoteRouter.post('/auth/trial-register', async (req: Request, res: Response): Promise<any> => {
   try {
-    const { phone, email, password, channelSource, name, company, category, wechat, ref } = req.body;
+    const { email, code, phone, password, channelSource, name, company, category, wechat, ref } = req.body;
     const refCode = ref || (req.query.ref as string);
-    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+    const clientIp = ((req.headers['x-forwarded-for'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
 
-    if (!phone && !email) {
+    if (!email) {
       return res.status(400).json({
         success: false,
-        error: '請提供手機號碼或外貿業務郵箱'
+        error: '请提供外贸业务工作邮箱'
       });
     }
 
     const result = await TrialService.registerOrLoginTrial({
-      phone,
       email,
+      code,
+      phone,
       password,
       channelSource,
       name,
@@ -133,16 +163,16 @@ quoteRouter.post('/auth/trial-register', async (req: Request, res: Response): Pr
 
 /**
  * POST /api/v1/auth/login
- * 支持手机号或邮箱 + 密码安全登录 (兼容试用用户与企业租户管理员)
+ * 支持工作邮箱或手机号 + 密码安全登录 (兼容试用用户与企业租户管理员)
  */
 quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any> => {
   try {
-    const { phone, email, password } = req.body;
-    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+    const { account, phone, email, password } = req.body;
+    const clientIp = ((req.headers['x-forwarded-for'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
 
-    const accountIdentifier = (phone || email || '').trim();
+    const accountIdentifier = (account || email || phone || '').trim();
     if (!accountIdentifier) {
-      return res.status(400).json({ success: false, error: '请提供手机号码或登录邮箱' });
+      return res.status(400).json({ success: false, error: '请提供工作邮箱或手机号码' });
     }
     if (!password) {
       return res.status(400).json({ success: false, error: '请输入登录密码' });
@@ -166,9 +196,9 @@ quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any
       }
     }
 
-    // 2. 走 TrialService 试用账本验证 (支持手机号或邮箱)
+    // 2. 走 TrialService 试用账本验证 (支持邮箱或手机号)
     const result = await TrialService.loginTrial({
-      phone: accountIdentifier,
+      account: accountIdentifier,
       password,
       ip: clientIp
     });
@@ -189,15 +219,15 @@ quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any
 
 /**
  * GET /api/v1/auth/check-account
- * 智能探知手机号账户状态 (是否已注册、是否为早期未设密码老账号、是否已过期)
+ * 智能探知账户状态 (支持工作邮箱或手机号查询：是否已注册、是否为早期未设密码老账号、是否已过期)
  */
 quoteRouter.get('/auth/check-account', async (req: Request, res: Response): Promise<any> => {
   try {
-    const phone = (req.query.phone || '').toString().trim();
-    if (!phone) {
-      return res.status(400).json({ success: false, error: '请提供查询手机号' });
+    const identifier = (req.query.account || req.query.email || req.query.phone || '').toString().trim();
+    if (!identifier) {
+      return res.status(400).json({ success: false, error: '请提供查询邮箱或手机号' });
     }
-    const status = TrialService.checkAccountStatus(phone);
+    const status = TrialService.checkAccountStatus(identifier);
     return res.json({ success: true, ...status });
   } catch (error: any) {
     console.error('❌ 账号状态查询异常:', error);

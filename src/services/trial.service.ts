@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { AuthService } from './auth.service.js';
 import { TenantService } from './tenant.service.js';
 import { NotificationService } from './notification.service.js';
+import { EmailVerificationService } from './email-verification.service.js';
 import { AuthUser, TenantProfile } from '../types/index.js';
 
 export interface TrialRecord {
@@ -139,8 +140,9 @@ export class TrialService {
    * 支持同行推荐奖励机制：推荐好友注册，双方各获奖励天数
    */
   static async registerOrLoginTrial(params: {
-    phone: string;
     email: string;
+    code?: string;
+    phone?: string;
     password?: string;
     channelSource?: string;
     name?: string;
@@ -150,8 +152,9 @@ export class TrialService {
     ip?: string;
     ref?: string;
   }): Promise<TrialRegisterResult> {
-    const cleanPhone = (params.phone || '').replace(/\D/g, '');
     const cleanEmail = (params.email || '').toLowerCase().trim();
+    const cleanPhone = (params.phone || '').replace(/\D/g, '');
+    const code = (params.code || '').trim();
     const rawPassword = (params.password || '').trim();
     const channelSource = (params.channelSource || '').trim() || '未选择';
     const name = (params.name || '').trim() || '外贸同行';
@@ -161,22 +164,42 @@ export class TrialService {
     const ip = params.ip || '127.0.0.1';
     const rawRef = (params.ref || '').trim();
 
-    // 1. 严格格式校验
-    if (!cleanPhone || !/^1[3-9]\d{9}$/.test(cleanPhone)) {
+    // 1. 邮箱基础校验与域名风控 (拦截临时一次性匿名邮箱，支持常见公用邮箱与企业域名邮箱)
+    const emailCheck = EmailVerificationService.validateEmailRisk(cleanEmail);
+    if (!emailCheck.valid) {
       return {
         success: false,
-        error: '请输入合法的 11 位中国大陆常用手机号码'
+        error: emailCheck.error || '请输入合法的企业工作邮箱或常用公用邮箱（Gmail/QQ/163/Hotmail等）'
       };
     }
 
-    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    // 2. IP 频控防薅羊毛：同一个 IP 地址 7 天内最多注册 3 个试用账号
+    if (ip && ip !== '127.0.0.1' && ip !== 'localhost') {
+      const sevenDaysAgo = Date.now() - 7 * 24 * 3600 * 1000;
+      const recentTrialsFromSameIp = this.getAllTrials().filter(t => {
+        if (!t.ip || t.ip !== ip) return false;
+        const regTime = new Date(t.createdAt).getTime();
+        return !isNaN(regTime) && regTime >= sevenDaysAgo;
+      });
+
+      if (recentTrialsFromSameIp.length >= 3) {
+        return {
+          success: false,
+          error: '当前网络环境试用申请次数已达上限 (同一个IP地址7天内最多注册3个试用账号)。如需为团队增加席位，请联系主理人微信！'
+        };
+      }
+    }
+
+    // 3. 邮箱 6 位验证码校验
+    const codeCheck = EmailVerificationService.verifyCode(cleanEmail, code);
+    if (!codeCheck.valid) {
       return {
         success: false,
-        error: '请输入合法的电子邮箱地址（用于接收报价单与草稿联动）'
+        error: codeCheck.error || '验证码错误或已失效，请重新获取'
       };
     }
 
-    // 2. 密码安全与复杂度校验 (防免密盗号、防弱口令暴力碰撞)
+    // 4. 密码安全与复杂度校验
     const pwdCheck = this.validatePasswordComplexity(rawPassword);
     if (!pwdCheck.valid) {
       return {
@@ -185,7 +208,15 @@ export class TrialService {
       };
     }
 
-    // 3. 检索历史试用记录 (防薅羊毛与拦截重复注册)
+    // 5. 可选手机号校验（如提供则校验 11 位大陆手机格式）
+    if (cleanPhone && !/^1[3-9]\d{9}$/.test(cleanPhone)) {
+      return {
+        success: false,
+        error: '如提供手机号码，请输入合法的 11 位中国大陆手机号'
+      };
+    }
+
+    // 6. 检索历史试用记录 (防薅羊毛与拦截重复注册)
     const existing = this.findTrialByPhoneOrEmail(cleanPhone, cleanEmail);
     const now = new Date();
 
@@ -194,8 +225,8 @@ export class TrialService {
       const isExpired = now > expiryDate;
 
       if (isExpired) {
-        // 🚨【防薅羊毛拦截】：该手机号或邮箱已体验过 7 天试用且已到期！
-        console.warn(`🚨 [防薅羊毛拦截] 手机号 [${cleanPhone}] 或邮箱 [${cleanEmail}] 已于 ${expiryDate.toISOString()} 到期，拒绝二次免费试用`);
+        // 🚨【防薅羊毛拦截】：该邮箱已体验过 7 天试用且已到期！
+        console.warn(`🚨 [防薅羊毛拦截] 邮箱 [${cleanEmail}] 已于 ${expiryDate.toISOString()} 到期，拒绝二次免费试用`);
         if (existing.status !== 'converted') {
           existing.status = 'expired';
         }
@@ -207,25 +238,27 @@ export class TrialService {
           success: false,
           expired: true,
           code: 'TRIAL_EXPIRED',
-          message: `该手机号或邮箱（${existing.phone} / ${existing.email}）的 7 天免费全功能试用已于 ${expiryStr} 到期。为保障平台算法算力与公平服务，免费名额仅限享受 1 次。如需继续使用，请升级极客版或扫码添加创始人微信进行商务开通！`,
+          message: `该邮箱（${existing.email}）的 7 天免费全功能试用已于 ${expiryStr} 到期。您的底价表与历史报价数据将为您安全保留 30 天。为保障平台算法算力与公平服务，免费名额仅限享受 1 次。如需继续使用，请升级极客版或扫码添加创始人微信进行商务开通！`,
           expiresAt: existing.expiresAt,
           founderWechat: 'kt_data'
         };
       } else {
-        // 🚨 账号已存在且在有效期内：阻断重复注册，提示输入密码登录，杜绝未授权覆盖！
+        // 🚨 账号已存在且在有效期内：阻断重复注册，提示输入密码登录
         return {
           success: false,
           canLogin: true,
-          error: `该手机号 (${cleanPhone}) 已经开通过试用服务，请切换至「已有账号登录」输入密码登录工作台！`
+          error: `该邮箱 (${cleanEmail}) 已经开通过试用服务，请切换至「已有账号登录」输入密码登录工作台！`
         };
       }
     }
 
-    // 4. 全新用户开通试用
-    const tenantId = `tenant_trial_${cleanPhone}`;
-    const userId = `usr_trial_${cleanPhone}`;
+    // 7. 全新用户开通试用：以邮箱为核心租户标识
+    const emailPrefix = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
+    const domainPrefix = (cleanEmail.split('@')[1] || '').split('.')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
+    const tenantId = cleanPhone ? `tenant_trial_${cleanPhone}` : `tenant_trial_${emailPrefix}_${domainPrefix}`;
+    const userId = cleanPhone ? `usr_trial_${cleanPhone}` : `usr_trial_${emailPrefix}`;
 
-    // 4.1 检索推荐人信息与同行裂变激励 (支持手机号、邮箱或租户ID作为邀请码)
+    // 7.1 检索推荐人信息与同行裂变激励
     let referrerUser: TrialRecord | null = null;
     let cleanRef = rawRef.trim();
     if (cleanRef && cleanRef.toLowerCase() !== cleanPhone.toLowerCase() && cleanRef.toLowerCase() !== cleanEmail.toLowerCase()) {
@@ -261,13 +294,13 @@ export class TrialService {
         expiresAt: referrerUser.expiresAt,
         status: 'active'
       });
-      console.log(`🎁 [同行推荐奖励] 推荐人 [${referrerUser.name} (${referrerUser.phone})] 获得 +7 天时长！新用户试用期为标准的 7 天`);
+      console.log(`🎁 [同行推荐奖励] 推荐人 [${referrerUser.name || referrerUser.email}] 获得 +7 天时长！新用户试用期为标准的 7 天`);
     }
 
     const expiresAtDate = new Date(Date.now() + trialDays * 24 * 3600 * 1000);
     const expiresAt = expiresAtDate.toISOString();
 
-    // 4.2 初始化租户目录并同步种子底价表
+    // 7.2 初始化租户目录并同步种子底价表
     const tenantDir = TenantService.getTenantDir(tenantId);
     const tenantPricingPath = path.join(tenantDir, 'active_pricing.xlsx');
     const defaultPricingPath = path.join(this.DATA_DIR, 'active_pricing.xlsx');
@@ -280,7 +313,7 @@ export class TrialService {
       }
     }
 
-    // 4.3 创建租户配置档案
+    // 7.3 创建租户配置档案 (底价与数据安全保留 30 天)
     const tenant = TenantService.updateTenantProfile(tenantId, {
       companyName: company || `${name} Global Trading Co., Ltd.`,
       managerName: name,
@@ -289,17 +322,17 @@ export class TrialService {
       plan: 'trial' as any,
       status: 'active',
       expiresAt,
-      // 试用期结束后提供整整 60 天（2个月）安全封存缓冲期：以【试用期到期日 expiresAtDate】为起点计算
-      dataRetentionUntil: new Date(expiresAtDate.getTime() + 60 * 24 * 3600 * 1000).toISOString(),
+      // 试用期结束后提供整整 30 天安全保留缓冲期：以【试用期到期日 expiresAtDate】为起点计算
+      dataRetentionUntil: new Date(expiresAtDate.getTime() + 30 * 24 * 3600 * 1000).toISOString(),
       hideCostFromSales: false,
       defaultProfitMargin: 0.30,
       defaultCurrency: 'USD'
     });
 
-    // 4.4 登记试用主账本 (包含安全密码散列与获客渠道)
+    // 7.4 登记试用主账本
     const newRecord: TrialRecord = {
-      id: `trial_${cleanPhone}`,
-      phone: cleanPhone,
+      id: `trial_${cleanPhone || emailPrefix}`,
+      phone: cleanPhone || '',
       email: cleanEmail,
       passwordHash: this.hashPassword(rawPassword),
       channelSource,
@@ -314,7 +347,7 @@ export class TrialService {
       status: 'active',
       lastLoginAt: now.toISOString(),
       ip,
-      referredBy: referrerUser ? referrerUser.phone : undefined,
+      referredBy: referrerUser ? (referrerUser.phone || referrerUser.email) : undefined,
       referralCount: 0,
       rewardDays: newRewardDays
     };
@@ -328,7 +361,7 @@ export class TrialService {
     allTrials.unshift(newRecord);
     this.saveTrials(allTrials);
 
-    // 4.5 签发安全 Token (试用用户作为自身租户的管理员，拥有管理专属底价表的权限)
+    // 7.5 签发安全 Token
     const user: AuthUser = {
       id: userId,
       email: cleanEmail,
@@ -338,31 +371,31 @@ export class TrialService {
     };
     const token = AuthService.generateToken(user, trialDays * 24 * 3600);
 
-    // 4.6 留资真实字段持久化与实时推送至创始人微信
+    // 7.6 留资真实字段持久化与实时推送至创始人微信
     const leadPayload = {
       customerName: name !== '外贸同行' ? name : '',
       companyName: company,
       phone: cleanPhone,
-      contact: cleanPhone,
+      contact: cleanEmail,
       email: cleanEmail,
       wechat,
       channelSource,
       productCategory: category,
-      ref: referrerUser ? `${referrerUser.name || referrerUser.phone}` : (cleanRef || ''),
+      ref: referrerUser ? `${referrerUser.name || referrerUser.email}` : (cleanRef || ''),
       source: referrerUser 
-        ? `同行好友推荐 [${referrerUser.name || referrerUser.phone}] 开通试用 (共${trialDays}天)` 
-        : `官网/工作台开通${trialDays}天全功能试用`,
+        ? `同行好友推荐 [${referrerUser.name || referrerUser.email}] 开通试用 (共${trialDays}天)` 
+        : `官网/工作台开通${trialDays}天全功能试用 (邮箱真验证)`,
       expiresAt,
       ip
     };
     NotificationService.saveLeadLocally(leadPayload);
     NotificationService.pushToWeChat(leadPayload).catch(err => console.error('异步微信通知出错:', err));
 
-    console.log(`🎉 [试用开通成功] 手机 [${cleanPhone}], 邮箱 [${cleanEmail}], 渠道 [${channelSource}], 租户 [${tenantId}], 试用期 [${trialDays}天]`);
+    console.log(`🎉 [试用开通成功] 邮箱 [${cleanEmail}], 手机 [${cleanPhone || '未填'}], 渠道 [${channelSource}], 租户 [${tenantId}], 试用期 [${trialDays}天]`);
 
     const welcomeMsg = referrerUser 
-      ? `🎉 免费试用开通成功！已绑定同行邀请码 [${referrerUser.name || referrerUser.phone}]，您与好友各获赠 7 天额外时长，共享 ${trialDays} 天全功能体验！正在进入工作台...`
-      : `🎉 7 天全功能免费试用开通成功！已为您的专属私有底价库加密保护，正在为您跳转至外贸智能审单工作台...`;
+      ? `🎉 免费试用开通成功！已绑定同行邀请码，您与好友各获赠 7 天额外时长，共享 ${trialDays} 天全功能体验！底价表与历史单据将为您安全保留 30 天。正在进入工作台...`
+      : `🎉 7 天全功能免费试用开通成功！已为您的专属私有底价库加密保护，底价表与历史单据将安全保留 30 天。正在为您跳转至外贸智能审单工作台...`;
 
     return {
       success: true,
@@ -378,21 +411,23 @@ export class TrialService {
   }
 
   /**
-   * 已有用户安全密码登录 (验证手机号与加密密码)
+   * 已有用户安全密码登录 (支持工作邮箱或手机号 + 密码)
    */
   static async loginTrial(params: {
-    phone: string;
+    account?: string;
+    phone?: string;
+    email?: string;
     password?: string;
     ip?: string;
   }): Promise<TrialRegisterResult> {
-    const cleanPhone = (params.phone || '').replace(/\D/g, '');
+    const rawAccount = (params.account || params.email || params.phone || '').trim();
     const rawPassword = (params.password || '').trim();
     const ip = params.ip || '127.0.0.1';
 
-    if (!cleanPhone || !/^1[3-9]\d{9}$/.test(cleanPhone)) {
+    if (!rawAccount) {
       return {
         success: false,
-        error: '请输入合法的 11 位中国大陆常用手机号码'
+        error: '请输入工作邮箱或手机号码'
       };
     }
 
@@ -403,11 +438,14 @@ export class TrialService {
       };
     }
 
-    const existing = this.findTrialByPhoneOrEmail(cleanPhone, cleanPhone);
+    const cleanEmail = rawAccount.includes('@') ? rawAccount.toLowerCase() : '';
+    const cleanPhone = !rawAccount.includes('@') ? rawAccount.replace(/\D/g, '') : '';
+
+    const existing = this.findTrialByPhoneOrEmail(cleanPhone, cleanEmail);
     if (!existing) {
       return {
         success: false,
-        error: '未找到该手机号关联的账户，请先切换至「开通试用」完成免费注册！'
+        error: '未找到该账号关联的试用记录，请先切换至「开通试用」完成免费注册！'
       };
     }
 
@@ -422,7 +460,7 @@ export class TrialService {
         };
       }
     } else {
-      // 存量老账号首次补录密码：校验密码复杂度 (至少 8 位且包含至少 1 个大写字母)
+      // 存量老账号首次补录密码：校验密码复杂度
       const complexity = this.validatePasswordComplexity(rawPassword);
       if (!complexity.valid) {
         return {
@@ -434,7 +472,7 @@ export class TrialService {
       const all = this.getAllTrials().map(t => t.id === existing.id ? existing : t);
       this.saveTrials(all);
       isLegacyBound = true;
-      console.log(`🔐 [存量账号补全密码] 手机号 [${cleanPhone}] 首次登录已成功绑定密码！`);
+      console.log(`🔐 [存量账号补全密码] 账号 [${existing.email || existing.phone}] 首次登录已成功绑定密码！`);
     }
 
     const now = new Date();
@@ -453,7 +491,7 @@ export class TrialService {
         success: false,
         expired: true,
         code: 'TRIAL_EXPIRED',
-        message: `您的 7 天全功能免费试用已于 ${expiryStr} 到期。为保障平台算法算力与数据公平，免费名额限体验 1 次。如需继续出单，请升级极客版或扫码添加创始人微信进行商务开通！`,
+        message: `您的 7 天全功能免费试用已于 ${expiryStr} 到期。您的底价表与历史报价数据将为您安全保留 30 天。为保障平台算法算力与数据公平，免费名额限体验 1 次。如需继续出单，请升级极客版或扫码添加创始人微信进行商务开通！`,
         expiresAt: existing.expiresAt,
         founderWechat: 'kt_data'
       };
@@ -476,7 +514,7 @@ export class TrialService {
     const token = AuthService.generateToken(user, remainingDays * 24 * 3600);
     const tenant = TenantService.getTenantProfile(existing.tenantId);
 
-    console.log(`🔑 [密码登录成功] 手机号 [${cleanPhone}] 租户 [${existing.tenantId}] 剩余有效期: ${remainingDays} 天${isLegacyBound ? ' (首次绑定密码)' : ''}`);
+    console.log(`🔑 [密码登录成功] 账号 [${existing.email || existing.phone}] 租户 [${existing.tenantId}] 剩余有效期: ${remainingDays} 天${isLegacyBound ? ' (首次绑定密码)' : ''}`);
 
     const successMessage = isLegacyBound
       ? `🎉 欢迎归来！已自动为您将本次输入的密码绑定为正式登录密码，请妥善保管。正在进入工作台...`
@@ -499,7 +537,7 @@ export class TrialService {
   }
 
   /**
-   * 查询手机号账户当前状态 (用于前端登录框智能感知老用户及密码状态)
+   * 查询账户当前状态 (支持手机号或邮箱，用于前端登录框智能感知老用户及密码状态)
    */
   static checkAccountStatus(identifier: string): {
     exists: boolean;
@@ -508,10 +546,13 @@ export class TrialService {
     remainingDays?: number;
     name?: string;
     phone?: string;
+    email?: string;
   } {
-    const clean = (identifier || '').replace(/\D/g, '');
-    if (!clean || clean.length !== 11) return { exists: false };
-    const trial = this.findTrialByPhoneOrEmail(clean, clean);
+    const raw = (identifier || '').trim();
+    if (!raw) return { exists: false };
+    const cleanEmail = raw.includes('@') ? raw.toLowerCase() : '';
+    const cleanPhone = !raw.includes('@') ? raw.replace(/\D/g, '') : '';
+    const trial = this.findTrialByPhoneOrEmail(cleanPhone, cleanEmail);
     if (!trial) return { exists: false };
     const now = new Date();
     const expiryDate = new Date(trial.expiresAt);
@@ -523,7 +564,8 @@ export class TrialService {
       isExpired,
       remainingDays,
       name: trial.name,
-      phone: trial.phone
+      phone: trial.phone,
+      email: trial.email
     };
   }
 

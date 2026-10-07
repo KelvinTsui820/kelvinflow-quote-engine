@@ -79,7 +79,7 @@ async function main() {
     }
   }
 
-  // 3. 计算有效期与数据保留期 (到期后安全封存 60 天 / 2 个月)
+  // 3. 计算有效期与数据保留期 (到期后安全封存 30 天)
   const now = new Date();
   const expires = new Date(now);
   if (plan === 'annual') {
@@ -89,7 +89,7 @@ async function main() {
   }
 
   const retentionUntil = new Date(expires);
-  retentionUntil.setDate(retentionUntil.getDate() + 60); // 到期后安全封存保留 60 天 (2个月)
+  retentionUntil.setDate(retentionUntil.getDate() + 30); // 到期后安全封存保留 30 天
 
   // 4. 保存租户 Profile
   const profile: any = {

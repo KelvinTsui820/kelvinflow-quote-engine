@@ -238,7 +238,7 @@ export interface TenantProfile {
   plan?: 'trial' | 'monthly' | 'annual' | 'geek' | 'starter' | 'pro' | 'enterprise';
   status?: 'active' | 'suspended' | 'expired';
   expiresAt?: string;          // 服務到期時間 (ISO 8601)
-  dataRetentionUntil?: string; // 歷史數據安全封存截止時間 (ISO 8601, 試用到期後保留 60 天 / 2 個月)
+  dataRetentionUntil?: string; // 歷史數據安全封存截止時間 (ISO 8601, 試用到期後保留 30 天)
   apiKeys?: string[];          // API 金鑰列表
   imapConfig?: {
     enabled: boolean;
