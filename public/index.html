@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KelvinFlow · AI 外贸智能出单中枢</title>
-  <meta name="description" content="专为外贸企业与一人公司打造的智能出单中枢。直接转发海外买家询盘邮件，自动匹配私有成本底价表与阶梯利润，10 秒生成国际商业 A4 PDF 报价单并写入邮箱草稿箱。">
+  <meta name="description" content="专为外贸企业、业务团队与工贸一体打造的智能出单中枢。直接转发海外买家询盘邮件，自动匹配私有成本底价表与阶梯利润，10 秒生成国际商业 A4 PDF 报价单并写入邮箱草稿箱。">
   <link rel="icon" type="image/png" href="/favicon.png">
 
   <!-- 样式引擎与外部字体 -->
@@ -274,7 +274,7 @@
       <!-- 极客胶囊 Tag -->
       <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-6 hover:border-cyan-500/30 transition-all">
         <span class="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping"></span>
-        <span class="text-xs font-medium text-slate-300 tracking-wide">专为外贸一人公司与工贸一体打造 · 告别手工算单</span>
+        <span class="text-xs font-medium text-slate-300 tracking-wide">专为外贸企业、业务团队与工贸一体打造 · 告别手工算单</span>
       </div>
 
       <!-- 核心 Apple 风格大标题 (移动端响应式字号 text-3xl sm:text-5xl md:text-7xl) -->
@@ -928,7 +928,7 @@
   <!-- ========================================================================= -->
 
   <!-- A. 试用开通 & 密码登录弹窗 (Inbound Modal) -->
-  <div id="inbound-modal" onclick="closeInboundModal()" class="fixed inset-0 z-[210] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto cursor-pointer">
+  <div id="inbound-modal" class="fixed inset-0 z-[210] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto">
     <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default">
       
       <!-- 关闭按钮 -->
@@ -963,7 +963,7 @@
             工作邮箱 (登录主账号) <span class="text-cyan-400">*</span>
           </label>
           <div class="flex gap-2">
-            <input type="email" id="inbound-email" placeholder="sales@yourcompany.com 或常用外贸邮箱" required class="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 placeholder:text-slate-500 placeholder:text-sm transition-colors">
+            <input type="email" id="inbound-email" placeholder="常用工作邮箱 (如 sales@company.com)" required class="flex-1 px-3.5 sm:px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 placeholder:text-slate-500 placeholder:text-xs sm:placeholder:text-sm placeholder:tracking-normal transition-colors">
             <button type="button" id="btn-send-code" onclick="sendInboundVerificationCode()" class="px-3.5 py-2.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 font-bold text-xs whitespace-nowrap transition cursor-pointer flex items-center justify-center min-w-[96px]">
               <span id="btn-send-code-text">获取验证码</span>
             </button>
@@ -978,7 +978,7 @@
             </label>
             <span id="code-sent-tip" class="hidden text-[10px] text-cyan-400">已发送至工作邮箱</span>
           </div>
-          <input type="text" id="inbound-code" maxlength="6" placeholder="请输入 6 位邮件验证码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono tracking-widest focus:outline-none focus:border-cyan-400 placeholder:text-slate-500 placeholder:text-sm transition-colors">
+          <input type="text" id="inbound-code" maxlength="6" placeholder="请输入6位邮箱验证码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono tracking-widest focus:outline-none focus:border-cyan-400 placeholder:font-sans placeholder:tracking-normal placeholder:text-slate-500 placeholder:text-xs sm:placeholder:text-sm transition-colors">
         </div>
 
         <div>
@@ -1087,7 +1087,7 @@
   </div>
 
   <!-- Plan C 专属：开通成功迎新与私域转化弹窗 (Welcome Modal) -->
-  <div id="plan-c-welcome-modal" class="fixed inset-0 z-[230] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto cursor-pointer">
+  <div id="plan-c-welcome-modal" class="fixed inset-0 z-[230] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto">
     <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-cyan-500/30 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-7 shadow-2xl relative cursor-default text-center">
       <!-- 顶部徽标 -->
       <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 mb-3">
@@ -1140,7 +1140,7 @@
   </div>
 
   <!-- B. 升级极客版支付与转账弹窗 (Payment Modal) -->
-  <div id="payment-modal" onclick="closePaymentModal()" class="fixed inset-0 z-[220] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto cursor-pointer">
+  <div id="payment-modal" class="fixed inset-0 z-[220] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto">
     <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-center">
       <button onclick="closePaymentModal()" aria-label="关闭支付窗口" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
         <i class="fa-solid fa-xmark text-lg"></i>
@@ -1165,18 +1165,27 @@
       </div>
 
       <!-- 微信收款码与添加说明 -->
-      <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] mb-2 flex flex-col items-center">
+      <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] mb-4 flex flex-col items-center">
         <img src="/contact_wechat_card.jpg" alt="微信收款码" class="w-48 h-48 object-contain rounded-xl shadow-lg mb-3" onerror="this.src='/contact_wechat.png'">
         <div class="text-xs text-slate-300 space-y-1.5">
           <p>微信转账请备注：<strong id="payment-note-text" class="text-amber-300 font-mono select-all font-bold">升级极客版(¥99)</strong></p>
           <p class="text-[11px] text-slate-400">扫码转账或添加创始人微信 (<strong class="text-cyan-300 font-mono select-all">kt_data</strong>) 即刻开通</p>
         </div>
       </div>
+
+      <div class="flex items-center space-x-2">
+        <button type="button" onclick="copyPaymentNote()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs transition cursor-pointer">
+          <i class="fa-regular fa-copy mr-1"></i> <span id="copy-pay-note-text">复制转账备注</span>
+        </button>
+        <button type="button" onclick="copyFounderWechat('kt_data')" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition cursor-pointer">
+          <i class="fa-brands fa-weixin mr-1"></i> <span id="copy-founder-wechat-text">复制微信号 (kt_data)</span>
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- D. 同行邀请分享弹窗 (Referral Modal) -->
-  <div id="referral-share-modal" onclick="closeReferralShareModal()" class="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 cursor-pointer">
+  <div id="referral-share-modal" class="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
     <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-left">
       <button onclick="closeReferralShareModal()" aria-label="关闭邀请分享窗口" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
         <i class="fa-solid fa-xmark text-lg"></i>
