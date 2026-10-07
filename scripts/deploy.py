@@ -58,7 +58,7 @@ def deploy(password):
             "echo '===> [1/3] 解压最新代码与预编译产物到 /var/www/quote_app...'",
             "mkdir -p /var/www/quote_app && tar -xzf /root/project.tar.gz -C /var/www/quote_app",
             "echo '===> [2/3] 热重载 PM2 进程 quote-core...'",
-            "cd /var/www/quote_app && (pm2 reload quote-core || pm2 restart quote-core)",
+            "cd /var/www/quote_app && (pm2 reload quote-core --update-env || pm2 restart quote-core --update-env)",
             "echo '===> [3/3] 检查服务健康状态...'",
             "sleep 3",
             "curl -s http://127.0.0.1:3000/api/v1/health || curl -s http://localhost:3000/api/v1/health"
