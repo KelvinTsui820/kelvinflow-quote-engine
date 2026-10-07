@@ -1005,24 +1005,20 @@
           </div>
           <!-- 下拉菜单 -->
           <div id="custom-channel-menu" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-[#0e101a] border border-white/15 rounded-xl shadow-2xl p-1 z-30">
-            <div onclick="selectCustomChannel('xiaohongshu', '📕', '小红书 (代码佬Kelvin)')" data-val="xiaohongshu" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
-              <span class="flex items-center gap-2"><span>📕</span><span>小红书 (代码佬Kelvin)</span></span>
-              <i class="option-check fa-solid fa-check text-cyan-400 hidden"></i>
-            </div>
-            <div onclick="selectCustomChannel('channels', '📹', '微信视频号')" data-val="channels" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
-              <span class="flex items-center gap-2"><span>📹</span><span>微信视频号</span></span>
+            <div onclick="selectCustomChannel('xiaohongshu', '📕', '小红书')" data-val="xiaohongshu" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-2"><span>📕</span><span>小红书</span></span>
               <i class="option-check fa-solid fa-check text-cyan-400 hidden"></i>
             </div>
             <div onclick="selectCustomChannel('referral', '🤝', '外贸同行/朋友推荐')" data-val="referral" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
               <span class="flex items-center gap-2"><span>🤝</span><span>外贸同行/朋友推荐</span></span>
               <i class="option-check fa-solid fa-check text-cyan-400 hidden"></i>
             </div>
-            <div onclick="selectCustomChannel('wechat_group', '💬', '外贸行业微信群')" data-val="wechat_group" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
-              <span class="flex items-center gap-2"><span>💬</span><span>外贸行业微信群</span></span>
+            <div onclick="selectCustomChannel('wechat_group', '💬', '外贸行业群组')" data-val="wechat_group" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-2"><span>💬</span><span>外贸行业群组</span></span>
               <i class="option-check fa-solid fa-check text-cyan-400 hidden"></i>
             </div>
-            <div onclick="selectCustomChannel('search', '🔍', '搜索引擎 / 其它')" data-val="search" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
-              <span class="flex items-center gap-2"><span>🔍</span><span>搜索引擎 / 其它</span></span>
+            <div onclick="selectCustomChannel('search', '🔍', '搜索引擎/其它')" data-val="search" class="custom-channel-option px-3 py-2 rounded-lg text-xs text-slate-200 hover:bg-white/10 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-2"><span>🔍</span><span>搜索引擎/其它</span></span>
               <i class="option-check fa-solid fa-check text-cyan-400 hidden"></i>
             </div>
           </div>
@@ -1165,21 +1161,9 @@
       </div>
 
       <!-- 微信收款码与添加说明 -->
-      <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] mb-4 flex flex-col items-center">
-        <img src="/contact_wechat_card.jpg" alt="微信收款码" class="w-48 h-48 object-contain rounded-xl shadow-lg mb-3" onerror="this.src='/contact_wechat.png'">
-        <div class="text-xs text-slate-300 space-y-1.5">
-          <p>微信转账请备注：<strong id="payment-note-text" class="text-amber-300 font-mono select-all font-bold">升级极客版(¥99)</strong></p>
-          <p class="text-[11px] text-slate-400">扫码转账或添加创始人微信 (<strong class="text-cyan-300 font-mono select-all">kt_data</strong>) 即刻开通</p>
-        </div>
-      </div>
-
-      <div class="flex items-center space-x-2">
-        <button type="button" onclick="copyPaymentNote()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs transition cursor-pointer">
-          <i class="fa-regular fa-copy mr-1"></i> <span id="copy-pay-note-text">复制转账备注</span>
-        </button>
-        <button type="button" onclick="copyFounderWechat('kt_data')" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition cursor-pointer">
-          <i class="fa-brands fa-weixin mr-1"></i> <span id="copy-founder-wechat-text">复制微信号 (kt_data)</span>
-        </button>
+      <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col items-center">
+        <img src="/contact_wechat.png" alt="微信收款码" class="w-44 h-44 rounded-xl object-contain bg-white p-2 shadow-sm mb-3 select-none" onerror="this.src='/contact_wechat_card.jpg'">
+        <p class="text-xs text-slate-300">微信转账请备注：<strong id="payment-note-text" class="text-amber-300 font-mono select-all font-bold">升级极客版(¥99)</strong></p>
       </div>
     </div>
   </div>

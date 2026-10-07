@@ -285,7 +285,41 @@ export class EmailVerificationService {
 
     const emailText = `【KelvinFlow 外贸智能出单中枢】\\n您的 7 天全功能试用验证码为：${code}\\n验证码有效期为 10 分钟。如非本人操作请忽略。\\n遇到问题添加主理人微信：kt_data\\n数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。`;
 
-    if (smtpHost && smtpUser && smtpPass) {
+    // 5.1 优先尝试 Resend API 官方事务发信通道 (无需 SMTP 握手，海外 VPS 极速投递)
+    const resendApiKey = process.env.RESEND_API_KEY?.trim();
+    const fromEmail = process.env.FROM_EMAIL?.trim() || process.env.SMTP_FROM?.trim() || 'KelvinFlow 官方安全中心 <auth@kelvinflow.com>';
+
+    if (resendApiKey) {
+      try {
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: fromEmail,
+            to: [cleanEmail],
+            subject: `【KelvinFlow】您的 7 天全功能试用验证码: ${code}`,
+            html: emailHtml,
+            text: emailText
+          })
+        });
+
+        const resData = await res.json() as any;
+        if (res.ok && resData?.id) {
+          emailSent = true;
+          console.log(`✅ [Resend API 投递成功] 验证码已成功投递至 [${cleanEmail}], 邮件 ID: ${resData.id}`);
+        } else {
+          console.warn(`⚠️ [Resend API 响应异常]: HTTP ${res.status} - ${JSON.stringify(resData)}`);
+        }
+      } catch (resendErr: any) {
+        console.warn(`⚠️ [Resend API 发信异常]: ${resendErr.message}`);
+      }
+    }
+
+    // 5.2 尝试标准 SMTP 配置发送真实邮件 (支持 Resend SMTP、腾讯企业邮等)
+    if (!emailSent && smtpHost && smtpUser && smtpPass) {
       try {
         const transporter = nodemailer.createTransport({
           host: smtpHost,
@@ -297,8 +331,10 @@ export class EmailVerificationService {
           }
         });
 
+        const effectiveFrom = process.env.SMTP_FROM || process.env.FROM_EMAIL || (smtpUser.includes('@') ? `"KelvinFlow 外贸智能出单中枢" <${smtpUser}>` : '"KelvinFlow 官方安全中心" <auth@kelvinflow.com>');
+
         await transporter.sendMail({
-          from: `"KelvinFlow 外贸智能出单中枢" <${smtpUser}>`,
+          from: effectiveFrom,
           to: cleanEmail,
           subject: `【KelvinFlow】您的 7 天全功能试用验证码: ${code}`,
           html: emailHtml,
