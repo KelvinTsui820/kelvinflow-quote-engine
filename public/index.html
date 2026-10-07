@@ -782,14 +782,14 @@
         </ul>
 
         <!-- 按钮容器 (层级清晰的主副按钮布局) -->
-        <div id="pricing-btn-container" class="space-y-2.5">
+        <div id="pricing-btn-container" class="space-y-3">
           <button id="pricing-trial-btn" onclick="openInboundModal('starter')" class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-xl shadow-blue-500/25 active:scale-98 transition-all cursor-pointer flex items-center justify-center space-x-2">
             <i class="fa-solid fa-wand-magic-sparkles text-cyan-200 text-xs"></i>
             <span>免费开通 7 天试用</span>
             <i class="fa-solid fa-arrow-right text-xs text-white/80"></i>
           </button>
-          <button id="pricing-pay-btn" onclick="openPaymentModal()" class="w-full py-2.5 rounded-xl font-medium text-xs text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all flex items-center justify-center space-x-1.5 cursor-pointer">
-            <i class="fa-solid fa-crown text-amber-300 text-xs"></i>
+          <button id="pricing-pay-btn" onclick="openPaymentModal()" class="w-full py-3.5 rounded-xl font-bold text-sm text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/35 hover:border-amber-400/60 shadow-lg shadow-amber-500/10 active:scale-98 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+            <i class="fa-solid fa-crown text-amber-400 text-sm"></i>
             <span id="btn-pay-text">立即锁定创始席位 (¥99/月)</span>
           </button>
         </div>
@@ -1137,33 +1137,104 @@
 
   <!-- B. 升级极客版支付与转账弹窗 (Payment Modal) -->
   <div id="payment-modal" class="fixed inset-0 z-[220] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto">
-    <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-center">
-      <button onclick="closePaymentModal()" aria-label="关闭支付窗口" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
-        <i class="fa-solid fa-xmark text-lg"></i>
+    <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/15 rounded-3xl w-full max-w-lg max-h-[92vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative cursor-default text-center">
+      <button onclick="closePaymentModal()" aria-label="关闭支付窗口" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
+        <i class="fa-solid fa-xmark text-sm"></i>
       </button>
 
-      <div class="inline-block p-2.5 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-300 mb-4">
+      <!-- 顶部徽标与标题区 -->
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/25 text-amber-300 mb-3 shadow-inner shadow-amber-500/10">
         <i class="fa-solid fa-crown text-xl"></i>
       </div>
-      <h3 class="text-xl font-extrabold text-white mb-2">升级 KelvinFlow 极客版</h3>
-      <p class="text-xs text-slate-400 mb-6">人工一对一专属对接 · 扫码添加微信立即开通</p>
+      <h3 class="text-xl sm:text-2xl font-extrabold text-white mb-1.5 tracking-tight">升级 KelvinFlow 极客版</h3>
+      <p class="text-xs text-slate-400 mb-4">人工一对一专属对接 · 5分钟内极速开通</p>
+
+      <!-- 核心权益亮点标签 (增强买家价值确定性) -->
+      <div class="grid grid-cols-3 gap-2 mb-5 p-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.06] text-[11px] text-slate-300">
+        <div class="flex items-center justify-center space-x-1">
+          <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
+          <span>无限询盘出单</span>
+        </div>
+        <div class="flex items-center justify-center space-x-1 border-x border-white/[0.08]">
+          <i class="fa-solid fa-palette text-cyan-400 text-xs"></i>
+          <span>自定义企业Logo</span>
+        </div>
+        <div class="flex items-center justify-center space-x-1">
+          <i class="fa-solid fa-user-shield text-emerald-400 text-xs"></i>
+          <span>1v1技术顾问</span>
+        </div>
+      </div>
 
       <!-- 月付 / 年付切换 (精致边框与双模式卡片) -->
-      <div class="p-1.5 bg-white/[0.04] border border-white/10 rounded-2xl grid grid-cols-2 gap-2 mb-6">
+      <div class="p-1.5 bg-white/[0.04] border border-white/10 rounded-2xl grid grid-cols-2 gap-2 mb-5">
         <button id="pay-switch-monthly" onclick="switchPaymentModalCycle('monthly')" class="py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-sm">
-          <span class="text-sm">月付极客版</span>
+          <span class="text-xs sm:text-sm">月付极客版</span>
           <span class="text-xs font-mono">¥99 / 月</span>
         </button>
         <button id="pay-switch-annual" onclick="switchPaymentModalCycle('annual')" class="py-2.5 px-3 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]">
-          <span class="text-sm">年付极客版</span>
+          <span class="text-xs sm:text-sm">年付极客版</span>
           <span class="text-xs font-mono text-emerald-400">¥890 / 年 (省¥298)</span>
         </button>
       </div>
 
       <!-- 微信收款码与添加说明 -->
-      <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col items-center">
-        <img src="/contact_wechat.png" alt="微信收款码" class="w-44 h-44 rounded-xl object-contain bg-white p-2 shadow-sm mb-3 select-none" onerror="this.src='/contact_wechat_card.jpg'">
-        <p class="text-xs text-slate-300">微信转账请备注：<strong id="payment-note-text" class="text-amber-300 font-mono select-all font-bold">升级极客版(¥99)</strong></p>
+      <div class="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col items-center">
+        <!-- 二维码白底容器 -->
+        <div class="bg-white p-2.5 rounded-2xl shadow-lg shadow-black/40 mb-3.5 inline-block">
+          <img src="/contact_wechat.png" alt="微信收款码" class="w-40 h-40 sm:w-44 sm:h-44 rounded-xl object-contain select-none block" onerror="this.src='/contact_wechat_card.jpg'">
+        </div>
+
+        <!-- 3步极速开通指引 -->
+        <div class="w-full text-left bg-black/30 rounded-xl p-3 border border-white/[0.05] mb-3.5 space-y-1.5 text-xs text-slate-300">
+          <div class="flex items-center space-x-2">
+            <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">1</span>
+            <span>微信扫码转账 / 扫码添加好友</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2 truncate">
+              <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">2</span>
+              <span class="truncate">转账请备注：<strong id="payment-note-text" class="text-amber-300 font-mono font-bold select-all">升级极客版(¥99)</strong></span>
+            </div>
+            <button type="button" onclick="copyPaymentNote()" class="flex-shrink-0 ml-2 px-2.5 py-1 text-[11px] rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30 transition-all cursor-pointer font-medium flex items-center space-x-1">
+              <i class="fa-regular fa-copy text-[10px]"></i>
+              <span id="copy-pay-note-text">复制备注</span>
+            </button>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">3</span>
+            <span>确认到账后 <strong>5 分钟内</strong> 专属技术顾问开通权限</span>
+          </div>
+        </div>
+
+        <!-- 手机端直接复制微信号通道 (解决手机用户无法扫自身屏幕痛点) -->
+        <div class="w-full flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs text-slate-400">
+          <div class="flex items-center space-x-1.5 truncate">
+            <i class="fa-brands fa-weixin text-emerald-400 text-sm"></i>
+            <span>不便扫码？直接加微信：<strong class="text-white font-mono">kt_data</strong></span>
+          </div>
+          <button type="button" onclick="copyFounderWechat()" class="flex-shrink-0 ml-2 px-2.5 py-1 text-[11px] rounded-lg bg-white/10 hover:bg-white/15 text-slate-200 hover:text-white transition-all cursor-pointer flex items-center space-x-1 font-medium">
+            <i class="fa-regular fa-copy text-[10px]"></i>
+            <span id="copy-founder-wechat-text">复制微信号</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 底部信任保障 -->
+      <div class="mt-4 flex items-center justify-center space-x-3 text-[11px] text-slate-400">
+        <span class="flex items-center space-x-1">
+          <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+          <span>30天数据保留</span>
+        </span>
+        <span class="text-slate-600">•</span>
+        <span class="flex items-center space-x-1">
+          <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
+          <span>支持开具发票</span>
+        </span>
+        <span class="text-slate-600">•</span>
+        <span class="flex items-center space-x-1">
+          <i class="fa-solid fa-lock text-amber-400"></i>
+          <span>到期不自动扣费</span>
+        </span>
       </div>
     </div>
   </div>
