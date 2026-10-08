@@ -1226,7 +1226,7 @@
         </div>
         <div class="flex items-center gap-2 text-amber-300 whitespace-nowrap">
           <i class="fa-solid fa-envelope-circle-check text-xs flex-shrink-0"></i>
-          <span class="truncate"><strong>企业邮箱静默联动</strong>：直连企业邮箱与 Outlook，自动生成草稿</span>
+          <span class="whitespace-nowrap"><strong>外贸邮箱静默联动</strong>：直连主流外贸与企业邮箱，自动生成草稿</span>
         </div>
       </div>
     </div>
@@ -2088,6 +2088,19 @@
         const refInputVal = (document.getElementById('inbound-ref')?.value || '').trim();
         const urlParams = new URLSearchParams(window.location.search);
         const storedRef = refInputVal || urlParams.get('ref') || urlParams.get('code') || urlParams.get('invite') || localStorage.getItem('kelvinflow_referrer') || '';
+
+        if (storedRef && storedRef.toLowerCase() === email.toLowerCase()) {
+          if (errorBox) {
+            errorBox.textContent = '同行邀请码不能填写您本人正在注册的邮箱！如无邀请码可清空后直接开通。';
+            errorBox.classList.remove('hidden');
+          }
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-cyan-300 text-xs"></i> <span>立即开通 7 天免费试用 ➔</span>';
+            submitBtn.className = 'w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer';
+          }
+          return;
+        }
 
         const res = await fetch('/api/v1/auth/trial-register', {
           method: 'POST',

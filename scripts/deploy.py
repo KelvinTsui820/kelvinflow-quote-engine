@@ -20,7 +20,7 @@ def deploy(password):
     # 自动打包本地最新代码与 dist 编译目录
     print("📦 正在自动构建与打包最新代码...")
     import tarfile
-    exclude_dirs = {'node_modules', '.git', '.github', '.cache', 'scratch', 'tmp'}
+    exclude_dirs = {'node_modules', '.git', '.github', '.cache', 'scratch', 'tmp', 'data'}
     exclude_exts = {'.tar.gz', '.log'}
     with tarfile.open(local_tar, "w:gz") as tar:
         for item in os.listdir(root_dir):

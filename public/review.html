@@ -1428,7 +1428,7 @@
     </div>
 
     <!-- 📝 品名与规格描述全景放大编辑弹窗 (Description Detail Modal) -->
-    <div v-if="descModal.show" v-cloak @click.self="descModal.show = false" class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div v-if="descModal.show" v-cloak @click.self="closeDescModal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
       <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in fade-in zoom-in duration-200">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
           <div class="flex items-center space-x-3">
@@ -1442,7 +1442,7 @@
               </p>
             </div>
           </div>
-          <button @click="descModal.show = false" aria-label="关闭商品规格详情窗口" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition cursor-pointer">
+          <button @click="closeDescModal" aria-label="关闭商品规格详情窗口" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition cursor-pointer">
             <i class="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
@@ -1450,21 +1450,21 @@
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs text-slate-500">
             <label class="font-bold">规格描述内容 (Description):</label>
-            <span class="font-mono text-[11px] text-slate-400">{{ (descModal.item?.description || '').length }} 字符</span>
+            <span class="font-mono text-[11px] text-slate-400">{{ (descModal.tempDescription || '').length }} 字符</span>
           </div>
           <textarea v-if="descModal.item"
-                    v-model="descModal.item.description" 
+                    v-model="descModal.tempDescription" 
                     rows="6" 
                     placeholder="在此自由查看与编辑完整品名规格描述..." 
                     class="w-full text-xs font-mono p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition leading-relaxed resize-none"></textarea>
         </div>
 
         <div class="flex items-center justify-between pt-2">
-          <button v-if="descModal.item" type="button" @click="descModal.item.description = ''" class="text-xs text-rose-500 hover:text-rose-700 font-medium px-2 py-1 rounded transition hover:bg-rose-50 cursor-pointer">
+          <button v-if="descModal.item" type="button" @click="descModal.tempDescription = ''" class="text-xs text-rose-500 hover:text-rose-700 font-medium px-2 py-1 rounded transition hover:bg-rose-50 cursor-pointer">
             <i class="fa-solid fa-eraser mr-1"></i>清空文本
           </button>
           <div v-else></div>
-          <button @click="descModal.show = false" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition cursor-pointer">
+          <button @click="confirmDescModal" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition cursor-pointer">
             完成确认
           </button>
         </div>
@@ -3274,7 +3274,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </div>
           <div class="flex items-center gap-2 text-amber-300 whitespace-nowrap">
             <i class="fa-solid fa-envelope-circle-check text-xs flex-shrink-0"></i>
-            <span class="truncate"><strong>企业邮箱静默联动</strong>：直连企业邮箱与 Outlook，自动生成草稿</span>
+            <span class="whitespace-nowrap"><strong>外贸邮箱静默联动</strong>：直连主流外贸与企业邮箱，自动生成草稿</span>
           </div>
         </div>
       </div>
@@ -4244,13 +4244,28 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           index: -1
         });
 
-        // 📝 品名与规格描述全景放大编辑弹窗
+        // 📝 品名与规格描述全景放大编辑弹窗 (支持临时草稿隔离，点击右上角交叉放弃修改，仅点击「完成确认」才生效)
         const descModal = ref({
           show: false,
-          item: null
+          item: null,
+          tempDescription: ''
         });
         const openDescModal = (item) => {
-          descModal.value = { show: true, item };
+          descModal.value = {
+            show: true,
+            item,
+            tempDescription: item ? (item.description || '') : ''
+          };
+        };
+        const closeDescModal = () => {
+          descModal.value.show = false;
+        };
+        const confirmDescModal = () => {
+          if (descModal.value.item) {
+            descModal.value.item.description = descModal.value.tempDescription;
+            hasUnsavedChanges.value = true;
+          }
+          descModal.value.show = false;
         };
 
         // 删除商品确认弹窗
@@ -5176,6 +5191,13 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             return;
           }
 
+          const refVal = (trialModal.value.ref || localStorage.getItem('kelvinflow_referrer') || '').trim();
+          if (refVal && refVal.toLowerCase() === trialModal.value.email.trim().toLowerCase()) {
+            trialModal.value.errorMessage = '同行邀请码不能填写本人正在注册的邮箱！如无邀请码可清空后直接开通。';
+            trialModal.value.loading = false;
+            return;
+          }
+
           try {
             const res = await fetch('/api/v1/auth/trial-register', {
               method: 'POST',
@@ -5185,7 +5207,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
                 code: trialModal.value.code,
                 password: trialModal.value.password,
                 channelSource: trialModal.value.channelSource,
-                ref: trialModal.value.ref || localStorage.getItem('kelvinflow_referrer') || ''
+                ref: refVal
               })
             });
 
@@ -6413,6 +6435,8 @@ Sales Team | KelvinFlow Global Technology`;
           dismissWarning,
           descModal,
           openDescModal,
+          closeDescModal,
+          confirmDescModal,
           deleteModal,
           openDeleteModal,
           confirmDelete,

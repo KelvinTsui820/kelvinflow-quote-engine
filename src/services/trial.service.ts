@@ -204,25 +204,7 @@ export class TrialService {
       }
     }
 
-    // 3. 邮箱 6 位验证码校验
-    const codeCheck = EmailVerificationService.verifyCode(cleanEmail, code);
-    if (!codeCheck.valid) {
-      return {
-        success: false,
-        error: codeCheck.error || '验证码错误或已失效，请重新获取'
-      };
-    }
-
-    // 4. 密码安全与复杂度校验
-    const pwdCheck = this.validatePasswordComplexity(rawPassword);
-    if (!pwdCheck.valid) {
-      return {
-        success: false,
-        error: pwdCheck.error || '请设置至少 6 位的安全密码'
-      };
-    }
-
-    // 5. 检索历史试用记录 (按邮箱严格防薅羊毛与拦截重复注册)
+    // 2.5 优先检索历史试用记录 (按邮箱严格防薅羊毛与拦截重复注册)
     const existing = this.findTrialByEmail(cleanEmail) || (cleanPhone ? this.findTrialByPhoneOrEmail(cleanPhone) : null);
     const now = new Date();
 
@@ -266,6 +248,24 @@ export class TrialService {
       };
     }
 
+    // 3. 邮箱 6 位验证码校验
+    const codeCheck = EmailVerificationService.verifyCode(cleanEmail, code);
+    if (!codeCheck.valid) {
+      return {
+        success: false,
+        error: codeCheck.error || '验证码错误或已失效，请重新获取'
+      };
+    }
+
+    // 4. 密码安全与复杂度校验
+    const pwdCheck = this.validatePasswordComplexity(rawPassword);
+    if (!pwdCheck.valid) {
+      return {
+        success: false,
+        error: pwdCheck.error || '请设置至少 6 位的安全密码'
+      };
+    }
+
     // 6. 全新用户开通试用：纯邮箱驱动租户标识
     const emailPrefix = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
     const domainPrefix = (cleanEmail.split('@')[1] || '').split('.')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -275,7 +275,13 @@ export class TrialService {
     // 7.1 检索推荐人信息与同行裂变激励
     let referrerUser: TrialRecord | null = null;
     let cleanRef = rawRef.trim();
-    if (cleanRef && cleanRef.toLowerCase() !== cleanPhone.toLowerCase() && cleanRef.toLowerCase() !== cleanEmail.toLowerCase()) {
+    if (cleanRef) {
+      if (cleanRef.toLowerCase() === cleanEmail.toLowerCase() || (cleanPhone && cleanRef.toLowerCase() === cleanPhone.toLowerCase())) {
+        return {
+          success: false,
+          error: '同行邀请码不能填写本人正在注册的邮箱！如无邀请码可留空直接开通。'
+        };
+      }
       referrerUser = this.findTrialByPhoneOrEmail(cleanRef, cleanRef);
       if (!referrerUser) {
         referrerUser = this.getTrialByTenantId(cleanRef);
@@ -288,10 +294,17 @@ export class TrialService {
           referrerUser = this.findTrialByPhoneOrEmail(digits.slice(2));
         }
       }
+      if (!referrerUser) {
+        return {
+          success: false,
+          error: `未找到同行邀请码 [${cleanRef}] 对应的有效外贸同行账号，请核对后重试（可留空直接开通）！`
+        };
+      }
     }
 
-    const trialDays = 7;
-    const newRewardDays = 0;
+    // 基础试用 7 天；若填写有效同行邀请码，双方各享 +7 天额外时长（新用户享 14 天完整体验）！
+    const trialDays = referrerUser ? 14 : 7;
+    const newRewardDays = referrerUser ? 7 : 0;
 
     if (referrerUser) {
       // 推荐人获得邀请奖励：+7 天时长！
@@ -308,7 +321,7 @@ export class TrialService {
         expiresAt: referrerUser.expiresAt,
         status: 'active'
       });
-      console.log(`🎁 [同行推荐奖励] 推荐人 [${referrerUser.name || referrerUser.email}] 获得 +7 天时长！新用户试用期为标准的 7 天`);
+      console.log(`🎁 [同行推荐奖励] 双方各享+7天！推荐人 [${referrerUser.name || referrerUser.email}] 延长至 ${refNewExp.toLocaleDateString('zh-CN')}，新用户试用期延长为 14 天`);
     }
 
     const expiresAtDate = new Date(Date.now() + trialDays * 24 * 3600 * 1000);

@@ -338,20 +338,34 @@ export class PDFService {
 
       // =========================================================================
       // 2. 商务双卡片：买家信息 (BILL TO) 与 履约条款 (COMMERCIAL TERMS)
+      // 动态自适应：长企业名称智能缩字号并支持双行折行，双卡片高度对称对齐，杜绝省略号
       // =========================================================================
-      const boxHeight = 78;
       const boxWidth = 259;
+      const boxInnerWidth = boxWidth - 24;
+
+      const buyerComp = quotation.customerName || 'Acme Global Trading Ltd.';
+      const buyerCompFont = getFont(true, buyerComp);
+      doc.font(buyerCompFont);
+      let buyerCompFontSize = 9;
+      while (buyerCompFontSize > 7.5 && doc.fontSize(buyerCompFontSize).widthOfString(buyerComp) > boxInnerWidth) {
+        buyerCompFontSize -= 0.5;
+      }
+      doc.fontSize(buyerCompFontSize);
+      const buyerCompHeight = doc.heightOfString(buyerComp, { width: boxInnerWidth, lineGap: -1 });
+      const isCompanyMultiLine = buyerCompHeight > 14;
+      const boxHeight = Math.max(78, Math.ceil(78 + (buyerCompHeight - 12)));
 
       // 左卡片：买家企业与对接人
       doc.roundedRect(startX, currentY, boxWidth, boxHeight, 4).fillAndStroke('#f8fafc', '#cbd5e1');
-      doc.font(getFont(true)).fontSize(8.5).fillColor('#0f2942').text('CONSIGNEE / BUYER INFORMATION:', startX + 12, currentY + 8);
+      doc.font(getFont(true)).fontSize(8.5).fillColor('#0f2942').text('CONSIGNEE / BUYER INFORMATION:', startX + 12, currentY + 7);
       
-      const buyerComp = quotation.customerName || 'Acme Global Trading Ltd.';
-      doc.font(getFont(true, buyerComp)).fontSize(9).fillColor('#1e293b').text(buyerComp, startX + 12, currentY + 22, { width: boxWidth - 24, height: 12, ellipsis: true });
+      doc.font(buyerCompFont).fontSize(buyerCompFontSize).fillColor('#1e293b')
+        .text(buyerComp, startX + 12, currentY + 20, { width: boxInnerWidth, lineGap: -1 });
       
       const buyerPerson = quotation.buyerName || 'Purchasing Director';
-      doc.font(getFont(false, buyerPerson)).fontSize(8).fillColor('#475569').text('Attn: ' + buyerPerson, startX + 12, currentY + 36);
-      doc.font(getFont(false)).fontSize(8).fillColor('#475569').text('Email: ' + (quotation.buyerEmail || 'buyer@acmeglobal.de'), startX + 12, currentY + 49);
+      const leftNextY = currentY + 20 + buyerCompHeight + 3;
+      doc.font(getFont(false, buyerPerson)).fontSize(8).fillColor('#475569').text('Attn: ' + buyerPerson, startX + 12, leftNextY);
+      doc.font(getFont(false)).fontSize(8).fillColor('#475569').text('Email: ' + (quotation.buyerEmail || 'buyer@acmeglobal.de'), startX + 12, leftNextY + 13);
 
       // 第 4 行：目的港口与买家区域（实现左右双卡片完全 4 行等高对称）
       let buyerDest = 'Hamburg Port, Germany';
@@ -379,14 +393,22 @@ export class PDFService {
           buyerDest = 'Hamburg Port, Germany';
         }
       }
-      doc.font(getFont(false)).fontSize(8).fillColor('#475569')
-        .text('Destination (POD): ', startX + 12, currentY + 62, { continued: true })
+
+      // 目的港自适应字号（防止超长港口名称溢出）
+      let destFontSize = 8;
+      const destFullText = 'Destination (POD): ' + buyerDest;
+      doc.font(getFont(false));
+      while (destFontSize > 7 && doc.fontSize(destFontSize).widthOfString(destFullText) > boxInnerWidth) {
+        destFontSize -= 0.5;
+      }
+      doc.font(getFont(false)).fontSize(destFontSize).fillColor('#475569')
+        .text('Destination (POD): ', startX + 12, leftNextY + 26, { continued: true })
         .font(getFont(true)).fillColor('#0f2942').text(buyerDest);
 
       // 右卡片：国际贸易与交割条款
       const rightBoxX = startX + boxWidth + 13;
       doc.roundedRect(rightBoxX, currentY, boxWidth, boxHeight, 4).fillAndStroke('#f8fafc', '#cbd5e1');
-      doc.font(getFont(true)).fontSize(8.5).fillColor('#0f2942').text('COMMERCIAL & SHIPMENT SPECIFICATIONS:', rightBoxX + 12, currentY + 8);
+      doc.font(getFont(true)).fontSize(8.5).fillColor('#0f2942').text('COMMERCIAL & SHIPMENT SPECIFICATIONS:', rightBoxX + 12, currentY + 7);
       
       let displayIncoterm = quotation.incotermUsed || 'FOB Shenzhen';
       if (/^CIF/i.test(displayIncoterm)) {
@@ -407,13 +429,22 @@ export class PDFService {
       // 起运港与航线闭环 (动态自适应：优先来自询盘/租户，默认中国深水出口港)
       const portOfLoading = anyQuote.portOfLoading || (tenantProfile as any)?.defaultPortOfLoading || 'Shenzhen Port, China';
 
-      doc.font(getFont(false)).fontSize(8).fillColor('#475569')
-        .text('Trade Terms (Incoterm): ', rightBoxX + 12, currentY + 22, { continued: true })
+      const rightStep = isCompanyMultiLine ? 15 : 13.5;
+
+      // 贸易术语自适应字号
+      let termFontSize = 8;
+      const termFullText = 'Trade Terms (Incoterm): ' + displayIncoterm;
+      doc.font(getFont(false));
+      while (termFontSize > 7 && doc.fontSize(termFontSize).widthOfString(termFullText) > boxInnerWidth) {
+        termFontSize -= 0.5;
+      }
+      doc.font(getFont(false)).fontSize(termFontSize).fillColor('#475569')
+        .text('Trade Terms (Incoterm): ', rightBoxX + 12, currentY + 21, { continued: true })
         .font(getFont(true)).fillColor('#2563eb').text(displayIncoterm);
 
       const currFullName = quotation.currency === 'USD' ? 'USD (US Dollars)' : (quotation.currency === 'EUR' ? 'EUR (Euro)' : (quotation.currency === 'GBP' ? 'GBP (British Pounds)' : quotation.currency));
       doc.font(getFont(false)).fontSize(8).fillColor('#475569')
-        .text('Settlement Currency: ', rightBoxX + 12, currentY + 36, { continued: true })
+        .text('Settlement Currency: ', rightBoxX + 12, currentY + 21 + rightStep, { continued: true })
         .font(getFont(true)).fillColor('#0f2942').text(currFullName);
 
       // 动态生产交期 (来自询盘/选项，并加上图纸签样前置条件)
@@ -422,18 +453,24 @@ export class PDFService {
         .replace(/after.*$/i, '')
         .trim();
       const dynamicLeadTime = rawLead ? `${rawLead} upon Approval` : '25 - 30 Working Days upon Approval';
-      doc.font(getFont(false)).fontSize(8).fillColor('#475569')
-        .text('Production Lead Time: ', rightBoxX + 12, currentY + 49, { continued: true })
-        .font(getFont(true)).fillColor('#0f2942').text(dynamicLeadTime, { width: boxWidth - 24, height: 12, ellipsis: true });
+      let leadFontSize = 8;
+      const leadFullText = 'Production Lead Time: ' + dynamicLeadTime;
+      doc.font(getFont(false));
+      while (leadFontSize > 7 && doc.fontSize(leadFontSize).widthOfString(leadFullText) > boxInnerWidth) {
+        leadFontSize -= 0.5;
+      }
+      doc.font(getFont(false)).fontSize(leadFontSize).fillColor('#475569')
+        .text('Production Lead Time: ', rightBoxX + 12, currentY + 21 + rightStep * 2, { continued: true })
+        .font(getFont(true)).fillColor('#0f2942').text(dynamicLeadTime);
 
       // 港口航线闭环
       const isOceanTerm = /CIF|CFR|FOB/i.test(displayIncoterm);
       const shipmentRouteText = isOceanTerm ? `POL: ${portOfLoading}` : 'Ex-Works Loaded';
       doc.font(getFont(false)).fontSize(8).fillColor('#475569')
-        .text('Shipment Origin: ', rightBoxX + 12, currentY + 62, { continued: true })
+        .text('Shipment Origin: ', rightBoxX + 12, currentY + 21 + rightStep * 3, { continued: true })
         .font(getFont(true)).fillColor('#0f2942').text(shipmentRouteText);
 
-      currentY += boxHeight + 16;
+      currentY += boxHeight + 14;
 
       // =========================================================================
       // 3. 报价商品规格明细表 (支持动态计算行高、紧凑模式与多页自适应流式排版)
@@ -807,7 +844,12 @@ export class PDFService {
 
       // 左侧：卖方官方签核
       doc.font(getFont(true, company)).fontSize(8.5).fillColor('#0f2942').text('FOR AND ON BEHALF OF EXPORTER:', startX, signY);
-      doc.font(getFont(true, company)).fontSize(8.5).fillColor('#2563eb').text(company.toUpperCase(), startX, signY + 13, { width: signColWidth, ellipsis: true });
+      let sellerSignFontSize = 8.5;
+      doc.font(getFont(true, company));
+      while (sellerSignFontSize > 7 && doc.fontSize(sellerSignFontSize).widthOfString(company.toUpperCase()) > signColWidth) {
+        sellerSignFontSize -= 0.5;
+      }
+      doc.font(getFont(true, company)).fontSize(sellerSignFontSize).fillColor('#2563eb').text(company.toUpperCase(), startX, signY + 13, { width: signColWidth });
       
       // 卖方印章指引占位
       doc.font(getFont(false)).fontSize(6.5).fillColor('#94a3b8').text('[ Official Corporate Seal & Sign-off ]', startX + signColWidth - 120, signY + 36, { width: 120, align: 'right' });
@@ -819,7 +861,12 @@ export class PDFService {
       // 右侧：买家签回确认
       const buyerSignX = startX + pageWidth - signColWidth;
       doc.font(getFont(true, buyerComp)).fontSize(8.5).fillColor('#0f2942').text('ACCEPTED & CONFIRMED BY BUYER:', buyerSignX, signY);
-      doc.font(getFont(true, buyerComp)).fontSize(8.5).fillColor('#2563eb').text(buyerComp.toUpperCase(), buyerSignX, signY + 13, { width: signColWidth, ellipsis: true });
+      let buyerSignFontSize = 8.5;
+      doc.font(getFont(true, buyerComp));
+      while (buyerSignFontSize > 7 && doc.fontSize(buyerSignFontSize).widthOfString(buyerComp.toUpperCase()) > signColWidth) {
+        buyerSignFontSize -= 0.5;
+      }
+      doc.font(getFont(true, buyerComp)).fontSize(buyerSignFontSize).fillColor('#2563eb').text(buyerComp.toUpperCase(), buyerSignX, signY + 13, { width: signColWidth });
 
       // 买家印章指引占位
       doc.font(getFont(false)).fontSize(6.5).fillColor('#94a3b8').text('[ Buyer Corporate Stamp & Sign-off ]', buyerSignX + signColWidth - 125, signY + 36, { width: 125, align: 'right' });
