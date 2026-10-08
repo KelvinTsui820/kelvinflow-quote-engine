@@ -158,13 +158,13 @@ export class EmailVerificationService {
             <p style="color: #64748b; font-size: 12px; margin: 12px 0 0 0;">验证码有效期为 10 分钟。如非本人操作，请忽略此邮件。</p>
           </div>
           <div style="font-size: 12px; color: #64748b; line-height: 1.6; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
-            <p style="margin: 0;">遇到问题或需人工导入底价表？添加主理人微信：<strong style="color: #38bdf8;">kt_data</strong></p>
+            <p style="margin: 0;">遇到问题或需人工导入底价表？添加创始人微信：<strong style="color: #38bdf8;">kt_data</strong></p>
             <p style="margin: 4px 0 0 0;">数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。</p>
           </div>
         </div>
       `;
 
-      const emailText = `【KelvinFlow 外贸智能出单中枢】\\n您的 7 天全功能试用验证码为：${code}\\n验证码有效期为 10 分钟。如非本人操作请忽略。\\n遇到问题添加主理人微信：kt_data\\n数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。`;
+      const emailText = `【KelvinFlow 外贸智能出单中枢】\\n您的 7 天全功能试用验证码为：${code}\\n验证码有效期为 10 分钟。如非本人操作请忽略。\\n遇到问题添加创始人微信：kt_data\\n数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。`;
 
       for (const record of mxRecords.slice(0, 2)) {
         try {
@@ -277,13 +277,13 @@ export class EmailVerificationService {
           <p style="color: #64748b; font-size: 12px; margin: 12px 0 0 0;">验证码有效期为 10 分钟。如非本人操作，请忽略此邮件。</p>
         </div>
         <div style="font-size: 12px; color: #64748b; line-height: 1.6; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
-          <p style="margin: 0;">遇到问题或需人工导入底价表？添加主理人微信：<strong style="color: #38bdf8;">kt_data</strong></p>
+          <p style="margin: 0;">遇到问题或需人工导入底价表？添加创始人微信：<strong style="color: #38bdf8;">kt_data</strong></p>
           <p style="margin: 4px 0 0 0;">数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。</p>
         </div>
       </div>
     `;
 
-    const emailText = `【KelvinFlow 外贸智能出单中枢】\\n您的 7 天全功能试用验证码为：${code}\\n验证码有效期为 10 分钟。如非本人操作请忽略。\\n遇到问题添加主理人微信：kt_data\\n数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。`;
+    const emailText = `【KelvinFlow 外贸智能出单中枢】\\n您的 7 天全功能试用验证码为：${code}\\n验证码有效期为 10 分钟。如非本人操作请忽略。\\n遇到问题添加创始人微信：kt_data\\n数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。`;
 
     // 5.1 优先尝试 Resend API 官方事务发信通道 (无需 SMTP 握手，海外 VPS 极速投递)
     const resendApiKey = process.env.RESEND_API_KEY?.trim();
@@ -367,7 +367,7 @@ export class EmailVerificationService {
       if (!isTest) {
         return {
           success: false,
-          error: '验证码邮件投递受阻，请检查邮箱地址是否正确，或稍后重试。您亦可添加主理人微信 kt_data 立即协助开通！'
+          error: '验证码邮件投递受阻，请检查邮箱地址是否正确，或稍后重试。您亦可添加创始人微信 kt_data 立即协助开通！'
         };
       }
     }

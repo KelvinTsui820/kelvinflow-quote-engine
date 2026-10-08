@@ -199,7 +199,7 @@ export class TrialService {
       if (recentTrialsFromSameIp.length >= 3) {
         return {
           success: false,
-          error: '当前网络环境试用申请次数已达上限 (同一个IP地址7天内最多注册3个试用账号)。如需为团队增加席位，请联系主理人微信！'
+          error: '当前网络环境试用申请次数已达上限 (同一个IP地址7天内最多注册3个试用账号)。如需为团队增加席位，请联系创始人微信！'
         };
       }
     }
@@ -457,7 +457,7 @@ export class TrialService {
     if (existing.passwordHash !== inputHash) {
       return {
         success: false,
-        error: '登录密码错误，请重新核对后输入（如需重置密码请扫码添加主理人微信协助）'
+        error: '登录密码错误，请重新核对后输入（如需重置密码请扫码添加创始人微信协助）'
       };
     }
 

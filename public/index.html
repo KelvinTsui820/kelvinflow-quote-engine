@@ -1089,21 +1089,17 @@
         <i class="fa-solid fa-gift text-xl"></i>
       </div>
       <h3 class="text-xl font-extrabold text-white mb-1">🎉 免费试用开通成功！</h3>
-      <p class="text-xs text-slate-400 mb-4">欢迎加入 KelvinFlow · 外贸自动化智能出单</p>
+      <p class="text-xs text-slate-400 mb-4">欢迎加入 KelvinFlow · 外贸智能出单</p>
 
-      <!-- 权益亮点卡片 -->
+      <!-- 权益亮点卡片 (精炼紧凑，去除歧义项，突出极客版核价模板钩子) -->
       <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 text-left space-y-2.5 mb-4">
         <div class="flex items-center gap-2 text-xs text-emerald-300">
           <i class="fa-solid fa-circle-check text-emerald-400 flex-shrink-0"></i>
           <span>已开通 7 天全功能工作台与演示底价库</span>
         </div>
-        <div class="flex items-center gap-2 text-xs text-cyan-300">
-          <i class="fa-solid fa-shield-halved text-cyan-400 flex-shrink-0"></i>
-          <span>底价表与历史报价单为您安全保留 30 天</span>
-        </div>
         <div class="flex items-center gap-2 text-xs text-amber-300">
-          <i class="fa-solid fa-file-shield text-amber-400 flex-shrink-0"></i>
-          <span>附赠<strong>《外贸报价 10 大血亏陷阱与防坑手册》</strong></span>
+          <i class="fa-solid fa-gift text-amber-400 flex-shrink-0"></i>
+          <span>专属附赠<strong>《2026 外贸防泄露自动核价模板 (极客版)》</strong></span>
         </div>
         <div class="flex items-center gap-2 text-xs text-sky-300">
           <i class="fa-solid fa-screwdriver-wrench text-sky-400 flex-shrink-0"></i>
@@ -1111,10 +1107,10 @@
         </div>
       </div>
 
-      <!-- 创始人微信卡片 (Plan C 核心私域转化 Hook) -->
+      <!-- 创始人微信卡片 (统一使用纯净二维码与创始人称谓) -->
       <div class="p-4 rounded-2xl bg-gradient-to-b from-blue-950/40 to-cyan-950/20 border border-cyan-500/20 mb-4 flex flex-col items-center">
-        <img src="/contact_wechat_card.jpg" alt="创始人微信" class="w-40 h-40 object-contain rounded-xl shadow-lg mb-2.5 border border-white/10 bg-white p-1" onerror="this.src='/contact_wechat.png'">
-        <div class="text-xs text-slate-300 font-medium mb-1.5">扫码添加主理人 Kelvin 微信：</div>
+        <img src="/contact_wechat.png" alt="创始人微信" class="w-36 h-36 mx-auto rounded-xl bg-white p-2 shadow-xl mb-2.5" onerror="this.src='/kelvinflow_emblem.png'">
+        <div class="text-xs text-slate-300 font-medium mb-1.5">扫码添加创始人 Kelvin 微信：</div>
         <div class="flex items-center gap-2">
           <span class="text-sm font-mono font-black text-cyan-300 bg-black/60 px-3 py-1 rounded-lg border border-cyan-500/30 select-all">kt_data</span>
           <button type="button" onclick="copyFounderWechat('kt_data')" class="px-2.5 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-xs font-bold transition border border-cyan-500/30 cursor-pointer">
@@ -1122,7 +1118,7 @@
           </button>
         </div>
         <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">
-          扫码备注「<span class="text-cyan-300 font-mono">外贸试用</span>」领防坑手册；遇到任何底价表导入难题，主理人亲自协助；到期升级极客版 (¥99/月) 亦可微信直联开通！
+          扫码备注「<span class="text-cyan-300 font-mono">核价模板</span>」即刻领取，遇到任何使用问题或底价表配置，创始人实时协助。
         </p>
       </div>
 
@@ -1134,126 +1130,104 @@
     </div>
   </div>
 
-  <!-- B. 升级极客版支付与转账弹窗 (Payment Modal) -->
+  <!-- B. 升级极客版支付与转账弹窗 (Payment Modal - 与工作台 100% 统一，单屏极简无滚动条) -->
   <div id="payment-modal" class="fixed inset-0 z-[220] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto">
-    <div onclick="event.stopPropagation()" class="bg-[#090a12] border border-white/15 rounded-3xl w-full max-w-lg max-h-[92vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative cursor-default text-center">
-      <button onclick="closePaymentModal()" aria-label="关闭支付窗口" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
-        <i class="fa-solid fa-xmark text-sm"></i>
+    <div onclick="event.stopPropagation()" class="relative max-w-md w-full bg-[#060B1A] border border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl overflow-hidden text-left my-auto space-y-3.5 text-white">
+      <!-- 内部微光背景 (独立圆角裁剪，杜绝外溢膨胀) -->
+      <div class="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+        <div class="absolute -top-24 -right-24 w-60 h-60 bg-amber-500/15 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <!-- 关闭按钮 -->
+      <button onclick="closePaymentModal()" aria-label="关闭支付窗口" class="absolute top-5 right-5 z-10 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs transition-all active:scale-95 border border-white/15 cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <!-- 顶部徽标与标题区 -->
-      <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/25 text-amber-300 mb-3 shadow-inner shadow-amber-500/10">
-        <i class="fa-solid fa-crown text-xl"></i>
-      </div>
-      <h3 class="text-xl sm:text-2xl font-extrabold text-white mb-1.5 tracking-tight">升级 KelvinFlow 极客版</h3>
-      <p class="text-xs text-slate-400 mb-4">人工一对一专属对接 · 5分钟内极速开通</p>
-
-      <!-- 核心权益亮点标签 (增强买家价值确定性) -->
-      <div class="grid grid-cols-3 gap-2 mb-5 p-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.06] text-[11px] text-slate-300">
-        <div class="flex items-center justify-center space-x-1">
-          <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
-          <span>无限询盘出单</span>
+      <!-- 头部标题区 -->
+      <div class="text-center space-y-1.5 pb-2 border-b border-white/10">
+        <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold">
+          <i class="fa-solid fa-crown text-amber-400"></i>
+          <span>升级个人极客版 · 解锁全功能智能出单</span>
         </div>
-        <div class="flex items-center justify-center space-x-1 border-x border-white/[0.08]">
-          <i class="fa-solid fa-palette text-cyan-400 text-xs"></i>
-          <span>自定义企业Logo</span>
-        </div>
-        <div class="flex items-center justify-center space-x-1">
-          <i class="fa-solid fa-user-shield text-emerald-400 text-xs"></i>
-          <span>1v1技术顾问</span>
-        </div>
+        <h4 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+          开通 / 续费外贸智能中枢
+        </h4>
+        <p class="text-xs text-slate-400">
+          扫码添加创始人微信 · 实时激活专属权限
+        </p>
       </div>
 
-      <!-- 月付 / 年付 2 档切换 (极简优雅，对齐用户真实认知) -->
-      <div class="p-1 bg-white/[0.04] border border-white/10 rounded-2xl grid grid-cols-2 gap-2 mb-4">
-        <button id="pay-switch-monthly" onclick="switchPaymentModalCycle('monthly')" class="py-2.5 px-2 rounded-xl font-bold transition-all flex flex-col items-center justify-center cursor-pointer border bg-gradient-to-b from-amber-500/20 to-amber-600/10 text-amber-300 border-amber-400/50 shadow-sm">
-          <div class="flex items-center space-x-1.5 mb-0.5">
-            <span class="text-xs sm:text-sm">月付极客版</span>
+      <!-- 套餐切换（月付 vs 年付） - 价格放大，双栏极简 -->
+      <div class="grid grid-cols-2 gap-3 text-left">
+        <button id="pay-switch-monthly" type="button" onclick="switchPaymentModalCycle('monthly')"
+                class="p-3.5 rounded-2xl transition cursor-pointer border relative overflow-hidden bg-amber-500/15 border-amber-400/60 shadow-lg shadow-amber-500/10 text-white">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-amber-300">月付极客版</span>
             <span id="pay-monthly-promo-badge" class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">首月特惠</span>
           </div>
-          <div class="flex items-baseline space-x-1">
-            <span id="pay-modal-monthly-amount" class="text-base sm:text-lg font-black font-mono">¥39</span>
-            <span id="pay-modal-monthly-period" class="text-[10px] text-slate-400 font-normal">/首月</span>
+          <div class="flex items-baseline gap-1">
+            <span id="pay-modal-monthly-amount" class="text-xl sm:text-2xl font-black font-mono tracking-tight text-white">¥39</span>
+            <span id="pay-modal-monthly-period" class="text-[11px] text-slate-400">/ 首月</span>
           </div>
-          <div id="pay-modal-monthly-subnote" class="text-[10px] text-amber-300/80 mt-0.5">次月起恢复 ¥99/月</div>
+          <div id="pay-modal-monthly-subnote" class="text-[10px] text-slate-400 mt-1">首月特惠 · 次月起按 ¥99/月</div>
         </button>
 
-        <button id="pay-switch-annual" onclick="switchPaymentModalCycle('annual')" class="py-2.5 px-2 rounded-xl font-bold transition-all flex flex-col items-center justify-center cursor-pointer border text-slate-400 hover:text-white border-transparent hover:bg-white/[0.03]">
-          <div class="flex items-center space-x-1.5 mb-0.5">
-            <span class="text-xs sm:text-sm">年付极客版</span>
-            <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">立省¥298</span>
+        <button id="pay-switch-annual" type="button" onclick="switchPaymentModalCycle('annual')"
+                class="p-3.5 rounded-2xl transition cursor-pointer border relative overflow-hidden bg-white/[0.03] border-white/10 hover:border-white/20 text-slate-400">
+          <div class="absolute top-0 right-0 bg-gradient-to-l from-amber-400 to-amber-500 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
+            省¥298
           </div>
-          <div class="flex items-baseline space-x-1">
-            <span class="text-base sm:text-lg font-black font-mono text-emerald-400">¥890</span>
-            <span class="text-[10px] text-emerald-400/80 font-normal">/年</span>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-slate-300">年付特惠版</span>
           </div>
-          <div class="text-[10px] text-slate-400 mt-0.5">折合 ¥74/月 · 赠3个月</div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-300">¥890</span>
+            <span class="text-[11px] text-slate-400">/ 年</span>
+          </div>
+          <div class="text-[10px] text-emerald-400 font-medium mt-1">仅合 ¥74/月 · 赠专属顾问</div>
         </button>
       </div>
 
-      <!-- 微信收款码与添加说明 -->
-      <div class="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col items-center">
-        <!-- 二维码白底容器 -->
-        <div class="bg-white p-2.5 rounded-2xl shadow-lg shadow-black/40 mb-3.5 inline-block">
-          <img src="/contact_wechat.png" alt="微信收款码" class="w-40 h-40 sm:w-44 sm:h-44 rounded-xl object-contain select-none block" onerror="this.src='/contact_wechat_card.jpg'">
-        </div>
-
-        <!-- 3步极速开通指引 -->
-        <div class="w-full text-left bg-black/40 rounded-2xl p-3.5 border border-white/[0.08] mb-3.5 space-y-2.5 text-xs text-slate-300">
-          <div class="flex items-center space-x-2">
-            <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">1</span>
-            <span>微信扫码转账 / 扫码添加好友</span>
-          </div>
-
-          <div class="space-y-1.5 pt-0.5">
-            <div class="flex items-center space-x-2">
-              <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">2</span>
-              <span>转账请务必填写<strong>微信转账备注</strong>：</span>
-            </div>
-            <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/60 border border-amber-400/35 ml-6 shadow-inner">
-              <span id="payment-note-text" class="text-amber-300 font-mono font-bold text-xs sm:text-sm select-all truncate pr-2">开通极客版(首月特惠¥39)</span>
-              <button type="button" onclick="copyPaymentNote()" class="flex-shrink-0 px-3 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/35 text-xs font-bold transition-all cursor-pointer flex items-center space-x-1">
-                <i class="fa-regular fa-copy text-[11px]"></i>
-                <span id="copy-pay-note-text">复制备注</span>
+      <!-- 微信直接转账通道 (创始人直联私域) -->
+      <div class="space-y-3">
+        <div class="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 text-center space-y-2.5 shadow-xl">
+          <img src="/contact_wechat.png" onerror="this.onerror=null; this.src='/contact_wechat_card.jpg';" alt="创始人微信" class="w-32 h-32 mx-auto rounded-xl bg-white p-2 shadow-xl" />
+          <div>
+            <div class="text-xs font-bold text-white flex items-center justify-center gap-1.5">
+              <span>微信扫码添加创始人 Kelvin (微信号: <strong class="text-cyan-300 font-mono">kt_data</strong>)</span>
+              <button type="button" onclick="copyFounderWechat('kt_data')" title="复制微信号" aria-label="复制微信号" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-slate-200 text-[10px] transition cursor-pointer active:scale-95">
+                <span id="copy-founder-wechat-text">复制</span>
               </button>
             </div>
           </div>
-
-          <div class="flex items-center space-x-2 pt-0.5">
-            <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">3</span>
-            <span>确认到账后 <strong>5 分钟内</strong> 专属技术顾问开通权限</span>
+          <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-500/25 flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-1.5 truncate pr-2">
+              <span class="text-slate-300 font-medium whitespace-nowrap">转账请备注：</span>
+              <span id="payment-note-text" class="text-amber-300 font-mono font-bold text-xs sm:text-sm truncate select-all">开通极客版(首月特惠¥39)</span>
+            </div>
+            <button type="button" onclick="copyPaymentNote()" class="shrink-0 px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-bold transition cursor-pointer active:scale-95 flex items-center gap-1">
+              <i class="fa-regular fa-copy"></i>
+              <span id="copy-pay-note-text">复制备注</span>
+            </button>
           </div>
-        </div>
-
-        <!-- 手机端直接复制微信号通道 (解决手机用户无法扫自身屏幕痛点) -->
-        <div class="w-full flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs text-slate-400">
-          <div class="flex items-center space-x-1.5 truncate">
-            <i class="fa-brands fa-weixin text-emerald-400 text-sm"></i>
-            <span>不便扫码？直接加微信：<strong class="text-white font-mono">kt_data</strong></span>
-          </div>
-          <button type="button" onclick="copyFounderWechat()" class="flex-shrink-0 ml-2 px-2.5 py-1 text-[11px] rounded-lg bg-white/10 hover:bg-white/15 text-slate-200 hover:text-white transition-all cursor-pointer flex items-center space-x-1 font-medium">
-            <i class="fa-regular fa-copy text-[10px]"></i>
-            <span id="copy-founder-wechat-text">复制微信号</span>
-          </button>
         </div>
       </div>
 
-      <!-- 底部信任保障 -->
-      <div class="mt-4 flex items-center justify-center space-x-3 text-[11px] text-slate-400">
-        <span class="flex items-center space-x-1">
-          <i class="fa-solid fa-shield-halved text-cyan-400"></i>
-          <span>30天数据保留</span>
-        </span>
-        <span class="text-slate-600">•</span>
-        <span class="flex items-center space-x-1">
-          <i class="fa-solid fa-user-shield text-emerald-400"></i>
-          <span>个人极简开通</span>
-        </span>
-        <span class="text-slate-600">•</span>
-        <span class="flex items-center space-x-1">
-          <i class="fa-solid fa-lock text-amber-400"></i>
-          <span>到期不自动扣费</span>
-        </span>
+      <!-- 核心权益清单 (图标已升级为统一 Font Awesome Free fa-shield-halved) -->
+      <div class="text-left bg-blue-950/25 border border-blue-500/20 rounded-2xl p-3 space-y-1.5 text-[11px] text-slate-300">
+        <div class="flex items-center gap-2 text-cyan-300">
+          <i class="fa-solid fa-shield-halved text-xs"></i>
+          <span><strong>私有底价严密隔离</strong>：算法本地加密防护，杜绝底价与利润外泄</span>
+        </div>
+        <div class="flex items-center gap-2 text-emerald-300">
+          <i class="fa-solid fa-bolt text-xs"></i>
+          <span><strong>全功能智能出单微调</strong>：一键核算汇率港杂，秒出正规 A4 英文报价单</span>
+        </div>
+        <div class="flex items-center gap-2 text-amber-300">
+          <i class="fa-solid fa-envelope-circle-check text-xs"></i>
+          <span><strong>企业邮箱静默联动</strong>：无缝连接企业邮箱/Outlook，买家询盘自动生成草稿</span>
+        </div>
       </div>
     </div>
   </div>
@@ -1451,9 +1425,9 @@
       const isPromoUsed = localStorage.getItem('kelvinflow_user_paid_promo') === 'true' || 
                           localStorage.getItem('kelvinflow_user_is_paid') === 'true';
 
-      const inactiveClass = 'py-2.5 px-2 rounded-xl font-bold transition-all flex flex-col items-center justify-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]';
-      const activeMonthlyClass = 'py-2.5 px-2 rounded-xl font-bold transition-all flex flex-col items-center justify-center cursor-pointer bg-gradient-to-b from-amber-500/20 to-amber-600/10 text-amber-300 border border-amber-400/50 shadow-sm';
-      const activeAnnualClass = 'py-2.5 px-2 rounded-xl font-bold transition-all flex flex-col items-center justify-center cursor-pointer bg-gradient-to-b from-emerald-500/20 to-emerald-600/10 text-emerald-300 border border-emerald-400/50 shadow-sm';
+      const inactiveClass = 'p-3.5 rounded-2xl transition cursor-pointer border relative overflow-hidden bg-white/[0.03] border-white/10 hover:border-white/20 text-slate-400';
+      const activeMonthlyClass = 'p-3.5 rounded-2xl transition cursor-pointer border relative overflow-hidden bg-amber-500/15 border-amber-400/60 shadow-lg shadow-amber-500/10 text-white';
+      const activeAnnualClass = 'p-3.5 rounded-2xl transition cursor-pointer border relative overflow-hidden bg-amber-500/15 border-amber-400/60 shadow-lg shadow-amber-500/10 text-white';
 
       if (currentPaymentCycle === 'annual') {
         if (btnMonthly) btnMonthly.className = inactiveClass;
@@ -1464,7 +1438,7 @@
         if (btnAnnual) btnAnnual.className = inactiveClass;
         if (noteEl) {
           noteEl.textContent = isPromoUsed 
-            ? `续费极客版(¥99)${accountSuffix}` 
+            ? `升级极客版(¥99)${accountSuffix}` 
             : `开通极客版(首月特惠¥39)${accountSuffix}`;
         }
       }
@@ -2220,7 +2194,7 @@
     function copyFounderWechat(wechatId = 'kt_data') {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(wechatId).then(() => {
-          showToast(`✅ 已复制主理人微信号「${wechatId}」！去微信添加即可！`);
+          showToast(`✅ 已复制创始人微信号「${wechatId}」！去微信添加即可！`);
         }).catch(() => {
           fallbackCopy(wechatId);
           showToast(`微信号：${wechatId}`);

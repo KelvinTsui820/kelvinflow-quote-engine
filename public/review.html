@@ -2760,7 +2760,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <div class="pt-2 flex items-center justify-center">
               <button @click="openUpgradeModal('monthly')" type="button" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-extrabold text-xs shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-crown text-amber-200"></i>
-                <span>立即升级极客版解锁特权 (¥99/月起)</span>
+                <span>立即升级极客版解锁特权</span>
               </button>
             </div>
           </div>
@@ -3170,12 +3170,14 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
-    <!-- 极客版 VIP 会员尊享升级弹窗 (与官网 100% 统一，精准对齐截图三标准) -->
+    <!-- 极客版 VIP 会员尊享升级弹窗 (与官网 100% 统一，单屏极简无滚动条) -->
     <div v-if="upgradeModal.show" v-cloak @click.self="upgradeModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
-      <div class="relative max-w-md w-full bg-[#060B1A] border border-amber-500/40 rounded-3xl p-6 sm:p-7 shadow-2xl overflow-hidden text-left my-auto space-y-4 text-white animate-in fade-in zoom-in duration-200">
-        <!-- 内部微光背景 -->
-        <div class="absolute -top-24 -right-24 w-60 h-60 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="relative max-w-md w-full bg-[#060B1A] border border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl overflow-hidden text-left my-auto space-y-3.5 text-white animate-in fade-in zoom-in duration-200">
+        <!-- 内部微光背景 (独立圆角裁剪，杜绝外溢膨胀) -->
+        <div class="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+          <div class="absolute -top-24 -right-24 w-60 h-60 bg-amber-500/15 rounded-full blur-3xl"></div>
+          <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl"></div>
+        </div>
 
         <!-- 关闭按钮 (严格点击右上角关闭) -->
         <button @click="upgradeModal.show = false" aria-label="关闭升级方案窗口" class="absolute top-5 right-5 z-10 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs transition-all active:scale-95 border border-white/15 cursor-pointer">
@@ -3196,19 +3198,24 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </p>
         </div>
 
-        <!-- 套餐切换（月付 vs 年付） - 价格放大，样式全新精雕 -->
+        <!-- 套餐切换（月付 vs 年付） - 价格放大，双栏极简 -->
         <div class="grid grid-cols-2 gap-3 text-left">
           <button type="button" @click="upgradeModal.cycle = 'monthly'"
                   class="p-3.5 rounded-2xl transition cursor-pointer border relative overflow-hidden"
                   :class="upgradeModal.cycle === 'monthly' ? 'bg-amber-500/15 border-amber-400/60 shadow-lg shadow-amber-500/10' : 'bg-white/[0.03] border-white/10 hover:border-white/20 text-slate-400'">
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-bold" :class="upgradeModal.cycle === 'monthly' ? 'text-amber-300' : 'text-slate-300'">月付极客版</span>
+              <span v-if="firstMonthPromoActive" class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">首月特惠</span>
             </div>
             <div class="flex items-baseline gap-1">
-              <span class="text-xl sm:text-2xl font-black font-mono tracking-tight" :class="upgradeModal.cycle === 'monthly' ? 'text-white' : 'text-slate-300'">¥99</span>
-              <span class="text-[11px] text-slate-400">/ 月</span>
+              <span class="text-xl sm:text-2xl font-black font-mono tracking-tight" :class="upgradeModal.cycle === 'monthly' ? 'text-white' : 'text-slate-300'">
+                {{ firstMonthPromoActive ? '¥39' : '¥99' }}
+              </span>
+              <span class="text-[11px] text-slate-400">/ {{ firstMonthPromoActive ? '首月' : '月' }}</span>
             </div>
-            <div class="text-[10px] text-slate-400 mt-1">按月订阅 · 灵活起步</div>
+            <div class="text-[10px] text-slate-400 mt-1">
+              {{ firstMonthPromoActive ? '首月特惠 · 次月起按 ¥99/月' : '按月订阅 · 灵活起步' }}
+            </div>
           </button>
 
           <button type="button" @click="upgradeModal.cycle = 'annual'"
@@ -3230,8 +3237,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
         <!-- 微信直接转账通道 (创始人直联私域) -->
         <div class="space-y-3">
-          <div class="p-4 rounded-2xl bg-white/[0.04] border border-white/10 text-center space-y-3 shadow-xl">
-            <img src="/contact_wechat.png" onerror="this.onerror=null; this.src='/kelvinflow_emblem.png';" alt="创始人微信" class="w-36 h-36 mx-auto rounded-xl bg-white p-2 shadow-xl" />
+          <div class="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 text-center space-y-2.5 shadow-xl">
+            <img src="/contact_wechat.png" onerror="this.onerror=null; this.src='/kelvinflow_emblem.png';" alt="创始人微信" class="w-32 h-32 mx-auto rounded-xl bg-white p-2 shadow-xl" />
             <div>
               <div class="text-xs font-bold text-white flex items-center justify-center gap-1.5">
                 <span>微信扫码添加创始人 Kelvin (微信号: <strong class="text-cyan-300 font-mono">kt_data</strong>)</span>
@@ -3241,27 +3248,33 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               </div>
             </div>
             <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-500/25 flex items-center justify-between text-xs">
-              <span class="text-slate-300 font-medium">转账请备注：</span>
-              <span class="text-amber-300 font-mono font-bold text-xs sm:text-sm">
-                {{ upgradeModal.cycle === 'annual' ? '升级年付极客版(¥890)' : '升级极客版(¥99)' }}
-              </span>
+              <div class="flex items-center space-x-1.5 truncate pr-2">
+                <span class="text-slate-300 font-medium whitespace-nowrap">转账请备注：</span>
+                <span class="text-amber-300 font-mono font-bold text-xs sm:text-sm truncate select-all">
+                  {{ currentUpgradeNote }}
+                </span>
+              </div>
+              <button type="button" @click="copyUpgradePaymentNote" class="shrink-0 px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-bold transition cursor-pointer active:scale-95 flex items-center gap-1">
+                <i class="fa-regular fa-copy"></i>
+                <span>{{ upgradeModal.copiedNote ? '已复制 ✓' : '复制备注' }}</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- 核心权益清单 -->
+        <!-- 核心权益清单 (图标已全面修复为 Font Awesome Free fa-shield-halved) -->
         <div class="text-left bg-blue-950/25 border border-blue-500/20 rounded-2xl p-3 space-y-1.5 text-[11px] text-slate-300">
           <div class="flex items-center gap-2 text-cyan-300">
-            <i class="fa-solid fa-shield-check text-xs"></i>
-            <span><strong>私有底价安全隔离</strong>：独立算法加密保护，杜绝底价外泄</span>
+            <i class="fa-solid fa-shield-halved text-xs"></i>
+            <span><strong>私有底价严密隔离</strong>：算法本地加密防护，杜绝底价与利润外泄</span>
           </div>
           <div class="flex items-center gap-2 text-emerald-300">
             <i class="fa-solid fa-bolt text-xs"></i>
-            <span><strong>全功能智能出单与微调</strong>：一键核算汇率、杂费摊销与标准 PDF 导出</span>
+            <span><strong>全功能智能出单微调</strong>：一键核算汇率港杂，秒出正规 A4 英文报价单</span>
           </div>
           <div class="flex items-center gap-2 text-amber-300">
             <i class="fa-solid fa-envelope-circle-check text-xs"></i>
-            <span><strong>赠送 IMAP 邮箱联动</strong>：买家询盘自动抓取解析出草稿</span>
+            <span><strong>企业邮箱静默联动</strong>：无缝连接企业邮箱/Outlook，买家询盘自动生成草稿</span>
           </div>
         </div>
       </div>
@@ -3839,7 +3852,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             targetId: 'tour-step-2',
             badge: '步骤 2/3 · 智能建单',
             title: '上传客户询盘建单',
-            description: '拖入买家真实 PDF、Excel 或询盘正文，AI 秒级智能识别型号与数量，自动联动底价库精准核算。当前工作台展示的是 Acme 买家询盘演示样例，您可以随时点击上方「上传新询盘」测试您自家的真实单据！',
+            description: '拖入买家真实 PDF、Excel 或询盘正文，AI 秒级智能识别型号与数量，自动联动底价库精准核算。当前工作台展示的是系统内置的海外买家询盘演示样例，您可以随时点击上方「上传新询盘」测试您自家的真实单据！',
             tip: '💡 当前页面为预置的免配置演示单据，支持随意修改单价与利润体验。',
             placement: 'bottom'
           },
@@ -4991,6 +5004,21 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           copiedNote: false
         });
 
+        const firstMonthPromoActive = computed(() => {
+          return !isPaidUser.value && !localStorage.getItem('kelvinflow_user_paid_promo');
+        });
+
+        const currentUpgradeNote = computed(() => {
+          const userPhone = localStorage.getItem('kelvinflow_user_phone') || trialModal.value.phone || '';
+          const phoneSuffix = userPhone ? `(尾号${userPhone.slice(-4)})` : '';
+          if (upgradeModal.value.cycle === 'annual') {
+            return `升级年付极客版(¥890)${phoneSuffix}`;
+          }
+          return firstMonthPromoActive.value
+            ? `开通极客版(首月特惠¥39)${phoneSuffix}`
+            : `升级极客版(¥99)${phoneSuffix}`;
+        });
+
         const openUpgradeModal = (cycle) => {
           const validCycle = (typeof cycle === 'string' && (cycle === 'monthly' || cycle === 'annual')) ? cycle : 'monthly';
           upgradeModal.value.cycle = validCycle;
@@ -4999,11 +5027,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         };
 
         const copyUpgradePaymentNote = () => {
-          const userPhone = localStorage.getItem('kelvinflow_user_phone') || trialModal.value.phone || '';
-          const phoneSuffix = userPhone ? `(尾号${userPhone.slice(-4)})` : '';
-          const note = upgradeModal.value.cycle === 'annual' 
-            ? `升级年付极客版(¥890)${phoneSuffix}` 
-            : `升级极客版(¥99)${phoneSuffix}`;
+          const note = currentUpgradeNote.value;
           
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(note).then(() => {
@@ -6455,6 +6479,8 @@ Sales Team | KelvinFlow Global Technology`;
           upgradeModal,
           openUpgradeModal,
           copyUpgradePaymentNote,
+          firstMonthPromoActive,
+          currentUpgradeNote,
           isDemoQuote,
           getProviderName,
           copyWechatId,
