@@ -1009,23 +1009,17 @@
                           <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
                           <span>MOQ {{ getItemMoq(item) }}</span>
                         </span>
-                        <!-- 悬浮业务说明弹窗 (Tooltip Popover 向下展开，彻底杜绝顶部溢出裁剪) -->
-                        <div class="absolute top-full right-0 mt-2 w-64 p-3 bg-slate-900/95 text-white text-left rounded-xl shadow-2xl border border-slate-700/80 backdrop-blur-md opacity-0 invisible group-hover/moq:opacity-100 group-hover/moq:visible transition-all duration-150 pointer-events-none z-50">
-                          <div class="flex items-center gap-1.5 text-amber-400 font-bold text-[11px] mb-1.5">
-                            <i class="fa-solid fa-triangle-exclamation text-xs"></i>
-                            <span>数量低于工厂起订量 (MOQ)</span>
+                        <!-- 悬浮业务说明弹窗 (Tooltip Popover 向下展开，高对比纯色不透底，精炼无遮挡) -->
+                        <div class="absolute top-full right-0 mt-1.5 w-52 p-2 bg-[#0B132B] text-slate-100 rounded-lg shadow-2xl border border-amber-500/40 opacity-0 invisible group-hover/moq:opacity-100 group-hover/moq:visible transition-all duration-150 pointer-events-none z-50">
+                          <div class="flex items-center gap-1 text-amber-400 font-bold text-[10px] mb-1">
+                            <i class="fa-solid fa-triangle-exclamation text-[9px]"></i>
+                            <span>低于起订量 (MOQ: {{ getItemMoq(item) }}件)</span>
                           </div>
-                          <div class="text-[10px] text-slate-300 leading-relaxed space-y-1">
-                            <div class="flex justify-between items-center text-slate-300 bg-slate-800/80 px-2 py-1 rounded-md">
-                              <span>当前报盘量: <b class="text-white font-mono">{{ item.quantity || 0 }}</b> 件</span>
-                              <span class="text-amber-300">起订门槛: <b class="font-mono">{{ getItemMoq(item) }}</b> 件</span>
-                            </div>
-                            <p class="text-slate-300 pt-0.5">
-                              ⚠️ 填报数量低于底价库设定门槛，散单生产通常需加收散批开机费或单价上浮，建议与买家协商凑单。
-                            </p>
+                          <div class="text-[9.5px] text-slate-300 leading-snug">
+                            当前报盘 <b class="text-white font-mono">{{ item.quantity || 0 }}</b> 件低于门槛，散单生产或需加收开机费。
                           </div>
-                          <!-- 顶部小三角形气泡尖角 -->
-                          <div class="absolute -top-1 right-3 w-2 h-2 bg-slate-900 rotate-45 border-l border-t border-slate-700/80"></div>
+                          <!-- 顶部微型三角形气泡指示尖角 -->
+                          <div class="absolute -top-1 right-2.5 w-2 h-2 bg-[#0B132B] rotate-45 border-l border-t border-amber-500/40"></div>
                         </div>
                       </div>
                     </div>
@@ -1050,8 +1044,8 @@
                       <div class="inline-flex items-center h-[38px] border hover:border-slate-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-lg bg-white px-2.5 transition shadow-sm"
                            :class="isBelowFloorMargin(item) ? 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/50' : 'border-slate-200'">
                         <input type="number" :value="Math.round(item.profitMargin * 100)" @input="onMarginChange(item, $event.target.value)" 
-                               class="w-10 text-center font-black text-xs focus:outline-none bg-transparent"
-                               :class="isBelowFloorMargin(item) ? 'text-rose-600 font-black' : 'text-blue-600 font-bold'">
+                                class="w-10 text-center font-black text-xs focus:outline-none bg-transparent"
+                                :class="isBelowFloorMargin(item) ? 'text-rose-600 font-black' : 'text-blue-600 font-bold'">
                         <span class="text-xs font-bold" :class="isBelowFloorMargin(item) ? 'text-rose-500' : 'text-slate-400'">%</span>
                       </div>
                       <!-- 悬浮角标：绝对定位 0 撑开表格行高，鼠标悬停展开业务说明浮窗 -->
@@ -1060,23 +1054,17 @@
                           <i class="fa-solid fa-ban text-[8px]"></i>
                           <span>底线 {{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%</span>
                         </span>
-                        <!-- 悬浮业务说明弹窗 (Tooltip Popover 向下展开) -->
-                        <div class="absolute top-full right-0 mt-2 w-64 p-3 bg-slate-900/95 text-white text-left rounded-xl shadow-2xl border border-slate-700/80 backdrop-blur-md opacity-0 invisible group-hover/floor:opacity-100 group-hover/floor:visible transition-all duration-150 pointer-events-none z-50">
-                          <div class="flex items-center gap-1.5 text-rose-400 font-bold text-[11px] mb-1.5">
-                            <i class="fa-solid fa-shield-halved text-xs"></i>
-                            <span>毛利率跌破经营红线</span>
+                        <!-- 悬浮业务说明弹窗 (Tooltip Popover 向下展开，高对比纯色不透底，精炼无遮挡) -->
+                        <div class="absolute top-full right-0 mt-1.5 w-52 p-2 bg-[#0B132B] text-slate-100 rounded-lg shadow-2xl border border-rose-500/40 opacity-0 invisible group-hover/floor:opacity-100 group-hover/floor:visible transition-all duration-150 pointer-events-none z-50">
+                          <div class="flex items-center gap-1 text-rose-400 font-bold text-[10px] mb-1">
+                            <i class="fa-solid fa-shield-halved text-[9px]"></i>
+                            <span>跌破利润底线 ({{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%)</span>
                           </div>
-                          <div class="text-[10px] text-slate-300 leading-relaxed space-y-1">
-                            <div class="flex justify-between items-center text-slate-300 bg-slate-800/80 px-2 py-1 rounded-md">
-                              <span>当前毛利: <b class="text-rose-400 font-mono">{{ Math.round((item.profitMargin || 0)*100) }}%</b></span>
-                              <span class="text-emerald-400">底价红线: <b class="font-mono">{{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%</b></span>
-                            </div>
-                            <p class="text-slate-300 pt-0.5">
-                              ⚠️ 当前毛利率已击穿底价表设定的最低利润保护底线，可能产生亏损风险，建议适当调高单价或核实成本。
-                            </p>
+                          <div class="text-[9.5px] text-slate-300 leading-snug">
+                            当前毛利 <b class="text-rose-400 font-mono">{{ Math.round((item.profitMargin || 0)*100) }}%</b> 低于红线，建议调高单价以防亏损。
                           </div>
-                          <!-- 顶部小三角形气泡尖角 -->
-                          <div class="absolute -top-1 right-3 w-2 h-2 bg-slate-900 rotate-45 border-l border-t border-slate-700/80"></div>
+                          <!-- 顶部微型三角形气泡指示尖角 -->
+                          <div class="absolute -top-1 right-2.5 w-2 h-2 bg-[#0B132B] rotate-45 border-l border-t border-rose-500/40"></div>
                         </div>
                       </div>
                     </div>
@@ -3694,7 +3682,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               <span>纯文字抬头 (无Logo)</span>
             </button>
 
-            <button type="button" @click="resetDefaultLogo" :disabled="logoModal.uploading" class="py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-xs transition flex items-center justify-center space-x-1.5 cursor-pointer border border-white/10">
+            <button type="button" @click="openResetLogoConfirm" :disabled="logoModal.uploading" class="py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-xs transition flex items-center justify-center space-x-1.5 cursor-pointer border border-white/10">
               <i class="fa-solid fa-rotate-left text-slate-400"></i>
               <span>恢复官方徽标</span>
             </button>
@@ -3715,18 +3703,51 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
-    <!-- 全局独立悬浮 Toast 提示 (z-[9999] 居中高亮浮动药丸卡片，100% 清晰瞩目) -->
-    <div class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none w-auto max-w-lg px-4 flex justify-center">
-      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="-translate-y-4 opacity-0 scale-95" enter-to-class="translate-y-0 opacity-100 scale-100" leave-active-class="transform ease-in duration-200 transition" leave-from-class="opacity-100 scale-100" leave-to-class="-translate-y-2 opacity-0 scale-95">
-        <div v-if="toast.show" v-cloak class="pointer-events-auto bg-white/95 text-slate-900 rounded-2xl shadow-2xl shadow-slate-900/20 border p-3.5 sm:p-4 flex items-center space-x-3.5 backdrop-blur-xl ring-1"
-             :class="toast.type === 'error' ? 'border-rose-200 ring-rose-500/20' : (toast.type === 'warning' ? 'border-amber-200 ring-amber-500/20' : 'border-emerald-200 ring-emerald-500/20')">
-          <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-md"
-               :class="toast.type === 'error' ? 'bg-rose-500 shadow-rose-500/30' : (toast.type === 'warning' ? 'bg-amber-500 shadow-amber-500/30' : 'bg-emerald-500 shadow-emerald-500/30')">
-            <i :class="toast.type === 'error' ? 'fa-solid fa-xmark text-sm' : (toast.type === 'warning' ? 'fa-solid fa-triangle-exclamation text-xs' : 'fa-solid fa-check text-sm')"></i>
+    <!-- 恢复官方品牌徽标二次确认弹窗 (Custom Dark-Theme Modal 彻底替代原生 confirm) -->
+    <div v-if="logoResetConfirmModal.show" @click.self="closeResetLogoConfirm" class="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+      <div class="relative bg-[#0B132B] border border-cyan-500/30 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-white animate-in fade-in zoom-in duration-200">
+        <!-- 右上角快捷关闭按钮 -->
+        <button @click="closeResetLogoConfirm" aria-label="关闭确认窗口" class="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center text-xs transition cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="flex items-center space-x-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center text-xl flex-shrink-0">
+            <i class="fa-solid fa-rotate-left"></i>
           </div>
-          <div class="flex-1 text-xs sm:text-sm font-bold text-slate-800 leading-snug">{{ toast.message }}</div>
-          <button @click="toast.show = false" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition cursor-pointer flex-shrink-0" aria-label="关闭提示">
-            <i class="fa-solid fa-xmark text-xs"></i>
+          <div>
+            <h3 class="text-base font-extrabold text-white">恢复默认官方徽标？</h3>
+            <p class="text-xs text-slate-400 mt-0.5">将清除当前企业自定义 Logo</p>
+          </div>
+        </div>
+
+        <div class="bg-blue-950/40 border border-blue-500/20 rounded-xl p-3 text-xs text-slate-300 leading-relaxed">
+          导出的 PDF 报价单将恢复使用 KelvinFlow 官方标准徽标，您后续随时可重新上传企业专属商标。
+        </div>
+
+        <div class="flex items-center space-x-3 pt-2">
+          <button @click="closeResetLogoConfirm" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-300 bg-white/10 hover:bg-white/20 transition cursor-pointer">
+            取消
+          </button>
+          <button @click="executeResetDefaultLogo" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-md shadow-blue-600/30 transition cursor-pointer active:scale-95">
+            确认恢复
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 全局独立悬浮 Toast 提示 (z-[9999] 居中高亮浮动药丸卡片，紧凑超轻单行无折行) -->
+    <div class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none w-auto max-w-[95vw] px-2 flex justify-center">
+      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="-translate-y-4 opacity-0 scale-95" enter-to-class="translate-y-0 opacity-100 scale-100" leave-active-class="transform ease-in duration-200 transition" leave-from-class="opacity-100 scale-100" leave-to-class="-translate-y-2 opacity-0 scale-95">
+        <div v-if="toast.show" v-cloak class="pointer-events-auto bg-white/95 text-slate-900 rounded-full shadow-xl shadow-slate-900/15 border px-3.5 sm:px-4 py-1.5 flex items-center space-x-2 backdrop-blur-xl ring-1 h-9"
+             :class="toast.type === 'error' ? 'border-rose-200 ring-rose-500/20' : (toast.type === 'warning' ? 'border-amber-200 ring-amber-500/20' : 'border-emerald-200 ring-emerald-500/20')">
+          <div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white shadow-xs text-[10px]"
+               :class="toast.type === 'error' ? 'bg-rose-500 shadow-rose-500/30' : (toast.type === 'warning' ? 'bg-amber-500 shadow-amber-500/30' : 'bg-emerald-500 shadow-emerald-500/30')">
+            <i :class="toast.type === 'error' ? 'fa-solid fa-xmark' : (toast.type === 'warning' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-check')"></i>
+          </div>
+          <div class="text-xs font-semibold text-slate-800 whitespace-nowrap leading-none select-none tracking-tight">{{ toast.message }}</div>
+          <button @click="toast.show = false" class="text-slate-400 hover:text-slate-600 p-0.5 ml-1 rounded-full hover:bg-slate-100 transition cursor-pointer flex-shrink-0" aria-label="关闭提示">
+            <i class="fa-solid fa-xmark text-[11px]"></i>
           </button>
         </div>
       </transition>
@@ -3748,6 +3769,39 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         // =========================================================================
         // 🔒 用户状态与计费权限前置声明 (确保引导流程与各计算属性无 TDZ 死区)
         // =========================================================================
+        const decodeJwtPayload = (jwtToken) => {
+          try {
+            if (!jwtToken || typeof jwtToken !== 'string' || !jwtToken.includes('.')) return null;
+            const parts = jwtToken.trim().split('.');
+            if (parts.length < 2) return null;
+            const base64Url = parts[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+          } catch (_) {
+            return null;
+          }
+        };
+
+        const getTokenFromUrl = () => {
+          try {
+            const params = new URLSearchParams(window.location.search);
+            let token = params.get('token');
+            if (token) {
+              localStorage.setItem('saas_auth_token', token);
+              return token;
+            }
+            return localStorage.getItem('saas_auth_token') || '';
+          } catch (_) {
+            return '';
+          }
+        };
+
+        const initialToken = getTokenFromUrl();
+        const authToken = ref(initialToken);
+
         const trialState = ref({
           isTrial: false,
           expired: false,
@@ -3762,6 +3816,25 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         const currentTenant = ref(null);
         const currentUser = ref(null);
 
+        // 若 URL 或本地存在有效 Token，第一时间同步用户信息，无需等待网络请求
+        if (initialToken) {
+          const payload = decodeJwtPayload(initialToken);
+          if (payload && payload.email) {
+            currentUser.value = {
+              id: payload.userId || '',
+              email: payload.email,
+              name: payload.name || '',
+              role: payload.role || 'admin',
+              tenantId: payload.tenantId || ''
+            };
+            trialState.value.email = payload.email;
+            if (payload.tenantId) trialState.value.tenantId = payload.tenantId;
+            try {
+              localStorage.setItem('kelvinflow_user_email', payload.email);
+            } catch (_) {}
+          }
+        }
+
         // =========================================================================
         // 🏢 租户品牌与企业专属 Logo 响应式状态 (Custom Company Logo)
         // =========================================================================
@@ -3773,8 +3846,20 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           uploading: false
         });
 
+        const logoResetConfirmModal = ref({
+          show: false
+        });
+
         const openLogoModal = () => {
           logoModal.value.show = true;
+        };
+
+        const openResetLogoConfirm = () => {
+          logoResetConfirmModal.value.show = true;
+        };
+
+        const closeResetLogoConfirm = () => {
+          logoResetConfirmModal.value.show = false;
         };
 
         const onLogoFileSelected = async (event) => {
@@ -3811,8 +3896,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           }
         };
 
-        const resetDefaultLogo = async () => {
-          if (!confirm('确定恢复为默认官方品牌徽标吗？')) return;
+        const executeResetDefaultLogo = async () => {
+          logoResetConfirmModal.value.show = false;
           logoModal.value.uploading = true;
           try {
             const token = getTokenFromUrl();
@@ -3829,13 +3914,17 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               body: JSON.stringify({ noLogo: false })
             });
             tenantLogoUrl.value = '/kelvinflow_emblem.png';
-            showToast('已成功恢复为默认官方 Logo', 'success');
+            showToast('已成功恢复为默认官方品牌徽标', 'success');
             logoModal.value.show = false;
           } catch (err) {
             showToast('重置失败: ' + err.message, 'error');
           } finally {
             logoModal.value.uploading = false;
           }
+        };
+
+        const resetDefaultLogo = () => {
+          openResetLogoConfirm();
         };
 
         const setNoLogo = async () => {
@@ -5029,12 +5118,17 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         });
 
         const isLoggedIn = computed(() => {
-          const hasEmail = !!localStorage.getItem('kelvinflow_user_email');
-          return !!(
-            localStorage.getItem('saas_auth_token') || 
-            (hasEmail && (trialState.value.isPaid || (trialState.value.isTrial && !trialState.value.expired))) ||
-            (trialState.value.plan && trialState.value.plan !== 'trial' && hasEmail)
-          );
+          const token = authToken.value || localStorage.getItem('saas_auth_token');
+          const email = currentUser.value?.email || trialState.value?.email || localStorage.getItem('kelvinflow_user_email');
+          // 1. 若存在有效 Token，立即判定已登录
+          if (token) return true;
+          // 2. 若有邮箱且处于有效试用或付费期
+          if (email && (trialState.value.isPaid || (trialState.value.isTrial && !trialState.value.expired))) return true;
+          // 3. 若有邮箱且为付费套餐
+          if (email && trialState.value.plan && trialState.value.plan !== 'trial') return true;
+          // 4. 若 currentUser 存在有效邮箱
+          if (currentUser.value?.email) return true;
+          return false;
         });
 
         const portalLandingUrl = computed(() => {
@@ -5056,6 +5150,8 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         };
 
         const confirmLogout = () => {
+          authToken.value = '';
+          currentUser.value = null;
           localStorage.removeItem('saas_auth_token');
           localStorage.removeItem('kelvinflow_user_phone');
           localStorage.removeItem('kelvinflow_user_email');
@@ -5071,10 +5167,17 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           if (trialState.value) {
             trialState.value.isTrial = false;
             trialState.value.expired = false;
-            trialState.value.tenantId = '';
+            trialState.value.tenantId = 'default';
+            trialState.value.email = '';
             trialState.value.isPaid = false;
+            trialState.value.plan = 'trial';
           }
           logoutModal.value.show = false;
+          try {
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('token');
+            window.history.replaceState({}, '', cleanUrl.toString());
+          } catch (_) {}
           window.location.href = window.location.hostname.includes('kelvinflow.com')
             ? 'https://kelvinflow.com/?logged_out=1'
             : '/?logged_out=1';
@@ -5355,7 +5458,8 @@ Acme Global Sourcing GmbH, Munich, Germany`;
 
         const fetchTrialStatus = async () => {
           const token = getTokenFromUrl();
-          const email = localStorage.getItem('kelvinflow_user_email') || '';
+          if (token) authToken.value = token;
+          const email = currentUser.value?.email || trialState.value?.email || localStorage.getItem('kelvinflow_user_email') || '';
           try {
             const headers = {};
             if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -5373,6 +5477,11 @@ Acme Global Sourcing GmbH, Munich, Germany`;
               if (data.email) {
                 trialState.value.email = data.email;
                 localStorage.setItem('kelvinflow_user_email', data.email);
+              }
+              if (data.user) {
+                currentUser.value = data.user;
+              } else if (data.email && !currentUser.value) {
+                currentUser.value = { email: data.email, name: data.name || '', tenantId: data.tenantId || '' };
               }
               if (data.isPaid) {
                 localStorage.setItem('kelvinflow_user_is_paid', 'true');
@@ -5557,26 +5666,15 @@ Sales Team | KelvinFlow Global Technology`;
           showToast('已根据当前价格与条款重置邮件正文！');
         };
 
-        // (currentTenant 与 currentUser 已在 setup 顶部统一声明)
-
-        const getTokenFromUrl = () => {
-          const params = new URLSearchParams(window.location.search);
-          let token = params.get('token');
-          if (token) {
-            localStorage.setItem('saas_auth_token', token);
-            return token;
-          }
-          return localStorage.getItem('saas_auth_token') || '';
-        };
-
         const fetchQuotation = async () => {
           loading.value = true;
           error.value = null;
           const id = getQuoteIdFromUrl();
           const token = getTokenFromUrl();
+          if (token) authToken.value = token;
 
           // 若存在凭证或本地邮箱则同步验证试用状态
-          if (token || localStorage.getItem('kelvinflow_user_email')) {
+          if (token || currentUser.value?.email || trialState.value?.email || localStorage.getItem('kelvinflow_user_email')) {
             await fetchTrialStatus();
           }
 
@@ -6700,10 +6798,16 @@ Sales Team | KelvinFlow Global Technology`;
           tenantCompanyName,
           tenantCompanySubtitle,
           logoModal,
+          logoResetConfirmModal,
           openLogoModal,
+          openResetLogoConfirm,
+          closeResetLogoConfirm,
+          executeResetDefaultLogo,
           onLogoFileSelected,
           resetDefaultLogo,
-          setNoLogo
+          setNoLogo,
+          authToken,
+          currentUser
         };
       }
     });

@@ -365,7 +365,14 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
         phone: trial.phone,
         email: trial.email,
         name: trial.name,
-        companyName: trial.company
+        companyName: trial.company,
+        user: {
+          id: trial.userId,
+          email: trial.email,
+          name: trial.name,
+          role: 'admin',
+          tenantId: trial.tenantId
+        }
       });
     }
 
