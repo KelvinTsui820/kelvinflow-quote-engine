@@ -233,7 +233,7 @@
       <div class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
         <div class="flex items-center space-x-2 sm:space-x-3.5 min-w-0">
           <!-- 1. 左侧：KelvinFlow 官方品牌徽标与名称 (点击返回官网首页) -->
-          <a href="/?landing=1" title="返回 KelvinFlow 官方门户" class="flex items-center space-x-2 flex-shrink-0 transition-opacity duration-300 ease-out hover:opacity-85 active:opacity-70 cursor-pointer min-w-0">
+          <a :href="portalLandingUrl" title="返回 KelvinFlow 官方门户" class="flex items-center space-x-2 flex-shrink-0 transition-opacity duration-300 ease-out hover:opacity-85 active:opacity-70 cursor-pointer min-w-0">
             <img src="/kelvinflow_emblem.png" alt="KelvinFlow" class="h-6 sm:h-7 w-auto object-contain block select-none flex-shrink-0" />
             <span class="text-base sm:text-lg font-black tracking-tight text-white font-sans select-none">KelvinFlow</span>
           </a>
@@ -4959,6 +4959,12 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           );
         });
 
+        const portalLandingUrl = computed(() => {
+          return window.location.hostname.includes('kelvinflow.com')
+            ? 'https://kelvinflow.com/?landing=1'
+            : '/?landing=1';
+        });
+
         const emailFullscreenModal = ref(false);
         const openEmailFullscreen = () => { emailFullscreenModal.value = true; };
         const closeEmailFullscreen = () => { emailFullscreenModal.value = false; };
@@ -4991,7 +4997,9 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             trialState.value.isPaid = false;
           }
           logoutModal.value.show = false;
-          window.location.href = '/?logged_out=1';
+          window.location.href = window.location.hostname.includes('kelvinflow.com')
+            ? 'https://kelvinflow.com/?logged_out=1'
+            : '/?logged_out=1';
         };
 
         const logoutOrSwitchAccount = openLogoutModal;
@@ -6470,6 +6478,7 @@ Sales Team | KelvinFlow Global Technology`;
           executeCopyAndSendEmail,
           openWebMailDirect,
           insertLogisticsAdviceToEmail,
+          portalLandingUrl,
           isGuestMode,
           isLoggedIn,
           maskedPhone,
