@@ -334,12 +334,18 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
   try {
     const tenantId = req.tenantId || (req.query.tenant_id as string);
     const phone = req.query.phone as string;
-    const email = req.query.email as string;
+    const email = (req.query.email as string) || (req.user && req.user.email);
 
     if (phone || email) {
       const trial = TrialService.findTrialByPhoneOrEmail(phone, email);
       if (!trial) {
-        return res.json({ success: true, exists: false, isTrial: false });
+        return res.json({ 
+          success: true, 
+          exists: false, 
+          isTrial: false,
+          email: req.user?.email,
+          name: req.user?.name
+        });
       }
       const expiryDate = new Date(trial.expiresAt);
       const isExpired = new Date() > expiryDate;
@@ -405,6 +411,8 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
           remainingDays,
           expiresAt,
           tenantId,
+          email: req.user?.email || profile.contactEmail,
+          name: req.user?.name || profile.managerName || profile.companyName,
           companyName: profile.companyName
         });
       }
@@ -415,7 +423,10 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
       exists: true,
       isTrial: false,
       plan: req.tenant?.plan || 'geek',
-      status: 'active'
+      status: 'active',
+      email: req.user?.email,
+      name: req.user?.name,
+      tenantId
     });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });

@@ -981,21 +981,26 @@
                     </div>
                   </td>
 
-                  <!-- 4. 数量 (含低于底价表起订量 MOQ 智能警示) -->
+                  <!-- 4. 数量 (含低于底价表起订量 MOQ 智能角标悬浮提示，0 空间占用彻底不破行高) -->
                   <td class="py-3.5 px-3 text-center whitespace-nowrap">
-                    <div class="inline-flex items-center h-[38px] border hover:border-slate-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-lg bg-white overflow-hidden transition shadow-sm"
-                         :class="isBelowMoq(item) ? 'border-amber-400 ring-2 ring-amber-400/20' : 'border-slate-200'">
-                      <button @click="item.quantity > 1 ? (item.quantity--, onQtyChange(item)) : null" title="减少1" class="w-7 h-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-slate-50 transition text-xs font-bold active:bg-slate-100">
-                        <i class="fa-solid fa-minus text-[10px]"></i>
-                      </button>
-                      <input type="number" v-model.number="item.quantity" @input="onQtyChange(item)" min="1" class="w-16 h-full text-center bg-white font-bold text-slate-900 text-xs border-x border-slate-200 focus:outline-none">
-                      <button @click="item.quantity++, onQtyChange(item)" title="增加1" aria-label="增加1" class="w-7 h-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-slate-50 transition text-xs font-bold active:bg-slate-100">
-                        <i class="fa-solid fa-plus text-[10px]"></i>
-                      </button>
-                    </div>
-                    <div v-if="isBelowMoq(item)" class="text-[9px] font-extrabold text-amber-600 flex items-center justify-center gap-0.5 mt-1 whitespace-nowrap" :title="'低于底价表起订量要求: ' + getItemMoq(item)">
-                      <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
-                      <span>低于MOQ({{ getItemMoq(item) }})</span>
+                    <div class="relative inline-flex items-center">
+                      <div class="inline-flex items-center h-[38px] border hover:border-slate-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-lg bg-white overflow-hidden transition shadow-sm"
+                           :class="isBelowMoq(item) ? 'border-amber-400 ring-2 ring-amber-400/20' : 'border-slate-200'">
+                        <button @click="item.quantity > 1 ? (item.quantity--, onQtyChange(item)) : null" title="减少1" class="w-7 h-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-slate-50 transition text-xs font-bold active:bg-slate-100">
+                          <i class="fa-solid fa-minus text-[10px]"></i>
+                        </button>
+                        <input type="number" v-model.number="item.quantity" @input="onQtyChange(item)" min="1" class="w-16 h-full text-center bg-white font-bold text-slate-900 text-xs border-x border-slate-200 focus:outline-none">
+                        <button @click="item.quantity++, onQtyChange(item)" title="增加1" aria-label="增加1" class="w-7 h-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-slate-50 transition text-xs font-bold active:bg-slate-100">
+                          <i class="fa-solid fa-plus text-[10px]"></i>
+                        </button>
+                      </div>
+                      <!-- 悬浮角标：绝对定位 0 撑开表格行高，醒目直观 -->
+                      <span v-if="isBelowMoq(item)" 
+                            class="absolute -top-2.5 -right-2 px-1.5 py-0.5 bg-amber-500 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-amber-500/30 flex items-center gap-0.5 tracking-tight pointer-events-auto cursor-help whitespace-nowrap z-10"
+                            :title="'低于底价表起订量要求: ' + getItemMoq(item)">
+                        <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
+                        <span>MOQ {{ getItemMoq(item) }}</span>
+                      </span>
                     </div>
                   </td>
 
@@ -1012,18 +1017,23 @@
                     </div>
                   </td>
 
-                  <!-- 6. 毛利率 % (含跌破底价表红线熔断变红预警) -->
+                  <!-- 6. 毛利率 % (含跌破底价表红线熔断变红预警角标，0 空间占用保持表格整洁) -->
                   <td class="py-3.5 px-3 text-center whitespace-nowrap">
-                    <div class="inline-flex items-center h-[38px] border hover:border-slate-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-lg bg-white px-2.5 transition shadow-sm"
-                         :class="isBelowFloorMargin(item) ? 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/50' : 'border-slate-200'">
-                      <input type="number" :value="Math.round(item.profitMargin * 100)" @input="onMarginChange(item, $event.target.value)" 
-                             class="w-10 text-center font-black text-xs focus:outline-none bg-transparent"
-                             :class="isBelowFloorMargin(item) ? 'text-rose-600 font-black' : 'text-blue-600 font-bold'">
-                      <span class="text-xs font-bold" :class="isBelowFloorMargin(item) ? 'text-rose-500' : 'text-slate-400'">%</span>
-                    </div>
-                    <div v-if="isBelowFloorMargin(item)" class="text-[9px] font-black text-rose-600 flex items-center justify-center gap-0.5 mt-1 whitespace-nowrap animate-pulse" :title="'已跌破底价表设定的最低利润红线: ' + Math.round((pricingConfig?.floorMargin || 0.08)*100) + '%'">
-                      <i class="fa-solid fa-ban text-[8px]"></i>
-                      <span>破{{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%红线</span>
+                    <div class="relative inline-flex items-center">
+                      <div class="inline-flex items-center h-[38px] border hover:border-slate-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-lg bg-white px-2.5 transition shadow-sm"
+                           :class="isBelowFloorMargin(item) ? 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/50' : 'border-slate-200'">
+                        <input type="number" :value="Math.round(item.profitMargin * 100)" @input="onMarginChange(item, $event.target.value)" 
+                               class="w-10 text-center font-black text-xs focus:outline-none bg-transparent"
+                               :class="isBelowFloorMargin(item) ? 'text-rose-600 font-black' : 'text-blue-600 font-bold'">
+                        <span class="text-xs font-bold" :class="isBelowFloorMargin(item) ? 'text-rose-500' : 'text-slate-400'">%</span>
+                      </div>
+                      <!-- 悬浮角标：绝对定位 0 撑开表格行高 -->
+                      <span v-if="isBelowFloorMargin(item)" 
+                            class="absolute -top-2.5 -right-2 px-1.5 py-0.5 bg-rose-500 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-rose-500/30 flex items-center gap-0.5 tracking-tight pointer-events-auto cursor-help whitespace-nowrap z-10"
+                            :title="'已跌破底价表设定的最低利润红线: ' + Math.round((pricingConfig?.floorMargin || 0.08)*100) + '%'">
+                        <i class="fa-solid fa-ban text-[8px]"></i>
+                        <span>底线 {{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%</span>
+                      </span>
                     </div>
                   </td>
 
@@ -2395,7 +2405,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                     :class="imapModal.tab !== 'draft' ? 'bg-white text-blue-600 border-blue-200 shadow-sm shadow-blue-500/10 font-black' : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-white/60'">
               <i class="fa-solid fa-paper-plane text-xs flex-shrink-0"></i>
               <span class="sm:hidden">1. 邮件转发</span>
-              <span class="hidden sm:inline">1. 邮件自动转发 (0风控通道)</span>
+              <span class="hidden sm:inline">1. 邮件自动转发</span>
             </button>
             <button type="button" @click="imapModal.tab = 'draft'"
                     class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer border"
@@ -2714,8 +2724,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                :class="imapModal.savedConfig?.enabled ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-700'">
             <i :class="imapModal.savedConfig?.enabled ? 'fa-solid fa-circle-check text-emerald-600' : 'fa-solid fa-circle-info text-blue-600'" class="text-sm flex-shrink-0"></i>
             <span class="text-[11px] leading-relaxed">
-              <strong v-if="imapModal.savedConfig?.enabled">已激活【模式 2 · 草稿箱直达】：</strong>
-              <strong v-else>当前采用【模式 1 · 待审收件箱交付 (0配置)】：</strong>
+              <strong v-if="imapModal.savedConfig?.enabled">已激活【草稿箱直达】：</strong>
+              <strong v-else>当前采用【邮件自动转发】：</strong>
               {{ imapModal.savedConfig?.enabled ? 'AI 生成的正式报价单与英文回信将静默注入您的邮箱草稿箱，点开即发！' : 'AI 生成的正式报价单与英文回信将直接发回您的收件箱与审单台，打开一键转发买家！' }}
             </span>
           </div>
@@ -2731,7 +2741,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <div class="max-w-md mx-auto space-y-1.5">
               <h4 class="text-base font-extrabold text-slate-900">👑 极客草稿箱直达为极客版专属特权</h4>
               <p class="text-xs text-slate-600 leading-relaxed">
-                升级极客版后，配置日常外贸邮箱授权码，AI 算出的所有单据与地道英文回信将<strong class="text-amber-800">自动静默存入您的 Outlook / Foxmail 发件草稿箱</strong>，业务员打开邮箱即可一键发送，彻底省去手动复制粘贴与下载附件的繁琐步骤！
+                升级极客版后，配置日常外贸邮箱授权码，AI 算出的所有单据与地道英文回信将<strong class="text-amber-800">自动静默存入您的外贸常用邮箱（全面支持阿里企业邮、网易企业邮、腾讯企业邮/Foxmail、Outlook、Gmail等主流外贸企业邮箱及个人邮箱）发件草稿箱</strong>，业务员打开邮箱即可一键发送，彻底省去手动复制粘贴与下载附件的繁琐步骤！
               </p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto text-left pt-1">
@@ -3664,15 +3674,19 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
-    <!-- 全局独立悬浮 Toast 提示 (z-[9999] 置于所有弹窗与遮罩层最顶端，保障 100% 可见) -->
-    <div class="fixed top-6 sm:top-8 right-4 sm:right-6 z-[9999] pointer-events-none max-w-sm w-full">
-      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 opacity-100 sm:translate-x-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div v-if="toast.show" v-cloak class="pointer-events-auto bg-[#0B132B] text-white rounded-2xl shadow-2xl border border-slate-700/80 p-4 flex items-center space-x-3.5 ring-2 ring-emerald-500/20 backdrop-blur-md">
-          <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-               :class="toast.type === 'error' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : (toast.type === 'warning' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30')">
-            <i :class="toast.type === 'error' ? 'fa-solid fa-triangle-exclamation' : (toast.type === 'warning' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-check')" class="text-sm"></i>
+    <!-- 全局独立悬浮 Toast 提示 (z-[9999] 居中高亮浮动药丸卡片，100% 清晰瞩目) -->
+    <div class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none w-auto max-w-lg px-4 flex justify-center">
+      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="-translate-y-4 opacity-0 scale-95" enter-to-class="translate-y-0 opacity-100 scale-100" leave-active-class="transform ease-in duration-200 transition" leave-from-class="opacity-100 scale-100" leave-to-class="-translate-y-2 opacity-0 scale-95">
+        <div v-if="toast.show" v-cloak class="pointer-events-auto bg-white/95 text-slate-900 rounded-2xl shadow-2xl shadow-slate-900/20 border p-3.5 sm:p-4 flex items-center space-x-3.5 backdrop-blur-xl ring-1"
+             :class="toast.type === 'error' ? 'border-rose-200 ring-rose-500/20' : (toast.type === 'warning' ? 'border-amber-200 ring-amber-500/20' : 'border-emerald-200 ring-emerald-500/20')">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-md"
+               :class="toast.type === 'error' ? 'bg-rose-500 shadow-rose-500/30' : (toast.type === 'warning' ? 'bg-amber-500 shadow-amber-500/30' : 'bg-emerald-500 shadow-emerald-500/30')">
+            <i :class="toast.type === 'error' ? 'fa-solid fa-xmark text-sm' : (toast.type === 'warning' ? 'fa-solid fa-triangle-exclamation text-xs' : 'fa-solid fa-check text-sm')"></i>
           </div>
-          <div class="flex-1 text-xs font-bold text-slate-100 leading-snug">{{ toast.message }}</div>
+          <div class="flex-1 text-xs sm:text-sm font-bold text-slate-800 leading-snug">{{ toast.message }}</div>
+          <button @click="toast.show = false" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition cursor-pointer flex-shrink-0" aria-label="关闭提示">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
         </div>
       </transition>
     </div>
@@ -3699,6 +3713,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           remainingDays: 7,
           expiresAt: '',
           tenantId: '',
+          email: '',
           isPaid: false,
           plan: 'trial'
         });
@@ -4207,11 +4222,13 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           );
         });
 
+        let toastTimer = null;
         const toast = ref({ show: false, message: '', type: 'success' });
 
         const showToast = (message, type = 'success') => {
+          if (toastTimer) clearTimeout(toastTimer);
           toast.value = { show: true, message, type };
-          setTimeout(() => { toast.value.show = false; }, 3000);
+          toastTimer = setTimeout(() => { toast.value.show = false; }, 3200);
         };
 
         // =========================================================================
@@ -4950,6 +4967,12 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         } catch (_) {}
 
         const maskedPhone = computed(() => {
+          if (currentUser.value?.email && currentUser.value.email.includes('@')) {
+            return currentUser.value.email;
+          }
+          if (trialState.value?.email && trialState.value.email.includes('@')) {
+            return trialState.value.email;
+          }
           const email = localStorage.getItem('kelvinflow_user_email');
           if (email && email.includes('@')) {
             return email;
@@ -5141,7 +5164,8 @@ Acme Global Sourcing GmbH, Munich, Germany`;
 
         const applyTrialAuthSuccess = async (data, email) => {
           localStorage.setItem('saas_auth_token', data.token);
-          if (email) localStorage.setItem('kelvinflow_user_email', email);
+          const effectiveEmail = email || data.user?.email || '';
+          if (effectiveEmail) localStorage.setItem('kelvinflow_user_email', effectiveEmail);
           if (data.user?.name) localStorage.setItem('kelvinflow_user_name', data.user.name);
           if (data.remainingDays !== undefined) localStorage.setItem('kelvinflow_remaining_days', data.remainingDays);
           if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);
@@ -5151,7 +5175,11 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           trialState.value.isTrial = true;
           trialState.value.remainingDays = data.remainingDays || 7;
           trialState.value.expired = false;
-          trialState.value.tenantId = data.tenant?.tenantId || data.tenantId || `tenant_trial_${email.split('@')[0]}`;
+          trialState.value.tenantId = data.tenant?.tenantId || data.tenantId || `tenant_trial_${effectiveEmail.split('@')[0]}`;
+          trialState.value.email = effectiveEmail;
+          if (data.user) {
+            currentUser.value = data.user;
+          }
 
           // 携带 token 更新当前 URL 并刷新数据
           const url = new URL(window.location.href);
@@ -5287,8 +5315,10 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           const token = getTokenFromUrl();
           const email = localStorage.getItem('kelvinflow_user_email') || '';
           try {
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
             const queryParam = token ? `?token=${encodeURIComponent(token)}` : (email ? `?email=${encodeURIComponent(email)}` : '');
-            const res = await fetch(`/api/v1/auth/trial-status${queryParam}`);
+            const res = await fetch(`/api/v1/auth/trial-status${queryParam}`, { headers });
             const data = await res.json();
             if (data.success) {
               trialState.value.isTrial = data.isTrial;
@@ -5298,14 +5328,15 @@ Acme Global Sourcing GmbH, Munich, Germany`;
               trialState.value.tenantId = data.tenantId || '';
               trialState.value.isPaid = Boolean(data.isPaid);
               trialState.value.plan = data.plan || 'trial';
+              if (data.email) {
+                trialState.value.email = data.email;
+                localStorage.setItem('kelvinflow_user_email', data.email);
+              }
               if (data.isPaid) {
                 localStorage.setItem('kelvinflow_user_is_paid', 'true');
               }
               if (data.plan) {
                 localStorage.setItem('kelvinflow_user_plan', data.plan);
-              }
-              if (data.email) {
-                localStorage.setItem('kelvinflow_user_email', data.email);
               }
               if (data.expired) {
                 openTrialExpiredModal();
@@ -5502,8 +5533,8 @@ Sales Team | KelvinFlow Global Technology`;
           const id = getQuoteIdFromUrl();
           const token = getTokenFromUrl();
 
-          // 若存在凭证则同步验证试用状态与手机号，访客模式下允许自由体验演示单据
-          if (token) {
+          // 若存在凭证或本地邮箱则同步验证试用状态
+          if (token || localStorage.getItem('kelvinflow_user_email')) {
             await fetchTrialStatus();
           }
 
@@ -5558,6 +5589,10 @@ Sales Team | KelvinFlow Global Technology`;
               }
               currentTenant.value = data.tenant || null;
               currentUser.value = data.currentUser || null;
+              if (data.currentUser?.email) {
+                trialState.value.email = data.currentUser.email;
+                localStorage.setItem('kelvinflow_user_email', data.currentUser.email);
+              }
               if (data.tenant?.imapConfig) {
                 imapModal.value.savedConfig = data.tenant.imapConfig;
                 imapModal.value.email = data.tenant.imapConfig.email || '';
@@ -6463,6 +6498,7 @@ Sales Team | KelvinFlow Global Technology`;
           error,
           terms,
           toast,
+          showToast,
           editableEmailSubject,
           editableEmailBody,
           computedTotalAmount,
