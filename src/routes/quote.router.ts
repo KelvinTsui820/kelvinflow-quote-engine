@@ -104,7 +104,20 @@ quoteRouter.post('/auth/send-verification-code', async (req: Request, res: Respo
       });
     }
 
-    const result = await EmailVerificationService.sendCode(email, clientIp);
+    const cleanEmail = email.toLowerCase().trim();
+
+    // 校验邮箱是否已注册 (若已注册则直接阻断发信，提示直接登录，节约发信额度并防止混淆)
+    const existingTrial = TrialService.findTrialByEmail(cleanEmail);
+    const existingUser = AuthService.findUserByEmail(cleanEmail);
+    if (existingTrial || existingUser) {
+      return res.status(200).json({
+        success: false,
+        alreadyRegistered: true,
+        error: '该工作邮箱已注册账号，请直接使用密码登录'
+      });
+    }
+
+    const result = await EmailVerificationService.sendCode(cleanEmail, clientIp);
     if (!result.success) {
       return res.status(400).json(result);
     }

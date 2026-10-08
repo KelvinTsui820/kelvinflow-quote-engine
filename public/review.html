@@ -2108,7 +2108,7 @@
                   :class="newPoModal.mode === 'text' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'">
             <i class="fa-solid fa-paste"></i>
             <span class="sm:hidden">粘贴英文正文</span>
-            <span class="hidden sm:inline">粘贴英文正文 (3秒出单)</span>
+            <span class="hidden sm:inline">粘贴英文正文</span>
           </button>
         </div>
 
@@ -2196,7 +2196,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                   class="w-full h-11 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition disabled:opacity-50 disabled:shadow-none flex items-center justify-center space-x-2 cursor-pointer">
             <i v-if="newPoModal.uploading" class="fa-solid fa-spinner animate-spin"></i>
             <i v-else class="fa-solid fa-bolt"></i>
-            <span>{{ newPoModal.uploading ? 'Gemini 3.8 Flash 正在极速核算中...' : '3秒瞬间核算出单' }}</span>
+            <span>{{ newPoModal.uploading ? 'Gemini 3.8 Flash 正在极速核算中...' : '立即核算出单' }}</span>
           </button>
         </div>
 
@@ -3248,9 +3248,9 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               </div>
             </div>
             <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-500/25 flex items-center justify-between text-xs">
-              <div class="flex items-center space-x-1.5 truncate pr-2">
+              <div class="flex items-center space-x-1.5 min-w-0 pr-2">
                 <span class="text-slate-300 font-medium whitespace-nowrap">转账请备注：</span>
-                <span class="text-amber-300 font-mono font-bold text-xs sm:text-sm truncate select-all">
+                <span class="text-amber-300 font-mono font-bold text-xs sm:text-sm whitespace-nowrap select-all">
                   {{ currentUpgradeNote }}
                 </span>
               </div>
@@ -3262,19 +3262,19 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </div>
         </div>
 
-        <!-- 核心权益清单 (图标已全面修复为 Font Awesome Free fa-shield-halved) -->
+        <!-- 核心权益清单 (单行紧凑排版，杜绝换行折叠) -->
         <div class="text-left bg-blue-950/25 border border-blue-500/20 rounded-2xl p-3 space-y-1.5 text-[11px] text-slate-300">
-          <div class="flex items-center gap-2 text-cyan-300">
-            <i class="fa-solid fa-shield-halved text-xs"></i>
-            <span><strong>私有底价严密隔离</strong>：算法本地加密防护，杜绝底价与利润外泄</span>
+          <div class="flex items-center gap-2 text-cyan-300 whitespace-nowrap">
+            <i class="fa-solid fa-shield-halved text-xs flex-shrink-0"></i>
+            <span class="truncate"><strong>私有底价严密隔离</strong>：算法本地加密防护，底价利润绝不外泄</span>
           </div>
-          <div class="flex items-center gap-2 text-emerald-300">
-            <i class="fa-solid fa-bolt text-xs"></i>
-            <span><strong>全功能智能出单微调</strong>：一键核算汇率港杂，秒出正规 A4 英文报价单</span>
+          <div class="flex items-center gap-2 text-emerald-300 whitespace-nowrap">
+            <i class="fa-solid fa-bolt text-xs flex-shrink-0"></i>
+            <span class="truncate"><strong>智能出单与微调</strong>：一键核算汇率港杂，秒出正规 A4 报价单</span>
           </div>
-          <div class="flex items-center gap-2 text-amber-300">
-            <i class="fa-solid fa-envelope-circle-check text-xs"></i>
-            <span><strong>企业邮箱静默联动</strong>：无缝连接企业邮箱/Outlook，买家询盘自动生成草稿</span>
+          <div class="flex items-center gap-2 text-amber-300 whitespace-nowrap">
+            <i class="fa-solid fa-envelope-circle-check text-xs flex-shrink-0"></i>
+            <span class="truncate"><strong>企业邮箱静默联动</strong>：直连企业邮箱与 Outlook，自动生成草稿</span>
           </div>
         </div>
       </div>
@@ -4938,15 +4938,13 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         const maskedPhone = computed(() => {
           const email = localStorage.getItem('kelvinflow_user_email');
           if (email && email.includes('@')) {
-            const [prefix, domain] = email.split('@');
-            return prefix.length > 2 ? `${prefix.slice(0, 2)}***@${domain}` : `${prefix}***@${domain}`;
+            return email;
           }
           const tId = trialState.value.tenantId;
           if (tId && !tId.startsWith('default') && !tId.includes('185')) {
             const clean = tId.replace(/^tenant_trial_/, '');
             if (clean.includes('@')) {
-              const [prefix, domain] = clean.split('@');
-              return prefix.length > 2 ? `${prefix.slice(0, 2)}***@${domain}` : `${prefix}***@${domain}`;
+              return clean;
             }
           }
           return '外贸同行';
@@ -4981,8 +4979,11 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           localStorage.removeItem('kelvinflow_remaining_days');
           localStorage.removeItem('kelvinflow_user_plan');
           localStorage.removeItem('kelvinflow_user_is_paid');
+          localStorage.removeItem('kelvinflow_user_expired');
+          localStorage.removeItem('kelvinflow_user_paid_promo');
           localStorage.removeItem('kelvinflow_active_tenant');
           localStorage.removeItem('kelvinflow_trial_state');
+          sessionStorage.clear();
           if (trialState.value) {
             trialState.value.isTrial = false;
             trialState.value.expired = false;
@@ -4990,10 +4991,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             trialState.value.isPaid = false;
           }
           logoutModal.value.show = false;
-          const url = new URL(window.location.href);
-          url.searchParams.delete('token');
-          url.searchParams.delete('tenant');
-          window.location.href = url.pathname;
+          window.location.href = '/?logged_out=1';
         };
 
         const logoutOrSwitchAccount = openLogoutModal;
@@ -5009,14 +5007,12 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         });
 
         const currentUpgradeNote = computed(() => {
-          const userPhone = localStorage.getItem('kelvinflow_user_phone') || trialModal.value.phone || '';
-          const phoneSuffix = userPhone ? `(尾号${userPhone.slice(-4)})` : '';
           if (upgradeModal.value.cycle === 'annual') {
-            return `升级年付极客版(¥890)${phoneSuffix}`;
+            return '升级年付极客版890';
           }
           return firstMonthPromoActive.value
-            ? `开通极客版(首月特惠¥39)${phoneSuffix}`
-            : `升级极客版(¥99)${phoneSuffix}`;
+            ? '开通极客版39'
+            : '升级极客版99';
         });
 
         const openUpgradeModal = (cycle) => {
@@ -5091,6 +5087,11 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             const data = await res.json();
             if (!data.success) {
               trialModal.value.errorMessage = data.error || '验证码发送受阻，请检查邮箱';
+              if (data.alreadyRegistered) {
+                setTimeout(() => {
+                  trialModal.value.mode = 'login';
+                }, 1200);
+              }
               return;
             }
             showToast('验证码已发送至邮箱，请查收', 'success');

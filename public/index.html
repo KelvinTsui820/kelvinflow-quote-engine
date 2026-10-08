@@ -1202,9 +1202,9 @@
             </div>
           </div>
           <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-500/25 flex items-center justify-between text-xs">
-            <div class="flex items-center space-x-1.5 truncate pr-2">
+            <div class="flex items-center space-x-1.5 min-w-0 pr-2">
               <span class="text-slate-300 font-medium whitespace-nowrap">转账请备注：</span>
-              <span id="payment-note-text" class="text-amber-300 font-mono font-bold text-xs sm:text-sm truncate select-all">开通极客版(首月特惠¥39)</span>
+              <span id="payment-note-text" class="text-amber-300 font-mono font-bold text-xs sm:text-sm whitespace-nowrap select-all">开通极客版39</span>
             </div>
             <button type="button" onclick="copyPaymentNote()" class="shrink-0 px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-bold transition cursor-pointer active:scale-95 flex items-center gap-1">
               <i class="fa-regular fa-copy"></i>
@@ -1214,19 +1214,19 @@
         </div>
       </div>
 
-      <!-- 核心权益清单 (图标已升级为统一 Font Awesome Free fa-shield-halved) -->
+      <!-- 核心权益清单 (单行紧凑排版，杜绝换行折叠) -->
       <div class="text-left bg-blue-950/25 border border-blue-500/20 rounded-2xl p-3 space-y-1.5 text-[11px] text-slate-300">
-        <div class="flex items-center gap-2 text-cyan-300">
-          <i class="fa-solid fa-shield-halved text-xs"></i>
-          <span><strong>私有底价严密隔离</strong>：算法本地加密防护，杜绝底价与利润外泄</span>
+        <div class="flex items-center gap-2 text-cyan-300 whitespace-nowrap">
+          <i class="fa-solid fa-shield-halved text-xs flex-shrink-0"></i>
+          <span class="truncate"><strong>私有底价严密隔离</strong>：算法本地加密防护，底价利润绝不外泄</span>
         </div>
-        <div class="flex items-center gap-2 text-emerald-300">
-          <i class="fa-solid fa-bolt text-xs"></i>
-          <span><strong>全功能智能出单微调</strong>：一键核算汇率港杂，秒出正规 A4 英文报价单</span>
+        <div class="flex items-center gap-2 text-emerald-300 whitespace-nowrap">
+          <i class="fa-solid fa-bolt text-xs flex-shrink-0"></i>
+          <span class="truncate"><strong>智能出单与微调</strong>：一键核算汇率港杂，秒出正规 A4 报价单</span>
         </div>
-        <div class="flex items-center gap-2 text-amber-300">
-          <i class="fa-solid fa-envelope-circle-check text-xs"></i>
-          <span><strong>企业邮箱静默联动</strong>：无缝连接企业邮箱/Outlook，买家询盘自动生成草稿</span>
+        <div class="flex items-center gap-2 text-amber-300 whitespace-nowrap">
+          <i class="fa-solid fa-envelope-circle-check text-xs flex-shrink-0"></i>
+          <span class="truncate"><strong>企业邮箱静默联动</strong>：直连企业邮箱与 Outlook，自动生成草稿</span>
         </div>
       </div>
     </div>
@@ -1275,17 +1275,6 @@
             <button onclick="copyShareLink()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center space-x-1.5 flex-shrink-0">
               <i class="fa-regular fa-copy text-xs"></i>
               <span id="btn-copy-link-text">复制链接</span>
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">完整推荐文案 (直接发送同行或微信群)</label>
-          <div class="relative">
-            <textarea id="modal-ref-text" rows="3" readonly class="w-full p-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-slate-300 font-mono text-[11px] leading-relaxed resize-none focus:outline-none"></textarea>
-            <button id="btn-copy-fulltext" onclick="copyShareFullText()" class="mt-1.5 w-full py-2 rounded-xl bg-white/[0.06] hover:bg-white/10 border border-white/10 text-cyan-300 font-medium text-xs transition cursor-pointer flex items-center justify-center space-x-1.5">
-              <i class="fa-regular fa-copy"></i>
-              <span>一键复制推荐文案 (微信群/朋友圈)</span>
             </button>
           </div>
         </div>
@@ -1432,14 +1421,14 @@
       if (currentPaymentCycle === 'annual') {
         if (btnMonthly) btnMonthly.className = inactiveClass;
         if (btnAnnual) btnAnnual.className = activeAnnualClass;
-        if (noteEl) noteEl.textContent = `升级年付极客版(¥890)${accountSuffix}`;
+        if (noteEl) noteEl.textContent = '升级年付极客版890';
       } else {
         if (btnMonthly) btnMonthly.className = activeMonthlyClass;
         if (btnAnnual) btnAnnual.className = inactiveClass;
         if (noteEl) {
           noteEl.textContent = isPromoUsed 
-            ? `升级极客版(¥99)${accountSuffix}` 
-            : `开通极客版(首月特惠¥39)${accountSuffix}`;
+            ? '升级极客版99' 
+            : '开通极客版39';
         }
       }
     }
@@ -1494,7 +1483,7 @@
 
     function copyPaymentNote() {
       const noteEl = document.getElementById('payment-note-text');
-      const text = noteEl ? noteEl.textContent.trim() : '开通极客版';
+      const text = noteEl ? noteEl.textContent.trim() : '开通极客版39';
       const btnText = document.getElementById('copy-pay-note-text');
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(() => {
@@ -1540,12 +1529,7 @@
         if (userChip) {
           userChip.style.display = 'inline-flex';
           if (userPhone) {
-            if (email.includes('@')) {
-              const [prefix, domain] = email.split('@');
-              userPhone.textContent = prefix.length > 2 ? `${prefix.slice(0, 2)}***@${domain}` : `${prefix}***@${domain}`;
-            } else {
-              userPhone.textContent = '外贸同行';
-            }
+            userPhone.textContent = email || '外贸同行';
           }
         }
 
@@ -1666,9 +1650,14 @@
       localStorage.removeItem('kelvinflow_user_plan');
       localStorage.removeItem('kelvinflow_user_is_paid');
       localStorage.removeItem('kelvinflow_remaining_days');
+      localStorage.removeItem('kelvinflow_user_expired');
+      localStorage.removeItem('kelvinflow_user_paid_promo');
+      localStorage.removeItem('kelvinflow_active_tenant');
+      localStorage.removeItem('kelvinflow_trial_state');
+      sessionStorage.clear();
       closeLogoutModal();
       updateNavForLoggedInUser();
-      window.location.reload();
+      window.location.href = '/?logged_out=1';
     }
 
     async function openReferralShareModal() {
@@ -1996,6 +1985,15 @@
           if (btn) {
             btn.disabled = false;
             btnText.textContent = '获取验证码';
+          }
+          if (data.alreadyRegistered) {
+            setTimeout(() => {
+              switchInboundFormMode('login');
+              const loginEmail = document.getElementById('inbound-login-email');
+              if (loginEmail) loginEmail.value = email;
+              const loginPwd = document.getElementById('inbound-login-password');
+              if (loginPwd) loginPwd.focus();
+            }, 1200);
           }
           return;
         }
@@ -2396,6 +2394,21 @@
       setupHeaderScroll();
 
       const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('logged_out') === '1') {
+        localStorage.removeItem('saas_auth_token');
+        localStorage.removeItem('kelvinflow_user_phone');
+        localStorage.removeItem('kelvinflow_user_email');
+        localStorage.removeItem('kelvinflow_user_name');
+        localStorage.removeItem('kelvinflow_remaining_days');
+        localStorage.removeItem('kelvinflow_user_plan');
+        localStorage.removeItem('kelvinflow_user_is_paid');
+        localStorage.removeItem('kelvinflow_user_expired');
+        localStorage.removeItem('kelvinflow_user_paid_promo');
+        localStorage.removeItem('kelvinflow_active_tenant');
+        localStorage.removeItem('kelvinflow_trial_state');
+        sessionStorage.clear();
+      }
+
       const refVal = (urlParams.get('ref') || urlParams.get('code') || urlParams.get('invite') || '').trim();
 
       if (refVal) {

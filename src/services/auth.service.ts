@@ -170,6 +170,23 @@ export class AuthService {
   }
 
   /**
+   * 按邮箱检索系统内置用户
+   */
+  static findUserByEmail(email: string): AuthUser | null {
+    if (!email) return null;
+    const cleanEmail = email.toLowerCase().trim();
+    const found = this.DEFAULT_USERS.find(u => u.email.toLowerCase() === cleanEmail);
+    if (!found) return null;
+    return {
+      id: found.id,
+      email: found.email,
+      name: found.name,
+      role: found.role,
+      tenantId: found.tenantId
+    };
+  }
+
+  /**
    * 通過 API Key 認證外部請求 (如 Webhook, n8n, 腳本)
    */
   static authenticateApiKey(apiKey: string): { user: AuthUser; tenantId: string } | null {

@@ -258,6 +258,14 @@ export class TrialService {
       }
     }
 
+    if (AuthService.findUserByEmail(cleanEmail)) {
+      return {
+        success: false,
+        canLogin: true,
+        error: `该邮箱 (${cleanEmail}) 已是系统注册账号，请直接使用密码登录！`
+      };
+    }
+
     // 6. 全新用户开通试用：纯邮箱驱动租户标识
     const emailPrefix = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
     const domainPrefix = (cleanEmail.split('@')[1] || '').split('.')[0].replace(/[^a-zA-Z0-9_-]/g, '_');

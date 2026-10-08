@@ -299,5 +299,33 @@ describe('Plan C: Work Email Authentication & Risk Control Tests', () => {
       expect(res.success).toBe(false);
       expect(res.error).toContain('未找到该邮箱关联的试用记录');
     });
+
+    it('rejects registration when email is already registered', async () => {
+      const email = `dup_register_${Date.now()}@gmail.com`;
+      const first = await TrialService.registerOrLoginTrial({
+        email,
+        code: '888888',
+        password: 'ValidPassword123!'
+      });
+      expect(first.success).toBe(true);
+
+      const second = await TrialService.registerOrLoginTrial({
+        email,
+        code: '888888',
+        password: 'AnotherPassword123!'
+      });
+      expect(second.success).toBe(false);
+      expect(second.canLogin).toBe(true);
+      expect(second.error).toContain('已经开通过试用服务');
+
+      // System user reject
+      const sysUserCheck = await TrialService.registerOrLoginTrial({
+        email: 'admin@foshan-kelvin.com',
+        code: '888888',
+        password: 'ValidPassword123!'
+      });
+      expect(sysUserCheck.success).toBe(false);
+      expect(sysUserCheck.error).toContain('已是系统注册账号');
+    });
   });
 });
