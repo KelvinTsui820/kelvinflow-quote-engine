@@ -282,9 +282,9 @@
         海外询盘，10 秒自动出单。
       </h1>
 
-      <!-- 精炼一句话副标 (移动端优雅换行自适应) -->
-      <p class="text-xs sm:text-base md:text-lg text-slate-300 max-w-4xl mx-auto mb-8 leading-relaxed tracking-wide px-2">
-        直接把买家邮件转进系统，自动对齐底价表、汇率与海运港杂，10 秒生成正规 A4 英文报价单并写入草稿箱。
+      <!-- 精炼一句话副标 (桌面端单行呈现，移动端优雅自适应) -->
+      <p class="text-xs sm:text-sm md:text-base lg:text-[17px] text-slate-300 max-w-5xl mx-auto mb-8 leading-relaxed tracking-wide px-2">
+        转发买家询盘邮件进系统，自动对齐底价、汇率与港杂，10 秒生成正规 A4 英文报价单存入草稿箱。
       </p>
 
       <!-- 行动号召 CTA 按钮 (彻底根除悬浮文字变粗/抖动，极简高级微交互，已移除多余副文案) -->
@@ -532,7 +532,7 @@
             <div class="text-cyan-300 font-semibold mb-0.5 flex items-center gap-1.5">
               <i class="fa-solid fa-award text-[10px]"></i> 媲美世界500强外企单据规范
             </div>
-            <div class="text-slate-400 truncate">矢量高清排版打印不走样，杜绝买家比价压价</div>
+            <div class="text-slate-400 truncate">高清矢量排版体面严谨，建立买家深度信任与谈判溢价</div>
           </div>
         </div>
 
@@ -613,7 +613,7 @@
 
             <h3 class="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">邮件转入</h3>
             <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
-              把买家发来的复杂询盘（哪怕包含多款式、选配定制要求）直接转发至专属邮箱，或在工作台一键粘贴。
+              把买家发来的复杂询盘（哪怕包含多款型号、规格定制要求）直接转发至专属邮箱，或在工作台一键粘贴。
             </p>
           </div>
 
@@ -624,8 +624,8 @@
               <span class="text-blue-300 font-semibold">100% 格式自适应</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="flex items-center gap-1.5 text-slate-400"><i class="fa-solid fa-check text-blue-400 text-[10px]"></i> 选配提取</span>
-              <span class="text-slate-300 font-semibold">SKU / 喷涂 / 规格自识别</span>
+              <span class="flex items-center gap-1.5 text-slate-400"><i class="fa-solid fa-check text-blue-400 text-[10px]"></i> 意图提取</span>
+              <span class="text-slate-300 font-semibold">SKU / 采购量 / 规格自识别</span>
             </div>
           </div>
         </div>
@@ -650,7 +650,7 @@
 
             <h3 class="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">算法核算</h3>
             <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
-              系统秒级匹配私有商品底价表，自动折算汇率、叠加选配工艺与装柜海运成本，生成标准外贸单据。
+              系统秒级匹配私有商品底价表，自动折算汇率与分摊装柜海运港杂，严密核算出厂外贸单价。
             </p>
           </div>
 
@@ -687,7 +687,7 @@
 
             <h3 class="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-emerald-300 transition-colors">审单发出</h3>
             <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
-              打开邮箱草稿箱或在线审单台，滑动滑块微调期望利润率，确认无误一秒发出正式报价邮件。
+              打开在线审单台或邮箱草稿箱，可直接微调单价或毛利率，确认无误一键导出或发出正式报价单。
             </p>
           </div>
 
@@ -788,7 +788,7 @@
             <span>免费开通 7 天试用</span>
             <i class="fa-solid fa-arrow-right text-xs text-white/80"></i>
           </button>
-          <button id="pricing-pay-btn" onclick="openPaymentModal(currentBillingCycle === 'annual' ? 'annual' : 'promo')" class="w-full py-3.5 rounded-xl font-bold text-sm text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/35 hover:border-amber-400/60 shadow-lg shadow-amber-500/10 active:scale-98 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+          <button id="pricing-pay-btn" onclick="openPaymentModal(currentBillingCycle === 'annual' ? 'annual' : 'monthly')" class="w-full py-3.5 rounded-xl font-bold text-sm text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/35 hover:border-amber-400/60 shadow-lg shadow-amber-500/10 active:scale-98 transition-all flex items-center justify-center space-x-2 cursor-pointer">
             <i class="fa-solid fa-crown text-amber-400 text-sm"></i>
             <span id="btn-pay-text">🔥 立即解锁首月特惠 (¥39/首月)</span>
           </button>
@@ -907,10 +907,9 @@
   <!-- ========================================================================= -->
   <footer class="py-12 border-t border-white/[0.08] bg-[#05050a] text-slate-500 text-xs">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-2.5">
         <span class="text-sm font-bold text-white tracking-tight">KelvinFlow</span>
-        <span class="text-slate-600">·</span>
-        <span class="text-slate-300 font-medium">AI 外贸智能出单中枢</span>
+        <span class="px-2.5 py-0.5 text-[10.5px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/25 rounded-full tracking-wider">外贸智能出单</span>
         <span class="hidden md:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20">让出单快人一步</span>
       </div>
       <div class="flex items-center space-x-6">
@@ -1165,20 +1164,30 @@
         </div>
       </div>
 
-      <!-- 月付 / 年付 / 首月破冰切换 (精致边框与三模式卡片) -->
-      <div class="p-1.5 bg-white/[0.04] border border-white/10 rounded-2xl grid grid-cols-3 gap-1.5 mb-5">
-        <button id="pay-switch-promo" onclick="switchPaymentModalCycle('promo')" class="py-2.5 px-1.5 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-gradient-to-b from-amber-500/25 to-amber-600/15 text-amber-300 border border-amber-400/50 shadow-sm relative overflow-hidden">
-          <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[8px] font-black px-1.5 py-0.2 rounded-bl-md scale-90">新人限时</span>
-          <span class="text-xs sm:text-sm">首月破冰</span>
-          <span class="text-xs font-mono font-bold text-amber-300">¥39<span class="text-[10px] text-slate-400 font-normal">/首月</span></span>
+      <!-- 月付 / 年付 2 档切换 (极简优雅，对齐用户真实认知) -->
+      <div class="p-1 bg-white/[0.04] border border-white/10 rounded-2xl grid grid-cols-2 gap-2 mb-4">
+        <button id="pay-switch-monthly" onclick="switchPaymentModalCycle('monthly')" class="py-2.5 px-2 rounded-xl font-bold transition-all flex flex-col items-center justify-center cursor-pointer border bg-gradient-to-b from-amber-500/20 to-amber-600/10 text-amber-300 border-amber-400/50 shadow-sm">
+          <div class="flex items-center space-x-1.5 mb-0.5">
+            <span class="text-xs sm:text-sm">月付极客版</span>
+            <span id="pay-monthly-promo-badge" class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">首月特惠</span>
+          </div>
+          <div class="flex items-baseline space-x-1">
+            <span id="pay-modal-monthly-amount" class="text-base sm:text-lg font-black font-mono">¥39</span>
+            <span id="pay-modal-monthly-period" class="text-[10px] text-slate-400 font-normal">/首月</span>
+          </div>
+          <div id="pay-modal-monthly-subnote" class="text-[10px] text-amber-300/80 mt-0.5">次月起恢复 ¥99/月</div>
         </button>
-        <button id="pay-switch-monthly" onclick="switchPaymentModalCycle('monthly')" class="py-2.5 px-1.5 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]">
-          <span class="text-xs sm:text-sm">月付极客版</span>
-          <span class="text-xs font-mono">¥99<span class="text-[10px] text-slate-400 font-normal">/月</span></span>
-        </button>
-        <button id="pay-switch-annual" onclick="switchPaymentModalCycle('annual')" class="py-2.5 px-1.5 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]">
-          <span class="text-xs sm:text-sm">年付极客版</span>
-          <span class="text-xs font-mono text-emerald-400">¥890<span class="text-[10px] text-emerald-400/80 font-normal">/年</span></span>
+
+        <button id="pay-switch-annual" onclick="switchPaymentModalCycle('annual')" class="py-2.5 px-2 rounded-xl font-bold transition-all flex flex-col items-center justify-center cursor-pointer border text-slate-400 hover:text-white border-transparent hover:bg-white/[0.03]">
+          <div class="flex items-center space-x-1.5 mb-0.5">
+            <span class="text-xs sm:text-sm">年付极客版</span>
+            <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">立省¥298</span>
+          </div>
+          <div class="flex items-baseline space-x-1">
+            <span class="text-base sm:text-lg font-black font-mono text-emerald-400">¥890</span>
+            <span class="text-[10px] text-emerald-400/80 font-normal">/年</span>
+          </div>
+          <div class="text-[10px] text-slate-400 mt-0.5">折合 ¥74/月 · 赠3个月</div>
         </button>
       </div>
 
@@ -1190,22 +1199,27 @@
         </div>
 
         <!-- 3步极速开通指引 -->
-        <div class="w-full text-left bg-black/30 rounded-xl p-3 border border-white/[0.05] mb-3.5 space-y-1.5 text-xs text-slate-300">
+        <div class="w-full text-left bg-black/40 rounded-2xl p-3.5 border border-white/[0.08] mb-3.5 space-y-2.5 text-xs text-slate-300">
           <div class="flex items-center space-x-2">
             <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">1</span>
             <span>微信扫码转账 / 扫码添加好友</span>
           </div>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2 truncate">
+
+          <div class="space-y-1.5 pt-0.5">
+            <div class="flex items-center space-x-2">
               <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">2</span>
-              <span class="truncate">转账请备注：<strong id="payment-note-text" class="text-amber-300 font-mono font-bold select-all">升级极客版(¥99)</strong></span>
+              <span>转账请务必填写<strong>微信转账备注</strong>：</span>
             </div>
-            <button type="button" onclick="copyPaymentNote()" class="flex-shrink-0 ml-2 px-2.5 py-1 text-[11px] rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30 transition-all cursor-pointer font-medium flex items-center space-x-1">
-              <i class="fa-regular fa-copy text-[10px]"></i>
-              <span id="copy-pay-note-text">复制备注</span>
-            </button>
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/60 border border-amber-400/35 ml-6 shadow-inner">
+              <span id="payment-note-text" class="text-amber-300 font-mono font-bold text-xs sm:text-sm select-all truncate pr-2">开通极客版(首月特惠¥39)</span>
+              <button type="button" onclick="copyPaymentNote()" class="flex-shrink-0 px-3 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/35 text-xs font-bold transition-all cursor-pointer flex items-center space-x-1">
+                <i class="fa-regular fa-copy text-[11px]"></i>
+                <span id="copy-pay-note-text">复制备注</span>
+              </button>
+            </div>
           </div>
-          <div class="flex items-center space-x-2">
+
+          <div class="flex items-center space-x-2 pt-0.5">
             <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">3</span>
             <span>确认到账后 <strong>5 分钟内</strong> 专属技术顾问开通权限</span>
           </div>
@@ -1362,6 +1376,8 @@
       const priceSubtext = document.getElementById('pricing-subtext');
       const badgeText = document.getElementById('pricing-badge-text');
       const btnPayText = document.getElementById('btn-pay-text');
+      const isPromoUsed = localStorage.getItem('kelvinflow_user_paid_promo') === 'true' || 
+                          localStorage.getItem('kelvinflow_user_is_paid') === 'true';
 
       if (cycle === 'annual') {
         if (btnMonthly) btnMonthly.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer';
@@ -1377,55 +1393,88 @@
       } else {
         if (btnMonthly) btnMonthly.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white bg-blue-600 shadow-md cursor-pointer';
         if (btnAnnual) btnAnnual.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center space-x-1.5 cursor-pointer';
-        if (priceAmount) priceAmount.textContent = '99';
-        if (priceCycle) priceCycle.textContent = '/ 月';
-        if (priceSubtext) {
-          priceSubtext.textContent = '(新人限时首月破冰仅 ¥39 · 次月起按 ¥99/月 终身特权)';
-          priceSubtext.className = 'inline-block text-xs text-amber-400 font-mono px-2.5 py-0.5 rounded-lg bg-amber-400/10 border border-amber-400/20 leading-relaxed';
+        
+        if (isPromoUsed) {
+          if (priceAmount) priceAmount.textContent = '99';
+          if (priceCycle) priceCycle.textContent = '/ 月';
+          if (priceSubtext) {
+            priceSubtext.textContent = '(极客版标准月付 · 随心续订)';
+            priceSubtext.className = 'inline-block text-xs text-slate-300 font-mono px-2.5 py-0.5 rounded-lg bg-white/5 border border-white/10 leading-relaxed';
+          }
+          if (badgeText) badgeText.textContent = '🔥 极客版月付会员';
+          if (btnPayText) btnPayText.textContent = '续费极客版 (¥99/月)';
+        } else {
+          if (priceAmount) priceAmount.textContent = '39';
+          if (priceCycle) priceCycle.textContent = '/ 首月';
+          if (priceSubtext) {
+            priceSubtext.textContent = '(新人限时首月特惠仅 ¥39 · 次月起按 ¥99/月 正常续订)';
+            priceSubtext.className = 'inline-block text-xs text-amber-400 font-mono px-2.5 py-0.5 rounded-lg bg-amber-400/10 border border-amber-400/20 leading-relaxed';
+          }
+          if (badgeText) badgeText.textContent = '🔥 试用专享 · 首月特惠仅 ¥39 (原价 ¥99)';
+          if (btnPayText) btnPayText.textContent = '🔥 立即解锁首月特惠 (¥39/首月)';
         }
-        if (badgeText) badgeText.textContent = '🔥 试用专享 · 首月特惠仅 ¥39 (原价 ¥99)';
-        if (btnPayText) btnPayText.textContent = '🔥 立即解锁首月特惠 (¥39/首月)';
       }
     }
 
-    // 支付弹窗内周期切换 (支持: promo 首月破冰 ¥39 / monthly 月付 ¥99 / annual 年付 ¥890)
+    // 渲染支付弹窗月付/年付定价与文案
+    function renderPaymentModalData() {
+      const isPromoUsed = localStorage.getItem('kelvinflow_user_paid_promo') === 'true' || 
+                          localStorage.getItem('kelvinflow_user_is_paid') === 'true';
+      const monthlyAmount = document.getElementById('pay-modal-monthly-amount');
+      const monthlyPeriod = document.getElementById('pay-modal-monthly-period');
+      const monthlySubnote = document.getElementById('pay-modal-monthly-subnote');
+      const promoBadge = document.getElementById('pay-monthly-promo-badge');
+
+      if (isPromoUsed) {
+        if (monthlyAmount) monthlyAmount.textContent = '¥99';
+        if (monthlyPeriod) monthlyPeriod.textContent = '/月';
+        if (monthlySubnote) monthlySubnote.textContent = '标准月付续订';
+        if (promoBadge) promoBadge.style.display = 'none';
+      } else {
+        if (monthlyAmount) monthlyAmount.textContent = '¥39';
+        if (monthlyPeriod) monthlyPeriod.textContent = '/首月';
+        if (monthlySubnote) monthlySubnote.textContent = '次月起恢复 ¥99/月';
+        if (promoBadge) promoBadge.style.display = 'inline-block';
+      }
+    }
+
+    // 支付弹窗内周期切换 (支持: monthly 月付 / annual 年付)
     function switchPaymentModalCycle(cycle) {
-      currentPaymentCycle = cycle || 'promo';
-      const btnPromo = document.getElementById('pay-switch-promo');
+      currentPaymentCycle = (cycle === 'annual') ? 'annual' : 'monthly';
+      renderPaymentModalData();
+
       const btnMonthly = document.getElementById('pay-switch-monthly');
       const btnAnnual = document.getElementById('pay-switch-annual');
       const noteEl = document.getElementById('payment-note-text');
       const account = localStorage.getItem('kelvinflow_user_email') || localStorage.getItem('kelvinflow_user_phone') || '';
       const accountSuffix = account ? ` + ${account}` : '';
+      const isPromoUsed = localStorage.getItem('kelvinflow_user_paid_promo') === 'true' || 
+                          localStorage.getItem('kelvinflow_user_is_paid') === 'true';
 
-      const inactiveClass = 'py-2.5 px-1.5 rounded-xl font-bold transition flex flex-col items-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]';
-      const activePromoClass = 'py-2.5 px-1.5 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-gradient-to-b from-amber-500/25 to-amber-600/15 text-amber-300 border border-amber-400/50 shadow-sm relative overflow-hidden';
-      const activeMonthlyClass = 'py-2.5 px-1.5 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-sm';
-      const activeAnnualClass = 'py-2.5 px-1.5 rounded-xl font-bold transition flex flex-col items-center cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-sm';
+      const inactiveClass = 'py-2.5 px-2 rounded-xl font-bold transition-all flex flex-col items-center justify-center cursor-pointer text-slate-400 hover:text-white border border-transparent hover:bg-white/[0.03]';
+      const activeMonthlyClass = 'py-2.5 px-2 rounded-xl font-bold transition-all flex flex-col items-center justify-center cursor-pointer bg-gradient-to-b from-amber-500/20 to-amber-600/10 text-amber-300 border border-amber-400/50 shadow-sm';
+      const activeAnnualClass = 'py-2.5 px-2 rounded-xl font-bold transition-all flex flex-col items-center justify-center cursor-pointer bg-gradient-to-b from-emerald-500/20 to-emerald-600/10 text-emerald-300 border border-emerald-400/50 shadow-sm';
 
-      if (cycle === 'promo') {
-        if (btnPromo) btnPromo.className = activePromoClass;
-        if (btnMonthly) btnMonthly.className = inactiveClass;
-        if (btnAnnual) btnAnnual.className = inactiveClass;
-        if (noteEl) noteEl.textContent = `首月破冰特惠(¥39)${accountSuffix}`;
-      } else if (cycle === 'annual') {
-        if (btnPromo) btnPromo.className = inactiveClass;
+      if (currentPaymentCycle === 'annual') {
         if (btnMonthly) btnMonthly.className = inactiveClass;
         if (btnAnnual) btnAnnual.className = activeAnnualClass;
         if (noteEl) noteEl.textContent = `升级年付极客版(¥890)${accountSuffix}`;
       } else {
-        if (btnPromo) btnPromo.className = inactiveClass;
         if (btnMonthly) btnMonthly.className = activeMonthlyClass;
         if (btnAnnual) btnAnnual.className = inactiveClass;
-        if (noteEl) noteEl.textContent = `升级极客版(¥99)${accountSuffix}`;
+        if (noteEl) {
+          noteEl.textContent = isPromoUsed 
+            ? `续费极客版(¥99)${accountSuffix}` 
+            : `开通极客版(首月特惠¥39)${accountSuffix}`;
+        }
       }
     }
 
     function openPaymentModal(cycle) {
       closeInboundModal();
-      const targetCycle = (typeof cycle === 'string' && ['promo', 'monthly', 'annual'].includes(cycle)) 
-        ? cycle 
-        : (currentBillingCycle === 'annual' ? 'annual' : 'promo');
+      const targetCycle = (typeof cycle === 'string' && cycle === 'annual') 
+        ? 'annual' 
+        : (currentBillingCycle === 'annual' ? 'annual' : 'monthly');
       switchPaymentModalCycle(targetCycle);
       const modal = document.getElementById('payment-modal');
       if (!modal) return;
@@ -1461,8 +1510,8 @@
       const btnText = document.getElementById('copy-founder-wechat-text');
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(() => {
-          if (btnText) btnText.textContent = '✅ 已复制微信号！打开微信搜索添加';
-          setTimeout(() => { if (btnText) btnText.textContent = '一键复制微信号 (kt_data)'; }, 3000);
+          if (btnText) btnText.textContent = '已复制 ✓';
+          setTimeout(() => { if (btnText) btnText.textContent = '复制微信号'; }, 2500);
         }).catch(() => fallbackCopy(text));
       } else {
         fallbackCopy(text);
@@ -1471,12 +1520,12 @@
 
     function copyPaymentNote() {
       const noteEl = document.getElementById('payment-note-text');
-      const text = noteEl ? noteEl.textContent.trim() : '升级极客版';
+      const text = noteEl ? noteEl.textContent.trim() : '开通极客版';
       const btnText = document.getElementById('copy-pay-note-text');
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(() => {
-          if (btnText) btnText.textContent = '✅ 已复制！转账时粘贴在备注';
-          setTimeout(() => { if (btnText) btnText.textContent = '复制转账备注'; }, 3000);
+          if (btnText) btnText.textContent = '已复制 ✓';
+          setTimeout(() => { if (btnText) btnText.textContent = '复制备注'; }, 2500);
         }).catch(() => fallbackCopy(text));
       } else {
         fallbackCopy(text);
@@ -1539,14 +1588,23 @@
           if (pricingPayBtn) pricingPayBtn.onclick = () => { window.location.href = wbUrl; };
         } else {
           const isExpired = localStorage.getItem('kelvinflow_user_expired') === 'true';
+          const isPromoUsed = localStorage.getItem('kelvinflow_user_paid_promo') === 'true';
           if (isExpired) {
-            if (pricingLoggedInText) pricingLoggedInText.textContent = '您的 7 天试用已到期 · 限时特权：首月仅需 ¥39 开通极客版！';
-            if (btnPayText) btnPayText.textContent = '⚡ 立即领取首月 ¥39 破冰特权 (原价¥99)';
+            if (pricingLoggedInText) pricingLoggedInText.textContent = isPromoUsed 
+              ? '您的 7 天试用已到期 · 续费极客版继续出单'
+              : '您的 7 天试用已到期 · 限时特权：首月仅需 ¥39 开通极客版！';
+            if (btnPayText) btnPayText.textContent = isPromoUsed
+              ? '⚡ 续费极客版 (¥99/月)'
+              : '⚡ 立即领取首月 ¥39 破冰特权 (原价¥99)';
           } else {
-            if (pricingLoggedInText) pricingLoggedInText.textContent = '您当前处于 7 天全功能免费试用中 (到期首月仅 ¥39)';
-            if (btnPayText) btnPayText.textContent = '🔥 抢先锁定首月 ¥39 破冰特权 (原价¥99)';
+            if (pricingLoggedInText) pricingLoggedInText.textContent = isPromoUsed
+              ? '您当前处于 7 天全功能免费试用中'
+              : '您当前处于 7 天全功能免费试用中 (首月仅 ¥39)';
+            if (btnPayText) btnPayText.textContent = isPromoUsed
+              ? '开通极客版 (¥99/月)'
+              : '🔥 抢先锁定首月 ¥39 破冰特权 (原价¥99)';
           }
-          if (pricingPayBtn) pricingPayBtn.onclick = () => openPaymentModal('promo');
+          if (pricingPayBtn) pricingPayBtn.onclick = () => openPaymentModal('monthly');
         }
 
         if (!isPaid) {
@@ -1559,6 +1617,7 @@
               if (data && data.success && data.exists) {
                 if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);
                 if (data.expired) localStorage.setItem('kelvinflow_user_expired', 'true');
+                if (data.hasPaidPromo) localStorage.setItem('kelvinflow_user_paid_promo', 'true');
                 if (data.isPaid) {
                   localStorage.setItem('kelvinflow_user_is_paid', 'true');
                   updateNavForLoggedInUser();
@@ -1581,7 +1640,7 @@
         if (pricingBtnContainer) pricingBtnContainer.className = 'space-y-2.5 w-full';
         if (pricingLoggedInBox) pricingLoggedInBox.style.display = 'none';
         if (btnPayText) btnPayText.textContent = '🔥 立即解锁首月特惠 (¥39/首月)';
-        if (pricingPayBtn) pricingPayBtn.onclick = () => openPaymentModal('promo');
+        if (pricingPayBtn) pricingPayBtn.onclick = () => openPaymentModal('monthly');
       }
     }
 
