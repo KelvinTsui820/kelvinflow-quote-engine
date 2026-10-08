@@ -302,9 +302,9 @@ export class TrialService {
       }
     }
 
-    // 基础试用 7 天；若填写有效同行邀请码，双方各享 +7 天额外时长（新用户享 14 天完整体验）！
-    const trialDays = referrerUser ? 14 : 7;
-    const newRewardDays = referrerUser ? 7 : 0;
+    // 新注册用户标准免费试用期为 7 天；成功填写有效同行邀请码，推荐人获得 +7 天额外时长奖励！
+    const trialDays = 7;
+    const newRewardDays = 0;
 
     if (referrerUser) {
       // 推荐人获得邀请奖励：+7 天时长！
@@ -321,7 +321,7 @@ export class TrialService {
         expiresAt: referrerUser.expiresAt,
         status: 'active'
       });
-      console.log(`🎁 [同行推荐奖励] 双方各享+7天！推荐人 [${referrerUser.name || referrerUser.email}] 延长至 ${refNewExp.toLocaleDateString('zh-CN')}，新用户试用期延长为 14 天`);
+      console.log(`🎁 [同行推荐奖励] 推荐人 [${referrerUser.name || referrerUser.email}] 获得+7天奖励，延长至 ${refNewExp.toLocaleDateString('zh-CN')}！新用户享受标准 7 天免费试用`);
     }
 
     const expiresAtDate = new Date(Date.now() + trialDays * 24 * 3600 * 1000);
@@ -421,7 +421,7 @@ export class TrialService {
     console.log(`🎉 [试用开通成功] 邮箱 [${cleanEmail}], 手机 [${cleanPhone || '未填'}], 渠道 [${channelSource}], 租户 [${tenantId}], 试用期 [${trialDays}天]`);
 
     const welcomeMsg = referrerUser 
-      ? `🎉 免费试用开通成功！已绑定同行邀请码，您与好友各获赠 7 天额外时长，共享 ${trialDays} 天全功能体验！底价表与历史单据将为您安全保留 30 天。正在进入工作台...`
+      ? `🎉 7 天全功能免费试用开通成功！已成功绑定同行好友推荐（好友已获赠 +7 天时长奖励）。底价表与历史单据将为您安全保留 30 天。正在进入工作台...`
       : `🎉 7 天全功能免费试用开通成功！已为您的专属私有底价库加密保护，底价表与历史单据将安全保留 30 天。正在为您跳转至外贸智能审单工作台...`;
 
     return {

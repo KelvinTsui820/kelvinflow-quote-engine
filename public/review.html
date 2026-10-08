@@ -237,14 +237,23 @@
             <img src="/kelvinflow_emblem.png" alt="KelvinFlow" class="h-6 sm:h-7 w-auto object-contain block select-none flex-shrink-0" />
             <span class="text-base sm:text-lg font-black tracking-tight text-white font-sans select-none">KelvinFlow</span>
           </a>
-          <!-- 2. 中枢系统标题与个人极客版标识 (标准 SaaS 工作台版式，杜绝个人/公司名称挤占错位) -->
+          <!-- 2. 中枢系统标题与版本标识 (根据用户实际套餐动态显示：极客版 / 免费试用版 / 演示体验版) -->
           <div class="items-center space-x-2 hidden lg:flex min-w-0">
             <span class="text-slate-600 font-light select-none">|</span>
             <h1 class="text-xs sm:text-sm font-semibold text-slate-200 tracking-tight truncate">
               AI 外贸智能出单中枢
             </h1>
-            <span class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/30 flex-shrink-0 shadow-xs">
-              <i class="fa-solid fa-bolt text-amber-400 text-[9px]"></i> 个人极客版
+            <span v-if="isPaidUser" class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30 flex-shrink-0 shadow-xs">
+              <i class="fa-solid fa-crown text-amber-400 text-[9px]"></i> 个人极客版
+            </span>
+            <span v-else-if="trialState.isTrial && !trialState.expired" class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/30 flex-shrink-0 shadow-xs">
+              <i class="fa-solid fa-bolt text-amber-400 text-[9px]"></i> 免费试用版
+            </span>
+            <span v-else-if="trialState.expired" class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-400/30 flex-shrink-0 shadow-xs">
+              <i class="fa-solid fa-clock text-rose-400 text-[9px]"></i> 试用到期
+            </span>
+            <span v-else class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-slate-500/15 text-slate-300 border border-slate-400/30 flex-shrink-0 shadow-xs">
+              <i class="fa-solid fa-sparkles text-amber-400 text-[9px]"></i> 演示体验版
             </span>
           </div>
         </div>
@@ -994,13 +1003,31 @@
                           <i class="fa-solid fa-plus text-[10px]"></i>
                         </button>
                       </div>
-                      <!-- 悬浮角标：绝对定位 0 撑开表格行高，醒目直观 -->
-                      <span v-if="isBelowMoq(item)" 
-                            class="absolute -top-2.5 -right-2 px-1.5 py-0.5 bg-amber-500 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-amber-500/30 flex items-center gap-0.5 tracking-tight pointer-events-auto cursor-help whitespace-nowrap z-10"
-                            :title="'低于底价表起订量要求: ' + getItemMoq(item)">
-                        <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
-                        <span>MOQ {{ getItemMoq(item) }}</span>
-                      </span>
+                      <!-- 悬浮角标：绝对定位 0 撑开表格行高，鼠标悬停展开业务说明浮窗 -->
+                      <div v-if="isBelowMoq(item)" class="absolute -top-2.5 -right-2 z-20 group/moq">
+                        <span class="px-1.5 py-0.5 bg-amber-500 hover:bg-amber-600 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-amber-500/30 flex items-center gap-0.5 tracking-tight cursor-help whitespace-nowrap transition-colors">
+                          <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
+                          <span>MOQ {{ getItemMoq(item) }}</span>
+                        </span>
+                        <!-- 悬浮业务说明弹窗 (Tooltip Popover 向下展开，彻底杜绝顶部溢出裁剪) -->
+                        <div class="absolute top-full right-0 mt-2 w-64 p-3 bg-slate-900/95 text-white text-left rounded-xl shadow-2xl border border-slate-700/80 backdrop-blur-md opacity-0 invisible group-hover/moq:opacity-100 group-hover/moq:visible transition-all duration-150 pointer-events-none z-50">
+                          <div class="flex items-center gap-1.5 text-amber-400 font-bold text-[11px] mb-1.5">
+                            <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+                            <span>数量低于工厂起订量 (MOQ)</span>
+                          </div>
+                          <div class="text-[10px] text-slate-300 leading-relaxed space-y-1">
+                            <div class="flex justify-between items-center text-slate-300 bg-slate-800/80 px-2 py-1 rounded-md">
+                              <span>当前报盘量: <b class="text-white font-mono">{{ item.quantity || 0 }}</b> 件</span>
+                              <span class="text-amber-300">起订门槛: <b class="font-mono">{{ getItemMoq(item) }}</b> 件</span>
+                            </div>
+                            <p class="text-slate-300 pt-0.5">
+                              ⚠️ 填报数量低于底价库设定门槛，散单生产通常需加收散批开机费或单价上浮，建议与买家协商凑单。
+                            </p>
+                          </div>
+                          <!-- 顶部小三角形气泡尖角 -->
+                          <div class="absolute -top-1 right-3 w-2 h-2 bg-slate-900 rotate-45 border-l border-t border-slate-700/80"></div>
+                        </div>
+                      </div>
                     </div>
                   </td>
 
@@ -1027,13 +1054,31 @@
                                :class="isBelowFloorMargin(item) ? 'text-rose-600 font-black' : 'text-blue-600 font-bold'">
                         <span class="text-xs font-bold" :class="isBelowFloorMargin(item) ? 'text-rose-500' : 'text-slate-400'">%</span>
                       </div>
-                      <!-- 悬浮角标：绝对定位 0 撑开表格行高 -->
-                      <span v-if="isBelowFloorMargin(item)" 
-                            class="absolute -top-2.5 -right-2 px-1.5 py-0.5 bg-rose-500 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-rose-500/30 flex items-center gap-0.5 tracking-tight pointer-events-auto cursor-help whitespace-nowrap z-10"
-                            :title="'已跌破底价表设定的最低利润红线: ' + Math.round((pricingConfig?.floorMargin || 0.08)*100) + '%'">
-                        <i class="fa-solid fa-ban text-[8px]"></i>
-                        <span>底线 {{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%</span>
-                      </span>
+                      <!-- 悬浮角标：绝对定位 0 撑开表格行高，鼠标悬停展开业务说明浮窗 -->
+                      <div v-if="isBelowFloorMargin(item)" class="absolute -top-2.5 -right-2 z-20 group/floor">
+                        <span class="px-1.5 py-0.5 bg-rose-500 hover:bg-rose-600 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-rose-500/30 flex items-center gap-0.5 tracking-tight cursor-help whitespace-nowrap transition-colors">
+                          <i class="fa-solid fa-ban text-[8px]"></i>
+                          <span>底线 {{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%</span>
+                        </span>
+                        <!-- 悬浮业务说明弹窗 (Tooltip Popover 向下展开) -->
+                        <div class="absolute top-full right-0 mt-2 w-64 p-3 bg-slate-900/95 text-white text-left rounded-xl shadow-2xl border border-slate-700/80 backdrop-blur-md opacity-0 invisible group-hover/floor:opacity-100 group-hover/floor:visible transition-all duration-150 pointer-events-none z-50">
+                          <div class="flex items-center gap-1.5 text-rose-400 font-bold text-[11px] mb-1.5">
+                            <i class="fa-solid fa-shield-halved text-xs"></i>
+                            <span>毛利率跌破经营红线</span>
+                          </div>
+                          <div class="text-[10px] text-slate-300 leading-relaxed space-y-1">
+                            <div class="flex justify-between items-center text-slate-300 bg-slate-800/80 px-2 py-1 rounded-md">
+                              <span>当前毛利: <b class="text-rose-400 font-mono">{{ Math.round((item.profitMargin || 0)*100) }}%</b></span>
+                              <span class="text-emerald-400">底价红线: <b class="font-mono">{{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%</b></span>
+                            </div>
+                            <p class="text-slate-300 pt-0.5">
+                              ⚠️ 当前毛利率已击穿底价表设定的最低利润保护底线，可能产生亏损风险，建议适当调高单价或核实成本。
+                            </p>
+                          </div>
+                          <!-- 顶部小三角形气泡尖角 -->
+                          <div class="absolute -top-1 right-3 w-2 h-2 bg-slate-900 rotate-45 border-l border-t border-slate-700/80"></div>
+                        </div>
+                      </div>
                     </div>
                   </td>
 
@@ -2196,10 +2241,6 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             </div>
           </div>
 
-          <div class="flex items-center justify-between text-[11px] text-slate-400">
-            <span>✨ Gemini 3.8 Flash 自动解析买家信息、SKU 及港口杂费</span>
-            <span class="font-mono">{{ newPoModal.rawText ? newPoModal.rawText.length : 0 }} 字符</span>
-          </div>
 
           <button @click="submitQuickQuoteText" 
                   :disabled="newPoModal.uploading || !newPoModal.rawText.trim()" 
@@ -3166,7 +3207,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         </div>
 
         <div class="bg-rose-950/25 border border-rose-500/20 rounded-xl p-3 text-xs text-rose-200 leading-relaxed">
-          退出后，审单工作台将恢复为公共演示状态。您随时可以通过原手机号重新登录以继续使用您的专属底价表与历史单据。
+          退出登录后，您随时可以通过该邮箱重新登录以继续使用您的专属底价表与历史单据。
         </div>
 
         <div class="flex items-center space-x-3 pt-2">
@@ -5170,6 +5211,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           if (data.remainingDays !== undefined) localStorage.setItem('kelvinflow_remaining_days', data.remainingDays);
           if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);
           if (data.isPaid !== undefined) localStorage.setItem('kelvinflow_user_is_paid', String(data.isPaid));
+          localStorage.removeItem('kelvinflow_referrer');
           showToast(data.message || '🎉 欢迎进入专属外贸智能审单台！', 'success');
           trialModal.value.show = false;
           trialState.value.isTrial = true;
@@ -5218,7 +5260,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             return;
           }
 
-          const refVal = (trialModal.value.ref || localStorage.getItem('kelvinflow_referrer') || '').trim();
+          const refVal = (trialModal.value.ref || '').trim();
           if (refVal && refVal.toLowerCase() === trialModal.value.email.trim().toLowerCase()) {
             trialModal.value.errorMessage = '同行邀请码不能填写本人正在注册的邮箱！如无邀请码可清空后直接开通。';
             trialModal.value.loading = false;
