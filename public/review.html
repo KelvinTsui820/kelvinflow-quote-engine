@@ -1331,7 +1331,7 @@
             </button>
             <button @click="closeEmailFullscreen" class="text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1">
               <i class="fa-solid fa-check text-xs"></i>
-              <span>完成返回</span>
+              <span>完成</span>
             </button>
           </div>
         </div>
@@ -1387,7 +1387,7 @@
             </button>
             <button @click="closeInquiryFullscreen" class="text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1">
               <i class="fa-solid fa-check text-xs"></i>
-              <span>完成返回</span>
+              <span>完成</span>
             </button>
           </div>
         </div>
@@ -1465,7 +1465,7 @@
           </button>
           <div v-else></div>
           <button @click="confirmDescModal" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition cursor-pointer">
-            完成确认
+            完成
           </button>
         </div>
       </div>
@@ -1501,7 +1501,7 @@
                 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                 <span>付款条款 (Payment Terms)</span>
               </label>
-              <button v-if="terms.payment" type="button" @click="terms.payment = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <button v-if="tempTerms.payment" type="button" @click="tempTerms.payment = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
@@ -1509,12 +1509,12 @@
             <div class="flex flex-wrap gap-1.5">
               <span class="text-[10px] text-slate-400 self-center mr-1">快捷套用:</span>
               <button v-for="preset in termPresets.payment" :key="preset" type="button"
-                      @click="terms.payment = preset"
+                      @click="tempTerms.payment = preset"
                       class="text-[11px] px-2 py-0.5 rounded-md bg-white border border-slate-200 hover:border-blue-400 hover:text-blue-700 text-slate-600 transition shadow-2xs cursor-pointer">
                 {{ preset }}
               </button>
             </div>
-            <textarea v-model="terms.payment" rows="2" placeholder="如: 30% Deposit, 70% Balance before shipment..." class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg p-2.5 text-xs font-medium text-slate-800 leading-relaxed outline-none transition resize-none"></textarea>
+            <textarea v-model="tempTerms.payment" rows="2" placeholder="如: 30% Deposit, 70% Balance before shipment..." class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg p-2.5 text-xs font-medium text-slate-800 leading-relaxed outline-none transition resize-none"></textarea>
           </div>
 
           <!-- 2. 报价有效期 (Price Validity) -->
@@ -1524,19 +1524,19 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span>报价有效期 (Price Validity)</span>
               </label>
-              <button v-if="terms.validity" type="button" @click="terms.validity = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <button v-if="tempTerms.validity" type="button" @click="tempTerms.validity = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
             <div class="flex flex-wrap gap-1.5">
               <span class="text-[10px] text-slate-400 self-center mr-1">快捷套用:</span>
               <button v-for="preset in termPresets.validity" :key="preset" type="button"
-                      @click="terms.validity = preset"
+                      @click="tempTerms.validity = preset"
                       class="text-[11px] px-2 py-0.5 rounded-md bg-white border border-slate-200 hover:border-emerald-400 hover:text-emerald-700 text-slate-600 transition shadow-2xs cursor-pointer">
                 {{ preset }}
               </button>
             </div>
-            <textarea v-model="terms.validity" rows="2" placeholder="如: 30 Days (Subject to exchange rate fluctuation clause)..." class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg p-2.5 text-xs font-medium text-slate-800 leading-relaxed outline-none transition resize-none"></textarea>
+            <textarea v-model="tempTerms.validity" rows="2" placeholder="如: 30 Days (Subject to exchange rate fluctuation clause)..." class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg p-2.5 text-xs font-medium text-slate-800 leading-relaxed outline-none transition resize-none"></textarea>
           </div>
 
           <!-- 3. 交期与装运 (Lead Time) -->
@@ -1546,19 +1546,19 @@
                 <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
                 <span>交期与装运 (Lead Time)</span>
               </label>
-              <button v-if="terms.leadTime" type="button" @click="terms.leadTime = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <button v-if="tempTerms.leadTime" type="button" @click="tempTerms.leadTime = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
             <div class="flex flex-wrap gap-1.5">
               <span class="text-[10px] text-slate-400 self-center mr-1">快捷套用:</span>
               <button v-for="preset in termPresets.leadTime" :key="preset" type="button"
-                      @click="terms.leadTime = preset"
+                      @click="tempTerms.leadTime = preset"
                       class="text-[11px] px-2 py-0.5 rounded-md bg-white border border-slate-200 hover:border-indigo-400 hover:text-indigo-700 text-slate-600 transition shadow-2xs cursor-pointer">
                 {{ preset }}
               </button>
             </div>
-            <textarea v-model="terms.leadTime" rows="2" placeholder="如: 25-30 days upon receipt of deposit..." class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg p-2.5 text-xs font-medium text-slate-800 leading-relaxed outline-none transition resize-none"></textarea>
+            <textarea v-model="tempTerms.leadTime" rows="2" placeholder="如: 25-30 days upon receipt of deposit..." class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg p-2.5 text-xs font-medium text-slate-800 leading-relaxed outline-none transition resize-none"></textarea>
           </div>
 
           <!-- 4. 样品政策 (Sample Policy) -->
@@ -1568,19 +1568,19 @@
                 <span class="w-2 h-2 rounded-full bg-amber-500"></span>
                 <span>样品政策 (Sample Policy)</span>
               </label>
-              <button v-if="terms.samplePolicy" type="button" @click="terms.samplePolicy = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <button v-if="tempTerms.samplePolicy" type="button" @click="tempTerms.samplePolicy = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
             <div class="flex flex-wrap gap-1.5">
               <span class="text-[10px] text-slate-400 self-center mr-1">快捷套用:</span>
               <button v-for="preset in termPresets.samplePolicy" :key="preset" type="button"
-                      @click="terms.samplePolicy = preset"
+                      @click="tempTerms.samplePolicy = preset"
                       class="text-[11px] px-2 py-0.5 rounded-md bg-white border border-slate-200 hover:border-amber-400 hover:text-amber-700 text-slate-600 transition shadow-2xs cursor-pointer">
                 {{ preset }}
               </button>
             </div>
-            <textarea v-model="terms.samplePolicy" rows="2" placeholder="如: Double unit price, refundable upon bulk order..." class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg p-2.5 text-xs font-medium text-slate-800 leading-relaxed outline-none transition resize-none"></textarea>
+            <textarea v-model="tempTerms.samplePolicy" rows="2" placeholder="如: Double unit price, refundable upon bulk order..." class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg p-2.5 text-xs font-medium text-slate-800 leading-relaxed outline-none transition resize-none"></textarea>
           </div>
 
           <!-- 5. 备注说明 (Special Remarks) -->
@@ -1590,11 +1590,11 @@
                 <span class="w-2 h-2 rounded-full bg-purple-500"></span>
                 <span>备注说明 (Special Remarks)</span>
               </label>
-              <button v-if="terms.remarks" type="button" @click="terms.remarks = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <button v-if="tempTerms.remarks" type="button" @click="tempTerms.remarks = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
-            <textarea v-model="terms.remarks" rows="3" placeholder="填写针对整单的特殊包装要求、质保期、单证要求等说明..." class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg p-2.5 text-xs font-medium text-slate-800 leading-relaxed outline-none transition resize-none"></textarea>
+            <textarea v-model="tempTerms.remarks" rows="3" placeholder="填写针对整单的特殊包装要求、质保期、单证要求等说明..." class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg p-2.5 text-xs font-medium text-slate-800 leading-relaxed outline-none transition resize-none"></textarea>
           </div>
         </div>
 
@@ -1602,10 +1602,10 @@
         <div class="px-6 py-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
           <span class="text-xs text-slate-500 flex items-center space-x-1.5">
             <i class="fa-solid fa-shield-halved text-emerald-500"></i>
-            <span>修改已实时自动双向同步至当前报价草稿与邮件正文</span>
+            <span>点击“完成”即可实时双向同步至当前报价草稿与邮件正文</span>
           </span>
-          <button @click="closeTermsModal" class="px-6 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition cursor-pointer">
-            完成并关闭
+          <button @click="confirmTermsModal" class="px-6 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition cursor-pointer">
+            完成
           </button>
         </div>
       </div>
@@ -2196,7 +2196,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                   class="w-full h-11 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition disabled:opacity-50 disabled:shadow-none flex items-center justify-center space-x-2 cursor-pointer">
             <i v-if="newPoModal.uploading" class="fa-solid fa-spinner animate-spin"></i>
             <i v-else class="fa-solid fa-bolt"></i>
-            <span>{{ newPoModal.uploading ? 'Gemini 3.8 Flash 正在极速核算中...' : '立即核算出单' }}</span>
+            <span>{{ newPoModal.uploading ? 'AI 正在全力解析建单中...' : '开始 AI 智能建单' }}</span>
           </button>
         </div>
 
@@ -4263,7 +4263,6 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         const confirmDescModal = () => {
           if (descModal.value.item) {
             descModal.value.item.description = descModal.value.tempDescription;
-            hasUnsavedChanges.value = true;
           }
           descModal.value.show = false;
         };
@@ -5932,13 +5931,31 @@ Sales Team | KelvinFlow Global Technology`;
           show: false,
           activeTab: 'all'
         });
+        const tempTerms = ref({
+          payment: '',
+          validity: '',
+          leadTime: '',
+          samplePolicy: '',
+          remarks: ''
+        });
         const openTermsModal = (tab = 'all') => {
+          tempTerms.value = {
+            payment: terms.value.payment || '',
+            validity: terms.value.validity || '',
+            leadTime: terms.value.leadTime || '',
+            samplePolicy: terms.value.samplePolicy || '',
+            remarks: terms.value.remarks || ''
+          };
           termsModal.value = {
             show: true,
             activeTab: tab || 'all'
           };
         };
         const closeTermsModal = () => {
+          termsModal.value.show = false;
+        };
+        const confirmTermsModal = () => {
+          terms.value = { ...tempTerms.value };
           termsModal.value.show = false;
         };
 
@@ -6570,8 +6587,10 @@ Sales Team | KelvinFlow Global Technology`;
           closeInquiryFullscreen,
           // 📜 商务附加条款全屏编辑
           termsModal,
+          tempTerms,
           openTermsModal,
           closeTermsModal,
+          confirmTermsModal,
           termPresets,
           // 📊 底价表全局动态配置属性与联动方法
           pricingConfig,
