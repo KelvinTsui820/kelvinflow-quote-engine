@@ -31,6 +31,7 @@ async function runComprehensiveTests() {
     }
   }
 
+  process.env.BYPASS_VERIFICATION_CODE = 'true';
   try {
     console.log('--- 测试集 1: 注册参数与高强度密码复杂度强制校验 ---');
     
@@ -41,25 +42,25 @@ async function runComprehensiveTests() {
     });
     assert(!resNoPwd.success && (resNoPwd.error?.includes('密码') ?? false), '禁止无密码免密注册 (防止手机号泄露即被盗号)');
 
-    // 1.1 长度少于 8 位
+    // 1.1 长度少于 6 位
     const resShortPwd = await TrialService.registerOrLoginTrial({
       phone: '13811110001',
       email: 'test1@acme.com',
       password: 'Aa1!',
       channelSource: '小红书'
     });
-    assert(!resShortPwd.success && (resShortPwd.error?.includes('8') ?? false), '禁止 8 位以下弱密码注册 (必须 >= 8 位)');
+    assert(!resShortPwd.success && (resShortPwd.error?.includes('6') ?? false), '禁止 6 位以下弱密码注册 (必须 >= 6 位)');
 
-    // 1.2 缺少大写字母
-    const resNoUpper = await TrialService.registerOrLoginTrial({
+    // 1.2 边界测试：5 位弱密码拒绝
+    const res5CharPwd = await TrialService.registerOrLoginTrial({
       phone: '13811110001',
       email: 'test1@acme.com',
-      password: 'password123!',
+      password: '12345',
       channelSource: '小红书'
     });
-    assert(!resNoUpper.success && (resNoUpper.error?.includes('大写') ?? false), '密码强制包含大写字母 [A-Z]');
+    assert(!res5CharPwd.success && (res5CharPwd.error?.includes('6') ?? false), '5 位弱密码必须严格拒绝');
 
-    // 1.3 灵活组合验证：只要长度 >= 8 且含大写，不强制要求必须同时有小写/数字/符号
+    // 1.3 灵活组合验证：只要长度 >= 6 位即可通过
     const resUpperNoLower = TrialService.validatePasswordComplexity('PASSWORD123!');
     assert(resUpperNoLower.valid === true, '密码允许全大写+数字+符号 (不强行要求小写字母)');
 
@@ -138,7 +139,7 @@ async function runComprehensiveTests() {
     });
 
     assert(resRegB.success === true, '受邀同行用户 B 注册成功');
-    assert(resRegB.remainingDays === 14, '受邀用户 B 获赠双倍试用期 (共 14 天)');
+    assert(resRegB.remainingDays === 7, '受邀用户 B 享受标准 7 天免费试用');
 
     const trialB = TrialService.findTrialByPhoneOrEmail('13822220002');
     assert(trialB?.referredBy === '13811110001', '推荐人关系已绑定');

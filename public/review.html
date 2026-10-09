@@ -3699,7 +3699,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
     </div>
 
     <!-- 全局独立悬浮 Toast 提示 (z-[9999] 居中高亮浮动药丸卡片，紧凑超轻单行无折行) -->
-    <div class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none w-auto max-w-[95vw] px-2 flex justify-center">
+    <div class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none w-auto max-w-[95vw] px-2 flex justify-center" style="z-index: 9999;">
       <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="-translate-y-4 opacity-0 scale-95" enter-to-class="translate-y-0 opacity-100 scale-100" leave-active-class="transform ease-in duration-200 transition" leave-from-class="opacity-100 scale-100" leave-to-class="-translate-y-2 opacity-0 scale-95">
         <div v-if="toast.show" v-cloak class="pointer-events-auto bg-white/95 text-slate-900 rounded-full shadow-xl shadow-slate-900/15 border px-3.5 sm:px-4 py-1.5 flex items-center space-x-2 backdrop-blur-xl ring-1 h-9"
              :class="toast.type === 'error' ? 'border-rose-200 ring-rose-500/20' : (toast.type === 'warning' ? 'border-amber-200 ring-amber-500/20' : 'border-emerald-200 ring-emerald-500/20')">

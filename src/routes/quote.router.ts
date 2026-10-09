@@ -1033,9 +1033,10 @@ Items to Quote:
       quotation.tenantId = tenantId;
       quotation.aiModelUsed = modelUsed;
 
-      // 4. 渲染生成專業報價單 PDF (含風控條款與租戶抬頭)
       const pdfBuffer = await PDFService.generateQuotationPDF(quotation);
-      const pdfFileName = `${quotation.customerName.replace(/[^a-zA-Z0-9_-]/g, '_')}_Quotation_${quotation.quotationNumber}.pdf`;
+      const safeCustomer = (quotation.customerName || quotation.buyerName || 'Customer').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const safeQuoteNum = quotation.quotationNumber || 'DRAFT';
+      const pdfFileName = `${safeCustomer}_Quotation_${safeQuoteNum}.pdf`;
 
       // 5. 構造專業郵件草稿內容
       let emailBodyPrefix = '';
@@ -1499,7 +1500,9 @@ quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res
 
     console.log(`✅ 租戶 [${tenantId}] 報價單 [${id}] 已成功微調並重新生成 PDF！最新總額: ${finalQuotation.currency} ${finalQuotation.totalAmountForeign}`);
 
-    const pdfFileName = `${finalQuotation.customerName.replace(/[^a-zA-Z0-9_-]/g, '_')}_Quotation_${finalQuotation.quotationNumber}.pdf`;
+    const safeFinalCustomer = (finalQuotation.customerName || finalQuotation.buyerName || 'Customer').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const safeFinalQuoteNum = finalQuotation.quotationNumber || id;
+    const pdfFileName = `${safeFinalCustomer}_Quotation_${safeFinalQuoteNum}.pdf`;
 
     // 针对付费用户或显式要求注入草稿箱的请求，静默调用 IMAP 写入
     let draftInjectionResult: any = null;

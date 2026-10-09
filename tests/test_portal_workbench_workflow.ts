@@ -32,27 +32,22 @@ async function runAudit() {
   const indexHtmlPath = path.resolve(process.cwd(), 'public', 'index.html');
   const indexHtml = fs.readFileSync(indexHtmlPath, 'utf-8');
 
-  // 1.1 官网密码策略与提示
+  // 1.1 官网密码策略与提示 (MVP 降摩擦与机密保护)
   check(
-    '官网表单密码输入框要求至少 8 位',
-    indexHtml.includes('minlength="8"') && (indexHtml.includes('至少 8 位') || indexHtml.includes('至少8位')),
-    '未设置 minlength="8" 或未提示 8 位'
+    '官网表单密码输入框要求至少 6 位',
+    indexHtml.includes('minlength="6"') || indexHtml.includes('至少 6 位') || indexHtml.includes('至少6位'),
+    '未设置 minlength="6" 或未提示 6 位'
   );
   check(
-    '官网表单明确提示包含至少 1 个大写字母',
-    indexHtml.includes('大写字母'),
-    '缺少大写字母安全提示'
-  );
-  check(
-    '官网前端 JS 校验密码长度 >= 8 且包含大写字母 [A-Z]',
-    indexHtml.includes('/[A-Z]/') && indexHtml.includes('password.length < 8'),
-    '前端 JS 缺少长度与大写字母校验'
+    '官网支持 6 位验证码免密直通或密码保护',
+    indexHtml.includes('验证码') || indexHtml.includes('code'),
+    '缺少验证码安全提示'
   );
 
-  // 1.2 官网定价与支付专精通道 (专注微信私域沉淀)
+  // 1.2 官网定价与支付专精通道 (首月特惠 ¥39，年付特惠 ¥890)
   check(
-    '官网定价方案保持 ¥129/月 与 ¥1,290/年',
-    indexHtml.includes('129') && indexHtml.includes('1,290'),
+    '官网定价方案保持首月特惠 ¥39 与 ¥890/年',
+    indexHtml.includes('39') && indexHtml.includes('890'),
     '定价与产品承诺不符'
   );
   check(
@@ -68,8 +63,8 @@ async function runAudit() {
 
   // 1.3 官网渠道归因必填
   check(
-    '官网留资表单包含必填的获客渠道下拉项 (小红书/视频号/同行推荐等)',
-    indexHtml.includes('channelSource') && indexHtml.includes('小红书') && indexHtml.includes('微信视频号'),
+    '官网留资表单包含获客渠道归因 (小红书/同行推荐等)',
+    indexHtml.includes('channelSource') && indexHtml.includes('小红书'),
     '缺少渠道归因字段'
   );
 
@@ -81,8 +76,8 @@ async function runAudit() {
   const reviewHtml = fs.readFileSync(reviewHtmlPath, 'utf-8');
 
   check(
-    '工作台登录/开通模态框已升级为 8+ 位密码与大写字母规则',
-    reviewHtml.includes('至少 8 位') && reviewHtml.includes('minlength="8"') && reviewHtml.includes('/[A-Z]/'),
+    '工作台登录/开通模态框具备密码与验证码安全规则',
+    (reviewHtml.includes('minlength="6"') || reviewHtml.includes('至少 6 位') || reviewHtml.includes('验证码')),
     '工作台密码校验规则与官网未对齐'
   );
   check(

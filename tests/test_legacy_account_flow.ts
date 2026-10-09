@@ -1,4 +1,4 @@
-﻿import { TrialService } from '../src/services/trial.service';
+import { TrialService } from '../src/services/trial.service';
 
 async function testLegacyFlow() {
   const testPhone = '13800009999';
@@ -42,16 +42,16 @@ async function testLegacyFlow() {
   }
   console.log('✅ 弱密码被成功拦截！');
 
-  console.log('\n--- 测试 3: 首次登录使用缺少大写字母密码 (应被拦截) ---');
-  const noUpperResult = await TrialService.loginTrial({
+  console.log('\n--- 测试 3: 首次登录使用 5 位边界密码 (应被拦截) ---');
+  const shortResult = await TrialService.loginTrial({
     phone: testPhone,
-    password: 'lowercase12345'
+    password: '12345'
   });
-  console.log('No uppercase result:', noUpperResult.error);
-  if (noUpperResult.success) {
-    throw new Error('缺少大写字母应该被拒绝！');
+  console.log('Short boundary password result:', shortResult.error);
+  if (shortResult.success) {
+    throw new Error('5 位弱密码应该被拒绝！');
   }
-  console.log('✅ 缺少大写字母被成功拦截！');
+  console.log('✅ 5 位弱密码被成功拦截！');
 
   console.log('\n--- 测试 4: 首次登录使用合规新密码 (应成功绑定并登入) ---');
   const bindResult = await TrialService.loginTrial({

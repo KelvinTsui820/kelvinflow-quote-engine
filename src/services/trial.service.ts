@@ -100,21 +100,26 @@ export class TrialService {
   }
 
   /**
-   * 根据手机号或邮箱匹配试用记录 (兼顾多条件查询)
+   * 根据手机号或邮箱匹配试用记录 (兼顾多条件查询与智能单标识符查询)
    */
-  static findTrialByPhoneOrEmail(phone?: string, email?: string): TrialRecord | null {
-    if (email) {
-      const match = this.findTrialByEmail(email);
+  static findTrialByPhoneOrEmail(phoneOrEmail?: string, emailArg?: string): TrialRecord | null {
+    if (emailArg) {
+      const match = this.findTrialByEmail(emailArg);
+      if (match) return match;
+    }
+    const query = (phoneOrEmail || '').trim();
+    if (query.includes('@')) {
+      const match = this.findTrialByEmail(query);
       if (match) return match;
     }
     const trials = this.getAllTrials();
-    const cleanPhone = (phone || '').replace(/\D/g, '');
-    const cleanEmail = (email || '').toLowerCase().trim();
+    const cleanPhone = query.replace(/\D/g, '');
+    const cleanEmail = (emailArg || (query.includes('@') ? query : '')).toLowerCase().trim();
 
     return trials.find(t => {
-      const matchPhone = cleanPhone && t.phone === cleanPhone;
+      const matchPhone = cleanPhone && cleanPhone.length >= 7 && t.phone === cleanPhone;
       const matchEmail = cleanEmail && t.email.toLowerCase() === cleanEmail;
-      return matchPhone || matchEmail;
+      return Boolean(matchPhone || matchEmail);
     }) || null;
   }
 
@@ -460,10 +465,11 @@ export class TrialService {
   static async loginTrial(params: {
     email?: string;
     account?: string;
+    phone?: string;
     password?: string;
     ip?: string;
   }): Promise<TrialRegisterResult> {
-    const rawAccount = (params.email || params.account || '').trim();
+    const rawAccount = (params.email || params.account || params.phone || '').trim();
     const rawPassword = (params.password || '').trim();
     const ip = params.ip || '127.0.0.1';
 
@@ -482,21 +488,37 @@ export class TrialService {
     }
 
     const cleanEmail = rawAccount.toLowerCase();
-    const existing = this.findTrialByEmail(cleanEmail) || this.findTrialByPhoneOrEmail(undefined, cleanEmail);
+    const existing = this.findTrialByEmail(cleanEmail) || this.findTrialByPhoneOrEmail(rawAccount);
     if (!existing) {
       return {
         success: false,
-        error: '未找到该邮箱关联的试用记录，请先完成免费注册！'
+        error: rawAccount.includes('@')
+          ? '未找到该邮箱关联的试用记录，请先完成免费注册！'
+          : '未找到该账号关联的试用记录，请先完成免费注册！'
       };
     }
 
-    // 密码校验 (纯净哈希比对)
-    const inputHash = this.hashPassword(rawPassword);
-    if (existing.passwordHash !== inputHash) {
-      return {
-        success: false,
-        error: '登录密码错误，请重新核对后输入（如需重置密码请扫码添加创始人微信协助）'
-      };
+    // 密码校验 (支持老存量免密账号首次登录无缝绑定新密码，或已有密码哈希比对)
+    let isLegacyBound = false;
+    if (!existing.passwordHash) {
+      const pwdCheck = this.validatePasswordComplexity(rawPassword);
+      if (!pwdCheck.valid) {
+        return {
+          success: false,
+          error: pwdCheck.error || '登录密码长度至少须为 6 位字符'
+        };
+      }
+      existing.passwordHash = this.hashPassword(rawPassword);
+      isLegacyBound = true;
+      console.log(`🔐 [存量账号自动绑定密码] 账号 [${rawAccount}] 已自动设置并绑定新密码！`);
+    } else {
+      const inputHash = this.hashPassword(rawPassword);
+      if (existing.passwordHash !== inputHash) {
+        return {
+          success: false,
+          error: '登录密码错误，请重新核对后输入（如需重置密码请扫码添加创始人微信协助）'
+        };
+      }
     }
 
     const now = new Date();
@@ -550,6 +572,7 @@ export class TrialService {
       expiresAt: existing.expiresAt,
       user,
       tenant,
+      isLegacyBound: isLegacyBound || undefined,
       isPaid,
       plan: tenant?.plan || (isPaid ? 'geek' : 'trial')
     };
@@ -569,7 +592,7 @@ export class TrialService {
     const raw = (identifier || '').trim();
     if (!raw) return { exists: false };
     const cleanEmail = raw.toLowerCase();
-    const trial = this.findTrialByEmail(cleanEmail) || this.findTrialByPhoneOrEmail(undefined, cleanEmail);
+    const trial = this.findTrialByEmail(cleanEmail) || this.findTrialByPhoneOrEmail(raw);
     if (!trial) return { exists: false };
     const now = new Date();
     const expiryDate = new Date(trial.expiresAt);

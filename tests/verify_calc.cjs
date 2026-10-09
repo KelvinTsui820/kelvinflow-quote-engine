@@ -1,9 +1,19 @@
 const { ExcelAdapter } = require('../dist/adapters/excel.adapter.js');
 const { PricingService } = require('../dist/services/pricing.service.js');
-const { PDFService } = require('../dist/services/pdf.service.js');
 const fs = require('fs');
+const path = require('path');
+const { PDFService } = require('../dist/services/pdf.service.js');
 
-const parsedExcel = ExcelAdapter.parse(fs.readFileSync('C:/Users/tsuik/OneDrive/桌面/n8n/商品底价表/商品底价表.xlsx'));
+const candidatePaths = [
+  path.resolve(__dirname, '../商品底价表/底价表.xlsx'),
+  path.resolve(__dirname, '../商品底价表/商品底价表.xlsx'),
+  path.resolve(__dirname, '../data/tenants/default/active_pricing.xlsx')
+];
+const excelPath = candidatePaths.find(p => fs.existsSync(p));
+if (!excelPath) {
+  throw new Error('未找到有效底价表文件！');
+}
+const parsedExcel = ExcelAdapter.parse(fs.readFileSync(excelPath));
 
 const mockPoData = {
   PONumber: 'RFQ-ACME-2026-Q4',

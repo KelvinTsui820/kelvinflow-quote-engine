@@ -255,7 +255,7 @@ async function runAudit() {
     await new Promise(r => setTimeout(r, 400));
 
     const toastAndBtnState = await page.evaluate(() => {
-      const toastEl = document.querySelector('.fixed.top-6, .fixed.top-8, .fixed.top-18, .fixed.top-20');
+      const toastEl = document.querySelector('.fixed.top-5, .fixed.top-6, .fixed.top-8, .fixed.top-18, .fixed.top-20, [class*="z-[9999]"]');
       const heading = Array.from(document.querySelectorAll('h3')).find(h => h.textContent.includes('联系创始人 Kelvin 专人协助'));
       const modalContainer = heading?.closest('.fixed.inset-0');
       const btn = heading?.closest('.bg-white')?.querySelector('button');

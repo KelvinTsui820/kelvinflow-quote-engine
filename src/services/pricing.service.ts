@@ -60,7 +60,7 @@ export class PricingService {
 
     // 2. 查找幣種匯率
     const targetCurrency = (poData.Currency || 'USD').toUpperCase().trim();
-    let rateUsed = fallbackRate;
+    let rateUsed = (typeof fallbackRate === 'number' && fallbackRate > 0) ? fallbackRate : 7.2;
     const matchedRate = exchangeRates.find(r => r.currency.toUpperCase() === targetCurrency);
 
     if (matchedRate && matchedRate.rateToRMB > 0) {
@@ -122,7 +122,8 @@ export class PricingService {
     }
 
     // 4.1 計算訂單總採購數量與貿易術語港口固定雜費均攤
-    const totalOrderQuantity = poData.Items.reduce((sum, it) => sum + (Number(it.Quantity) || 0), 0);
+    const poItemsList = Array.isArray(poData.Items) ? poData.Items : [];
+    const totalOrderQuantity = poItemsList.reduce((sum, it) => sum + (Number(it.Quantity) || 0), 0);
     let amortizedFobRMB = defaultFob;
 
     if (!matchedIncoterm.startsWith('EXW')) {
@@ -160,7 +161,7 @@ export class PricingService {
     let estimated20GPUnits = 0;
     let estimated40HQUnits = 0;
 
-    for (const poItem of poData.Items) {
+    for (const poItem of poItemsList) {
       const normSku = normalizeSKU(poItem.SKU);
       let matchedPrice = priceMap.get(normSku);
 
@@ -535,8 +536,10 @@ export class PricingService {
       if (quotedItems.length > 1 && totalCBM > 0) {
         const totalOrderPieces = quotedItems.reduce((acc, it) => acc + (it.quantity || 0), 0);
         const avgPcsPerCbm = totalOrderPieces / totalCBM;
-        final20GPUnits = Math.round(28.0 * avgPcsPerCbm);
-        final40HQUnits = Math.round(68.0 * avgPcsPerCbm);
+        if (isFinite(avgPcsPerCbm) && avgPcsPerCbm > 0) {
+          final20GPUnits = Math.round(28.0 * avgPcsPerCbm);
+          final40HQUnits = Math.round(68.0 * avgPcsPerCbm);
+        }
       }
 
       containerEstimate = {

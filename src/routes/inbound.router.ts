@@ -344,8 +344,11 @@ inboundRouter.post('/quick-quote', async (req: Request, res: Response): Promise<
     const baseUrl = process.env.PUBLIC_APP_URL?.replace(/\/+$/, '') || 'https://quote.kelvinflow.com';
     const reviewUrl = `${baseUrl}/review/${quotation.quotationNumber}`;
     const tenantCompany = tenantProfile.companyName || 'KelvinFlow Global Technology';
+    const safeAmount = Number(quotation.totalAmountForeign || 0).toFixed(2);
+    const safeCustomer = (quotation.customerName || quotation.buyerName || 'Customer').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const safeQuoteNum = quotation.quotationNumber || 'DRAFT';
 
-    const draftText = `Dear ${quotation.buyerName},\n\nThank you for your inquiry. Attached is our formal quotation (${quotation.quotationNumber}).\n\nTotal Amount: ${quotation.currency} ${quotation.totalAmountForeign.toFixed(2)}\nTrade Terms: ${quotation.incotermUsed}\nPayment Terms: ${quotation.paymentTerms || '30% T/T Deposit, Balance Before Shipment'}\nDelivery Lead Time: ${quotation.leadTime || '15-20 days'}\n\nPlease review the attached official PDF quotation with technical specs.\n\nBest regards,\n${tenantProfile.managerName || 'Sales Team'}\n${tenantCompany}`;
+    const draftText = `Dear ${quotation.buyerName || 'Customer'},\n\nThank you for your inquiry. Attached is our formal quotation (${safeQuoteNum}).\n\nTotal Amount: ${quotation.currency || 'USD'} ${safeAmount}\nTrade Terms: ${quotation.incotermUsed || 'FOB'}\nPayment Terms: ${quotation.paymentTerms || '30% T/T Deposit, Balance Before Shipment'}\nDelivery Lead Time: ${quotation.leadTime || '15-20 days'}\n\nPlease review the attached official PDF quotation with technical specs.\n\nBest regards,\n${tenantProfile.managerName || 'Sales Team'}\n${tenantCompany}`;
 
     return res.json({
       success: true,
@@ -353,7 +356,7 @@ inboundRouter.post('/quick-quote', async (req: Request, res: Response): Promise<
       quotation,
       reviewUrl,
       draftText,
-      pdfFileName: `${quotation.customerName.replace(/[^a-zA-Z0-9_-]/g, '_')}_Quotation_${quotation.quotationNumber}.pdf`,
+      pdfFileName: `${safeCustomer}_Quotation_${safeQuoteNum}.pdf`,
       pdfBase64: pdfBuffer.toString('base64'),
       modelUsed: extractionResult.modelUsed
     });
