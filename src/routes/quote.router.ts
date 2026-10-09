@@ -1165,7 +1165,7 @@ quoteRouter.get('/catalog', async (req: Request, res: Response): Promise<any> =>
       sku: p.rawSku,
       name: p.productName,
       basePrice: isOwnerOrStaff ? p.basePrice : 0,
-      moq: p.moq || 1,
+      moq: p.moq ?? 1,
       leadTime: p.leadTime,
       profitMargin: isOwnerOrStaff ? p.profitMargin : 0,
       pcsPerCtn: p.pcsPerCtn,
@@ -1273,7 +1273,7 @@ quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any>
               sku: p.rawSku,
               name: p.productName,
               basePrice: isOwnerOrStaff ? p.basePrice : 0,
-              moq: p.moq || 1,
+              moq: p.moq ?? 1,
               leadTime: p.leadTime,
               profitMargin: isOwnerOrStaff ? p.profitMargin : 0,
               pcsPerCtn: p.pcsPerCtn,
@@ -1318,8 +1318,8 @@ quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any>
                 port: r.port || '',
                 label,
                 val,
-                unitFeeRMB: r.unitFeeRMB || 0,
-                fixedFeeRMB: r.fixedFeeRMB || 0
+                unitFeeRMB: r.unitFeeRMB ?? 0,
+                fixedFeeRMB: r.fixedFeeRMB ?? 0
               };
             }) : [
               { incoterm: 'EXW', port: '车间自提', label: 'EXW 工厂自提', val: 'EXW Factory', unitFeeRMB: 0, fixedFeeRMB: 0 },
@@ -1333,7 +1333,7 @@ quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any>
               else if (p.term.includes('L/C') || p.term.includes('信用证')) name = '即期L/C';
               else name = p.term.split(/[\s(（]/)[0];
 
-              const adj = p.adjustmentPercent || 0;
+              const adj = p.adjustmentPercent ?? 0;
               const suffix = adj < 0 ? ` (${(adj * 100).toFixed(0)}%)` : (adj > 0 ? ` (+${(adj * 100).toFixed(1)}%)` : ' (基准)');
               return {
                 term: p.term,
@@ -1432,16 +1432,18 @@ quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res
     // 重新計算明细与總計外幣金額 (防脱敏字段丢失与毛利率变动联动折算)
     let totalForeign = 0;
     if (Array.isArray(updatedData.items)) {
-      const rateUsed = Number(updatedData.rateUsed || existing.rateUsed || 7.2);
+      const rateUsed = Number(Number(updatedData.rateUsed ?? existing.rateUsed ?? 7.2).toFixed(4));
       updatedData.items = updatedData.items.map((item: any, idx: number) => {
         // 关键修复：优先按 SKU 精准对齐匹配，防止删除、插入或重排序时按索引串位
         const existingItem = (item.sku ? existing.items?.find((it: any) => it.sku === item.sku) : undefined)
           || (item.matchedSku ? existing.items?.find((it: any) => it.matchedSku === item.matchedSku) : undefined)
           || (existing.items?.[idx]?.sku === item.sku ? existing.items[idx] : undefined);
 
-        const basePriceRMB = (item.basePriceRMB && item.basePriceRMB > 0) ? item.basePriceRMB : (existingItem?.basePriceRMB || 0);
-        const fobCostRMB = item.fobCostRMB !== undefined ? item.fobCostRMB : (existingItem?.fobCostRMB || 0);
-        const profitMargin = typeof item.profitMargin === 'number' ? item.profitMargin : (existingItem?.profitMargin || 0.15);
+        const basePriceRMB = (item.basePriceRMB && item.basePriceRMB > 0) ? Number(item.basePriceRMB) : (existingItem?.basePriceRMB || 0);
+        const fobCostRMB = item.fobCostRMB !== undefined ? Number(item.fobCostRMB) : (existingItem?.fobCostRMB ?? 0);
+        const profitMargin = (typeof item.profitMargin === 'number' && !isNaN(item.profitMargin)) 
+          ? item.profitMargin 
+          : (typeof existingItem?.profitMargin === 'number' && !isNaN(existingItem.profitMargin) ? existingItem.profitMargin : 0.15);
         
         let unitPriceForeign = item.unitPriceForeign;
         // 若用户明确提供了数字单价，则严格保留用户手工设定的单价；若未提供单价或单价为 NaN，才通过底价和毛利折算
@@ -1451,13 +1453,13 @@ quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res
             const unitRMB = (basePriceRMB + totalAddons) * (1 + profitMargin) + fobCostRMB;
             unitPriceForeign = Number((unitRMB / rateUsed).toFixed(2));
           } else {
-            unitPriceForeign = existingItem?.unitPriceForeign || 0;
+            unitPriceForeign = existingItem?.unitPriceForeign ?? 0;
           }
         }
 
-        const quantity = Number(item.quantity || existingItem?.quantity || 1);
+        const quantity = Number(item.quantity ?? existingItem?.quantity ?? 1);
         const subTotalForeign = Number((quantity * unitPriceForeign).toFixed(2));
-        totalForeign += subTotalForeign;
+        totalForeign = Number((totalForeign + subTotalForeign).toFixed(2));
 
         return {
           ...existingItem,

@@ -245,9 +245,9 @@ ${sampleSnippet}
         fobCost: 0,
         moq,
         sampleMultiplier: 2.0,
-        pcsPerCtn: pcsPerCtn || 10,
-        cbmPerCtn: cbmPerCtn || 0.05,
-        gwPerCtn: grossWeight || 5
+        pcsPerCtn: pcsPerCtn ?? 10,
+        cbmPerCtn: cbmPerCtn ?? 0.05,
+        gwPerCtn: grossWeight ?? 5
       });
     }
 
@@ -291,10 +291,10 @@ ${sampleSnippet}
         defaultCurrency,
         fallbackRate,
         item.moq,
-        item.sampleMultiplier || 2.0,
-        item.pcsPerCtn || 10,
-        item.cbmPerCtn || 0.05,
-        item.gwPerCtn || 5,
+        item.sampleMultiplier ?? 2.0,
+        item.pcsPerCtn ?? 10,
+        item.cbmPerCtn ?? 0.05,
+        item.gwPerCtn ?? 5,
         item.aliases?.join(', ') || ''
       ])
     ];

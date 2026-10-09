@@ -574,7 +574,7 @@ export class PDFService {
 
         // 单价与小计
         const unitPriceNum = Number(item.unitPriceForeign || 0);
-        const subtotalNum = Number(item.subTotalForeign || (item.quantity * unitPriceNum));
+        const subtotalNum = Number(item.subTotalForeign ?? (item.quantity * unitPriceNum));
 
         doc.font(getFont(false)).fontSize(8.5).fillColor('#0f172a');
         doc.text(unitPriceNum.toFixed(2), colX.unitPrice, currentY + (isCompact ? 5 : 7), { width: 70, align: 'right' });

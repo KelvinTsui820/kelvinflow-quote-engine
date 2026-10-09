@@ -168,6 +168,16 @@
       scrollbar-color: rgba(203, 213, 225, 0.7) transparent;
     }
 
+    /* D-07: 密码管理器与浏览器 Autofill 智能感知驱动动画 */
+    @keyframes onAutoFillStart {
+      from { opacity: 0.99; }
+      to { opacity: 1; }
+    }
+    input:-webkit-autofill {
+      animation-name: onAutoFillStart;
+      animation-duration: 0.001s;
+    }
+
     /* 弹窗轻量优雅圆角滚动条 (彻底解决 Windows 默认粗糙滚动条破界刺出问题，并锁定滚动链) */
     .modal-scroll {
       overscroll-behavior: contain !important;
@@ -797,7 +807,12 @@
               </div>
 
               <div class="flex items-center justify-between text-xs text-slate-300 font-medium">
-                <span>预估综合毛利率:</span>
+                <span class="flex items-center gap-1.5">
+                  <span>预估综合毛利率:</span>
+                  <span v-if="hasPendingCostItems" class="text-[11px] text-amber-400 cursor-help" title="单据含待核底价新品，暂按预期毛利测算，出厂底价录入后自动精准校准">
+                    <i class="fa-solid fa-circle-info"></i>
+                  </span>
+                </span>
                 <span class="font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full text-xs flex items-center space-x-1">
                   <i class="fa-solid fa-arrow-trend-up text-[10px] text-emerald-400"></i>
                   <span>{{ computedAvgMargin }}%</span>
@@ -840,7 +855,7 @@
                 <span>报价单规格与明细项 ({{ quotation.items.length }} 款商品)</span>
               </h3>
               <p class="text-xs text-slate-400 mt-0.5">
-                直接录入出厂底价或微调毛利率，系统自动推算外币单价与经营毛利
+                直接录入出厂底价或微调毛利率，系统自动推算外币单价与经营毛利 <span class="hidden sm:inline text-slate-400">·（计价舍入规范：外币单价先四舍五入保留 2 位小数，再乘以数量得出小计，杜绝商业发票尾差争议）</span>
               </p>
             </div>
             <div class="flex items-center space-x-2 text-xs text-slate-400">
@@ -5505,10 +5520,10 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           // D-07: 兼容 1Password / 浏览器 autofill 未触发 Vue v-model input 事件的边界情况
           const emailInput = document.getElementById('trial-login-email');
           const pwdInput = document.getElementById('trial-login-password');
-          if (emailInput && emailInput.value && !trialModal.value.email) {
+          if (emailInput && emailInput.value) {
             trialModal.value.email = emailInput.value.trim();
           }
-          if (pwdInput && pwdInput.value && !trialModal.value.password) {
+          if (pwdInput && pwdInput.value) {
             trialModal.value.password = pwdInput.value.trim();
           }
 
@@ -6011,14 +6026,14 @@ Sales Team | KelvinFlow Global Technology`;
           const rate = quotation.value?.rateUsed || 7.2;
           const addons = getItemAddonsRMB(item);
           const fob = Number(item.fobCostRMB) || 0;
-          const marginPct = Math.round((item.profitMargin || 0) * 100);
+          const marginPct = Math.round((item.profitMargin ?? 0) * 100);
           if (addons > 0 || fob > 0) {
             let parts = [`出厂底价 ¥${item.basePriceRMB}`];
             if (addons > 0) parts.push(`工艺选配 +¥${addons}`);
             if (fob > 0) parts.push(`港杂 +¥${fob}`);
-            return `核价公式: (${parts.join(' ')}) × (1 + ${marginPct}%) ÷ ${rate} = $${item.unitPriceForeign || 0}`;
+            return `核价公式: (${parts.join(' ')}) × (1 + ${marginPct}%) ÷ ${rate} = $${item.unitPriceForeign || 0}（注: 单价四舍五入保留2位后乘数量计小计）`;
           }
-          return `标准核价公式: 出厂底价 ¥${item.basePriceRMB} × (1 + ${marginPct}%) ÷ ${rate} = $${item.unitPriceForeign || 0}`;
+          return `标准核价公式: 出厂底价 ¥${item.basePriceRMB} × (1 + ${marginPct}%) ÷ ${rate} = $${item.unitPriceForeign || 0}（注: 单价四舍五入保留2位后乘数量计小计）`;
         };
 
         const clearItemAddons = (item) => {
@@ -6071,7 +6086,7 @@ Sales Team | KelvinFlow Global Technology`;
 
         const computedTotalAmount = computed(() => {
           if (!quotation.value?.items) return 0;
-          return quotation.value.items.reduce((sum, i) => sum + (i.quantity * i.unitPriceForeign), 0);
+          return Number(quotation.value.items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.unitPriceForeign || 0)), 0).toFixed(2));
         });
 
         const computedTotalQuantity = computed(() => {
@@ -6090,12 +6105,13 @@ Sales Team | KelvinFlow Global Technology`;
             } else if (i._baseCostForeign) {
               costForeign = i._baseCostForeign;
             } else if (i.unitPriceForeign > 0) {
-              costForeign = i.unitPriceForeign * (1 - (i.profitMargin || 0.3));
+              const itemMargin = (i.profitMargin !== undefined && i.profitMargin !== null && !isNaN(i.profitMargin)) ? Number(i.profitMargin) : 0.3;
+              costForeign = i.unitPriceForeign * (1 - itemMargin);
             }
             return sum + ((Number(i.quantity) || 0) * costForeign);
           }, 0);
           const profit = totalRevenue - totalCostForeign;
-          return profit > 0 ? profit : 0;
+          return Number((profit > 0 ? profit : 0).toFixed(2));
         });
 
         const computedAvgMargin = computed(() => {
@@ -6248,7 +6264,7 @@ Sales Team | KelvinFlow Global Technology`;
           if (prod.basePrice && prod.basePrice > 0) {
             rowItem.basePriceRMB = prod.basePrice;
           }
-          if (prod.profitMargin !== undefined && prod.profitMargin > 0) {
+          if (prod.profitMargin !== undefined && prod.profitMargin !== null && !isNaN(prod.profitMargin) && prod.profitMargin >= 0) {
             rowItem.profitMargin = prod.profitMargin;
           }
           if (prod.name && (!rowItem.description || rowItem.description.startsWith('Custom added'))) {
@@ -6512,6 +6528,11 @@ Sales Team | KelvinFlow Global Technology`;
           return quotation.value.items.some(i => !i.unitPriceForeign || i.unitPriceForeign <= 0);
         });
 
+        const hasPendingCostItems = computed(() => {
+          if (!quotation.value?.items || quotation.value.items.length === 0) return false;
+          return quotation.value.items.some(i => !i.basePriceRMB || i.basePriceRMB <= 0);
+        });
+
         const successModal = ref({
           show: false
         });
@@ -6718,6 +6739,18 @@ Sales Team | KelvinFlow Global Technology`;
         }, { immediate: true });
 
         onMounted(() => {
+          // D-07: 监听 1Password / Chrome 自动填充事件并同步到 Vue 响应式数据
+          document.addEventListener('animationstart', (e) => {
+            if (e.animationName === 'onAutoFillStart' && e.target && e.target.tagName === 'INPUT') {
+              e.target.dispatchEvent(new Event('input', { bubbles: true }));
+              e.target.dispatchEvent(new Event('change', { bubbles: true }));
+              if (e.target.id === 'trial-login-email') trialModal.value.email = e.target.value.trim();
+              if (e.target.id === 'trial-login-password') trialModal.value.password = e.target.value.trim();
+              if (e.target.id === 'trial-reg-email') trialModal.value.email = e.target.value.trim();
+              if (e.target.id === 'trial-reg-password') trialModal.value.password = e.target.value.trim();
+            }
+          }, true);
+
           // 1. 自动检测 URL 中的同行邀请码参数 (?ref=, ?code=, ?invite=, ?referrer=)
           const params = new URLSearchParams(window.location.search);
           const refCode = (params.get('ref') || params.get('code') || params.get('invite') || params.get('referrer') || '').trim();
@@ -6876,6 +6909,7 @@ Sales Team | KelvinFlow Global Technology`;
           testImapConnection,
           saveImapConfig,
           hasZeroPriceItems,
+          hasPendingCostItems,
           successModal,
           copyDraftAndOpenGmail,
           preferredMailClient,

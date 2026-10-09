@@ -490,8 +490,10 @@ export class ExcelAdapter {
           const sampleMultiplier = matched.sampleMultiplier ? parseSafeNumber(row[matched.sampleMultiplier], 1) : undefined;
 
           const effectiveDefaultMargin = detectedDefaultMargin !== undefined ? detectedDefaultMargin : defaultMargin;
-          let margin = matched.profitMargin && row[matched.profitMargin] !== '' && row[matched.profitMargin] !== undefined
-            ? parseSafeNumber(row[matched.profitMargin], effectiveDefaultMargin) 
+          const rawMarginVal = matched.profitMargin ? row[matched.profitMargin] : undefined;
+          const hasExplicitMargin = rawMarginVal !== '' && rawMarginVal !== undefined && rawMarginVal !== null;
+          let margin = hasExplicitMargin
+            ? parseSafeNumber(rawMarginVal, effectiveDefaultMargin) 
             : effectiveDefaultMargin;
           if (margin > 1 && margin <= 100) margin = margin / 100;
 

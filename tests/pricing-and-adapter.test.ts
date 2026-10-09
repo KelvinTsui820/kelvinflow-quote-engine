@@ -145,4 +145,67 @@ describe('4. PricingService 報價核算與零漏報防護測試', () => {
     expect(quotation.hasWarnings).toBe(true);
     expect(quotation.warnings.some(w => w.includes('ST-2026-B'))).toBe(true);
   });
+
+  it('【D-13 防迴歸】底價庫明確設置 0% 毛利時，絕不退回到全局預設毛利，應精確按 0% 計價', () => {
+    const mockZeroMarginPriceItems = [
+      {
+        rawSku: 'TEST-002',
+        normalizedSku: 'TEST002',
+        productName: 'Zero Margin Product',
+        basePrice: 100,
+        profitMargin: 0, // 明确 0% 毛利
+        fobCost: 0
+      },
+      {
+        rawSku: 'TEST-003',
+        normalizedSku: 'TEST003',
+        productName: 'Default Margin Product',
+        basePrice: 100,
+        profitMargin: undefined as any, // 留空
+        fobCost: 0
+      }
+    ];
+
+    const mockPO: POExtractionResult = {
+      ConfidenceScore: 90,
+      MissingInfo: [],
+      IsStandardOrder: true,
+      PONumber: 'PO-D13-TEST',
+      CustomerName: 'Test Buyer',
+      Date: '2026-10-09',
+      TotalOrderValue: null,
+      Currency: 'USD',
+      DeliveryDetails: '',
+      SpecialRemarks: '',
+      UncategorizedCriticalInfo: '',
+      BuyerContact: { Name: 'Buyer', Email: '' },
+      Items: [
+        { SKU: 'TEST-002', Description: 'Zero Margin', Quantity: 500, ConfidenceScore: 95, MatchStatus: 'EXACT', ConfidenceRemark: '' },
+        { SKU: 'TEST-003', Description: 'Default Margin', Quantity: 500, ConfidenceScore: 95, MatchStatus: 'EXACT', ConfidenceRemark: '' }
+      ]
+    };
+
+    // 全局默认毛利设为 0.2 (20%)
+    const quotation = PricingService.calculate(
+      mockPO,
+      mockZeroMarginPriceItems,
+      [{ currency: 'USD', rateToRMB: 7.2 }],
+      { defaultProfitMargin: 0.2 }
+    );
+
+    expect(quotation.items.length).toBe(2);
+    
+    // TEST-002: 100 * (1 + 0) / 7.2 = 13.8888... -> 13.89; subTotal = 13.89 * 500 = 6945.00
+    const item002 = quotation.items.find(i => i.sku === 'TEST-002')!;
+    expect(item002.profitMargin).toBe(0);
+    expect(item002.unitPriceForeign).toBe(13.89);
+    expect(item002.subTotalForeign).toBe(6945.00);
+
+    // TEST-003: 100 * (1 + 0.2) / 7.2 = 16.6666... -> 16.67; subTotal = 16.67 * 500 = 8335.00
+    const item003 = quotation.items.find(i => i.sku === 'TEST-003')!;
+    expect(item003.profitMargin).toBe(0.2);
+    expect(item003.unitPriceForeign).toBe(16.67);
+    expect(item003.subTotalForeign).toBe(8335.00);
+  });
 });
+

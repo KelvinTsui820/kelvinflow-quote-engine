@@ -179,6 +179,16 @@
     ::-webkit-scrollbar-track { background: #05050a; }
     ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+    /* D-07: 密码管理器与浏览器 Autofill 智能感知驱动动画 */
+    @keyframes onAutoFillStart {
+      from { opacity: 0.99; }
+      to { opacity: 1; }
+    }
+    input:-webkit-autofill {
+      animation-name: onAutoFillStart;
+      animation-duration: 0.001s;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#05050a] text-slate-100 flex flex-col justify-between antialiased selection:bg-blue-600/30 selection:text-white bg-grid-pattern">
@@ -2463,6 +2473,14 @@
         const modalTier = urlParams.get('modal') || 'starter';
         setTimeout(() => openInboundModal(modalTier), 200);
       }
+
+      // D-07: 监听 1Password / Chrome 自动填充事件并派发标准 change/input 事件
+      document.addEventListener('animationstart', (e) => {
+        if (e.animationName === 'onAutoFillStart' && e.target && e.target.tagName === 'INPUT') {
+          e.target.dispatchEvent(new Event('input', { bubbles: true }));
+          e.target.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }, true);
     });
   </script>
 </body>

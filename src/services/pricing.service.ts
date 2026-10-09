@@ -145,8 +145,8 @@ export class PricingService {
       }
 
       if (matchedRule) {
-        const fixedFee = matchedRule.fixedFeeRMB || 0;
-        const unitFee = matchedRule.unitFeeRMB || 0;
+        const fixedFee = matchedRule.fixedFeeRMB ?? 0;
+        const unitFee = matchedRule.unitFeeRMB ?? 0;
         const amortizedFixed = totalOrderQuantity > 0 ? (fixedFee / totalOrderQuantity) : 0;
         amortizedFobRMB = Math.round((unitFee + amortizedFixed) * 1000) / 1000;
       }
@@ -301,19 +301,23 @@ export class PricingService {
           warnings.push(`[FLOOR PRICE NOTICE] Item [${poItem.SKU}] base price adjusted to floor price (¥${matchedPrice.floorPrice}).`);
         }
 
-        const margin = matchedPrice.profitMargin > 0 ? matchedPrice.profitMargin : defaultMargin;
+        const margin = (matchedPrice.profitMargin !== undefined && matchedPrice.profitMargin !== null && !isNaN(matchedPrice.profitMargin) && matchedPrice.profitMargin >= 0)
+          ? matchedPrice.profitMargin
+          : defaultMargin;
         let fob = 0;
         if (!matchedIncoterm.startsWith('EXW')) {
-          fob = matchedPrice.fobCost > 0 ? matchedPrice.fobCost : 0;
+          fob = (matchedPrice.fobCost !== undefined && matchedPrice.fobCost !== null && !isNaN(matchedPrice.fobCost) && matchedPrice.fobCost >= 0) 
+            ? matchedPrice.fobCost 
+            : 0;
         }
 
-        // 算價公式：((階梯底價 + 選配加價) * (1 + 毛利率) + 單件FOB雜費) / 匯率
+        // 算價公式：((階梯底價 + 選配加價) * (1 + 毛利率) + 單件FOB雜費) / 汇率
         const unitRMB = (effectiveBasePrice + totalAddonRMB) * (1 + margin) + fob;
         const rawUnitForeign = unitRMB / rateUsed;
         const unitPriceForeign = Math.round(rawUnitForeign * 100) / 100;
         const subTotalForeign = Math.round(unitPriceForeign * poItem.Quantity * 100) / 100;
 
-        grandTotalForeign += subTotalForeign;
+        grandTotalForeign = Math.round((grandTotalForeign + subTotalForeign) * 100) / 100;
 
         // 計算箱規與 CBM 及毛重
         if (matchedPrice.pcsPerCtn && matchedPrice.cbmPerCtn) {
@@ -465,7 +469,7 @@ export class PricingService {
     }
 
     const paymentTermsUsed = matchedPaymentTerm?.term || (options.paymentTerms && options.paymentTerms.length > 0 ? options.paymentTerms[0].term : '30% Deposit + 70% Balance (标准T/T)');
-    const paymentAdjustmentPercent = matchedPaymentTerm?.adjustmentPercent || 0;
+    const paymentAdjustmentPercent = matchedPaymentTerm?.adjustmentPercent ?? 0;
     const subTotalBeforeAdjustmentForeign = grandTotalForeign;
     const paymentAdjustmentAmount = Math.round(grandTotalForeign * paymentAdjustmentPercent * 100) / 100;
     grandTotalForeign = Math.round((grandTotalForeign + paymentAdjustmentAmount) * 100) / 100;
