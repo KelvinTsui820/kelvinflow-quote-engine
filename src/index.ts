@@ -27,6 +27,7 @@ app.use((req, res, next) => {
 // 註冊 API 路由
 app.use('/api/v1', quoteRouter);
 app.use('/api/inbound', inboundRouter);
+app.use('/api/v1/inbound', inboundRouter); // 兼容性別名
 import path from 'path';
 
 // 根據邀請參數、子域名智能路由根路徑：
