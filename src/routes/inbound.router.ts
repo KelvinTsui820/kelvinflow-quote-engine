@@ -292,8 +292,10 @@ inboundRouter.post('/poll-now', async (_req: Request, res: Response): Promise<an
  */
 inboundRouter.post('/quick-quote', async (req: Request, res: Response): Promise<any> => {
   try {
-    const { inquiryText, tenantId = 'default', buyerName = 'Valued Customer', targetProfitMargin } = req.body;
-    if (!inquiryText || !inquiryText.trim()) {
+    const rawText = req.body.inquiryText || req.body.emailBody || req.body.content || req.body.text || '';
+    const inquiryText = typeof rawText === 'string' ? rawText.trim() : '';
+    const { tenantId = 'default', buyerName = 'Valued Customer', targetProfitMargin } = req.body;
+    if (!inquiryText) {
       return res.status(400).json({ success: false, error: '请粘贴或输入询盘正文内容' });
     }
 

@@ -469,28 +469,30 @@ export class PricingService {
     const paymentAdjustmentAmount = Math.round(grandTotalForeign * paymentAdjustmentPercent * 100) / 100;
     grandTotalForeign = Math.round((grandTotalForeign + paymentAdjustmentAmount) * 100) / 100;
 
-    // 6. 生成匯率波動、樣品退還與不可抗力風控條款
+    // 6. 生成匯率波動、樣品退還與不可抗力風控條款 (動態連續編號，杜絕斷號與跳號)
     const validity = options.priceValidity || '30 Days from quotation date';
-    const riskDisclaimers: string[] = [
-      `1. Price Validity: ${validity.endsWith('.') ? validity : validity + '.'}`,
-      `2. Price Basis & Terms: Quoted based on ${matchedIncoterm}.`,
-      `3. Exchange Rate Protection: Prices quoted based on benchmark rate (1 ${targetCurrency} = ${rateUsed} RMB). Quotation is subject to renegotiation if official exchange rate fluctuates by more than ±${fluctuationPercent}% prior to deposit confirmation.`
+    const rawDisclaimers: string[] = [
+      `Price Validity: ${validity.endsWith('.') ? validity : validity + '.'}`,
+      `Price Basis & Terms: Quoted based on ${matchedIncoterm}.`,
+      `Exchange Rate Protection: Prices quoted based on benchmark rate (1 ${targetCurrency} = ${rateUsed} RMB). Quotation is subject to renegotiation if official exchange rate fluctuates by more than ±${fluctuationPercent}% prior to deposit confirmation.`
     ];
 
     if (paymentAdjustmentAmount !== 0) {
       const isDiscount = paymentAdjustmentPercent < 0;
-      riskDisclaimers.push(
+      rawDisclaimers.push(
         `Payment Term Adjustment: ${paymentTermsUsed} (${isDiscount ? 'Cash Discount' : 'Financing Surcharge'}: ${(paymentAdjustmentPercent * 100).toFixed(1)}%, ${targetCurrency} ${paymentAdjustmentAmount > 0 ? '+' : ''}${paymentAdjustmentAmount.toFixed(2)}).`
       );
+    } else if (paymentTermsUsed) {
+      rawDisclaimers.push(`Payment Terms: ${paymentTermsUsed}`);
     }
 
     if (options.leadTime) {
-      riskDisclaimers.push(`4. Production Lead Time: ${options.leadTime}`);
+      rawDisclaimers.push(`Production Lead Time: ${options.leadTime}`);
     }
 
     if (hasSampleOrder || options.samplePolicy) {
       const sampleText = options.samplePolicy || 'Sample fee is quoted based on prototype cost. 100% of sample surcharge will be fully credited/refunded upon formal bulk production order (>1000 pcs) confirmation.';
-      riskDisclaimers.push(`${riskDisclaimers.length + 1}. Sample Order Policy: ${sampleText}`);
+      rawDisclaimers.push(`Sample Order Policy: ${sampleText}`);
     }
 
     totalCBM = Math.round(totalCBM * 1000) / 1000;
@@ -527,20 +529,32 @@ export class PricingService {
         }
       }
 
+      // 加权混合柜量速算 (防止包含螺丝/小配件时单品容量溢出为数百万件荒谬值)
+      let final20GPUnits = estimated20GPUnits;
+      let final40HQUnits = estimated40HQUnits;
+      if (quotedItems.length > 1 && totalCBM > 0) {
+        const totalOrderPieces = quotedItems.reduce((acc, it) => acc + (it.quantity || 0), 0);
+        const avgPcsPerCbm = totalOrderPieces / totalCBM;
+        final20GPUnits = Math.round(28.0 * avgPcsPerCbm);
+        final40HQUnits = Math.round(68.0 * avgPcsPerCbm);
+      }
+
       containerEstimate = {
         totalCartons,
         totalCBM,
         totalGW,
-        units20GP: estimated20GPUnits,
-        units40HQ: estimated40HQUnits,
+        units20GP: final20GPUnits,
+        units40HQ: final40HQUnits,
         recommendedContainer,
         loadingRate
       };
 
-      riskDisclaimers.push(
-        `${riskDisclaimers.length + 1}. Packaging & Shipment: Total ${totalCartons} Cartons, Approx. ${totalCBM} CBM, Est. Gross Weight ${totalGW.toLocaleString()} KG. Suggested Mode: ${recommendedContainer}. (Single SKU Capacity: 20GP ≈ ${estimated20GPUnits} pcs, 40HQ ≈ ${estimated40HQUnits} pcs).`
+      rawDisclaimers.push(
+        `Packaging & Shipment Estimation: Total ${totalCartons} Cartons, Approx. ${totalCBM} CBM, Est. Gross Weight ${totalGW.toLocaleString()} KG. Suggested Mode: ${recommendedContainer}. (Container Reference: 20GP ≈ ${final20GPUnits} pcs, 40HQ ≈ ${final40HQUnits} pcs).`
       );
     }
+
+    const riskDisclaimers: string[] = rawDisclaimers.map((item, idx) => `${idx + 1}. ${item.replace(/^\d+\.\s*/, '')}`);
 
     // 7. 生成商務條款
     const termsParts = [

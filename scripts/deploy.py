@@ -51,8 +51,33 @@ def deploy(password):
                 last_reported = percent
 
         sftp.put(local_tar, remote_tar, callback=progress_callback)
+        
+        # 确保并同步标准种子单据数据（QT-20260904-888.json & pdf）
+        print("📋 正在同步标准样板单据数据...")
+        remote_quote_dirs = ["/var/www/quote_app/data/quotes", "/var/www/quote_app/data/tenants/default/quotes"]
+        for r_dir in remote_quote_dirs:
+            try:
+                ssh.exec_command(f"mkdir -p {r_dir}")
+            except Exception:
+                pass
+        
+        sample_sync_items = [
+            ("data/quotes/QT-20260904-888.json", "/var/www/quote_app/data/quotes/QT-20260904-888.json"),
+            ("data/quotes/QT-20260904-888.pdf", "/var/www/quote_app/data/quotes/QT-20260904-888.pdf"),
+            ("data/tenants/default/quotes/QT-20260904-888.json", "/var/www/quote_app/data/tenants/default/quotes/QT-20260904-888.json"),
+            ("data/tenants/default/quotes/QT-20260904-888.pdf", "/var/www/quote_app/data/tenants/default/quotes/QT-20260904-888.pdf")
+        ]
+        for l_sub, r_dest in sample_sync_items:
+            l_full = os.path.join(root_dir, l_sub)
+            if os.path.exists(l_full):
+                try:
+                    sftp.put(l_full, r_dest)
+                    print(f"   已更新单据数据: {l_sub} -> {r_dest}")
+                except Exception as e:
+                    print(f"   ⚠️ 同步单据跳过: {e}")
+
         sftp.close()
-        print("✅ 部署包上传完成！")
+        print("✅ 部署包与核心数据同步完成！")
 
         commands = [
             "echo '===> [1/3] 解压最新代码与预编译产物到 /var/www/quote_app...'",

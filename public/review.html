@@ -59,15 +59,17 @@
       background-color: #ffffff !important;
     }
 
-    /* 品名与规格描述专用自适应文本卡片 (50px 完美双行排版，彻底消灭文字腰斩与难看滚条) */
+    /* 品名与规格描述专用自适应文本卡片 (自适应排版，隔离滚动条与编辑按钮) */
     .table-desc-area {
-      height: 52px !important;
-      min-height: 52px;
+      min-height: 40px;
+      max-height: 68px;
+      height: auto;
+      field-sizing: content;
       background-color: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 0.5rem;
       padding: 0.42rem 0.6rem;
-      padding-right: 2.5rem;
+      padding-right: 2.6rem;
       font-size: 11.5px;
       line-height: 1.45;
       color: #1e293b;
@@ -75,7 +77,7 @@
       transition: all 0.15s ease-in-out;
       outline: none;
       width: 100%;
-      resize: none;
+      resize: vertical;
       overflow-y: auto;
       scrollbar-width: thin;
     }
@@ -272,8 +274,8 @@
             <span class="lg:hidden text-xs">建单</span>
           </button>
 
-          <!-- 📊 底价库与标准模板 (第 1 步引导目标) -->
-          <button id="tour-step-1" @click="openPricingModal" class="inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs">
+          <!-- 📊 底价库与标准模板 (第 1 步引导目标 · 超窄屏自适应隐藏防溢出) -->
+          <button id="tour-step-1" @click="openPricingModal" class="hidden min-[400px]:inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs">
             <i class="fa-solid fa-table-cells text-blue-400 text-xs"></i>
             <span class="hidden md:inline">底价库</span>
             <span class="md:hidden text-xs">底价</span>
@@ -575,7 +577,8 @@
                     </span>
                   </div>
                 </div>
-                <div class="text-[10px] text-slate-400 flex items-center justify-between pt-0.5 relative group/rate-tip">
+                <div class="text-[10px] text-slate-400 flex items-center justify-between pt-0.5 relative group/rate-tip cursor-pointer"
+                     @click.stop="rateTipVisible = !rateTipVisible">
                   <div class="flex items-center truncate">
                     <i class="fa-solid fa-shield-halved text-blue-500 mr-1 text-[10px] flex-shrink-0"></i>
                     <span class="truncate">基准 {{ baseCurrencyRate }} (安全区: {{ rateSafeRange.min }}~{{ rateSafeRange.max }})</span>
@@ -584,8 +587,9 @@
                     <i class="fa-solid fa-circle-question"></i>
                     <span>核算逻辑</span>
                   </span>
-                  <!-- Hover Tooltip -->
-                  <div class="absolute bottom-full right-0 mb-2 w-80 max-w-[calc(100vw-32px)] p-3 bg-slate-950/95 text-slate-200 text-[11px] rounded-xl shadow-2xl border border-slate-700/80 backdrop-blur-xl opacity-0 group-hover/rate-tip:opacity-100 transition-all duration-200 pointer-events-none z-50 transform -translate-y-1 group-hover/rate-tip:translate-y-0 leading-relaxed">
+                  <!-- Hover & Touch Click Tooltip -->
+                  <div :class="rateTipVisible ? 'opacity-100 pointer-events-auto translate-y-0' : 'opacity-0 pointer-events-none -translate-y-1 group-hover/rate-tip:opacity-100 group-hover/rate-tip:pointer-events-auto group-hover/rate-tip:translate-y-0'"
+                       class="absolute bottom-full right-0 mb-2 w-80 max-w-[calc(100vw-32px)] p-3 bg-slate-950/95 text-slate-200 text-[11px] rounded-xl shadow-2xl border border-slate-700/80 backdrop-blur-xl transition-all duration-200 z-50 leading-relaxed">
                     <div class="flex items-center space-x-1.5 mb-1.5 text-blue-400 font-bold text-xs">
                       <i class="fa-solid fa-circle-info"></i>
                       <span>底价表汇率波动保护机制 (±3%)</span>
@@ -4195,6 +4199,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           return curRate < min || curRate > max;
         });
 
+        const rateTipVisible = ref(false);
+
         const availableIncoterms = computed(() => {
           return pricingConfig.value?.incoterms && pricingConfig.value.incoterms.length > 0
             ? pricingConfig.value.incoterms
@@ -4275,13 +4281,23 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         const editableEmailSubject = ref('');
         const editableEmailBody = ref('');
 
-        // 监听贸易条款变化，实时双向同步更新英文邮件正文中的 Terms 项
+        // 监听贸易条款变化，实时双向同步更新英文邮件正文中的 Terms 项与风险免责条款
         watch(() => quotation.value?.incotermUsed, (newTerm) => {
-          if (!newTerm || !editableEmailBody.value) return;
-          editableEmailBody.value = editableEmailBody.value.replace(
-            /- Terms:\s*[^\n\r]*/i,
-            `- Terms: ${newTerm}`
-          );
+          if (!newTerm) return;
+          if (editableEmailBody.value) {
+            editableEmailBody.value = editableEmailBody.value.replace(
+              /- Terms:\s*[^\n\r]*/i,
+              `- Terms: ${newTerm}`
+            );
+          }
+          if (quotation.value?.riskDisclaimers && Array.isArray(quotation.value.riskDisclaimers)) {
+            quotation.value.riskDisclaimers = quotation.value.riskDisclaimers.map(d => {
+              if (d.includes('Price Basis & Terms:')) {
+                return `2. Price Basis & Terms: Quoted based on ${newTerm}.`;
+              }
+              return d;
+            });
+          }
         });
 
         // 监听付款方式、有效期、交期变化，实时同步更新邮件正文与单据对象
@@ -4456,7 +4472,12 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             return;
           }
 
-          const token = getTokenFromUrl();
+          const token = getTokenFromUrl() || authToken.value;
+          if (!useSample && !token) {
+            newPoModal.value.error = '💡 检测到您正在上传真实私有询盘，请先免费开通 7 天试用以创建您的专属加密私有空间！';
+            newPoModal.value.uploading = false;
+            return;
+          }
           const headers = {};
           if (token) headers['Authorization'] = `Bearer ${token}`;
 
@@ -4510,7 +4531,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           newPoModal.value.progressPercent = 25;
           newPoModal.value.stepText = 'Gemini 3.8 Flash 正在极速识别询盘意图与规格...';
 
-          const token = getTokenFromUrl();
+          const token = getTokenFromUrl() || authToken.value;
           const headers = { 'Content-Type': 'application/json' };
           if (token) headers['Authorization'] = `Bearer ${token}`;
 
@@ -4524,6 +4545,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               method: 'POST',
               headers,
               body: JSON.stringify({
+                inquiryText: newPoModal.value.rawText,
                 emailBody: newPoModal.value.rawText,
                 tenantId: currentTenant.value?.id || 'default'
               })
@@ -4636,12 +4658,16 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             pricingModal.value.error = '请先选择需要上传的 .xlsx 底价表文件';
             return;
           }
+          const token = getTokenFromUrl() || authToken.value;
+          if (!token) {
+            pricingModal.value.error = '💡 检测到您正在上传企业私有底价表，请先免费开通 7 天试用以创建您的专属加密私有空间！';
+            return;
+          }
           pricingModal.value.uploading = true;
           pricingModal.value.error = '';
           const formData = new FormData();
           formData.append('pricing_file', pricingModal.value.selectedFile);
 
-          const token = getTokenFromUrl();
           const headers = {};
           if (token) headers['Authorization'] = `Bearer ${token}`;
 
@@ -5090,9 +5116,11 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         });
 
         const portalLandingUrl = computed(() => {
-          return window.location.hostname.includes('kelvinflow.com')
+          const token = authToken.value || getTokenFromUrl() || localStorage.getItem('saas_auth_token') || '';
+          const base = window.location.hostname.includes('kelvinflow.com')
             ? 'https://kelvinflow.com/?landing=1'
             : '/?landing=1';
+          return token ? `${base}&token=${encodeURIComponent(token)}` : base;
         });
 
         const emailFullscreenModal = ref(false);
@@ -5665,6 +5693,17 @@ Sales Team | KelvinFlow Global Technology`;
                   };
                 });
               }
+              // 数据清洗兜底：若商品匹配了底价库但 basePriceRMB <= 0，自动从 catalogItems 补齐标准底价
+              if (quotation.value && Array.isArray(quotation.value.items) && catalogItems.value.length > 0) {
+                quotation.value.items.forEach(item => {
+                  if (item.matchedSku && (!item.basePriceRMB || item.basePriceRMB <= 0)) {
+                    const cat = catalogItems.value.find(c => c.sku === item.matchedSku);
+                    if (cat && cat.basePrice > 0) {
+                      item.basePriceRMB = cat.basePrice;
+                    }
+                  }
+                });
+              }
               if (data.quotation.paymentTerms) {
                 terms.value.payment = data.quotation.paymentTerms;
               } else if (pricingConfig.value?.paymentTerms && pricingConfig.value.paymentTerms.length > 0) {
@@ -5705,61 +5744,55 @@ Sales Team | KelvinFlow Global Technology`;
             }
           } catch (e) {
             console.warn("Backend API unavailable, loading standalone demo quotation data...", e);
-            // 离线/静态演示环境容错：优雅载入官方演示数据 QT-20260904-888
+            // 离线/静态演示环境容错：优雅载入官方演示数据 QT-20260904-888 (与官网首屏保持 100% 吻合)
             quotation.value = {
               quotationNumber: 'QT-20260904-888',
-              customerName: 'Acme Global Sourcing GmbH',
-              customerContact: 'Marcus Weber',
-              customerEmail: 'm.weber@acmeglobal.de',
+              customerName: 'Apex Ergonomics (UK)',
+              customerContact: 'David Miller',
+              customerEmail: 'd.miller@apex.co.uk',
               currency: 'USD',
-              tradeTerms: 'CIF (Cost, Insurance & Freight)',
+              tradeTerms: 'FOB Shenzhen Yantian Port',
+              incotermUsed: 'FOB Shenzhen Yantian Port',
               rateUsed: 7.20,
               items: [
                 {
                   id: 1,
                   matched: true,
-                  sku: 'ACME-991',
+                  sku: 'ST-2026-A',
                   matchedSku: 'ST-2026-A',
-                  description: 'Aluminum Alloy Precision Bracket (Heavy Bracket / Stand) - ST-2026-A',
+                  description: 'ST-2026-A Dual-Motor Electric Standing Desk Frame (双电机升降架) - White frame, EU plug, high stability dual motors',
                   quantity: 2000,
-                  basePriceRMB: 15.50,
-                  profitMargin: 0.30,
-                  unitPriceForeign: 3.34,
-                  subTotalForeign: 6680.00,
-                  cartonVolumeCBM: 0.045,
-                  cartonPcs: 20
+                  basePriceRMB: 625.00,
+                  profitMargin: 0.25,
+                  unitPriceForeign: 108.50,
+                  subTotalForeign: 217000.00,
+                  cartonVolumeCBM: 0.027,
+                  cartonPcs: 1
                 },
                 {
                   id: 2,
                   matched: true,
                   sku: 'ERG-PRO-V2',
                   matchedSku: 'ERG-PRO-V2',
-                  description: 'Ergonomic Mesh Office Chair (Executive Chair) - BS5852 Fire Retardant Fabric',
+                  description: 'ERG-PRO-V2 Ergonomic High-Back Mesh Chair (工学网椅) - Laser Logo, BS5852 Fire Retardant Fabric, 3D Armrest',
                   quantity: 500,
-                  basePriceRMB: 185.00,
-                  profitMargin: 0.35,
-                  unitPriceForeign: 39.84,
-                  subTotalForeign: 19920.00,
+                  basePriceRMB: 428.60,
+                  profitMargin: 0.28,
+                  unitPriceForeign: 76.20,
+                  subTotalForeign: 38100.00,
                   cartonVolumeCBM: 0.125,
                   cartonPcs: 1
-                },
-                {
-                  id: 3,
-                  matched: true,
-                  sku: 'FAST-SCREW',
-                  matchedSku: 'ST-2026-B',
-                  description: 'Stainless Steel Hex Fastener Screws (Hex Bolt) - 8820 Series Fasteners',
-                  quantity: 10000,
-                  basePriceRMB: 0.85,
-                  profitMargin: 0.40,
-                  unitPriceForeign: 0.17,
-                  subTotalForeign: 1700.00,
-                  cartonVolumeCBM: 0.002,
-                  cartonPcs: 500
                 }
+              ],
+              riskDisclaimers: [
+                "1. Price Validity: 30 Days from quotation date.",
+                "2. Price Basis & Terms: Quoted based on FOB Shenzhen Yantian Port.",
+                "3. Exchange Rate Protection: Prices quoted based on benchmark rate (1 USD = 7.2 RMB). Quotation is subject to renegotiation if official exchange rate fluctuates by more than ±3% prior to deposit confirmation.",
+                "4. Payment Terms & Lead Time: 30% T/T Deposit, 70% Balance before shipment. Production lead time: 25-30 days upon receipt of deposit.",
+                "5. Packaging & Shipment Estimation: Total 550 Cartons, Approx. 74.45 CBM. Suggested Mode: 1x 40'HQ + 1x 20'GP. (Container Reference: 20GP ≈ 940 pcs, 40HQ ≈ 2280 pcs)."
               ]
             };
-            editableEmailSubject.value = `Quotation QT-20260904-888 for PO - FoShan Kelvin Foreign Trade Co., Ltd.`;
+            editableEmailSubject.value = `Quotation QT-20260904-888 for RFQ - FoShan Kelvin Foreign Trade Co., Ltd.`;
             editableEmailBody.value = generateStandardEmailText();
           } finally {
             loading.value = false;
@@ -6734,6 +6767,7 @@ Sales Team | KelvinFlow Global Technology`;
           baseCurrencyRate,
           rateSafeRange,
           isRateOutOfSafeRange,
+          rateTipVisible,
           currencyDropdownOpen,
           availableIncoterms,
           availablePaymentTerms,

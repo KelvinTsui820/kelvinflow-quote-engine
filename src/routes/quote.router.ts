@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
@@ -83,6 +83,14 @@ function extractSpreadsheetId(input?: string): string | null {
 
   return null;
 }
+
+// 登录防爆破与防撞库限频缓存
+interface LoginAttemptRecord {
+  failures: number;
+  lockedUntil: number;
+  lastAttemptAt: number;
+}
+const loginAttemptMap = new Map<string, LoginAttemptRecord>();
 
 // =========================================================================
 // 0. 【SaaS 多租戶身份認證、權限與企業配置接口】
@@ -181,7 +189,7 @@ quoteRouter.post('/auth/trial-register', async (req: Request, res: Response): Pr
 quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any> => {
   try {
     const { account, phone, email, password } = req.body;
-    const clientIp = ((req.headers['x-forwarded-for'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+    const clientIp = ((req.headers['x-forwarded-for'] as string) || (req.headers['cf-connecting-ip'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
 
     const accountIdentifier = (email || account || phone || '').trim();
     if (!accountIdentifier) {
@@ -191,10 +199,33 @@ quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any
       return res.status(400).json({ success: false, error: '请输入登录密码' });
     }
 
+    // 登录防爆破与防撞库：同一账号或 IP 在 5 分钟内连续失败 5 次，锁定 15 分钟
+    const lockKey = `${accountIdentifier.toLowerCase()}_${clientIp}`;
+    const attempt = loginAttemptMap.get(lockKey);
+    const now = Date.now();
+    if (attempt && attempt.lockedUntil > now) {
+      const waitMin = Math.ceil((attempt.lockedUntil - now) / 60000);
+      return res.status(429).json({
+        success: false,
+        error: `登录失败次数过多，该账户已被临时锁定安全保护，请在 ${waitMin} 分钟后再试！`
+      });
+    }
+
+    const recordFailure = () => {
+      const current = loginAttemptMap.get(lockKey) || { failures: 0, lockedUntil: 0, lastAttemptAt: now };
+      current.failures += 1;
+      current.lastAttemptAt = now;
+      if (current.failures >= 5) {
+        current.lockedUntil = now + 15 * 60 * 1000; // 锁定 15 分钟
+      }
+      loginAttemptMap.set(lockKey, current);
+    };
+
     // 1. 若为企业内置管理员/业务员邮箱，先走 AuthService 验证
     if (accountIdentifier.includes('@')) {
       const authResult = AuthService.authenticateUser(accountIdentifier, password);
       if (authResult) {
+        loginAttemptMap.delete(lockKey);
         const tenantProfile = TenantService.getTenantProfile(authResult.user.tenantId);
         const isPaidAdmin = Boolean((tenantProfile?.plan && tenantProfile.plan !== 'trial') || authResult.user.role === 'admin');
         return res.json({
@@ -217,11 +248,15 @@ quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any
     });
 
     if (!result.success) {
+      recordFailure();
       if (result.expired) {
         return res.status(403).json(result);
       }
       return res.status(400).json(result);
     }
+
+    // 登录成功，重置失败计数
+    loginAttemptMap.delete(lockKey);
 
     return res.json(result);
   } catch (error: any) {
@@ -256,13 +291,39 @@ quoteRouter.get('/auth/referral-info', async (req: Request, res: Response): Prom
   try {
     const query = (req.query.phone || req.query.code || req.query.email || (req as any).user?.email || '').toString().trim();
     if (!query) {
-      return res.status(400).json({ success: false, error: '请提供查询手机号或邀请码' });
+      return res.json({
+        success: true,
+        data: {
+          phone: '',
+          inviteCode: '--',
+          referralCount: 0,
+          rewardDays: 0,
+          expiresAt: '',
+          remainingDays: 0,
+          status: 'none',
+          shareUrl: '',
+          shareText: ''
+        }
+      });
     }
 
     const baseUrl = process.env.PUBLIC_APP_URL?.replace(/\/+$/, '') || `${req.protocol}://${req.get('host')}`;
     const info = TrialService.getReferralInfo(query, baseUrl);
     if (!info) {
-      return res.status(404).json({ success: false, error: '未找到对应账号记录' });
+      return res.json({
+        success: true,
+        data: {
+          phone: query,
+          inviteCode: query,
+          referralCount: 0,
+          rewardDays: 0,
+          expiresAt: '',
+          remainingDays: 0,
+          status: 'none',
+          shareUrl: `${baseUrl}/?ref=${encodeURIComponent(query)}`,
+          shareText: ''
+        }
+      });
     }
 
     return res.json({ success: true, data: info });
@@ -782,12 +843,29 @@ FoShan Kelvin Foreign Trade Co., Ltd.`;
 // =========================================================================
 quoteRouter.post(
   '/process-quote',
-  requireRole(['admin', 'sales']),
-  requireActiveTenant,
   upload.fields([
     { name: 'po_file', maxCount: 1 },
     { name: 'pricing_file', maxCount: 1 }
   ]),
+  (req: Request, res: Response, next: NextFunction): any => {
+    const useSamplePo = req.body?.use_sample_po === 'true' || req.body?.use_sample_po === true || req.query?.useSamplePo === 'true' || req.query?.use_sample_po === 'true';
+    if (useSamplePo) {
+      // 允许公共沙盒体验：如果未登录，自动模拟 guest 访客身份并放行
+      if (!req.user) {
+        req.user = {
+          id: 'guest_sandbox_user',
+          email: 'demo@kelvinflow.com',
+          name: 'Demo Visitor',
+          role: 'sales',
+          tenantId: 'default'
+        };
+      }
+      return next();
+    }
+    return requireRole(['admin', 'sales'])(req, res, () => {
+      requireActiveTenant(req, res, next);
+    });
+  },
   async (req: Request, res: Response): Promise<any> => {
     try {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -1162,10 +1240,11 @@ quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any>
     const isPaid = profile.plan === 'geek' || profile.plan === 'monthly' || profile.plan === 'annual' || profile.plan === 'starter' || profile.plan === 'pro' || profile.plan === 'enterprise';
     const hasImapConfig = !!(profile.imapConfig?.enabled && profile.imapConfig?.authCode && profile.imapConfig?.email);
 
-    // 智能防泄密隔离：若为海外买家/外部无 Token 访客访问，自动对出厂底价与内部利润率执行安全脱敏
+    // 智能防泄密隔离：若为海外买家/外部无 Token 访客访问真实私有报价单，自动对出厂底价与内部利润率执行安全脱敏
+    // 关键修复：官方公共样例/演示单据 (isSampleOrDemoQuote) 面向访客提供可交互的算价与调利体验，跳过脱敏置零
     const isOwnerOrStaff = Boolean(req.user && (req.user.tenantId === quotation.tenantId || req.user.role === 'admin'));
     let safeQuotation = quotation;
-    if (!isOwnerOrStaff) {
+    if (!isOwnerOrStaff && !isSampleOrDemoQuote) {
       safeQuotation = {
         ...quotation,
         items: (quotation.items || []).map(it => ({
@@ -1409,8 +1488,14 @@ quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res
       logoPath: TenantService.getTenantLogoPath(tenantId) || undefined
     });
 
-    // 持久化更新至租戶隔離存儲
-    QuoteStoreService.updateQuote(id, finalQuotation, newPdfBuffer, tenantId);
+    // 持久化更新至租戶隔離存儲 (保護官方演示單據種子數據，防止非管理員直接覆蓋全局種子的只讀鎖)
+    const isMasterSeedQuote = id === 'QT-20260904-888';
+    const isAdmin = Boolean(req.user && req.user.role === 'admin');
+    if (!isMasterSeedQuote || isAdmin || tenantId !== 'default') {
+      QuoteStoreService.updateQuote(id, finalQuotation, newPdfBuffer, tenantId);
+    } else {
+      console.log(`🛡️ [演示單只讀保護] 訪客微調了公共演示單據 [${id}]，僅返回實時重繪 PDF，已保護底層靜態種子文件不被覆蓋！`);
+    }
 
     console.log(`✅ 租戶 [${tenantId}] 報價單 [${id}] 已成功微調並重新生成 PDF！最新總額: ${finalQuotation.currency} ${finalQuotation.totalAmountForeign}`);
 

@@ -329,7 +329,7 @@
                     </div>
                     <div class="min-w-0">
                       <div class="text-xs font-bold text-white truncate">David Miller</div>
-                      <div class="text-[10px] text-slate-400 font-mono truncate">&lt;d.miller@apex.co.uk&gt;</div>
+                      <!--email_off--><div class="text-[10px] text-slate-400 font-mono truncate">&lt;d.miller@apex.co.uk&gt;</div><!--/email_off-->
                     </div>
                   </div>
                   <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20 font-medium">买家原件</span>
@@ -360,14 +360,14 @@
               </div>
             </div>
 
-            <!-- 中间：极简纯净的 10 秒算力管道 (无累赘标签，清爽聚焦) -->
+            <!-- 中间：极简纯净的 10 秒算力管道 (挂载动态毫秒计时器动效) -->
             <div class="lg:col-span-2 flex flex-col items-center justify-center py-4 lg:py-2 text-center relative space-y-2.5">
               <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-cyan-500 to-emerald-400 flex items-center justify-center text-white shadow-xl shadow-cyan-500/30 animate-pulse">
                 <i class="fa-solid fa-bolt text-lg"></i>
               </div>
               <div class="flex flex-col items-center">
-                <span class="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-emerald-300 font-mono tracking-wide">10 秒智能出单</span>
-                <span class="text-[10px] text-slate-500 mt-0.5">秒级自动核算 ➔</span>
+                <span id="hero-live-timer" class="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-emerald-300 font-mono tracking-wide">10 秒智能出单</span>
+                <span id="hero-live-substatus" class="text-[10px] text-slate-500 mt-0.5">秒级自动核算 ➔</span>
               </div>
             </div>
 
@@ -739,16 +739,16 @@
       <div class="max-w-lg mx-auto glass-panel spotlight-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl relative reveal">
         <div class="text-center mb-6">
           <div id="pricing-badge-text" class="inline-block text-xs font-bold text-amber-300 bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full mb-3.5">
-            🔥 限前 50 席 · 终身锁定 ¥99 特权
+            🔥 试用专享 · 首月特惠仅 ¥39 (原价 ¥99)
           </div>
           <div class="flex items-baseline justify-center space-x-1">
             <span class="text-2xl font-extrabold text-white">¥</span>
-            <span id="pricing-amount" class="text-5xl sm:text-6xl font-black text-white tracking-tight">99</span>
-            <span id="pricing-cycle" class="text-slate-400 text-sm font-medium">/ 月</span>
+            <span id="pricing-amount" class="text-5xl sm:text-6xl font-black text-white tracking-tight">39</span>
+            <span id="pricing-cycle" class="text-slate-400 text-sm font-medium">/ 首月</span>
           </div>
           <div class="mt-2">
             <span id="pricing-subtext" class="inline-block text-xs text-amber-400 font-mono px-2.5 py-0.5 rounded-lg bg-amber-400/10 border border-amber-400/20 leading-relaxed">
-              (新人限时首月破冰仅 ¥39 · 次月起按 ¥99/月 终身特权)
+              (新人限时首月特惠仅 ¥39 · 次月起按 ¥99/月 正常续订)
             </span>
           </div>
         </div>
@@ -1275,6 +1275,17 @@
             <button onclick="copyShareLink()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center space-x-1.5 flex-shrink-0">
               <i class="fa-regular fa-copy text-xs"></i>
               <span id="btn-copy-link-text">复制链接</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">完整推荐文案 (可直接分享至微信群/朋友圈)</label>
+          <div class="space-y-2">
+            <textarea id="modal-ref-text" readonly rows="3" class="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-slate-300 font-sans text-xs focus:outline-none resize-none leading-relaxed"></textarea>
+            <button id="btn-copy-fulltext" onclick="copyShareFullText()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center justify-center space-x-1.5">
+              <i class="fa-regular fa-copy"></i>
+              <span>一键复制推荐文案 (微信群/朋友圈)</span>
             </button>
           </div>
         </div>
@@ -2407,6 +2418,23 @@
       setupHeaderScroll();
 
       const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get('token');
+      if (urlToken) {
+        localStorage.setItem('saas_auth_token', urlToken);
+        try {
+          fetch(`/api/v1/auth/trial-status?token=${encodeURIComponent(urlToken)}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data && data.success) {
+                if (data.email) localStorage.setItem('kelvinflow_user_email', data.email);
+                if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);
+                if (data.remainingDays !== undefined) localStorage.setItem('kelvinflow_remaining_days', String(data.remainingDays));
+                if (data.isPaid !== undefined) localStorage.setItem('kelvinflow_user_is_paid', String(data.isPaid));
+                updateNavForLoggedInUser();
+              }
+            }).catch(() => {});
+        } catch (_) {}
+      }
       if (urlParams.get('logged_out') === '1') {
         localStorage.removeItem('saas_auth_token');
         localStorage.removeItem('kelvinflow_user_phone');

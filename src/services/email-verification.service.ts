@@ -222,16 +222,17 @@ export class EmailVerificationService {
     }
 
     // 2. 单 IP 频率限制 (1小时内最多请求 10 次验证码发送，防止接口被暴力滥用刷发)
-    if (ip && ip !== '127.0.0.1' && ip !== 'localhost') {
+    const effectiveIp = (ip || '').trim();
+    if (effectiveIp && effectiveIp !== '127.0.0.1' && effectiveIp !== 'localhost' && !effectiveIp.startsWith('mock_')) {
       const now = Date.now();
-      const ipEntry = this.ipRequestCount.get(ip);
+      const ipEntry = this.ipRequestCount.get(effectiveIp);
       if (ipEntry && now - ipEntry.windowStart < 3600 * 1000) {
         if (ipEntry.count >= 10) {
           return { success: false, error: '当前网络环境请求验证码过于频繁，请稍后再试或联系微信技术支持！' };
         }
         ipEntry.count++;
       } else {
-        this.ipRequestCount.set(ip, { count: 1, windowStart: now });
+        this.ipRequestCount.set(effectiveIp, { count: 1, windowStart: now });
       }
     }
 
