@@ -1009,13 +1009,13 @@
                           <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
                           <span>MOQ {{ getItemMoq(item) }}</span>
                         </span>
-                        <!-- 悬浮业务说明弹窗 (Tooltip Popover 向下展开，高对比纯色不透底，精炼无遮挡) -->
-                        <div class="absolute top-full right-0 mt-1.5 w-52 p-2 bg-[#0B132B] text-slate-100 rounded-lg shadow-2xl border border-amber-500/40 opacity-0 invisible group-hover/moq:opacity-100 group-hover/moq:visible transition-all duration-150 pointer-events-none z-50">
-                          <div class="flex items-center gap-1 text-amber-400 font-bold text-[10px] mb-1">
-                            <i class="fa-solid fa-triangle-exclamation text-[9px]"></i>
+                        <!-- 悬浮业务说明弹窗 (Tooltip Popover 向下展开，高对比纯色不透底，显式声明 whitespace-normal 避免被父级 td 继承 nowrap 导致文字溢出) -->
+                        <div class="absolute top-full right-0 mt-1.5 w-64 p-2.5 bg-[#0B132B] text-slate-100 rounded-lg shadow-2xl border border-amber-500/40 opacity-0 invisible group-hover/moq:opacity-100 group-hover/moq:visible transition-all duration-150 pointer-events-none z-50 whitespace-normal text-left">
+                          <div class="flex items-center gap-1.5 text-amber-400 font-bold text-[10px] mb-1 whitespace-nowrap">
+                            <i class="fa-solid fa-triangle-exclamation text-[9px] flex-shrink-0"></i>
                             <span>低于起订量 (MOQ: {{ getItemMoq(item) }}件)</span>
                           </div>
-                          <div class="text-[9.5px] text-slate-300 leading-snug">
+                          <div class="text-[10px] text-slate-300 leading-relaxed break-words whitespace-normal">
                             当前报盘 <b class="text-white font-mono">{{ item.quantity || 0 }}</b> 件低于门槛，散单生产或需加收开机费。
                           </div>
                           <!-- 顶部微型三角形气泡指示尖角 -->
@@ -3637,20 +3637,21 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
     <!-- 🏢 企业专属 Logo 管理弹窗 (Logo Modal) -->
     <div v-if="logoModal.show" id="logo-modal-overlay" v-cloak @click.self="logoModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-      <div class="relative max-w-md w-full bg-[#0B132B] border border-cyan-500/30 rounded-3xl p-6 sm:p-7 shadow-2xl text-left text-white animate-in fade-in zoom-in duration-200 space-y-5">
+      <!-- 弹窗容器 (加大至 max-w-[480px]，给标题与副标题更充裕的单行排版空间) -->
+      <div class="relative max-w-[480px] w-full bg-[#0B132B] border border-cyan-500/30 rounded-3xl p-6 sm:p-7 shadow-2xl text-left text-white animate-in fade-in zoom-in duration-200 space-y-5">
         
         <!-- 弹窗标题 -->
         <div class="flex items-center justify-between border-b border-white/10 pb-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center text-lg">
+          <div class="flex items-center space-x-3 min-w-0">
+            <div class="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center text-lg flex-shrink-0">
               <i class="fa-solid fa-palette"></i>
             </div>
-            <div>
+            <div class="min-w-0">
               <h3 class="text-base font-extrabold text-white">报价单企业 Logo 设置</h3>
-              <p class="text-xs text-slate-400 mt-0.5">上传企业专属商标，自动印于导出的 A4 PDF 报价单左上角抬头</p>
+              <p class="text-xs text-slate-400 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">上传企业专属商标，自动印于导出的 PDF 报价单抬头</p>
             </div>
           </div>
-          <button @click="logoModal.show = false" aria-label="关闭企业Logo配置窗口" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer">
+          <button @click="logoModal.show = false" aria-label="关闭企业Logo配置窗口" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer flex-shrink-0">
             <i class="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
@@ -3669,6 +3670,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         <!-- 上传控件 (严谨限制为 PDFKit 兼容的 PNG/JPG 格式) -->
         <input type="file" ref="logoFileInput" class="hidden" accept=".png,.jpg,.jpeg" @change="onLogoFileSelected">
         
+        <!-- 仅保留上传新 Logo 与纯文字抬头两大核心按钮，移除恢复官方徽标 -->
         <div class="space-y-2.5">
           <button type="button" @click="$refs.logoFileInput.click()" :disabled="logoModal.uploading" class="w-full py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition flex items-center justify-center space-x-2 shadow-lg shadow-cyan-600/20 cursor-pointer disabled:opacity-50">
             <i v-if="logoModal.uploading" class="fa-solid fa-spinner animate-spin"></i>
@@ -3676,62 +3678,18 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <span>{{ logoModal.uploading ? '正在上传保存...' : '上传新 Logo (PNG 透明底最佳)' }}</span>
           </button>
 
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" @click="setNoLogo" :disabled="logoModal.uploading" class="py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-xs transition flex items-center justify-center space-x-1.5 cursor-pointer border border-white/10" title="PDF抬头将仅显示纯文字公司英文名，不显示任何Logo" aria-label="PDF抬头将仅显示纯文字公司英文名，不显示任何Logo">
-              <i class="fa-solid fa-font text-cyan-400"></i>
-              <span>纯文字抬头 (无Logo)</span>
-            </button>
-
-            <button type="button" @click="openResetLogoConfirm" :disabled="logoModal.uploading" class="py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-xs transition flex items-center justify-center space-x-1.5 cursor-pointer border border-white/10">
-              <i class="fa-solid fa-rotate-left text-slate-400"></i>
-              <span>恢复官方徽标</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 说明小提示 -->
-        <div class="p-3.5 rounded-xl bg-blue-950/40 border border-blue-500/20 text-[11px] text-slate-300 space-y-1.5">
-          <div class="flex items-center space-x-1.5 text-cyan-300 font-bold">
-            <i class="fa-solid fa-shield-halved"></i>
-            <span>版式自适应与格式保障说明：</span>
-          </div>
-          <p class="leading-relaxed text-slate-400 text-[10.5px]">
-            • <b>零遮挡与零混乱</b>：系统采用等比缩放沙盒限制（54×46pt），无论上传正方形、横条长图或竖图，均绝不遮挡文字且绝不破坏版式。<br>
-            • <b>格式要求</b>：严格支持 PNG 与 JPG/JPEG 图片文件，长宽比建议 2:1 至 4:1。
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 恢复官方品牌徽标二次确认弹窗 (Custom Dark-Theme Modal 彻底替代原生 confirm) -->
-    <div v-if="logoResetConfirmModal.show" @click.self="closeResetLogoConfirm" class="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-      <div class="relative bg-[#0B132B] border border-cyan-500/30 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-white animate-in fade-in zoom-in duration-200">
-        <!-- 右上角快捷关闭按钮 -->
-        <button @click="closeResetLogoConfirm" aria-label="关闭确认窗口" class="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center text-xs transition cursor-pointer">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-
-        <div class="flex items-center space-x-3.5">
-          <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center text-xl flex-shrink-0">
-            <i class="fa-solid fa-rotate-left"></i>
-          </div>
-          <div>
-            <h3 class="text-base font-extrabold text-white">恢复默认官方徽标？</h3>
-            <p class="text-xs text-slate-400 mt-0.5">将清除当前企业自定义 Logo</p>
-          </div>
-        </div>
-
-        <div class="bg-blue-950/40 border border-blue-500/20 rounded-xl p-3 text-xs text-slate-300 leading-relaxed">
-          导出的 PDF 报价单将恢复使用 KelvinFlow 官方标准徽标，您后续随时可重新上传企业专属商标。
-        </div>
-
-        <div class="flex items-center space-x-3 pt-2">
-          <button @click="closeResetLogoConfirm" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-300 bg-white/10 hover:bg-white/20 transition cursor-pointer">
-            取消
+          <button type="button" @click="setNoLogo" :disabled="logoModal.uploading" class="w-full py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-xs transition flex items-center justify-center space-x-2 cursor-pointer border border-white/10 hover:border-cyan-500/30" title="PDF抬头将仅显示纯文字公司英文名，不显示任何Logo" aria-label="PDF抬头将仅显示纯文字公司英文名，不显示任何Logo">
+            <i class="fa-solid fa-font text-cyan-400"></i>
+            <span>纯文字抬头 (无Logo)</span>
           </button>
-          <button @click="executeResetDefaultLogo" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-md shadow-blue-600/30 transition cursor-pointer active:scale-95">
-            确认恢复
-          </button>
+        </div>
+
+        <!-- 格式要求小提示 (仅展示明确的格式要求，去除零遮挡与零混乱等技术术语) -->
+        <div class="p-3.5 rounded-xl bg-blue-950/40 border border-blue-500/20 text-xs text-slate-300 flex items-start space-x-2.5">
+          <i class="fa-solid fa-circle-info text-cyan-400 mt-0.5 flex-shrink-0"></i>
+          <div class="leading-relaxed text-slate-400 text-[11px]">
+            <span class="text-slate-300 font-medium">格式要求：</span>支持透明底 PNG 及 JPG/JPEG 图片文件，建议长宽比为 2:1 至 4:1，系统将自动等比缩放适配于 PDF 报价单抬头。
+          </div>
         </div>
       </div>
     </div>

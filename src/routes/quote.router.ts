@@ -349,7 +349,7 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
       }
       const expiryDate = new Date(trial.expiresAt);
       const isExpired = new Date() > expiryDate;
-      const remainingDays = isExpired ? 0 : Math.max(1, Math.ceil((expiryDate.getTime() - Date.now()) / (24 * 3600 * 1000)));
+      const remainingDays = isExpired ? 0 : TrialService.calculateRemainingDays(trial.expiresAt);
       const profile = TenantService.getTenantProfile(trial.tenantId);
       const isPaidUser = Boolean((profile && profile.plan && profile.plan !== 'trial') || trial.status === 'converted');
       return res.json({
@@ -381,7 +381,7 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
       if (trial) {
         const expiryDate = new Date(trial.expiresAt);
         const isExpired = new Date() > expiryDate;
-        const remainingDays = isExpired ? 0 : Math.max(1, Math.ceil((expiryDate.getTime() - Date.now()) / (24 * 3600 * 1000)));
+        const remainingDays = isExpired ? 0 : TrialService.calculateRemainingDays(trial.expiresAt);
         const profile = TenantService.getTenantProfile(trial.tenantId);
         const isPaidUser = Boolean((profile && profile.plan && profile.plan !== 'trial') || trial.status === 'converted');
         return res.json({
@@ -406,7 +406,7 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
       const profile = TenantService.getTenantProfile(tenantId);
       if (profile.plan === 'trial' || profile.expiresAt) {
         const { expired, expiresAt } = TenantService.isTenantExpired(tenantId);
-        const remainingDays = expired ? 0 : (expiresAt ? Math.max(1, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (24 * 3600 * 1000))) : 7);
+        const remainingDays = expired ? 0 : (expiresAt ? TrialService.calculateRemainingDays(expiresAt) : 7);
         const isPaid = Boolean(profile.plan && profile.plan !== 'trial');
         return res.json({
           success: true,

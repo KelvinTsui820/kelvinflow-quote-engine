@@ -128,6 +128,23 @@ export class TrialService {
   }
 
   /**
+   * 计算试用期剩余自然天数
+   * 底层逻辑优化：基于自然日（日历日）计算剩余天数。
+   * 避免纯毫秒差除以 24 小时 + Math.ceil 导致的「昨天下午登录是 14 天，今天上午登录（间隔 16 小时）仍然是 14 天」的问题。
+   * 规则：跨过自然日午夜 00:00，自然剩余天数即准确递减 1 天。
+   */
+  static calculateRemainingDays(expiresAt: string | Date | number, now: Date = new Date()): number {
+    const exp = new Date(expiresAt);
+    if (isNaN(exp.getTime()) || now.getTime() >= exp.getTime()) {
+      return 0;
+    }
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfExpiry = new Date(exp.getFullYear(), exp.getMonth(), exp.getDate()).getTime();
+    const diffDays = Math.round((startOfExpiry - startOfToday) / (24 * 3600 * 1000));
+    return Math.max(1, diffDays);
+  }
+
+  /**
    * 密码安全加盐哈希算法 (SHA-256)
    */
   static hashPassword(password: string): string {
@@ -504,7 +521,7 @@ export class TrialService {
       };
     }
 
-    const remainingDays = Math.max(1, Math.ceil((expiryDate.getTime() - now.getTime()) / (24 * 3600 * 1000)));
+    const remainingDays = this.calculateRemainingDays(existing.expiresAt, now);
     existing.lastLoginAt = now.toISOString();
     if (ip) existing.ip = ip;
     const all = this.getAllTrials().map(t => t.id === existing.id ? existing : t);
@@ -557,7 +574,7 @@ export class TrialService {
     const now = new Date();
     const expiryDate = new Date(trial.expiresAt);
     const isExpired = now > expiryDate;
-    const remainingDays = isExpired ? 0 : Math.max(1, Math.ceil((expiryDate.getTime() - now.getTime()) / (24 * 3600 * 1000)));
+    const remainingDays = isExpired ? 0 : this.calculateRemainingDays(trial.expiresAt, now);
     return {
       exists: true,
       hasPassword: !!trial.passwordHash,
@@ -828,9 +845,7 @@ export class TrialService {
 
     if (!trial) return null;
 
-    const now = Date.now();
-    const expTime = new Date(trial.expiresAt).getTime();
-    const remainingDays = Math.max(0, Math.ceil((expTime - now) / (24 * 3600 * 1000)));
+    const remainingDays = this.calculateRemainingDays(trial.expiresAt);
     const inviteCode = trial.email || trial.phone;
     let cleanBaseUrl = baseUrl.replace(/\/+$/, '');
     if (cleanBaseUrl.includes('quote.kelvinflow.com')) {
