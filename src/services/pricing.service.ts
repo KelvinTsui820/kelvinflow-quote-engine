@@ -45,7 +45,6 @@ export class PricingService {
     const fallbackRate = options.fallbackExchangeRate ?? 7.2;
     const fluctuationPercent = options.rateFluctuationPercent ?? 3;
     const criticalThreshold = options.criticalConfidenceThreshold ?? 70;
-    const availableAddons = options.addons || [];
     const incotermRules = options.incotermRules || [];
 
     const warnings: string[] = [];
@@ -229,69 +228,7 @@ export class PricingService {
           }
         }
 
-        // 5.4 工藝選配附加費智能識別 (Addons Matching: 兼顧全局備註與品類適用範圍 Scope 防呆)
-        const appliedAddons: AppliedAddon[] = [];
-        let totalAddonRMB = 0;
-        const itemText = `${poItem.SKU} ${poItem.Description || ''} ${matchedPrice.productName || ''}`.toUpperCase();
-        const globalRemarks = (poData.SpecialRemarks || '').toUpperCase();
-
-        for (const addon of availableAddons) {
-          const inItem = addon.keywords.some(kw => itemText.includes(kw.toUpperCase().trim()));
-          const inGlobal = addon.keywords.some(kw => globalRemarks.includes(kw.toUpperCase().trim()));
-
-          if (!inItem && !inGlobal) continue;
-
-          // 適用範圍 (Scope) 檢查
-          let scopeMatches = true;
-          if (addon.scope && !addon.scope.includes('全品类') && !addon.scope.includes('全部')) {
-            const scopeTerms = addon.scope.split(/[/,，、]/).map(s => s.trim().toUpperCase()).filter(Boolean);
-            scopeMatches = scopeTerms.some(term => {
-              if (term.includes('椅') || term.includes('CHAIR')) {
-                return itemText.includes('CHAIR') || itemText.includes('椅') || itemText.includes('SEAT');
-              }
-              if (term.includes('五金') || term.includes('HARDWARE') || term.includes('BRACKET') || term.includes('支架')) {
-                return itemText.includes('BRACKET') || itemText.includes('支架') || itemText.includes('五金') || itemText.includes('FASTENER') || itemText.includes('SCREW');
-              }
-              return itemText.includes(term);
-            });
-          }
-
-          // 防誤傷規則：如果工藝僅在全局備註提及 (inItem 為 false)
-          let shouldApply = false;
-          if (inItem) {
-            shouldApply = true;
-          } else if (inGlobal && scopeMatches) {
-            const isSingleItemOrder = poData.Items.length === 1;
-            const mentionsThisSku = globalRemarks.includes(poItem.SKU.toUpperCase()) || 
-                                    (matchedPrice.rawSku && globalRemarks.includes(matchedPrice.rawSku.toUpperCase()));
-            
-            const isChair = itemText.includes('CHAIR') || itemText.includes('椅');
-            const mentionsChairKeywords = /BACKREST|CHAIR|SEAT|HEADREST|CUSHION|椅/i.test(globalRemarks);
-            const isHardware = itemText.includes('BRACKET') || itemText.includes('支架') || itemText.includes('HARDWARE') || itemText.includes('五金');
-            const mentionsHardwareKeywords = /BRACKET|支架|HARDWARE|五金|STAMPING/i.test(globalRemarks);
-
-            if (isSingleItemOrder || mentionsThisSku) {
-              shouldApply = true;
-            } else if (isChair && mentionsChairKeywords && !mentionsHardwareKeywords) {
-              shouldApply = true;
-            } else if (isHardware && mentionsHardwareKeywords && !mentionsChairKeywords) {
-              shouldApply = true;
-            } else if (isChair && mentionsChairKeywords && addon.scope && (addon.scope.includes('椅') || addon.scope.includes('五金'))) {
-              shouldApply = true;
-            } else {
-              shouldApply = false;
-              warnings.push(`[CUSTOM OPTION AUDIT] Addon '${addon.name}' noted in order remarks; verified not applied to standard item [${poItem.SKU}].`);
-            }
-          }
-
-          if (shouldApply) {
-            appliedAddons.push({
-              name: addon.name,
-              addonRMB: addon.addonPriceRMB
-            });
-            totalAddonRMB += addon.addonPriceRMB;
-          }
-        }
+        // 5.4 算價模型已回歸確定性底價核算（方案 A：徹底切除工藝選配暗箱自動加價）
 
         // 5.5 紅線底價防呆保護 (Floor Price Protection)
         let floorPriceWarning: string | undefined = undefined;
@@ -311,8 +248,8 @@ export class PricingService {
             : 0;
         }
 
-        // 算價公式：((階梯底價 + 選配加價) * (1 + 毛利率) + 單件FOB雜費) / 汇率
-        const unitRMB = (effectiveBasePrice + totalAddonRMB) * (1 + margin) + fob;
+        // 算價公式：(階梯底價 * (1 + 毛利率) + 單件FOB雜費) / 匯率
+        const unitRMB = effectiveBasePrice * (1 + margin) + fob;
         const rawUnitForeign = unitRMB / rateUsed;
         const unitPriceForeign = Math.round(rawUnitForeign * 100) / 100;
         const subTotalForeign = Math.round(unitPriceForeign * poItem.Quantity * 100) / 100;
@@ -381,10 +318,7 @@ export class PricingService {
           : 0.8;
         const specScore = Math.round(75 + semanticRatio * 25); // 75 ~ 100 连续浮动
 
-        // 3. 工艺选配加成与完备度 (0-100)
-        const addonScore = appliedAddons.length > 0 ? 98 : 90;
-
-        // 4. 商业约束与起订量合规惩罚 (按缺口比例动态扣减)
+        // 3. 商业约束与起订量合规惩罚 (按缺口比例动态扣减)
         let penalty = 0;
         const penaltyReasons: string[] = [];
         if (moqWarning && matchedPrice.moq && matchedPrice.moq > 1) {
@@ -398,12 +332,12 @@ export class PricingService {
           penaltyReasons.push('底价红线保护(-8分)');
         }
 
-        // 5. 综合连续加权评分
+        // 4. 综合连续加权评分 (SKU字符精度 50% + 规格语义重合度 35% + Gemini意图 15% - 约束惩罚)
         const geminiIntentScore = poItem.ConfidenceScore && poItem.ConfidenceScore > 0 ? poItem.ConfidenceScore : 92;
-        const weightedScore = (skuScore * 0.45) + (specScore * 0.30) + (addonScore * 0.10) + (geminiIntentScore * 0.15) - penalty;
+        const weightedScore = (skuScore * 0.50) + (specScore * 0.35) + (geminiIntentScore * 0.15) - penalty;
         const finalItemConfidence = Math.max(35, Math.min(99, Math.round(weightedScore)));
 
-        // 6. 构造具备说服力的智能证据链诊断备注
+        // 5. 构造具备说服力的智能证据链诊断备注
         let dynamicConfidenceRemark = '';
         if (penalty > 0) {
           dynamicConfidenceRemark = `${penaltyReasons.join('，')}；建议业务员与买家沟通起订量或出厂单价。`;
@@ -425,7 +359,6 @@ export class PricingService {
           matchStatus: skuMatchMethod,
           confidenceRemark: dynamicConfidenceRemark,
           appliedTier,
-          appliedAddons: appliedAddons.length > 0 ? appliedAddons : undefined,
           profitMargin: margin,
           fobCostRMB: fob,
           unitPriceForeign,

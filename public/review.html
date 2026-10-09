@@ -1055,28 +1055,6 @@
                         <i class="fa-solid fa-xmark"></i>
                       </button>
                     </div>
-                    <!-- 工艺选配加成指示徽章与明细浮窗 (D-02 全透明化) -->
-                    <div v-if="getItemAddonsRMB(item) > 0" class="flex items-center justify-end gap-1 mt-1 pr-0.5 group/addon relative">
-                      <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[9px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/80 rounded cursor-help">
-                        <i class="fa-solid fa-layer-group text-[8px]"></i>
-                        <span>+¥{{ getItemAddonsRMB(item) }} 选配</span>
-                      </span>
-                      <!-- 选配明细浮窗 -->
-                      <div class="absolute bottom-full right-0 mb-1.5 w-64 p-2.5 bg-[#0B132B] text-slate-100 rounded-lg shadow-2xl border border-indigo-500/40 opacity-0 invisible group-hover/addon:opacity-100 group-hover/addon:visible transition-all duration-150 pointer-events-auto z-50 text-left whitespace-normal">
-                        <div class="text-[10px] font-bold text-indigo-300 mb-1 flex items-center justify-between">
-                          <span>包含工艺选配/定制费</span>
-                          <button type="button" @click.stop="clearItemAddons(item)" class="text-rose-400 hover:text-rose-300 text-[9px] underline cursor-pointer">清除选配</button>
-                        </div>
-                        <div v-for="(ad, adIdx) in item.appliedAddons" :key="adIdx" class="text-[9.5px] text-slate-300 flex justify-between py-0.5 border-b border-slate-800 last:border-none">
-                          <span class="truncate pr-1">{{ ad.name }}</span>
-                          <span class="font-mono text-indigo-300 flex-shrink-0">+¥{{ ad.addonRMB }}</span>
-                        </div>
-                        <div class="mt-1 pt-1 border-t border-slate-700 text-[9px] text-slate-400 font-mono">
-                          {{ getPriceCalculationFormula(item) }}
-                        </div>
-                        <div class="absolute -bottom-1 right-3 w-2 h-2 bg-[#0B132B] rotate-45 border-r border-b border-indigo-500/40"></div>
-                      </div>
-                    </div>
                   </td>
 
                   <!-- 6. 毛利率 % (含跌破底价表红线熔断变红预警角标，0 空间占用保持表格整洁) -->
@@ -5960,9 +5938,8 @@ Sales Team | KelvinFlow Global Technology`;
 
         const onUnitPriceChange = (item) => {
           const rate = quotation.value?.rateUsed || 7.2;
-          const totalAddons = item.appliedAddons ? item.appliedAddons.reduce((s, a) => s + (Number(a.addonRMB) || 0), 0) : 0;
           const fob = Number(item.fobCostRMB) || 0;
-          const baseCost = item.basePriceRMB + totalAddons;
+          const baseCost = item.basePriceRMB;
           if (baseCost > 0) {
             const unitPriceRMB = item.unitPriceForeign * rate;
             const m = (unitPriceRMB - fob) / baseCost - 1;
@@ -5977,9 +5954,8 @@ Sales Team | KelvinFlow Global Technology`;
           item.profitMargin = m;
           const rate = quotation.value?.rateUsed || 7.2;
           if (item.basePriceRMB > 0) {
-            const totalAddons = item.appliedAddons ? item.appliedAddons.reduce((s, a) => s + (Number(a.addonRMB) || 0), 0) : 0;
             const fob = Number(item.fobCostRMB) || 0;
-            const unitRMB = (item.basePriceRMB + totalAddons) * (1 + m) + fob;
+            const unitRMB = item.basePriceRMB * (1 + m) + fob;
             item.unitPriceForeign = Number((unitRMB / rate).toFixed(2));
             item.subTotalForeign = Number((item.quantity * item.unitPriceForeign).toFixed(2));
           }
@@ -5989,25 +5965,23 @@ Sales Team | KelvinFlow Global Technology`;
           const rate = quotation.value?.rateUsed || 7.2;
           const m = item.profitMargin !== undefined ? item.profitMargin : 0.15;
           if (item.basePriceRMB > 0) {
-            const totalAddons = item.appliedAddons ? item.appliedAddons.reduce((s, a) => s + (Number(a.addonRMB) || 0), 0) : 0;
             const fob = Number(item.fobCostRMB) || 0;
-            const unitRMB = (item.basePriceRMB + totalAddons) * (1 + m) + fob;
+            const unitRMB = item.basePriceRMB * (1 + m) + fob;
             item.unitPriceForeign = Number((unitRMB / rate).toFixed(2));
             item.subTotalForeign = Number((item.quantity * item.unitPriceForeign).toFixed(2));
           }
         };
 
-        // 汇率调整联动函数 (完全对齐出厂底价 + 选配工艺 + 港杂包干 / 汇率换算公式)
+        // 汇率调整联动函数 (完全对齐纯出厂底价 + 港杂包干 / 汇率换算公式)
         const onRateChange = () => {
           const rate = quotation.value?.rateUsed;
           if (!rate || rate <= 0) return;
           if (Array.isArray(quotation.value.items)) {
             quotation.value.items.forEach(item => {
               if (item.basePriceRMB > 0) {
-                const totalAddons = item.appliedAddons ? item.appliedAddons.reduce((s, a) => s + (Number(a.addonRMB) || 0), 0) : 0;
                 const fob = Number(item.fobCostRMB) || 0;
                 const m = item.profitMargin !== undefined ? item.profitMargin : 0.15;
-                const unitRMB = (item.basePriceRMB + totalAddons) * (1 + m) + fob;
+                const unitRMB = item.basePriceRMB * (1 + m) + fob;
                 item.unitPriceForeign = Number((unitRMB / rate).toFixed(2));
                 item.subTotalForeign = Number((item.quantity * item.unitPriceForeign).toFixed(2));
               }
@@ -6016,33 +5990,20 @@ Sales Team | KelvinFlow Global Technology`;
           showToast(`基准汇率已更新为 ${rate}，已自动重新核算外币单价与全单总额！`);
         };
 
-        const getItemAddonsRMB = (item) => {
-          if (!item || !item.appliedAddons || !Array.isArray(item.appliedAddons)) return 0;
-          return Number(item.appliedAddons.reduce((sum, a) => sum + (Number(a.addonRMB) || 0), 0).toFixed(2));
-        };
+        const getItemAddonsRMB = () => 0;
 
         const getPriceCalculationFormula = (item) => {
           if (!item || !item.basePriceRMB) return '待核算底价';
           const rate = quotation.value?.rateUsed || 7.2;
-          const addons = getItemAddonsRMB(item);
           const fob = Number(item.fobCostRMB) || 0;
           const marginPct = Math.round((item.profitMargin ?? 0) * 100);
-          if (addons > 0 || fob > 0) {
-            let parts = [`出厂底价 ¥${item.basePriceRMB}`];
-            if (addons > 0) parts.push(`工艺选配 +¥${addons}`);
-            if (fob > 0) parts.push(`港杂 +¥${fob}`);
-            return `核价公式: (${parts.join(' ')}) × (1 + ${marginPct}%) ÷ ${rate} = $${item.unitPriceForeign || 0}（注: 单价四舍五入保留2位后乘数量计小计）`;
+          if (fob > 0) {
+            return `核价公式: (出厂底价 ¥${item.basePriceRMB} + 港杂 +¥${fob}) × (1 + ${marginPct}%) ÷ ${rate} = $${item.unitPriceForeign || 0}（注: 单价四舍五入保留2位后乘数量计小计）`;
           }
           return `标准核价公式: 出厂底价 ¥${item.basePriceRMB} × (1 + ${marginPct}%) ÷ ${rate} = $${item.unitPriceForeign || 0}（注: 单价四舍五入保留2位后乘数量计小计）`;
         };
 
-        const clearItemAddons = (item) => {
-          if (!item) return;
-          item.appliedAddons = [];
-          item.fobCostRMB = 0;
-          onBasePriceChange(item);
-          showToast('已清除工艺选配加成，单价已按纯出厂底价重新核算！');
-        };
+        const clearItemAddons = () => {};
 
         const addNewItem = () => {
           const newIdx = quotation.value.items.length + 1;

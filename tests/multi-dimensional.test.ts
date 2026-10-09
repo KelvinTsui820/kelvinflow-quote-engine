@@ -484,7 +484,7 @@ describe('外貿智能報價引擎 - 企業級數據治理與多租戶架構全�
       expect(quote.items[0].basePriceRMB).toBe(15.50);
     });
 
-    it('7.2 工藝選配自動加價：當 PO 備註需要 Black Coating + Laser Logo 時，應自動累加選配加價 (15.5 + 3.0 + 0.8)', () => {
+    it('7.2 算價確定性防護（方案 A）：底價核算回歸確定性，即便 PO 備註提及客制化工藝，也絕不暗箱疊加選配加價', () => {
       const poData: POExtractionResult = {
         ConfidenceScore: 95,
         MissingInfo: [],
@@ -503,15 +503,12 @@ describe('外貿智能報價引擎 - 企業級數據治理與多租戶架構全�
         ]
       };
 
-      const quote = PricingService.calculate(poData, flagshipCatalog, rates, {
-        addons: flagshipAddons
-      });
+      const quote = PricingService.calculate(poData, flagshipCatalog, rates);
 
-      expect(quote.items[0].appliedAddons).toBeDefined();
-      expect(quote.items[0].appliedAddons!.length).toBe(2);
+      expect(quote.items[0].appliedAddons).toBeUndefined();
       
-      // 計算: ((15.5 + 3.0 + 0.8) * 1.3 + 0.20) / 7.20 = (19.3 * 1.3 + 0.20) / 7.2 = (25.09 + 0.20) / 7.2 = 25.29 / 7.2 = 3.5125 -> 3.51 USD
-      expect(quote.items[0].unitPriceForeign).toBe(3.51);
+      // 計算: (15.5 * 1.3 + 0.20) / 7.20 = (20.15 + 0.20) / 7.2 = 20.35 / 7.2 = 2.826... -> 2.83 USD
+      expect(quote.items[0].unitPriceForeign).toBe(2.83);
     });
 
     it('7.3 貿易術語切換：當客戶要求 EXW (出廠價) 時，港口雜費應自動歸 0', () => {

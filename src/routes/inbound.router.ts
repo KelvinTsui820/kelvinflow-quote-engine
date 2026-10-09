@@ -375,7 +375,6 @@ inboundRouter.post('/quick-quote', async (req: Request, res: Response): Promise<
       samplePolicy: parsedExcel.samplePolicy,
       defaultFobCost: Number(process.env.DEFAULT_FOB_COST || 0),
       fallbackExchangeRate: Number(process.env.DEFAULT_FALLBACK_RATE || 7.2),
-      addons: parsedExcel.addons,
       incotermRules: parsedExcel.incotermRules,
       paymentTerms: parsedExcel.paymentTerms
     });

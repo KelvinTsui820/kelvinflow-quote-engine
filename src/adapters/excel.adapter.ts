@@ -142,23 +142,7 @@ export class ExcelAdapter {
         continue;
       }
 
-      // 1. 【專用 Sheet 識別】：選配與工藝附加費 (Addons)
-      if (normSheetName.includes('addon') || normSheetName.includes('选配') || normSheetName.includes('選配') || normSheetName.includes('附加费') || normSheetName.includes('工藝')) {
-        const rows: any[] = xlsxLib.utils.sheet_to_json(sheet, { defval: '' });
-        parsedSheets.push(`${sheetName} (選配加價庫)`);
-        for (const row of rows) {
-          const rawKw = String(row['选配工艺关键词 (Keywords)'] || row['关键词'] || row['Keywords'] || Object.values(row)[0] || '').trim();
-          const addonPrice = parseSafeNumber(row['加价金额 (RMB)'] || row['加价'] || row['Price'] || Object.values(row)[2], 0);
-          const name = String(row['工艺说明与模具返还机制'] || row['工艺说明与技术要求'] || row['工艺说明'] || row['Name'] || Object.values(row)[4] || rawKw).trim();
-          const scope = String(row['适用范围'] || row['Scope'] || Object.values(row)[1] || '').trim();
-
-          if (rawKw && addonPrice > 0) {
-            const keywords = rawKw.split(/[,，;|]/).map(k => k.trim()).filter(Boolean);
-            addons.push({ keywords, name, addonPriceRMB: addonPrice, scope });
-          }
-        }
-        continue;
-      }
+      // 1. 工藝選配 Sheet 已按方案 A 切除，不導入任何工藝附加費庫
 
       // 2. 【專用 Sheet 識別】：貿易術語與港口雜費 (Incoterms)
       if (normSheetName.includes('incoterm') || normSheetName.includes('贸易术语') || normSheetName.includes('貿易術語') || normSheetName.includes('港口')) {

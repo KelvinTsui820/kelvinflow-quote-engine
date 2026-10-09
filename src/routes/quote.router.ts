@@ -1026,7 +1026,6 @@ Items to Quote:
         fallbackExchangeRate: Number(process.env.DEFAULT_FALLBACK_RATE || 7.2),
         rateFluctuationPercent: Number(process.env.RATE_FLUCTUATION_THRESHOLD_PERCENT || 3),
         criticalConfidenceThreshold: Number(process.env.CRITICAL_CONFIDENCE_THRESHOLD || 70),
-        addons,
         incotermRules,
         paymentTerms
       });
@@ -1449,8 +1448,7 @@ quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res
         // 若用户明确提供了数字单价，则严格保留用户手工设定的单价；若未提供单价或单价为 NaN，才通过底价和毛利折算
         if (typeof unitPriceForeign !== 'number' || isNaN(unitPriceForeign)) {
           if (basePriceRMB > 0) {
-            const totalAddons = (item.appliedAddons || existingItem?.appliedAddons || []).reduce((s: number, a: any) => s + (Number(a.addonRMB) || 0), 0);
-            const unitRMB = (basePriceRMB + totalAddons) * (1 + profitMargin) + fobCostRMB;
+            const unitRMB = basePriceRMB * (1 + profitMargin) + fobCostRMB;
             unitPriceForeign = Number((unitRMB / rateUsed).toFixed(2));
           } else {
             unitPriceForeign = existingItem?.unitPriceForeign ?? 0;
