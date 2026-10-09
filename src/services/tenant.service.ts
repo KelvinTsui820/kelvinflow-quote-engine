@@ -29,6 +29,23 @@ export class TenantService {
       if (/^1[3-9]\d{9}$/.test(clean)) {
         return `tenant_trial_${clean}`;
       }
+
+      this.init();
+      // 1. 若当前磁盘中已存在完全匹配的租户目录，直接返回
+      if (fs.existsSync(path.join(this.TENANTS_DIR, clean))) {
+        return clean;
+      }
+      // 2. 检查补齐 tenant_trial_ 前缀后是否存在 (如 tsuikelvin0804_gmail -> tenant_trial_tsuikelvin0804_gmail)
+      const trialId = `tenant_trial_${clean}`;
+      if (fs.existsSync(path.join(this.TENANTS_DIR, trialId))) {
+        return trialId;
+      }
+      // 3. 检查补齐 tenant_ 前缀后是否存在
+      const tenantPrefixId = `tenant_${clean}`;
+      if (fs.existsSync(path.join(this.TENANTS_DIR, tenantPrefixId))) {
+        return tenantPrefixId;
+      }
+
       return clean;
     }
 
@@ -39,7 +56,16 @@ export class TenantService {
         // 排除常用公用郵箱域名，若為公用郵箱則使用全郵箱用戶名前綴
         if (['gmail', 'qq', '163', '126', 'foxmail', 'outlook', 'hotmail'].includes(domain)) {
           const userPrefix = senderEmail.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
-          return `tenant_${userPrefix.toLowerCase()}`;
+          const trialEmailTenant = `tenant_trial_${userPrefix.toLowerCase()}_${domain}`;
+          const emailTenant = `tenant_${userPrefix.toLowerCase()}`;
+          this.init();
+          if (fs.existsSync(path.join(this.TENANTS_DIR, trialEmailTenant))) {
+            return trialEmailTenant;
+          }
+          if (fs.existsSync(path.join(this.TENANTS_DIR, emailTenant))) {
+            return emailTenant;
+          }
+          return emailTenant;
         }
         return domain.replace(/[^a-z0-9_-]/g, '_');
       }

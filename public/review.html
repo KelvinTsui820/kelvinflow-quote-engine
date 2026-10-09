@@ -4918,7 +4918,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           const storedPhone = localStorage.getItem('kelvinflow_user_phone') || '';
           const tId = currentTenant.value?.tenantId || currentTenant.value?.id || trialState.value.tenantId || (storedPhone ? `tenant_trial_${storedPhone}` : 'default');
           const clean = tId.replace(/^tenant_trial_/, '');
-          return `rfq-${clean}@quote.kelvinflow.com`;
+          return `rfq-${clean}@kelvinflow.com`;
         });
 
         const copiedForwardEmail = ref(false);
