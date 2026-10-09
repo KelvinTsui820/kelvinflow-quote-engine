@@ -101,6 +101,15 @@
       background: #94a3b8;
     }
 
+    /* D-07: 监听浏览器与密码管理器 (1Password / Chrome) autofill 动效 */
+    @keyframes onAutoFillStart {
+      from {/**/}
+      to {/**/}
+    }
+    input:-webkit-autofill {
+      animation-name: onAutoFillStart;
+    }
+
     /* Apple Iconic Liquid Frosted Glass (苹果极透高光科技感毛玻璃) */
     .apple-glass-card {
       background: rgba(255, 255, 255, 0.70) !important;
@@ -431,13 +440,21 @@
                   </div>
                   <div class="flex items-center justify-between h-[34px] bg-slate-100/90 border border-slate-200 rounded-lg px-2.5 cursor-default select-all">
                     <span class="text-xs font-extrabold text-slate-600 font-mono tracking-wide select-all">{{ quotation.quotationNumber }}</span>
-                    <button @click="copyText(quotation.quotationNumber)" 
-                            title="点击复制单号" aria-label="点击复制单号"
-                            class="inline-flex items-center space-x-1 text-[11px] font-bold px-2 py-0.5 rounded-md transition shadow-xs border"
-                            :class="copiedQuoteId ? 'bg-emerald-50 text-emerald-600 border-emerald-300' : 'bg-white hover:bg-blue-50 text-slate-600 hover:text-blue-600 border-slate-200 hover:border-blue-300 active:scale-95'">
-                      <i :class="copiedQuoteId ? 'fa-solid fa-check text-emerald-600' : 'fa-regular fa-copy text-slate-400'"></i>
-                      <span>{{ copiedQuoteId ? '已复制' : '复制' }}</span>
-                    </button>
+                    <div class="flex items-center space-x-1.5">
+                      <button type="button" @click="quotesHistoryModal.show = true" 
+                              title="查看当前租户历史报价单列表" aria-label="查看当前租户历史报价单列表"
+                              class="inline-flex items-center space-x-1 text-[11px] font-bold px-2 py-0.5 rounded-md transition shadow-xs border bg-white hover:bg-blue-50 text-slate-600 hover:text-blue-600 border-slate-200 hover:border-blue-300 active:scale-95 cursor-pointer">
+                        <i class="fa-solid fa-clock-rotate-left text-slate-400"></i>
+                        <span>历史 ({{ userQuotesList.length }})</span>
+                      </button>
+                      <button @click="copyText(quotation.quotationNumber)" 
+                              title="点击复制单号" aria-label="点击复制单号"
+                              class="inline-flex items-center space-x-1 text-[11px] font-bold px-2 py-0.5 rounded-md transition shadow-xs border"
+                              :class="copiedQuoteId ? 'bg-emerald-50 text-emerald-600 border-emerald-300' : 'bg-white hover:bg-blue-50 text-slate-600 hover:text-blue-600 border-slate-200 hover:border-blue-300 active:scale-95'">
+                        <i :class="copiedQuoteId ? 'fa-solid fa-check text-emerald-600' : 'fa-regular fa-copy text-slate-400'"></i>
+                        <span>{{ copiedQuoteId ? '已复制' : '复制' }}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div class="text-[10px] text-slate-400 flex items-center pt-0.5">
@@ -575,7 +592,7 @@
                       1 = ¥
                     </span>
                     <div class="relative flex-1 h-full flex items-center">
-                      <input type="number" step="0.01" v-model.number="quotation.rateUsed" @input="onRateChange" 
+                      <input type="number" step="0.01" role="textbox" v-model.number="quotation.rateUsed" @input="onRateChange" @change="quotation.rateUsed = round2(quotation.rateUsed); onRateChange()"
                              class="w-full h-full px-2.5 pr-7 text-xs font-extrabold text-slate-900 font-mono focus:outline-none bg-transparent"
                              :class="isRateOutOfSafeRange ? 'text-amber-600 bg-amber-50/30' : ''">
                       <button v-if="quotation.rateUsed" type="button" @mousedown.prevent="quotation.rateUsed = null" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
@@ -1017,7 +1034,7 @@
                         <button @click="item.quantity > 1 ? (item.quantity--, onQtyChange(item)) : null" title="减少1" class="w-7 h-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-slate-50 transition text-xs font-bold active:bg-slate-100">
                           <i class="fa-solid fa-minus text-[10px]"></i>
                         </button>
-                        <input type="number" v-model.number="item.quantity" @input="onQtyChange(item)" min="1" class="w-16 h-full text-center bg-white font-bold text-slate-900 text-xs border-x border-slate-200 focus:outline-none">
+                        <input type="number" role="textbox" v-model.number="item.quantity" @input="onQtyChange(item)" @change="item.quantity = Math.max(1, Math.round(Number(item.quantity) || 1)); onQtyChange(item)" min="1" class="w-16 h-full text-center bg-white font-bold text-slate-900 text-xs border-x border-slate-200 focus:outline-none">
                         <button @click="item.quantity++, onQtyChange(item)" title="增加1" aria-label="增加1" class="w-7 h-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-slate-50 transition text-xs font-bold active:bg-slate-100">
                           <i class="fa-solid fa-plus text-[10px]"></i>
                         </button>
@@ -1035,7 +1052,7 @@
                             <span>低于起订量 (MOQ: {{ getItemMoq(item) }}件)</span>
                           </div>
                           <div class="text-[10px] text-slate-300 leading-relaxed break-words whitespace-normal">
-                            当前报盘 <b class="text-white font-mono">{{ item.quantity || 0 }}</b> 件低于门槛，散单生产或需加收开机费。
+                            当前报盘 <b class="text-white font-mono">{{ item.quantity ?? 0 }}</b> 件低于门槛，散单生产或需加收开机费。
                           </div>
                           <!-- 顶部微型三角形气泡指示尖角 -->
                           <div class="absolute -top-1 right-2.5 w-2 h-2 bg-[#0B132B] rotate-45 border-l border-t border-amber-500/40"></div>
@@ -1047,7 +1064,7 @@
                   <!-- 5. 出厂底价 (RMB) -->
                   <td class="py-3.5 px-3 text-right whitespace-nowrap">
                     <div class="relative flex items-center justify-end group">
-                      <input type="number" v-model.number="item.basePriceRMB" @input="onBasePriceChange(item)" @change="item.basePriceRMB = Number(Number(item.basePriceRMB || 0).toFixed(2))" step="0.1" 
+                      <input type="number" role="textbox" v-model.number="item.basePriceRMB" @input="onBasePriceChange(item)" @change="item.basePriceRMB = round2(item.basePriceRMB); onBasePriceChange(item)" step="0.1" 
                              placeholder="输入底价"
                              class="table-input w-28 text-right font-mono font-black text-xs shadow-xs pr-6"
                              :class="!item.basePriceRMB ? 'bg-rose-50 border-rose-300 focus:border-rose-500 text-rose-700' : 'bg-slate-50/50 hover:bg-white focus:bg-white text-slate-900'">
@@ -1062,7 +1079,7 @@
                     <div class="relative inline-flex items-center">
                       <div class="inline-flex items-center h-[38px] border hover:border-slate-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-lg bg-white px-2.5 transition shadow-sm"
                            :class="isBelowFloorMargin(item) ? 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/50' : 'border-slate-200'">
-                        <input type="number" :value="Math.round(item.profitMargin * 100)" @input="onMarginChange(item, $event.target.value)" 
+                        <input type="number" role="textbox" :value="Math.round(item.profitMargin * 100)" @input="onMarginChange(item, $event.target.value)" 
                                 class="w-10 text-center font-black text-xs focus:outline-none bg-transparent"
                                 :class="isBelowFloorMargin(item) ? 'text-rose-600 font-black' : 'text-blue-600 font-bold'">
                         <span class="text-xs font-bold" :class="isBelowFloorMargin(item) ? 'text-rose-500' : 'text-slate-400'">%</span>
@@ -1071,16 +1088,16 @@
                       <div v-if="isBelowFloorMargin(item)" class="absolute -top-3.5 -right-3 z-20 group/floor pointer-events-none">
                         <span class="px-1.5 py-0.5 bg-rose-500 hover:bg-rose-600 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-rose-500/30 flex items-center gap-0.5 tracking-tight cursor-help whitespace-nowrap transition-colors pointer-events-auto">
                           <i class="fa-solid fa-ban text-[8px]"></i>
-                          <span>底线 {{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%</span>
+                          <span>底线 {{ Math.round((pricingConfig?.floorMargin ?? 0.08)*100) }}%</span>
                         </span>
                         <!-- 悬浮业务说明弹窗 (Tooltip Popover 向下展开，高对比纯色不透底，精炼无遮挡) -->
                         <div class="absolute top-full right-0 mt-1.5 w-52 p-2 bg-[#0B132B] text-slate-100 rounded-lg shadow-2xl border border-rose-500/40 opacity-0 invisible group-hover/floor:opacity-100 group-hover/floor:visible transition-all duration-150 pointer-events-none z-50">
                           <div class="flex items-center gap-1 text-rose-400 font-bold text-[10px] mb-1">
                             <i class="fa-solid fa-shield-halved text-[9px]"></i>
-                            <span>跌破利润底线 ({{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%)</span>
+                            <span>跌破利润底线 ({{ Math.round((pricingConfig?.floorMargin ?? 0.08)*100) }}%)</span>
                           </div>
                           <div class="text-[9.5px] text-slate-300 leading-snug">
-                            当前毛利 <b class="text-rose-400 font-mono">{{ Math.round((item.profitMargin || 0)*100) }}%</b> 低于红线，建议调高单价以防亏损。
+                            当前毛利 <b class="text-rose-400 font-mono">{{ Math.round((item.profitMargin ?? 0)*100) }}%</b> 低于红线，建议调高单价以防亏损。
                           </div>
                           <!-- 顶部微型三角形气泡指示尖角 -->
                           <div class="absolute -top-1 right-2.5 w-2 h-2 bg-[#0B132B] rotate-45 border-l border-t border-rose-500/40"></div>
@@ -1092,7 +1109,7 @@
                   <!-- 7. 外币单价 (固定 112px 宽度，彻底消除数字裁剪与挤压) -->
                   <td class="py-3.5 px-3 text-right whitespace-nowrap">
                     <div class="relative flex items-center justify-end group">
-                      <input type="number" v-model.number="item.unitPriceForeign" @input="onUnitPriceChange(item)" @change="item.unitPriceForeign = Number(Number(item.unitPriceForeign || 0).toFixed(2)); onUnitPriceChange(item)" step="0.01" 
+                      <input type="number" role="textbox" v-model.number="item.unitPriceForeign" @input="onUnitPriceChange(item)" @change="item.unitPriceForeign = round2(item.unitPriceForeign); onUnitPriceChange(item)" step="0.01" 
                              :title="getPriceCalculationFormula(item)"
                              class="table-input w-28 text-right font-black shadow-sm pr-6 cursor-help"
                              :class="isBelowFloorMargin(item) ? 'border-rose-400 text-rose-700 bg-rose-50/50 focus:border-rose-600' : 'text-blue-700 bg-blue-50/20 focus:bg-white'">
@@ -2512,8 +2529,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             </div>
             <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-0.5">
               <div class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold mx-auto flex items-center justify-center">3</div>
-              <div class="font-bold text-slate-800 text-[11px]">AI 秒级自动出单</div>
-              <p class="text-[10px] text-slate-500">核价单送达工作台</p>
+              <div class="font-bold text-slate-800 text-[11px]">AI 智能核价出单</div>
+              <p class="text-[9.5px] text-slate-500 leading-tight">核价单送达工作台 (邮件流转约1-3分钟，AI 5秒内入库)</p>
             </div>
           </div>
 
@@ -3014,6 +3031,62 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
     </div>
     </div>
 
+    <!-- 📋 历史报价单切换弹窗 (Quotes History Switcher Modal) -->
+    <div v-if="quotesHistoryModal.show" v-cloak @click.self="quotesHistoryModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">租户历史报价单切换</h3>
+              <p class="text-[11px] text-slate-400">当前租户名下已生成的报价单 (共 {{ userQuotesList.length }} 份)</p>
+            </div>
+          </div>
+          <button @click="quotesHistoryModal.show = false" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="max-h-80 overflow-y-auto space-y-2 pr-1">
+          <div v-if="userQuotesList.length === 0" class="text-center py-8 text-xs text-slate-400">
+            暂无历史单据记录
+          </div>
+          <div v-for="q in userQuotesList" :key="q.quotationNumber"
+               @click="switchQuotation(q.quotationNumber)"
+               class="p-3 rounded-xl border transition cursor-pointer flex items-center justify-between group"
+               :class="q.quotationNumber === quotation.quotationNumber ? 'bg-blue-50/70 border-blue-300 shadow-xs' : 'bg-slate-50/60 hover:bg-blue-50/40 border-slate-200/80'">
+            <div class="space-y-0.5">
+              <div class="flex items-center space-x-2">
+                <span class="font-mono font-bold text-xs" :class="q.quotationNumber === quotation.quotationNumber ? 'text-blue-700' : 'text-slate-800'">
+                  {{ q.quotationNumber }}
+                </span>
+                <span v-if="q.quotationNumber === quotation.quotationNumber" class="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-blue-600 text-white">当前打开</span>
+              </div>
+              <div class="text-[11px] text-slate-500">
+                买家: {{ q.customerName || q.buyerName || 'Valued Buyer' }}
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-bold text-xs text-slate-900">
+                {{ q.currency || 'USD' }} {{ formatNumber(q.totalAmountForeign || 0) }}
+              </div>
+              <div class="text-[10px] text-slate-400">
+                {{ q.createdAt ? new Date(q.createdAt).toLocaleDateString('zh-CN') : '' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-2 border-t border-slate-100">
+          <button @click="quotesHistoryModal.show = false" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+            关闭
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 二次确认弹窗 (Secondary Confirmation Modal) -->
     <div v-if="showConfirmModal" id="confirm-modal-overlay" v-cloak @click.self="showConfirmModal = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
       <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in fade-in zoom-in duration-200">
@@ -3179,7 +3252,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               <button type="button" @click="openWebMailDirect('gmail')" 
                       class="py-2 px-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition flex flex-col items-center justify-center gap-1 cursor-pointer shadow-2xs">
                 <i class="fa-brands fa-google text-xs text-rose-500"></i>
-                <span>Gmail 草稿</span>
+                <span>Gmail 网页</span>
               </button>
               <button type="button" @click="openWebMailDirect('outlook')" 
                       class="py-2 px-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition flex flex-col items-center justify-center gap-1 cursor-pointer shadow-2xs">
@@ -3748,6 +3821,38 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         const saving = ref(false);
         const previewLoading = ref(false);
         const showConfirmModal = ref(false);
+        const quotesHistoryModal = ref({ show: false });
+        const userQuotesList = ref([]);
+
+        // D-05: 统一高精度两倍小数工具函数 (确保底层值与显示值均为干净小数，避免浮点尾数)
+        const round2 = (num) => {
+          if (num === null || num === undefined || isNaN(Number(num))) return 0;
+          return Math.round((Number(num) + Number.EPSILON) * 100) / 100;
+        };
+        const round4 = (num) => {
+          if (num === null || num === undefined || isNaN(Number(num))) return 0;
+          return Math.round((Number(num) + Number.EPSILON) * 10000) / 10000;
+        };
+
+        const fetchUserQuotes = async () => {
+          try {
+            const token = getTokenFromUrl() || authToken.value;
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const res = await fetch(`/api/v1/quotes${token ? `?token=${encodeURIComponent(token)}` : ''}`, { headers });
+            const data = await res.json();
+            if (data.success && Array.isArray(data.quotes)) {
+              userQuotesList.value = data.quotes;
+            }
+          } catch (e) {
+            console.warn('Failed to load user quotes list:', e);
+          }
+        };
+
+        const switchQuotation = (qNum) => {
+          const token = getTokenFromUrl() || authToken.value;
+          window.location.href = `/review/${qNum}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+        };
 
         // =========================================================================
         // 🔒 用户状态与计费权限前置声明 (确保引导流程与各计算属性无 TDZ 死区)
@@ -5801,9 +5906,7 @@ Sales Team | KelvinFlow Global Technology`;
               }
               // 数据清洗兜底：若商品匹配了底价库但 basePriceRMB <= 0，自动从 catalogItems 补齐标准底价
               if (quotation.value && Array.isArray(quotation.value.items)) {
-                if (data.quotation.rateUsed) {
-                  quotation.value.rateUsed = Number(Number(data.quotation.rateUsed).toFixed(2));
-                }
+                quotation.value.rateUsed = round2(data.quotation.rateUsed ?? 7.20);
                 quotation.value.items.forEach(item => {
                   if (item.matchedSku && (!item.basePriceRMB || item.basePriceRMB <= 0) && catalogItems.value.length > 0) {
                     const cat = catalogItems.value.find(c => c.sku === item.matchedSku);
@@ -5812,16 +5915,20 @@ Sales Team | KelvinFlow Global Technology`;
                     }
                   }
                   if (item.unitPriceForeign !== undefined && item.unitPriceForeign !== null) {
-                    item.unitPriceForeign = Number(Number(item.unitPriceForeign).toFixed(2));
+                    item.unitPriceForeign = round2(item.unitPriceForeign);
                   }
                   if (item.basePriceRMB !== undefined && item.basePriceRMB !== null) {
-                    item.basePriceRMB = Number(Number(item.basePriceRMB).toFixed(2));
+                    item.basePriceRMB = round2(item.basePriceRMB);
                   }
                   if (item.subTotalForeign !== undefined && item.subTotalForeign !== null) {
-                    item.subTotalForeign = Number(Number(item.subTotalForeign).toFixed(2));
+                    item.subTotalForeign = round2(item.subTotalForeign);
+                  }
+                  if (item.quantity !== undefined && item.quantity !== null) {
+                    item.quantity = Math.max(1, Math.round(Number(item.quantity) || 1));
                   }
                 });
               }
+              fetchUserQuotes();
               if (data.quotation.paymentTerms) {
                 terms.value.payment = data.quotation.paymentTerms;
               } else if (pricingConfig.value?.paymentTerms && pricingConfig.value.paymentTerms.length > 0) {
@@ -5933,57 +6040,62 @@ Sales Team | KelvinFlow Global Technology`;
         };
 
         const onQtyChange = (item) => {
-          item.subTotalForeign = Number((item.quantity * item.unitPriceForeign).toFixed(2));
+          item.quantity = Math.max(1, Math.round(Number(item.quantity) || 1));
+          item.unitPriceForeign = round2(item.unitPriceForeign);
+          item.subTotalForeign = round2(item.quantity * item.unitPriceForeign);
         };
 
         const onUnitPriceChange = (item) => {
-          const rate = quotation.value?.rateUsed || 7.2;
-          const fob = Number(item.fobCostRMB) || 0;
-          const baseCost = item.basePriceRMB;
+          const rate = round2(quotation.value?.rateUsed ?? 7.2);
+          const fob = round2(item.fobCostRMB ?? 0);
+          item.unitPriceForeign = round2(item.unitPriceForeign);
+          const baseCost = round2(item.basePriceRMB);
           if (baseCost > 0) {
             const unitPriceRMB = item.unitPriceForeign * rate;
             const m = (unitPriceRMB - fob) / baseCost - 1;
             item.profitMargin = Number(Math.max(0, m).toFixed(3));
           }
-          item.subTotalForeign = Number((item.quantity * item.unitPriceForeign).toFixed(2));
+          item.subTotalForeign = round2(item.quantity * item.unitPriceForeign);
         };
 
         const onMarginChange = (item, marginPercent) => {
           const m = parseFloat(marginPercent) / 100;
           if (isNaN(m)) return;
           item.profitMargin = m;
-          const rate = quotation.value?.rateUsed || 7.2;
+          const rate = round2(quotation.value?.rateUsed ?? 7.2);
           if (item.basePriceRMB > 0) {
-            const fob = Number(item.fobCostRMB) || 0;
-            const unitRMB = item.basePriceRMB * (1 + m) + fob;
-            item.unitPriceForeign = Number((unitRMB / rate).toFixed(2));
-            item.subTotalForeign = Number((item.quantity * item.unitPriceForeign).toFixed(2));
+            const fob = round2(item.fobCostRMB ?? 0);
+            const unitRMB = round2(item.basePriceRMB * (1 + m) + fob);
+            item.unitPriceForeign = round2(unitRMB / rate);
+            item.subTotalForeign = round2(item.quantity * item.unitPriceForeign);
           }
         };
 
         const onBasePriceChange = (item) => {
-          const rate = quotation.value?.rateUsed || 7.2;
-          const m = item.profitMargin !== undefined ? item.profitMargin : 0.15;
+          item.basePriceRMB = round2(item.basePriceRMB);
+          const rate = round2(quotation.value?.rateUsed ?? 7.2);
+          const m = item.profitMargin !== undefined && item.profitMargin !== null ? item.profitMargin : 0.15;
           if (item.basePriceRMB > 0) {
-            const fob = Number(item.fobCostRMB) || 0;
-            const unitRMB = item.basePriceRMB * (1 + m) + fob;
-            item.unitPriceForeign = Number((unitRMB / rate).toFixed(2));
-            item.subTotalForeign = Number((item.quantity * item.unitPriceForeign).toFixed(2));
+            const fob = round2(item.fobCostRMB ?? 0);
+            const unitRMB = round2(item.basePriceRMB * (1 + m) + fob);
+            item.unitPriceForeign = round2(unitRMB / rate);
+            item.subTotalForeign = round2(item.quantity * item.unitPriceForeign);
           }
         };
 
         // 汇率调整联动函数 (完全对齐纯出厂底价 + 港杂包干 / 汇率换算公式)
         const onRateChange = () => {
-          const rate = quotation.value?.rateUsed;
-          if (!rate || rate <= 0) return;
+          const rate = round2(quotation.value?.rateUsed ?? 7.2);
+          quotation.value.rateUsed = rate;
+          if (rate <= 0) return;
           if (Array.isArray(quotation.value.items)) {
             quotation.value.items.forEach(item => {
               if (item.basePriceRMB > 0) {
-                const fob = Number(item.fobCostRMB) || 0;
-                const m = item.profitMargin !== undefined ? item.profitMargin : 0.15;
-                const unitRMB = item.basePriceRMB * (1 + m) + fob;
-                item.unitPriceForeign = Number((unitRMB / rate).toFixed(2));
-                item.subTotalForeign = Number((item.quantity * item.unitPriceForeign).toFixed(2));
+                const fob = round2(item.fobCostRMB ?? 0);
+                const m = item.profitMargin !== undefined && item.profitMargin !== null ? item.profitMargin : 0.15;
+                const unitRMB = round2(item.basePriceRMB * (1 + m) + fob);
+                item.unitPriceForeign = round2(unitRMB / rate);
+                item.subTotalForeign = round2(item.quantity * item.unitPriceForeign);
               }
             });
           }
@@ -5994,8 +6106,8 @@ Sales Team | KelvinFlow Global Technology`;
 
         const getPriceCalculationFormula = (item) => {
           if (!item || !item.basePriceRMB) return '待核算底价';
-          const rate = quotation.value?.rateUsed || 7.2;
-          const fob = Number(item.fobCostRMB) || 0;
+          const rate = round2(quotation.value?.rateUsed ?? 7.2);
+          const fob = round2(item.fobCostRMB ?? 0);
           const marginPct = Math.round((item.profitMargin ?? 0) * 100);
           if (fob > 0) {
             return `核价公式: (出厂底价 ¥${item.basePriceRMB} + 港杂 +¥${fob}) × (1 + ${marginPct}%) ÷ ${rate} = $${item.unitPriceForeign || 0}（注: 单价四舍五入保留2位后乘数量计小计）`;
@@ -6007,10 +6119,10 @@ Sales Team | KelvinFlow Global Technology`;
 
         const addNewItem = () => {
           const newIdx = quotation.value.items.length + 1;
-          const rate = quotation.value.rateUsed || 7.2;
+          const rate = round2(quotation.value?.rateUsed ?? 7.2);
           const basePriceRMB = 50.0;
           const margin = 0.3;
-          const unitPriceForeign = Number(((basePriceRMB * (1 + margin)) / rate).toFixed(2));
+          const unitPriceForeign = round2((basePriceRMB * (1 + margin)) / rate);
           quotation.value.items.push({
             sku: '',
             matchedSku: '',
@@ -6018,10 +6130,10 @@ Sales Team | KelvinFlow Global Technology`;
             quantity: 100,
             basePriceRMB: basePriceRMB,
             profitMargin: margin,
-            _baseCostForeign: Number((basePriceRMB / rate).toFixed(2)),
+            _baseCostForeign: round2(basePriceRMB / rate),
             fobCostRMB: 0,
             unitPriceForeign: unitPriceForeign,
-            subTotalForeign: Number((100 * unitPriceForeign).toFixed(2)),
+            subTotalForeign: round2(100 * unitPriceForeign),
             status: 'OK',
             isCustom: true
           });
@@ -6047,7 +6159,7 @@ Sales Team | KelvinFlow Global Technology`;
 
         const computedTotalAmount = computed(() => {
           if (!quotation.value?.items) return 0;
-          return Number(quotation.value.items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.unitPriceForeign || 0)), 0).toFixed(2));
+          return round2(quotation.value.items.reduce((sum, i) => sum + (Number(i.quantity || 0) * Number(i.unitPriceForeign || 0)), 0));
         });
 
         const computedTotalQuantity = computed(() => {
@@ -6057,7 +6169,7 @@ Sales Team | KelvinFlow Global Technology`;
 
         const computedTotalProfitForeign = computed(() => {
           if (!quotation.value?.items || quotation.value.items.length === 0) return 0;
-          const rate = quotation.value.rateUsed || 7.2;
+          const rate = round2(quotation.value.rateUsed ?? 7.2);
           const totalRevenue = computedTotalAmount.value;
           const totalCostForeign = quotation.value.items.reduce((sum, i) => {
             let costForeign = 0;
@@ -6072,7 +6184,7 @@ Sales Team | KelvinFlow Global Technology`;
             return sum + ((Number(i.quantity) || 0) * costForeign);
           }, 0);
           const profit = totalRevenue - totalCostForeign;
-          return Number((profit > 0 ? profit : 0).toFixed(2));
+          return round2(profit > 0 ? profit : 0);
         });
 
         const computedAvgMargin = computed(() => {
@@ -6538,7 +6650,7 @@ Sales Team | KelvinFlow Global Technology`;
             case '163':
               return '复制邮件并打开 163 网易网页邮';
             case 'gmail':
-              return '复制邮件并打开 Gmail 草稿箱';
+              return '复制邮件并打开 Gmail 网页写信';
             case 'outlook_web':
               return '复制邮件并打开 Outlook 网页版';
             case 'copy':
@@ -6572,6 +6684,10 @@ Sales Team | KelvinFlow Global Technology`;
 
         const openWebMailDirect = (provider) => {
           copyDraftEmail();
+          const toEmail = quotation.value?.buyerEmail || quotation.value?.customerEmail || '';
+          const subject = editableEmailSubject.value || `Quotation - ${quotation.value?.quotationNumber || ''}`;
+          const body = editableEmailBody.value || '';
+
           if (provider === 'qq') {
             window.open('https://mail.qq.com', '_blank');
             showToast('已复制回信正文，正在前往 QQ 邮箱网页版！');
@@ -6579,10 +6695,12 @@ Sales Team | KelvinFlow Global Technology`;
             window.open('https://mail.163.com', '_blank');
             showToast('已复制回信正文，正在前往 163 网易网页邮！');
           } else if (provider === 'gmail') {
-            window.open('https://mail.google.com/mail/u/0/#drafts', '_blank');
-            showToast('已复制回信正文，正在前往 Gmail 草稿箱！');
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(toEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(gmailUrl, '_blank');
+            showToast('已复制回信正文，正在前往 Gmail 网页写信！');
           } else if (provider === 'outlook') {
-            window.open('https://outlook.live.com/mail/0/deeplink/compose', '_blank');
+            const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(toEmail)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(outlookUrl, '_blank');
             showToast('已复制回信正文，正在前往 Outlook 网页版！');
           }
         };
@@ -6705,6 +6823,15 @@ Sales Team | KelvinFlow Global Technology`;
             if (e.animationName === 'onAutoFillStart' && e.target && e.target.tagName === 'INPUT') {
               e.target.dispatchEvent(new Event('input', { bubbles: true }));
               e.target.dispatchEvent(new Event('change', { bubbles: true }));
+              if (e.target.id === 'trial-login-email') trialModal.value.email = e.target.value.trim();
+              if (e.target.id === 'trial-login-password') trialModal.value.password = e.target.value.trim();
+              if (e.target.id === 'trial-reg-email') trialModal.value.email = e.target.value.trim();
+              if (e.target.id === 'trial-reg-password') trialModal.value.password = e.target.value.trim();
+            }
+          }, true);
+
+          document.addEventListener('change', (e) => {
+            if (e.target && e.target.tagName === 'INPUT') {
               if (e.target.id === 'trial-login-email') trialModal.value.email = e.target.value.trim();
               if (e.target.id === 'trial-login-password') trialModal.value.password = e.target.value.trim();
               if (e.target.id === 'trial-reg-email') trialModal.value.email = e.target.value.trim();
@@ -6998,7 +7125,13 @@ Sales Team | KelvinFlow Global Technology`;
           getItemAddonsRMB,
           getPriceCalculationFormula,
           clearItemAddons,
-          refreshCatalogItems
+          refreshCatalogItems,
+          quotesHistoryModal,
+          userQuotesList,
+          fetchUserQuotes,
+          switchQuotation,
+          round2,
+          round4
         };
       }
     });

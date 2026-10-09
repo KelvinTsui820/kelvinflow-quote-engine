@@ -51,6 +51,15 @@
       color: #ffffff;
     }
 
+    /* D-07: 监听浏览器与密码管理器 (1Password / Chrome) autofill 动效 */
+    @keyframes onAutoFillStart {
+      from {/**/}
+      to {/**/}
+    }
+    input:-webkit-autofill {
+      animation-name: onAutoFillStart;
+    }
+
     /* 背景网格纹理与环境微光 */
     .bg-grid-pattern {
       background-size: 50px 50px;
@@ -2333,6 +2342,14 @@
         }
       }
     }
+
+    // D-07: 监听 1Password / Chrome 自动填充事件
+    document.addEventListener('animationstart', (e) => {
+      if (e.animationName === 'onAutoFillStart' && e.target && e.target.tagName === 'INPUT') {
+        e.target.dispatchEvent(new Event('input', { bubbles: true }));
+        e.target.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }, true);
 
     function fallbackCopy(text) {
       const textarea = document.createElement('textarea');
