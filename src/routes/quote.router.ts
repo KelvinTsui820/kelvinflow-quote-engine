@@ -1447,7 +1447,9 @@ quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res
         // 若用户明确提供了数字单价，则严格保留用户手工设定的单价；若未提供单价或单价为 NaN，才通过底价和毛利折算
         if (typeof unitPriceForeign !== 'number' || isNaN(unitPriceForeign)) {
           if (basePriceRMB > 0) {
-            unitPriceForeign = Number((((basePriceRMB + fobCostRMB) * (1 + profitMargin)) / rateUsed).toFixed(2));
+            const totalAddons = (item.appliedAddons || existingItem?.appliedAddons || []).reduce((s: number, a: any) => s + (Number(a.addonRMB) || 0), 0);
+            const unitRMB = (basePriceRMB + totalAddons) * (1 + profitMargin) + fobCostRMB;
+            unitPriceForeign = Number((unitRMB / rateUsed).toFixed(2));
           } else {
             unitPriceForeign = existingItem?.unitPriceForeign || 0;
           }

@@ -126,6 +126,10 @@ import { TenantService } from '../services/tenant.service.js';
 import { ExcelAdapter } from '../adapters/excel.adapter.js';
 import { DraftService } from '../services/draft.service.js';
 import { InboundProcessorService } from '../services/inbound-processor.service.js';
+import { AuthService } from '../services/auth.service.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+
+inboundRouter.use(authMiddleware);
 
 const aiService = new GeminiAIService();
 
@@ -245,7 +249,12 @@ inboundRouter.post('/test-imap', async (req: Request, res: Response): Promise<an
  */
 inboundRouter.post('/save-imap', async (req: Request, res: Response): Promise<any> => {
   try {
-    const { tenantId = 'default', email, authCode, host, port, enabled = true } = req.body;
+    let resolvedTenantId = req.tenantId || req.user?.tenantId;
+    if ((!resolvedTenantId || resolvedTenantId === 'default') && req.body.tenantId && req.body.tenantId !== 'default') {
+      resolvedTenantId = req.body.tenantId;
+    }
+    const tenantId = resolvedTenantId || req.body.tenantId || 'default';
+    const { email, authCode, host, port, enabled = true } = req.body;
     if (!email || !authCode) {
       return res.status(400).json({ success: false, error: '缺少邮箱地址或客户端授权码' });
     }
@@ -292,12 +301,26 @@ inboundRouter.post('/poll-now', async (_req: Request, res: Response): Promise<an
  */
 inboundRouter.post('/quick-quote', async (req: Request, res: Response): Promise<any> => {
   try {
-    const rawText = req.body.inquiryText || req.body.emailBody || req.body.content || req.body.text || '';
+    const rawText = req?.body?.inquiryText || req?.body?.emailBody || req?.body?.content || req?.body?.text || '';
     const inquiryText = typeof rawText === 'string' ? rawText.trim() : '';
-    const { tenantId = 'default', buyerName = 'Valued Customer', targetProfitMargin } = req.body;
+
     if (!inquiryText) {
       return res.status(400).json({ success: false, error: '请粘贴或输入询盘正文内容' });
     }
+
+    // 优先从 authMiddleware 注入的 req.tenantId 或 Authorization Header 解析真实租户
+    let resolvedTenantId = req.tenantId || req.user?.tenantId;
+    const authHeader = req.headers?.authorization || (typeof req.get === 'function' ? req.get('authorization') : undefined);
+    if (!resolvedTenantId && authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const payload = AuthService.verifyToken(token);
+      if (payload) resolvedTenantId = payload.tenantId;
+    }
+    if ((!resolvedTenantId || resolvedTenantId === 'default') && req.body?.tenantId && req.body?.tenantId !== 'default') {
+      resolvedTenantId = req.body.tenantId;
+    }
+    const tenantId = resolvedTenantId || req.body?.tenantId || 'default';
+    const { buyerName = 'Valued Customer', targetProfitMargin } = req.body || {};
 
     // 1. 加载底价表
     const tenantPricing = TenantService.getActivePricingBuffer(tenantId) || TenantService.getActivePricingBuffer('default');

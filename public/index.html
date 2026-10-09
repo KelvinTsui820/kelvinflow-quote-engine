@@ -1050,10 +1050,10 @@
       </form>
 
       <!-- 2. 登录表单 (纯工作邮箱 + 密码) -->
-      <form id="inbound-login-form" onsubmit="handleInboundLoginSubmit(event)" class="hidden space-y-4">
+      <form id="inbound-login-form" novalidate onsubmit="handleInboundLoginSubmit(event)" class="hidden space-y-4">
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1.5">工作邮箱</label>
-          <input type="email" id="inbound-login-email" placeholder="请输入注册工作邮箱" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
+          <input type="email" id="inbound-login-email" name="username" autocomplete="username" placeholder="请输入注册工作邮箱" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
         </div>
 
         <div>
@@ -1062,7 +1062,7 @@
             <span id="login-pwd-security-badge" class="text-[10px] text-slate-400">加密保护</span>
           </div>
           <div class="relative">
-            <input type="password" id="inbound-login-password" placeholder="请输入账户登录密码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
+            <input type="password" id="inbound-login-password" name="password" autocomplete="current-password" placeholder="请输入账户登录密码" required class="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors">
             <button type="button" onclick="togglePasswordVisibility('inbound-login-password', 'login-pwd-icon')" aria-label="切换登录密码明文显示" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
               <i id="login-pwd-icon" class="fa-solid fa-eye"></i>
             </button>

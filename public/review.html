@@ -377,8 +377,8 @@
       </div>
     </div>
 
-    <!-- Main Container -->
-    <main class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <!-- Main Container (D-08: pb-32 为底部固定黑曜石操作条预留充分安全裕量，杜绝任何滚动位置遮挡) -->
+    <main class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-32 sm:pb-36 space-y-6">
       
       <!-- Loading & Error States -->
       <div v-if="loading" class="text-center py-20">
@@ -477,7 +477,7 @@
                           @click="setIncoterm(term)"
                           class="px-1.5 py-0.5 text-[10px] font-bold rounded-md border transition cursor-pointer flex-shrink-0"
                           :class="quotation.incotermUsed === term.val ? 'bg-blue-600 text-white border-transparent shadow-sm shadow-blue-500/25' : 'bg-white hover:bg-slate-100 text-slate-600 hover:text-blue-600 border-slate-200'"
-                          :title="(term.fixedFeeRMB || term.unitFeeRMB) ? `固定杂费: ¥${term.fixedFeeRMB} + ¥${term.unitFeeRMB}/件` : (term.port ? `港口/地点: ${term.port}` : term.label)" aria-label="(term.fixedFeeRMB || term.unitFeeRMB) ? `固定杂费: ¥${term.fixedFeeRMB} + ¥${term.unitFeeRMB}/件` : (term.port ? `港口/地点: ${term.port}` : term.label)">
+                          :title="(term.fixedFeeRMB || term.unitFeeRMB) ? `固定杂费: ¥${term.fixedFeeRMB} + ¥${term.unitFeeRMB}/件` : (term.port ? `港口/地点: ${term.port}` : term.label)" :aria-label="(term.fixedFeeRMB || term.unitFeeRMB) ? `固定杂费: ¥${term.fixedFeeRMB} + ¥${term.unitFeeRMB}/件` : (term.port ? `港口/地点: ${term.port}` : term.label)">
                     {{ term.label }}
                   </button>
                 </div>
@@ -624,7 +624,7 @@
                           @click="setPaymentTerm(p)"
                           class="px-1.5 py-0.5 text-[10px] font-bold rounded-md border transition cursor-pointer flex-shrink-0"
                           :class="terms.payment === p.val ? 'bg-blue-600 text-white border-transparent shadow-xs' : 'bg-white hover:bg-slate-100 text-slate-600 hover:text-blue-600 border-slate-200'"
-                          :title="p.adjustmentPercent ? `底价表浮动比例: ${(p.adjustmentPercent * 100).toFixed(1)}%` : '基准付款方式'" aria-label="p.adjustmentPercent ? `底价表浮动比例: ${(p.adjustmentPercent * 100).toFixed(1)}%` : '基准付款方式'">
+                          :title="p.adjustmentPercent ? `底价表浮动比例: ${(p.adjustmentPercent * 100).toFixed(1)}%` : '基准付款方式'" :aria-label="p.adjustmentPercent ? `底价表浮动比例: ${(p.adjustmentPercent * 100).toFixed(1)}%` : '基准付款方式'">
                     {{ p.label }}
                   </button>
                 </div>
@@ -934,7 +934,7 @@
                   <td class="py-3.5 px-3 whitespace-nowrap border-r border-slate-200/80"
                       :class="(!item.basePriceRMB || item.status === 'NOT_FOUND') ? 'bg-rose-50' : (item.warning ? 'bg-amber-50' : 'bg-white')">
                     <div class="relative flex items-center group">
-                      <input v-model="item.sku" placeholder="买家 SKU" 
+                      <input v-model="item.sku" @change="onSkuInputMatch(item)" placeholder="买家 SKU" 
                              class="table-input font-bold text-slate-900 w-36 sm:w-44 pr-6"
                              :class="item.warning ? 'border-amber-300 focus:border-amber-500' : ''">
                       <button v-if="item.sku" type="button" @mousedown.prevent="item.sku = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
@@ -947,7 +947,7 @@
                   <td class="py-3 px-3 whitespace-nowrap border-r border-slate-200/80">
                     <div class="relative w-44 sm:w-48">
                       <div class="relative flex items-center group w-full" :title="getCatalogItemName(item.matchedSku) || '内部 SKU'">
-                        <input v-model="item.matchedSku" 
+                        <input v-model="item.matchedSku" @change="onSkuInputMatch(item)" 
                                placeholder="内部 SKU" 
                                class="table-input font-mono font-bold text-slate-800 w-full pl-2.5 pr-14"
                                :class="item.warning ? 'border-amber-300 focus:border-amber-500' : ''">
@@ -1032,13 +1032,35 @@
                   <!-- 5. 出厂底价 (RMB) -->
                   <td class="py-3.5 px-3 text-right whitespace-nowrap">
                     <div class="relative flex items-center justify-end group">
-                      <input type="number" v-model.number="item.basePriceRMB" @input="onBasePriceChange(item)" step="0.1" 
+                      <input type="number" v-model.number="item.basePriceRMB" @input="onBasePriceChange(item)" @change="item.basePriceRMB = Number(Number(item.basePriceRMB || 0).toFixed(2))" step="0.1" 
                              placeholder="输入底价"
                              class="table-input w-28 text-right font-mono font-black text-xs shadow-xs pr-6"
                              :class="!item.basePriceRMB ? 'bg-rose-50 border-rose-300 focus:border-rose-500 text-rose-700' : 'bg-slate-50/50 hover:bg-white focus:bg-white text-slate-900'">
                       <button v-if="item.basePriceRMB" type="button" @mousedown.prevent="item.basePriceRMB = null; onBasePriceChange(item)" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
+                    </div>
+                    <!-- 工艺选配加成指示徽章与明细浮窗 (D-02 全透明化) -->
+                    <div v-if="getItemAddonsRMB(item) > 0" class="flex items-center justify-end gap-1 mt-1 pr-0.5 group/addon relative">
+                      <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[9px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/80 rounded cursor-help">
+                        <i class="fa-solid fa-layer-group text-[8px]"></i>
+                        <span>+¥{{ getItemAddonsRMB(item) }} 选配</span>
+                      </span>
+                      <!-- 选配明细浮窗 -->
+                      <div class="absolute bottom-full right-0 mb-1.5 w-64 p-2.5 bg-[#0B132B] text-slate-100 rounded-lg shadow-2xl border border-indigo-500/40 opacity-0 invisible group-hover/addon:opacity-100 group-hover/addon:visible transition-all duration-150 pointer-events-auto z-50 text-left whitespace-normal">
+                        <div class="text-[10px] font-bold text-indigo-300 mb-1 flex items-center justify-between">
+                          <span>包含工艺选配/定制费</span>
+                          <button type="button" @click.stop="clearItemAddons(item)" class="text-rose-400 hover:text-rose-300 text-[9px] underline cursor-pointer">清除选配</button>
+                        </div>
+                        <div v-for="(ad, adIdx) in item.appliedAddons" :key="adIdx" class="text-[9.5px] text-slate-300 flex justify-between py-0.5 border-b border-slate-800 last:border-none">
+                          <span class="truncate pr-1">{{ ad.name }}</span>
+                          <span class="font-mono text-indigo-300 flex-shrink-0">+¥{{ ad.addonRMB }}</span>
+                        </div>
+                        <div class="mt-1 pt-1 border-t border-slate-700 text-[9px] text-slate-400 font-mono">
+                          {{ getPriceCalculationFormula(item) }}
+                        </div>
+                        <div class="absolute -bottom-1 right-3 w-2 h-2 bg-[#0B132B] rotate-45 border-r border-b border-indigo-500/40"></div>
+                      </div>
                     </div>
                   </td>
 
@@ -1052,9 +1074,9 @@
                                 :class="isBelowFloorMargin(item) ? 'text-rose-600 font-black' : 'text-blue-600 font-bold'">
                         <span class="text-xs font-bold" :class="isBelowFloorMargin(item) ? 'text-rose-500' : 'text-slate-400'">%</span>
                       </div>
-                      <!-- 悬浮角标：绝对定位 0 撑开表格行高，鼠标悬停展开业务说明浮窗 -->
-                      <div v-if="isBelowFloorMargin(item)" class="absolute -top-2.5 -right-2 z-20 group/floor">
-                        <span class="px-1.5 py-0.5 bg-rose-500 hover:bg-rose-600 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-rose-500/30 flex items-center gap-0.5 tracking-tight cursor-help whitespace-nowrap transition-colors">
+                      <!-- 悬浮角标：绝对定位并向上偏移，加 pointer-events-none 彻底避免遮挡 0% 输入框 (D-04) -->
+                      <div v-if="isBelowFloorMargin(item)" class="absolute -top-3.5 -right-3 z-20 group/floor pointer-events-none">
+                        <span class="px-1.5 py-0.5 bg-rose-500 hover:bg-rose-600 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-rose-500/30 flex items-center gap-0.5 tracking-tight cursor-help whitespace-nowrap transition-colors pointer-events-auto">
                           <i class="fa-solid fa-ban text-[8px]"></i>
                           <span>底线 {{ Math.round((pricingConfig?.floorMargin || 0.08)*100) }}%</span>
                         </span>
@@ -1077,8 +1099,9 @@
                   <!-- 7. 外币单价 (固定 112px 宽度，彻底消除数字裁剪与挤压) -->
                   <td class="py-3.5 px-3 text-right whitespace-nowrap">
                     <div class="relative flex items-center justify-end group">
-                      <input type="number" v-model.number="item.unitPriceForeign" @input="onUnitPriceChange(item)" step="0.01" 
-                             class="table-input w-28 text-right font-black shadow-sm pr-6"
+                      <input type="number" v-model.number="item.unitPriceForeign" @input="onUnitPriceChange(item)" @change="item.unitPriceForeign = Number(Number(item.unitPriceForeign || 0).toFixed(2)); onUnitPriceChange(item)" step="0.01" 
+                             :title="getPriceCalculationFormula(item)"
+                             class="table-input w-28 text-right font-black shadow-sm pr-6 cursor-help"
                              :class="isBelowFloorMargin(item) ? 'border-rose-400 text-rose-700 bg-rose-50/50 focus:border-rose-600' : 'text-blue-700 bg-blue-50/20 focus:bg-white'">
                       <button v-if="item.unitPriceForeign" type="button" @mousedown.prevent="item.unitPriceForeign = null; onUnitPriceChange(item)" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                         <i class="fa-solid fa-xmark"></i>
@@ -1086,6 +1109,9 @@
                     </div>
                     <div v-if="isBelowFloorMargin(item)" class="text-[9px] font-bold text-rose-600 text-right mt-1 pr-1">
                       ⚠️ 亏损/超低利
+                    </div>
+                    <div v-else-if="!item.basePriceRMB || item.basePriceRMB <= 0" class="text-[9px] font-bold text-amber-600 text-right mt-1 pr-1">
+                      待核底价
                     </div>
                   </td>
 
@@ -1449,6 +1475,8 @@
             </div>
           </div>
           <textarea v-model="newPoModal.rawText" 
+                    @input="newPoModal.rawText = $event.target.value"
+                    @change="newPoModal.rawText = $event.target.value"
                     placeholder="在此自由粘贴客户询盘正文、往来邮件历史或采购明细清单..." 
                     class="w-full flex-1 min-h-[360px] bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-2xl p-4 text-xs sm:text-sm text-slate-800 font-mono leading-relaxed transition resize-none shadow-inner outline-none"></textarea>
         </div>
@@ -2214,7 +2242,7 @@
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1.5">买家询盘邮件正文 <span class="hidden sm:inline text-slate-400 font-normal">(英文/含型号数量)</span></label>
             <div class="relative group">
-              <textarea v-model="newPoModal.rawText" rows="7" placeholder="直接粘贴客户询盘正文，例如：
+              <textarea id="inquiry-raw-text" v-model="newPoModal.rawText" @input="newPoModal.rawText = $event.target.value" @change="newPoModal.rawText = $event.target.value" rows="7" placeholder="直接粘贴客户询盘正文，例如：
 Hi Kelvin,
 Please quote your best price for:
 1. Model: ST-2026-A, Qty: 2,000 pcs
@@ -2235,7 +2263,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
 
           <button @click="submitQuickQuoteText" 
-                  :disabled="newPoModal.uploading || !newPoModal.rawText.trim()" 
+                  :disabled="newPoModal.uploading" 
                   class="w-full h-11 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition disabled:opacity-50 disabled:shadow-none flex items-center justify-center space-x-2 cursor-pointer">
             <i v-if="newPoModal.uploading" class="fa-solid fa-spinner animate-spin"></i>
             <i v-else class="fa-solid fa-bolt"></i>
@@ -3409,7 +3437,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                   外贸工作邮箱 <span class="text-blue-400">*</span>
                 </label>
                 <div class="flex items-center gap-2">
-                  <input type="email" v-model.trim="trialModal.email" placeholder="如：yourname@company.com" required
+                  <input type="email" id="trial-reg-email" name="username" autocomplete="username" v-model.trim="trialModal.email" placeholder="如：yourname@company.com" required
                     class="flex-1 px-3.5 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:bg-white/[0.08] transition font-mono" />
                   <button type="button" @click="sendTrialVerificationCode" :disabled="trialCodeCooldown > 0 || trialModal.loading"
                     class="px-3 py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-xs font-bold hover:bg-cyan-500/30 disabled:opacity-50 transition cursor-pointer whitespace-nowrap min-w-[90px] flex items-center justify-center">
@@ -3436,7 +3464,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                   <span class="text-[10px] text-slate-400">加密保护</span>
                 </div>
                 <div class="relative">
-                  <input :type="trialModal.showPassword ? 'text' : 'password'" v-model.trim="trialModal.password" placeholder="请设置您的工作台登录密码 (6-20位)" required minlength="6" maxlength="20"
+                  <input id="trial-reg-password" name="new-password" autocomplete="new-password" :type="trialModal.showPassword ? 'text' : 'password'" v-model.trim="trialModal.password" placeholder="请设置您的工作台登录密码 (6-20位)" required minlength="6" maxlength="20"
                     class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:bg-white/[0.08] transition" />
                   <button type="button" @click="trialModal.showPassword = !trialModal.showPassword" aria-label="切换密码显示状态" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition cursor-pointer text-xs">
                     <i :class="trialModal.showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
@@ -3524,7 +3552,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 <label class="block text-xs font-bold text-slate-300 mb-1">
                   工作邮箱 <span class="text-blue-400">*</span>
                 </label>
-                <input type="email" v-model.trim="trialModal.email" placeholder="请输入已注册的工作邮箱" required
+                <input type="email" id="trial-login-email" name="username" autocomplete="username" v-model.trim="trialModal.email" placeholder="请输入已注册的工作邮箱" required
                   class="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:bg-white/[0.08] transition font-mono" />
               </div>
 
@@ -3537,7 +3565,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                   <span class="text-[10px] text-slate-400">加密保护</span>
                 </div>
                 <div class="relative">
-                  <input :type="trialModal.showPassword ? 'text' : 'password'" v-model.trim="trialModal.password"
+                  <input id="trial-login-password" name="password" autocomplete="current-password" :type="trialModal.showPassword ? 'text' : 'password'" v-model.trim="trialModal.password"
                     placeholder="请输入您的登录密码" required
                     class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 focus:bg-white/[0.08] transition font-mono" />
                   <button type="button" @click="trialModal.showPassword = !trialModal.showPassword" aria-label="切换登录密码显示状态" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition cursor-pointer text-xs">
@@ -3747,12 +3775,26 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           }
         };
 
+        const cleanUrlToken = () => {
+          try {
+            if (window.history && window.history.replaceState) {
+              const url = new URL(window.location.href);
+              if (url.searchParams.has('token')) {
+                url.searchParams.delete('token');
+                const newQuery = url.searchParams.toString() ? `?${url.searchParams.toString()}` : '';
+                window.history.replaceState({}, document.title, `${url.pathname}${newQuery}${url.hash}`);
+              }
+            }
+          } catch (_) {}
+        };
+
         const getTokenFromUrl = () => {
           try {
             const params = new URLSearchParams(window.location.search);
             let token = params.get('token');
             if (token) {
               localStorage.setItem('saas_auth_token', token);
+              cleanUrlToken();
               return token;
             }
             return localStorage.getItem('saas_auth_token') || '';
@@ -4229,6 +4271,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
         const isBelowFloorMargin = (item) => {
           if (!item) return false;
+          // D-06: 若未填写底价或底价<=0，属于待定成本项，由系统标明「待核底价」，不判定为亏损/跌破红线
+          if (!item.basePriceRMB || item.basePriceRMB <= 0) return false;
           return item.profitMargin !== undefined && item.profitMargin < floorMargin.value;
         };
 
@@ -4522,7 +4566,17 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         };
 
         const submitQuickQuoteText = async () => {
-          if (!newPoModal.value.rawText.trim()) {
+          // D-11: 若自动化测试/浏览器程序化填值未触发 Vue input/change 事件，主动从 DOM 获取文本兜底
+          if (!newPoModal.value.rawText || !newPoModal.value.rawText.trim()) {
+            const domTextarea = document.getElementById('inquiry-raw-text') 
+              || document.querySelector('textarea[placeholder*="直接粘贴客户询盘正文"]')
+              || document.querySelector('textarea[placeholder*="在此自由粘贴客户询盘正文"]');
+            if (domTextarea && domTextarea.value && domTextarea.value.trim()) {
+              newPoModal.value.rawText = domTextarea.value.trim();
+            }
+          }
+
+          if (!newPoModal.value.rawText || !newPoModal.value.rawText.trim()) {
             newPoModal.value.error = '请先输入或粘贴买家询盘正文内容';
             return;
           }
@@ -4535,19 +4589,27 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           const headers = { 'Content-Type': 'application/json' };
           if (token) headers['Authorization'] = `Bearer ${token}`;
 
+          const userTenantId = 
+            currentTenant.value?.tenantId || 
+            currentTenant.value?.id || 
+            trialState.value?.tenantId || 
+            currentUser.value?.tenantId || 
+            decodeJwtPayload(token)?.tenantId || 
+            'default';
+
           const t1 = setTimeout(() => {
             newPoModal.value.progressPercent = 70;
             newPoModal.value.stepText = '正在智能匹配产品底价与计算毛利/杂费...';
           }, 1200);
 
           try {
-            const res = await fetch(`/api/inbound/quick-quote${token ? `?token=${token}` : ''}`, {
+            const res = await fetch(`/api/inbound/quick-quote${token ? `?token=${encodeURIComponent(token)}` : ''}`, {
               method: 'POST',
               headers,
               body: JSON.stringify({
                 inquiryText: newPoModal.value.rawText,
                 emailBody: newPoModal.value.rawText,
-                tenantId: currentTenant.value?.id || 'default'
+                tenantId: userTenantId
               })
             });
             const data = await res.json();
@@ -4682,6 +4744,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
               pricingModal.value.resultSummary = data.summary;
               showToast('✅ 企业专属底价表已成功更新并生效！');
               await fetchPricingStatus();
+              await refreshCatalogItems();
             } else {
               pricingModal.value.error = data.error || '底价表解析失败，请参照模板格式检查';
             }
@@ -4689,6 +4752,26 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             pricingModal.value.error = '上传失败，请检查网络连接';
           }
           pricingModal.value.uploading = false;
+        };
+
+        const refreshCatalogItems = async () => {
+          const token = getTokenFromUrl() || authToken.value;
+          const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+          try {
+            const res = await fetch(`/api/v1/catalog${token ? `?token=${encodeURIComponent(token)}` : ''}`, { headers });
+            const data = await res.json();
+            if (data.success && Array.isArray(data.catalogItems) && data.catalogItems.length > 0) {
+              catalogItems.value = data.catalogItems.map(backendItem => {
+                const existing = catalogItems.value.find(e => e.sku === backendItem.sku);
+                return {
+                  ...backendItem,
+                  basePrice: backendItem.basePrice > 0 ? backendItem.basePrice : (existing ? existing.basePrice : backendItem.basePrice)
+                };
+              });
+            }
+          } catch (err) {
+            console.warn('刷新选型商品库失败:', err);
+          }
         };
 
         const downloadPricingTemplate = (type = 'minimal') => {
@@ -4885,12 +4968,24 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           imapModal.value.statusMessage = '';
           imapModal.value.isStatusError = false;
 
+          const token = getTokenFromUrl() || authToken.value;
+          const headers = { 'Content-Type': 'application/json' };
+          if (token) headers['Authorization'] = `Bearer ${token}`;
+
+          const userTenantId = 
+            currentTenant.value?.tenantId || 
+            currentTenant.value?.id || 
+            trialState.value?.tenantId || 
+            currentUser.value?.tenantId || 
+            decodeJwtPayload(token)?.tenantId || 
+            'default';
+
           try {
             const res = await fetch('/api/inbound/save-imap', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers,
               body: JSON.stringify({
-                tenantId: currentTenant.value?.id || 'default',
+                tenantId: userTenantId,
                 email: imapModal.value.email,
                 authCode: imapModal.value.authCode,
                 host: imapModal.value.host || undefined,
@@ -5323,11 +5418,18 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         const submitTrialForm = async () => {
           trialModal.value.errorMessage = '';
           trialModal.value.isExpired = false;
-          trialModal.value.loading = true;
+
+          const regEmailEl = document.getElementById('trial-reg-email');
+          const regPwdEl = document.getElementById('trial-reg-password');
+          if (regEmailEl && regEmailEl.value && !trialModal.value.email) {
+            trialModal.value.email = regEmailEl.value.trim();
+          }
+          if (regPwdEl && regPwdEl.value && !trialModal.value.password) {
+            trialModal.value.password = regPwdEl.value.trim();
+          }
 
           if (!trialModal.value.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trialModal.value.email)) {
             trialModal.value.errorMessage = '请输入合法的电子邮箱地址（用于接收报价单与日常草稿同步）';
-            trialModal.value.loading = false;
             return;
           }
 
@@ -5355,6 +5457,8 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             trialModal.value.loading = false;
             return;
           }
+
+          trialModal.value.loading = true;
 
           try {
             const res = await fetch('/api/v1/auth/trial-register', {
@@ -5397,19 +5501,28 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         const submitLoginForm = async () => {
           trialModal.value.errorMessage = '';
           trialModal.value.isExpired = false;
-          trialModal.value.loading = true;
+
+          // D-07: 兼容 1Password / 浏览器 autofill 未触发 Vue v-model input 事件的边界情况
+          const emailInput = document.getElementById('trial-login-email');
+          const pwdInput = document.getElementById('trial-login-password');
+          if (emailInput && emailInput.value && !trialModal.value.email) {
+            trialModal.value.email = emailInput.value.trim();
+          }
+          if (pwdInput && pwdInput.value && !trialModal.value.password) {
+            trialModal.value.password = pwdInput.value.trim();
+          }
 
           if (!trialModal.value.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trialModal.value.email)) {
             trialModal.value.errorMessage = '请输入有效的工作邮箱';
-            trialModal.value.loading = false;
             return;
           }
 
           if (!trialModal.value.password) {
             trialModal.value.errorMessage = '请输入账户登录密码';
-            trialModal.value.loading = false;
             return;
           }
+
+          trialModal.value.loading = true;
 
           try {
             const res = await fetch('/api/v1/auth/login', {
@@ -5694,13 +5807,25 @@ Sales Team | KelvinFlow Global Technology`;
                 });
               }
               // 数据清洗兜底：若商品匹配了底价库但 basePriceRMB <= 0，自动从 catalogItems 补齐标准底价
-              if (quotation.value && Array.isArray(quotation.value.items) && catalogItems.value.length > 0) {
+              if (quotation.value && Array.isArray(quotation.value.items)) {
+                if (data.quotation.rateUsed) {
+                  quotation.value.rateUsed = Number(Number(data.quotation.rateUsed).toFixed(2));
+                }
                 quotation.value.items.forEach(item => {
-                  if (item.matchedSku && (!item.basePriceRMB || item.basePriceRMB <= 0)) {
+                  if (item.matchedSku && (!item.basePriceRMB || item.basePriceRMB <= 0) && catalogItems.value.length > 0) {
                     const cat = catalogItems.value.find(c => c.sku === item.matchedSku);
                     if (cat && cat.basePrice > 0) {
                       item.basePriceRMB = cat.basePrice;
                     }
+                  }
+                  if (item.unitPriceForeign !== undefined && item.unitPriceForeign !== null) {
+                    item.unitPriceForeign = Number(Number(item.unitPriceForeign).toFixed(2));
+                  }
+                  if (item.basePriceRMB !== undefined && item.basePriceRMB !== null) {
+                    item.basePriceRMB = Number(Number(item.basePriceRMB).toFixed(2));
+                  }
+                  if (item.subTotalForeign !== undefined && item.subTotalForeign !== null) {
+                    item.subTotalForeign = Number(Number(item.subTotalForeign).toFixed(2));
                   }
                 });
               }
@@ -5876,27 +6001,55 @@ Sales Team | KelvinFlow Global Technology`;
           showToast(`基准汇率已更新为 ${rate}，已自动重新核算外币单价与全单总额！`);
         };
 
+        const getItemAddonsRMB = (item) => {
+          if (!item || !item.appliedAddons || !Array.isArray(item.appliedAddons)) return 0;
+          return Number(item.appliedAddons.reduce((sum, a) => sum + (Number(a.addonRMB) || 0), 0).toFixed(2));
+        };
+
+        const getPriceCalculationFormula = (item) => {
+          if (!item || !item.basePriceRMB) return '待核算底价';
+          const rate = quotation.value?.rateUsed || 7.2;
+          const addons = getItemAddonsRMB(item);
+          const fob = Number(item.fobCostRMB) || 0;
+          const marginPct = Math.round((item.profitMargin || 0) * 100);
+          if (addons > 0 || fob > 0) {
+            let parts = [`出厂底价 ¥${item.basePriceRMB}`];
+            if (addons > 0) parts.push(`工艺选配 +¥${addons}`);
+            if (fob > 0) parts.push(`港杂 +¥${fob}`);
+            return `核价公式: (${parts.join(' ')}) × (1 + ${marginPct}%) ÷ ${rate} = $${item.unitPriceForeign || 0}`;
+          }
+          return `标准核价公式: 出厂底价 ¥${item.basePriceRMB} × (1 + ${marginPct}%) ÷ ${rate} = $${item.unitPriceForeign || 0}`;
+        };
+
+        const clearItemAddons = (item) => {
+          if (!item) return;
+          item.appliedAddons = [];
+          item.fobCostRMB = 0;
+          onBasePriceChange(item);
+          showToast('已清除工艺选配加成，单价已按纯出厂底价重新核算！');
+        };
+
         const addNewItem = () => {
           const newIdx = quotation.value.items.length + 1;
           const rate = quotation.value.rateUsed || 7.2;
           const basePriceRMB = 50.0;
           const margin = 0.3;
-          const unitPriceForeign = Number(((basePriceRMB / (1 - margin)) / rate).toFixed(2));
+          const unitPriceForeign = Number(((basePriceRMB * (1 + margin)) / rate).toFixed(2));
           quotation.value.items.push({
-            sku: 'CUSTOM-ITEM-' + newIdx,
-            matchedSku: 'CUSTOM-ITEM',
+            sku: '',
+            matchedSku: '',
             description: 'Custom added specification item',
             quantity: 100,
             basePriceRMB: basePriceRMB,
             profitMargin: margin,
-            _baseCostForeign: basePriceRMB / rate,
+            _baseCostForeign: Number((basePriceRMB / rate).toFixed(2)),
             fobCostRMB: 0,
             unitPriceForeign: unitPriceForeign,
             subTotalForeign: Number((100 * unitPriceForeign).toFixed(2)),
             status: 'OK',
             isCustom: true
           });
-          showToast('已新增自定义商品行');
+          showToast('已新增自定义商品行，输入买家型号将自动对齐底价库');
         };
 
         const openDeleteModal = (idx) => {
@@ -5955,9 +6108,16 @@ Sales Team | KelvinFlow Global Technology`;
 
         // 点击在线预览 PDF 时，自动先保存当前最新修改并重新生成 PDF，确保预览金额 100% 对齐！
         const openPdfPreview = async () => {
+          const token = getTokenFromUrl() || authToken.value || localStorage.getItem('saas_auth_token') || '';
+          // D-03: 匿名/未登录访客点击预览时，不再静默等待或失败，立即弹出登录引导
+          if (!token && !currentUser.value) {
+            showToast('💡 在线预览与导出 PDF 需登录企业账号，请先登录或免费开通体验！', 'warning');
+            openTrialModal('login');
+            return;
+          }
+
           previewLoading.value = true;
           const id = quotation.value?.quotationNumber || getQuoteIdFromUrl();
-          const token = getTokenFromUrl();
           const headers = { 'Content-Type': 'application/json' };
           if (token) headers['Authorization'] = `Bearer ${token}`;
 
@@ -5974,7 +6134,7 @@ Sales Team | KelvinFlow Global Technology`;
           ].filter(Boolean).join('\n');
 
           try {
-            await fetch(`/api/v1/quotes/${id}${token ? `?token=${token}` : ''}`, {
+            await fetch(`/api/v1/quotes/${id}${token ? `?token=${encodeURIComponent(token)}` : ''}`, {
               method: 'POST',
               headers,
               body: JSON.stringify({
@@ -5984,8 +6144,13 @@ Sales Team | KelvinFlow Global Technology`;
                 customEmailBody: editableEmailBody.value
               })
             });
-            const tokenParam = token ? `&token=${token}` : '';
-            window.open(`/api/v1/quotes/${id}/pdf?t=${Date.now()}${tokenParam}`, '_blank');
+            const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+            const pdfUrl = `/api/v1/quotes/${id}/pdf?t=${Date.now()}${tokenParam}`;
+            const win = window.open(pdfUrl, '_blank');
+            if (!win) {
+              showToast('PDF 预览已生成！若窗口被拦截，正在为您直接重定向打开...', 'info');
+              window.location.href = pdfUrl;
+            }
           } catch (e) {
             showToast('生成实时预览失败，请检查服务', 'error');
           } finally {
@@ -6082,14 +6247,43 @@ Sales Team | KelvinFlow Global Technology`;
           rowItem.matchedSku = prod.sku;
           if (prod.basePrice && prod.basePrice > 0) {
             rowItem.basePriceRMB = prod.basePrice;
-            onBasePriceChange(rowItem);
+          }
+          if (prod.profitMargin !== undefined && prod.profitMargin > 0) {
+            rowItem.profitMargin = prod.profitMargin;
+          }
+          if (prod.name && (!rowItem.description || rowItem.description.startsWith('Custom added'))) {
+            rowItem.description = prod.name;
           }
           if (prod.cbmPerCtn) rowItem.cartonVolumeCBM = prod.cbmPerCtn;
           if (prod.pcsPerCtn) rowItem.cartonPcs = prod.pcsPerCtn;
           rowItem.warning = null;
           rowItem.status = 'OK';
+          rowItem.isCustom = false;
+          onBasePriceChange(rowItem);
           activeSkuPickerIdx.value = null;
           showToast(`✅ 已对齐内部型号 ${prod.sku}，出厂底价及装箱参数已自动联动！`);
+        };
+
+        const onSkuInputMatch = (rowItem) => {
+          if (!rowItem) return;
+          const searchKey = (rowItem.sku || rowItem.matchedSku || '').trim().toUpperCase();
+          if (!searchKey) return;
+          const found = catalogItems.value.find(c => {
+            if (!c || !c.sku) return false;
+            const cSku = c.sku.toUpperCase();
+            if (cSku === searchKey) return true;
+            if (c.aliases && Array.isArray(c.aliases)) {
+              if (c.aliases.some(a => a.toUpperCase() === searchKey)) return true;
+            }
+            return false;
+          }) || catalogItems.value.find(c => {
+            if (!c || !c.sku) return false;
+            return c.sku.toUpperCase().includes(searchKey) || searchKey.includes(c.sku.toUpperCase());
+          });
+
+          if (found) {
+            selectCatalogProduct(rowItem, found);
+          }
         };
 
         // 📜 报价单附加条款与商务规则全屏沉浸编辑弹窗
@@ -6592,6 +6786,11 @@ Sales Team | KelvinFlow Global Technology`;
           });
         });
 
+        // D-11: 暴露全局方法以便自动化脚本与程序化输入秒级对齐 Vue 响应式状态
+        window.__setInquiryText = (txt) => {
+          if (newPoModal.value) newPoModal.value.rawText = txt || '';
+        };
+
         return {
           quotation,
           emailFullscreenModal,
@@ -6799,7 +6998,12 @@ Sales Team | KelvinFlow Global Technology`;
           resetDefaultLogo,
           setNoLogo,
           authToken,
-          currentUser
+          currentUser,
+          onSkuInputMatch,
+          getItemAddonsRMB,
+          getPriceCalculationFormula,
+          clearItemAddons,
+          refreshCatalogItems
         };
       }
     });
