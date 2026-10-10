@@ -254,7 +254,49 @@ export class DraftService {
       content: Buffer;
       contentType?: string;
     }>;
-  }): Promise<{ sent: boolean; method: 'smtp' | 'workbench_store'; messageId?: string; error?: string }> {
+  }): Promise<{ sent: boolean; method: 'smtp' | 'resend' | 'workbench_store'; messageId?: string; error?: string }> {
+    // 1. 优先尝试 Resend API 官方事务发信通道 (无需 SMTP 握手，海外 VPS 极速投递，已绑定 kelvinflow.com)
+    const resendApiKey = process.env.RESEND_API_KEY?.trim();
+    if (resendApiKey) {
+      try {
+        const fromEmail = process.env.FROM_EMAIL?.trim() || process.env.SMTP_FROM?.trim() || 'KelvinFlow AI 报价中枢 <auth@kelvinflow.com>';
+        const payload: any = {
+          from: fromEmail,
+          to: [options.to],
+          subject: options.subject,
+          text: options.text,
+          html: options.html || undefined
+        };
+
+        if (options.attachments && options.attachments.length > 0) {
+          payload.attachments = options.attachments.map(att => ({
+            filename: att.filename,
+            content: att.content.toString('base64')
+          }));
+        }
+
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const resData = await res.json() as any;
+        if (res.ok && resData?.id) {
+          console.log(`📧 [Mode 1 待审邮件已投递 (Resend API)] 成功投递至业务员邮箱 [${options.to}], 邮件 ID: ${resData.id}`);
+          return { sent: true, method: 'resend', messageId: resData.id };
+        } else {
+          console.warn(`⚠️ [Mode 1 Resend API 响应异常]: HTTP ${res.status} - ${JSON.stringify(resData)}`);
+        }
+      } catch (resendErr: any) {
+        console.warn(`⚠️ [Mode 1 Resend API 发信异常]: ${resendErr.message}`);
+      }
+    }
+
+    // 2. 尝试标准 SMTP 配置发送真实邮件
     const smtpHost = process.env.SMTP_HOST?.trim();
     const smtpUser = process.env.SMTP_USER?.trim();
     const smtpPass = process.env.SMTP_PASS?.trim();
@@ -287,7 +329,7 @@ export class DraftService {
           }))
         });
 
-        console.log(`📧 [Mode 1 待审邮件已投递] 成功投递至业务员邮箱 [${options.to}], ID: ${info.messageId}`);
+        console.log(`📧 [Mode 1 待审邮件已投递 (SMTP)] 成功投递至业务员邮箱 [${options.to}], ID: ${info.messageId}`);
         return { sent: true, method: 'smtp', messageId: info.messageId };
       } catch (err: any) {
         console.warn(`⚠️ [Mode 1 SMTP 发送失败] 回退至审单台在线存储:`, err.message);
@@ -295,7 +337,7 @@ export class DraftService {
       }
     }
 
-    console.log(`ℹ️ [Mode 1 待审出单就绪] 未配置外部系统 SMTP，单据已在审单台中枢就绪，业务员可直接在线查阅或转发`);
+    console.log(`ℹ️ [Mode 1 待审出单就绪] 未配置外部发信服务，单据已在审单台中枢就绪，业务员可直接在线查阅或转发`);
     return { sent: false, method: 'workbench_store' };
   }
 

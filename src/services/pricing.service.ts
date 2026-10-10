@@ -518,10 +518,22 @@ export class PricingService {
       dynamicOverallConfidence = warnings.length > 0 ? Math.max(65, avgItemConfidence - 5) : avgItemConfidence;
     }
 
+    // 规范化单号生成逻辑：杜绝将邮箱别名 (如 rfq-tsuikelvin0804_gmail) 或非标准标记错当采购单号
+    const rawPo = (poData.PONumber || '').trim();
+    const isInvalidPo = !rawPo || 
+      rawPo === 'N/A' || 
+      rawPo.toLowerCase().startsWith('rfq-') || 
+      rawPo.includes('@') || 
+      rawPo.toLowerCase().includes('gmail') ||
+      rawPo.toLowerCase().includes('kelvinflow') ||
+      rawPo.length > 20;
+
+    const quotationNumber = isInvalidPo
+      ? `QT-${Date.now().toString().slice(-6)}`
+      : (rawPo.toUpperCase().startsWith('QT-') ? rawPo.toUpperCase() : `QT-${rawPo}`);
+
     return {
-      quotationNumber: poData.PONumber && poData.PONumber !== 'N/A' 
-        ? `QT-${poData.PONumber}` 
-        : `QT-${Date.now().toString().slice(-6)}`,
+      quotationNumber,
       tenantId: options.tenantId || 'default',
       createdBy: options.createdBy,
       salesRepName: options.salesRepName,

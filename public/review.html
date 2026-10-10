@@ -6728,14 +6728,24 @@ Sales Team | KelvinFlow Global Technology`;
         const gmailComposeUrl = computed(() => {
           const toEmail = quotation.value?.buyerEmail || quotation.value?.customerEmail || '';
           const subject = editableEmailSubject.value || `Quotation - ${quotation.value?.quotationNumber || ''}`;
-          const body = editableEmailBody.value || '';
-          return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(toEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+          let body = editableEmailBody.value || '';
+          if (body.length > 800) {
+            body = body.slice(0, 800) + '\n\n... (完整商业报价单正文已自动复制至剪贴板，请直接 Ctrl+V 粘贴)';
+          }
+          const base = 'https://mail.google.com/mail/?view=cm&fs=1';
+          const toParam = toEmail ? `&to=${encodeURIComponent(toEmail)}` : '';
+          const suParam = `&su=${encodeURIComponent(subject)}`;
+          const bodyParam = body ? `&body=${encodeURIComponent(body)}` : '';
+          return `${base}${toParam}${suParam}${bodyParam}`;
         });
 
         const outlookComposeUrl = computed(() => {
           const toEmail = quotation.value?.buyerEmail || quotation.value?.customerEmail || '';
           const subject = editableEmailSubject.value || `Quotation - ${quotation.value?.quotationNumber || ''}`;
-          const body = editableEmailBody.value || '';
+          let body = editableEmailBody.value || '';
+          if (body.length > 800) {
+            body = body.slice(0, 800) + '\n\n... (完整商业报价单正文已自动复制至剪贴板，请直接 Ctrl+V 粘贴)';
+          }
           return `https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(toEmail)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         });
 

@@ -5,6 +5,7 @@ import { PDFService } from './pdf.service.js';
 import { QuoteStoreService } from './quote-store.service.js';
 import { TenantService } from './tenant.service.js';
 import { DraftService } from './draft.service.js';
+import { TrialService } from './trial.service.js';
 
 export interface InboundEmailPayload {
   tenantId: string;
@@ -48,11 +49,20 @@ export class InboundProcessorService {
    */
   static async processInboundInquiry(payload: InboundEmailPayload): Promise<InboundProcessResult> {
     const { tenantId, from, to, subject, text, html } = payload;
-    const emailContent = (text || html || subject || '').trim();
+    let rawContent = (text || html || subject || '').trim();
 
-    if (!emailContent) {
+    if (!rawContent) {
       return { success: false, error: '邮件正文内容为空，无法解析询盘' };
     }
+
+    // 1. 过滤可能随 Webhook 附带的底层邮件传输头 (Received, Content-Type, DKIM 等)，防止干扰大模型提取
+    let cleanedContent = rawContent
+      .replace(/^Received:[\s\S]*?(?=\r?\n[A-Za-z0-9_-]+:|\r?\n\r?\n)/gim, '')
+      .replace(/^(?:ARC-[A-Za-z0-9_-]+|DKIM-[A-Za-z0-9_-]+|Authentication-Results|Return-Path|Message-ID|X-[A-Za-z0-9_-]+|MIME-Version|Content-Type|Content-Transfer-Encoding):[^\r\n]*(?:\r?\n\s+[^\r\n]*)*/gim, '')
+      .replace(/\[\s*(?:Note|QA|Test|Regression|Notice|Disclaimer)[^\]]*\]/gi, '')
+      .trim();
+
+    const emailContent = cleanedContent || rawContent;
 
     // 1. 加载租户底价表
     const tenantPricing = TenantService.getActivePricingBuffer(tenantId) || TenantService.getActivePricingBuffer('default');
@@ -67,6 +77,27 @@ export class InboundProcessorService {
     console.log(`🤖 [Inbound Processor] 正在调用 Gemini 最新模型为租户 [${tenantId}] 解析询盘...`);
     const extractionResult = await this.aiService.extractPOFromText(emailContent);
     const poData = extractionResult.data;
+
+    // 过滤掉误将邮件传输头或测试备注当作商品的垃圾行 (如 "D14_QA_TEST_GUIDE", "UTF-8")
+    if (poData && Array.isArray(poData.Items)) {
+      const invalidSkus = new Set(['UTF-8', 'CONTENT-TYPE', 'CHARSET', 'D14_QA_TEST_GUIDE', 'TEST_REPORT', 'DISCLAIMER', 'NOTE', 'TEST_GUIDE', 'N/A']);
+      poData.Items = poData.Items.filter(item => {
+        const skuUpper = (item.SKU || '').toUpperCase().trim();
+        if (invalidSkus.has(skuUpper)) return false;
+        if (/^(?:UTF-?8|CONTENT[-_]TYPE|CHARSET)$/i.test(skuUpper)) return false;
+        if (/^\[?Note:?/i.test(item.SKU || '')) return false;
+        if (item.Description && /D14_QA_TEST_GUIDE|Content-Type|charset=/i.test(item.Description)) return false;
+        return true;
+      });
+    }
+
+    // 净化 BuyerContact 姓名，杜绝将 Received 传输头识别为对接人 (如 "d unknown by gmailapi.google.com with")
+    if (poData?.BuyerContact?.Name) {
+      const bName = poData.BuyerContact.Name.toLowerCase();
+      if (bName.includes('gmailapi') || bName.includes('google.com') || bName.includes('received') || bName.includes('unknown by') || bName.includes('mailer-daemon')) {
+        poData.BuyerContact.Name = 'Valued Customer';
+      }
+    }
 
     // 3. 自动精准核价
     const quotation = PricingService.calculate(poData, parsedExcel.priceItems, parsedExcel.exchangeRates, {
@@ -197,7 +228,16 @@ export class InboundProcessorService {
     }
 
     // 5.2 若模式 2 未配置或写入失败，自动触发【模式 1：零配置收件箱待审出单】
-    let recipientEmail = tenantProfile.imapConfig?.email || tenantProfile.contactEmail || '';
+    let recipientEmail = tenantProfile.imapConfig?.email || '';
+    if (!recipientEmail && tenantProfile.contactEmail && !tenantProfile.contactEmail.startsWith('sales@tenant_')) {
+      recipientEmail = tenantProfile.contactEmail;
+    }
+    if (!recipientEmail) {
+      const trial = TrialService.getTrialByTenantId(tenantId);
+      if (trial?.email) {
+        recipientEmail = trial.email;
+      }
+    }
     if (!recipientEmail && from && from.includes('@') && !from.includes('mailer-daemon')) {
       recipientEmail = from;
     }
