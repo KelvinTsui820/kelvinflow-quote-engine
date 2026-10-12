@@ -38,11 +38,11 @@ async function buildUnifiedMasterTemplate() {
   ws0.columns = [
     { width: 5 },   // A
     { width: 34 },  // B
-    { width: 85 }   // C
+    { width: 92 }   // C (widened for comfortable reading without truncation)
   ];
 
   ws0.mergeCells('B2:C2');
-  ws0.getCell('B2').value = '【2026 外贸出厂底价表与智能核价模板 · Kelvin旗舰版】使用指南';
+  ws0.getCell('B2').value = '【2026外贸出厂底价表与智能核价模板】使用指南';
   ws0.getCell('B2').font = { name: FONT_NAME, size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
   ws0.getCell('B2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NAVY } };
   ws0.getCell('B2').alignment = { vertical: 'middle', horizontal: 'center' };
@@ -52,8 +52,8 @@ async function buildUnifiedMasterTemplate() {
   ws0.getCell('B3').value = '💡 本地离线版与线上版 KelvinFlow (https://quote.kelvinflow.com) 采用 100% 相同数据架构。在此填写的全部数据，日后可直接无损上传，零学习成本。';
   ws0.getCell('B3').font = { name: FONT_NAME, size: 9.5, italic: true, color: { argb: COLOR_MUTED } };
   ws0.getCell('B3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
-  ws0.getCell('B3').alignment = { vertical: 'middle', horizontal: 'center' };
-  ws0.getRow(3).height = 24;
+  ws0.getCell('B3').alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+  ws0.getRow(3).height = 30;
 
   const guideItems = [
     [
@@ -82,6 +82,7 @@ async function buildUnifiedMasterTemplate() {
     ]
   ];
 
+  const guideHeights = [52, 52, 52, 42, 75, 42];
   guideItems.forEach((item, idx) => {
     const rowNum = idx + 5;
     ws0.getCell(`B${rowNum}`).value = item[0];
@@ -95,7 +96,7 @@ async function buildUnifiedMasterTemplate() {
     ws0.getCell(`C${rowNum}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: (idx % 2 === 0 ? 'FFFFFFFF' : COLOR_LIGHT_BG) } };
     ws0.getCell(`C${rowNum}`).border = thinBorder;
     ws0.getCell(`C${rowNum}`).alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
-    ws0.getRow(rowNum).height = 36;
+    ws0.getRow(rowNum).height = guideHeights[idx] || 45;
   });
 
   // -------------------------------------------------------------
@@ -292,7 +293,9 @@ async function buildUnifiedMasterTemplate() {
   // Sheet 2: 📦 商品出厂底价库 (Products) - 严格复刻 出厂底价表.xlsx + 批量活公式
   // -------------------------------------------------------------
   const ws2 = workbook.addWorksheet('📦 商品出厂底价库 (Products)', {
-    views: [{ showGridLines: true }]
+    views: [
+      { state: 'frozen', xSplit: 1, ySplit: 1, topLeftCell: 'B2', activeCell: 'B2', showGridLines: true }
+    ]
   });
 
   // Exactly matching widths of 出厂底价表.xlsx for columns 1-11
@@ -481,7 +484,9 @@ async function buildUnifiedMasterTemplate() {
   // Sheet 3: 📄 对外纯净批量报价单 (脱敏单) - 商业专业英文报价单
   // -------------------------------------------------------------
   const ws3 = workbook.addWorksheet('📄 对外纯净批量报价单 (脱敏单)', {
-    views: [{ showGridLines: true }]
+    views: [
+      { state: 'frozen', xSplit: 2, ySplit: 3, topLeftCell: 'C4', activeCell: 'C4', showGridLines: true }
+    ]
   });
 
   ws3.columns = [
@@ -576,16 +581,14 @@ async function buildUnifiedMasterTemplate() {
 
   // Destination paths (Local & Online standardized filenames)
   const targets = [
-    // 1. 小红书群文件分发版（本地版）
-    'F:/xhs_operator/lead_magnets/2026外贸出厂底价表与智能核价模板_Kelvin旗舰版.xlsx',
-    'F:/order_workflow/media_vault/lead_magnets/2026外贸出厂底价表与智能核价模板_Kelvin旗舰版.xlsx',
+    // 1. 小红书群文件分发版（本地版唯一最终版）
+    'F:/xhs_operator/lead_magnets/2026外贸出厂底价表与智能核价模板.xlsx',
+    'F:/order_workflow/media_vault/lead_magnets/2026外贸出厂底价表与智能核价模板.xlsx',
     // 2. 线上系统模板（双表旗舰版）
     'F:/order_workflow/商品底价表/外贸出厂底价表与智能核价模板.xlsx',
     'F:/order_workflow/商品底价表/出厂底价表.xlsx',
     'F:/order_workflow/public/templates/外贸出厂底价表与智能核价模板_双表旗舰版.xlsx',
-    'F:/order_workflow/public/templates/极简出厂底价表_双表旗舰版.xlsx',
-    // 3. 兼容旧版文件名
-    'F:/xhs_operator/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版.xlsx'
+    'F:/order_workflow/public/templates/极简出厂底价表_双表旗舰版.xlsx'
   ];
 
   for (const t of targets) {

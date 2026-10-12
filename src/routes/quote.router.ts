@@ -682,7 +682,7 @@ quoteRouter.get('/template/pricing-sheet', (req: Request, res: Response) => {
     return res.status(404).json({ success: false, error: '底價表模板未就緒' });
   }
 
-  const encodedFilename = encodeURIComponent('外贸出厂底价表与智能核价模板_双表旗舰版.xlsx');
+  const encodedFilename = encodeURIComponent('外贸出厂底价表与智能核价模板.xlsx');
   res.setHeader(
     'Content-Disposition',
     `attachment; filename="foreign_trade_factory_cost_pricing_template.xlsx"; filename*=UTF-8''${encodedFilename}`

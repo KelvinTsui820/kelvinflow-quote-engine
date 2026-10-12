@@ -213,7 +213,7 @@ describe('4. PricingService 報價核算與零漏報防護測試', () => {
 });
 
 describe('5. 出厂底价表模板下载接口测试 (/api/v1/template/pricing-sheet)', () => {
-  it('应该正确下载《出厂底价表.xlsx》并包含双工作表配置与标准SKU', async () => {
+  it('应该正确下载《外贸出厂底价表与智能核价模板.xlsx》并包含双工作表配置与标准SKU', async () => {
     TenantService.init();
     const app = express();
     app.use('/api/v1', quoteRouter);
@@ -225,7 +225,7 @@ describe('5. 出厂底价表模板下载接口测试 (/api/v1/template/pricing-s
       expect(res.status).toBe(200);
 
       const disposition = res.headers.get('content-disposition') || '';
-      expect(decodeURIComponent(disposition)).toContain('出厂底价表.xlsx');
+      expect(decodeURIComponent(disposition)).toContain('外贸出厂底价表与智能核价模板.xlsx');
 
       const arrayBuffer = await res.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
