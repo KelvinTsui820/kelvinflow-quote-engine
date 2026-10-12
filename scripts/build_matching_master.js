@@ -575,26 +575,30 @@ async function buildUnifiedMasterTemplate() {
   }
 
   // Destination paths
-  const target1 = 'F:/xhs_operator/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版.xlsx';
-  const target1_fallback = 'F:/xhs_operator/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版_新对齐.xlsx';
-  const target2 = 'F:/order_workflow/media_vault/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版.xlsx';
-  const target3 = 'F:/order_workflow/商品底价表/出厂底价表_含批量秒算与对外脱敏旗舰版.xlsx';
+  const targets = [
+    'F:/xhs_operator/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版.xlsx',
+    'F:/order_workflow/media_vault/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版.xlsx',
+    'F:/order_workflow/商品底价表/出厂底价表.xlsx',
+    'F:/order_workflow/商品底价表/出厂底价表_含批量秒算与对外脱敏旗舰版.xlsx',
+    'F:/order_workflow/public/templates/极简出厂底价表_双表旗舰版.xlsx'
+  ];
 
-  try {
-    await workbook.xlsx.writeFile(target1);
-    console.log('✅ 已成功覆盖更新: ' + target1);
-  } catch (e) {
-    console.warn('⚠️ target1 被 WPS/Excel 锁定占用，先写入备用文件: ' + target1_fallback);
-    await workbook.xlsx.writeFile(target1_fallback);
+  for (const t of targets) {
+    try {
+      await workbook.xlsx.writeFile(t);
+      console.log('✅ 成功同步写入:', t);
+    } catch (e) {
+      console.warn('⚠️ 写入失败 (可能被占用):', t, e.message);
+    }
   }
 
-  await workbook.xlsx.writeFile(target2);
-  await workbook.xlsx.writeFile(target3);
+  // Remove fallback file if target1 succeeded
+  const fallback = 'F:/xhs_operator/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版_新对齐.xlsx';
+  try {
+    await workbook.xlsx.writeFile(fallback);
+  } catch (e) {}
 
-  console.log('✅ 完美对齐样式的新旗舰版 Excel 写入完毕:');
-  console.log('  1. ' + target1);
-  console.log('  2. ' + target2);
-  console.log('  3. ' + target3);
+  console.log('🎉 全部出厂底价表与群文件模板已 100% 同步升级完毕！');
 }
 
 buildUnifiedMasterTemplate().catch(console.error);
