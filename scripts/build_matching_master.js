@@ -37,8 +37,8 @@ async function buildUnifiedMasterTemplate() {
 
   ws0.columns = [
     { width: 5 },   // A
-    { width: 34 },  // B
-    { width: 92 }   // C (widened for comfortable reading without truncation)
+    { width: 40 },  // B (widened for comfortable title padding without truncation)
+    { width: 95 }   // C (widened for comfortable reading without truncation)
   ];
 
   ws0.mergeCells('B2:C2');
@@ -48,12 +48,8 @@ async function buildUnifiedMasterTemplate() {
   ws0.getCell('B2').alignment = { vertical: 'middle', horizontal: 'center' };
   ws0.getRow(2).height = 38;
 
-  ws0.mergeCells('B3:C3');
-  ws0.getCell('B3').value = '💡 本地离线版与线上版 KelvinFlow (https://quote.kelvinflow.com) 采用 100% 相同数据架构。在此填写的全部数据，日后可直接无损上传，零学习成本。';
-  ws0.getCell('B3').font = { name: FONT_NAME, size: 9.5, italic: true, color: { argb: COLOR_MUTED } };
-  ws0.getCell('B3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
-  ws0.getCell('B3').alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-  ws0.getRow(3).height = 30;
+  // Row 3: Clean subtle spacing buffer
+  ws0.getRow(3).height = 12;
 
   const guideItems = [
     [
@@ -62,7 +58,7 @@ async function buildUnifiedMasterTemplate() {
     ],
     [
       '2. 【⚙️ 全局核算参数】怎么用？',
-      '在第 2 张工作表设定贵司的内部锁定汇率（如 USD 7.20）、全厂保底毛利（如 15%）、利润防穿底红线（如 8%）与海运进仓港杂平摊（如 0.20 元/件）。在此修改后，全厂全量商品自动秒级联动更新。'
+      '在第 2 张工作表设定贵司（或个人）内部锁定汇率（如 USD 7.20）、保底毛利（如 15%）、利润防穿底红线（如 8%）与海运进仓港杂平摊（如 0.20 元/件）。在此修改后，全库商品自动秒级联动更新。'
     ],
     [
       '3. 【📦 商品出厂底价库】怎么用？',
@@ -73,7 +69,7 @@ async function buildUnifiedMasterTemplate() {
       '100% 安全！第 4 张工作表【📄 对外纯净批量报价单】专为海外买家设计，工厂出厂底价、内部成本与真实毛利率全部自动脱敏隐藏，可直接打印或导出 PDF 发给海外买家。'
     ],
     [
-      '5. 🚀 无缝升级线上版 (SaaS 原生直通)',
+      '5. 🚀 无缝直通线上版 (SaaS引擎)',
       '本表格式与 KelvinFlow 智能出单引擎 (https://quote.kelvinflow.com) 完全一致！平时直接当离线底价库用；一旦买家发来几十个型号的长篇英文邮件或 PDF 询盘，直接把本表上传到系统，转发邮件，AI 10 秒自动审单对齐底价生成专业英文报价单。小红书官方群友免审开通 7 天深度体验。'
     ],
     [
@@ -82,9 +78,9 @@ async function buildUnifiedMasterTemplate() {
     ]
   ];
 
-  const guideHeights = [52, 52, 52, 42, 75, 42];
+  const guideHeights = [52, 52, 52, 45, 88, 45];
   guideItems.forEach((item, idx) => {
-    const rowNum = idx + 5;
+    const rowNum = idx + 4;
     ws0.getCell(`B${rowNum}`).value = item[0];
     ws0.getCell(`B${rowNum}`).font = { name: FONT_NAME, size: 10, bold: true, color: { argb: COLOR_NAVY } };
     ws0.getCell(`B${rowNum}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_SKY } };
@@ -96,7 +92,7 @@ async function buildUnifiedMasterTemplate() {
     ws0.getCell(`C${rowNum}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: (idx % 2 === 0 ? 'FFFFFFFF' : COLOR_LIGHT_BG) } };
     ws0.getCell(`C${rowNum}`).border = thinBorder;
     ws0.getCell(`C${rowNum}`).alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
-    ws0.getRow(rowNum).height = guideHeights[idx] || 45;
+    ws0.getRow(rowNum).height = guideHeights[idx] || 48;
   });
 
   // -------------------------------------------------------------
@@ -111,7 +107,7 @@ async function buildUnifiedMasterTemplate() {
     { width: 32 }, // B
     { width: 22 }, // C
     { width: 60 }, // D
-    { width: 54 }  // E
+    { width: 66 }  // E (widened for practical business advice text)
   ];
 
   // Header banner
@@ -123,11 +119,11 @@ async function buildUnifiedMasterTemplate() {
   ws1.getRow(1).height = 38;
 
   ws1.mergeCells('A2:E2');
-  ws1.getCell('A2').value = '💡 本表由企业掌门人/财务部专管；在此设定的汇率、保底毛利率与业务条款将自动应用于系统全量商品出厂核算。修改后即时全厂生效。';
+  ws1.getCell('A2').value = '💡【核算中枢指引】在此设定贵司（或个人）内部锁定汇率、保底毛利率与业务参数，全库商品将自动秒级联动倒算。日常核价只需在此微调参数，无需逐个单品修改。';
   ws1.getCell('A2').font = { name: FONT_NAME, size: 9.5, color: { argb: COLOR_MUTED } };
   ws1.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
   ws1.getCell('A2').alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
-  ws1.getRow(2).height = 24;
+  ws1.getRow(2).height = 26;
 
   // Function to create section headers and tables
   function addSectionHeader(startRow, title) {
@@ -181,13 +177,13 @@ async function buildUnifiedMasterTemplate() {
 
   // Module 2: Profit Margin & Redline
   addSectionHeader(12, '📈 模块二：利润红线与防穿底控制 (Profit Margin & Cost Protection)');
-  addTableHeaders(13, ['参数控制项 (Control Parameter)', '设置基准值 (Setting Value)', '参数格式/单位', '系统生效机制与风控规则说明', '责任人/控制级别']);
+  addTableHeaders(13, ['参数控制项 (Control Parameter)', '设置基准值 (Setting Value)', '参数格式/单位', '系统生效机制与风控规则说明', '💡 实战风控与业务避坑建议']);
 
   const m2Data = [
-    ['全厂默认保底毛利率 (Default Margin)', 0.15, '百分比 (0.15)', '出厂安全底价基础上浮动加价；单品未设时自动继承此参数', '企业掌门人 / 老板'],
-    ['最低保护红线毛利率 (Floor Margin)', 0.08, '百分比 (0.08)', '业务员最低授权底线，低于此红线系统强制拦截并报警打回', '老板 / 财务总监'],
-    ['样品打样费上浮倍率 (Sample Multiplier)', 2.5, '倍率 (出厂价*2.5)', '覆盖小批量散单模具调机成本，后续批量达标全额抵扣货款', '厂长 / 工程部'],
-    ['报价单默认有效期 (Price Validity)', '30 Days', '天数', '超出 30 天需重新核实原材料成本与外币汇率波动情况', '外贸部主管']
+    ['全厂默认保底毛利率 (Default Margin)', 0.15, '百分比 (0.15)', '出厂安全底价基础上浮动加价；单品未设时自动继承此参数', '建议常规大货订单基准，给买家还价预留 3%~5% 安全博弈空间'],
+    ['最低保护红线毛利率 (Floor Margin)', 0.08, '百分比 (0.08)', '业务员最低授权底线，低于此红线系统强制拦截并报警打回', '底线防御警戒线！低于此值系统自动标红警报，防止业务员算亏'],
+    ['样品打样费上浮倍率 (Sample Multiplier)', 2.5, '倍率 (出厂价*2.5)', '覆盖小批量散单模具调机成本，后续批量达标全额抵扣货款', '覆盖小批量散单机台调机损耗，可在合同中约定大货满额全额返还'],
+    ['报价单默认有效期 (Price Validity)', '30 Days', '天数', '超出 30 天需重新核实原材料成本与外币汇率波动情况', '严防海运费与汇率剧烈波动风险，超期需重新核算，避免履约亏损']
   ];
   m2Data.forEach((d, i) => {
     const rNum = i + 14;
@@ -209,7 +205,7 @@ async function buildUnifiedMasterTemplate() {
         c.numFmt = (val < 1 ? '0.0%' : '0.0');
       }
     });
-    r.height = 22;
+    r.height = 24;
   });
 
   // Module 3: Incoterms & Port Charges

@@ -1715,17 +1715,17 @@
           if (isExpired) {
             if (pricingLoggedInText) pricingLoggedInText.textContent = isPromoUsed 
               ? '您的 7 天试用已到期 · 续费专业版继续出单'
-              : '您的 7 天试用已到期 · 限时特权：首月仅需 ¥39 开通个人专业版！';
+              : '您的 7 天试用已到期 · 限时特惠：首月仅需 ¥39 开通个人专业版！';
             if (btnPayText) btnPayText.textContent = isPromoUsed
               ? '⚡ 续费专业版 (¥69/月)'
-              : '⚡ 立即领取首月 ¥39 破冰特权 (原价¥69)';
+              : '⚡ 立即升级专业版 · 首月特惠 ¥39 (原价¥69)';
           } else {
             if (pricingLoggedInText) pricingLoggedInText.textContent = isPromoUsed
               ? '您当前处于 7 天全功能免费试用中'
               : '您当前处于 7 天全功能免费试用中 (首月仅 ¥39)';
             if (btnPayText) btnPayText.textContent = isPromoUsed
               ? '开通专业版 (¥69/月)'
-              : '🔥 抢先锁定首月 ¥39 破冰特权 (原价¥69)';
+              : '🔥 抢先锁定首月特惠 ¥39 (原价¥69)';
           }
           if (pricingPayBtn) pricingPayBtn.onclick = () => openPaymentModal('monthly');
         }

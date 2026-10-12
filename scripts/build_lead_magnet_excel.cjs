@@ -347,7 +347,7 @@ async function createKelvinPricingTemplate() {
   // Kelvin's Bottom Gift & Automation Easter Egg (Row 24 to 26)
   ws1.mergeCells('B24:O25');
   const footerCard = ws1.getCell('B24');
-  footerCard.value = '💡 技术老友 Kelvin 的心里话：\n亲爱的外贸朋友，如果你还在每天手动算几十个复杂 SKU、或者买家总发长篇英文邮件询价让你头大，试试我为你写好的免费 AI 自动审单引擎 KelvinFlow (https://kelvinflow.com)。复制邮件 10 秒全自动拆解 SKU、匹配底价并生成纯英文正式 PDF 报价单！小红书群友终身享受限时首月 ¥39 破冰特权，免审开通 7 天试用！微信: KelvinFlow (备注“小红书群友”)';
+  footerCard.value = '💡 技术老友 Kelvin 的心里话：\n亲爱的外贸朋友，如果你还在每天手动算几十个复杂 SKU、或者买家总发长篇英文邮件询价让你头大，试试我为你写好的免费 AI 自动审单引擎 KelvinFlow (https://kelvinflow.com)。复制邮件 10 秒全自动拆解 SKU、匹配底价并生成纯英文正式 PDF 报价单！小红书群友终身享受限时首月 ¥39 尝鲜特惠 (原价 ¥69)，免审开通 7 天试用！微信: KelvinFlow (备注“小红书群友”)';
   footerCard.font = { name: '微软雅黑', size: 9, bold: true, color: { argb: 'FF1E293B' } };
   footerCard.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } }; // Warm Amber Card
   footerCard.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true, indent: 1 };
