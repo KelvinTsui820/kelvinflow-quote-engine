@@ -2,19 +2,45 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>IT佬Kelvin · 小红书 3:4 视觉轮播卡片 (第 01 期)</title>
+  <title>IT佬Kelvin · 小红书 3:4 视觉轮播卡片 (首发第 01 期)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif; }
-    body { background-color: #2b2b2b; color: #2c2825; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
-    h1 { font-size: 24px; margin-bottom: 12px; color: #f9f7f2; text-align: center; font-weight: 700; }
-    p.subtitle { color: #d4cfc7; font-size: 14px; margin-bottom: 30px; text-align: center; }
+    body { background-color: #1e1e20; color: #2c2825; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
     
+    .header-bar {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    h1 { font-size: 26px; margin-bottom: 8px; color: #f9f7f2; font-weight: 800; letter-spacing: -0.5px; }
+    p.subtitle { color: #bdb7ab; font-size: 14px; margin-bottom: 16px; }
+    
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .btn {
+      background: #333338;
+      color: #f5f2eb;
+      border: 1px solid #4a4a52;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+    .btn:hover { background: #4a4a55; border-color: #8c8275; }
+    .btn.active { background: #d8cebd; color: #2c2825; border-color: #d8cebd; font-weight: 700; }
+
     .carousel-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 30px;
+      gap: 32px;
       justify-content: center;
-      max-width: 1400px;
+      max-width: 1560px;
+      transition: all 0.3s ease;
     }
 
     /* 3:4 小红书黄金比例卡片 - 暖米白纸质手作风 #F9F7F2 */
@@ -22,7 +48,7 @@
       width: 360px;
       height: 480px;
       background: #F9F7F2;
-      border: 1px solid #E5DFD5;
+      border: 1.5px solid #E5DFD5;
       border-radius: 20px;
       padding: 32px 28px;
       display: flex;
@@ -30,12 +56,31 @@
       justify-content: space-between;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 16px 36px rgba(0,0,0,0.25);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.35);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
+      background-image: radial-gradient(#ece4d8 0.75px, transparent 0.75px);
+      background-size: 16px 16px;
     }
     .card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+      box-shadow: 0 22px 46px rgba(0,0,0,0.45);
+    }
+
+    /* 纸胶带装饰贴条效果 */
+    .tape {
+      position: absolute;
+      top: 14px;
+      right: 28px;
+      background: rgba(220, 210, 195, 0.75);
+      border-left: 2px dashed rgba(180, 170, 155, 0.5);
+      border-right: 2px dashed rgba(180, 170, 155, 0.5);
+      padding: 3px 14px;
+      font-size: 11px;
+      color: #6b5e50;
+      font-family: monospace;
+      font-weight: 600;
+      transform: rotate(2deg);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
     }
 
     /* 顶部 Tag */
@@ -57,11 +102,12 @@
 
     /* 大字标题 */
     .card-title {
-      font-size: 24px;
+      font-size: 23px;
       font-weight: 800;
-      line-height: 1.4;
+      line-height: 1.42;
       color: #1F2937;
       margin: 16px 0 12px 0;
+      letter-spacing: -0.3px;
     }
     .highlight-brand { color: #8B4513; }
     .highlight-accent { color: #1E6091; }
@@ -69,7 +115,7 @@
     .card-body {
       font-size: 13.5px;
       color: #4B5563;
-      line-height: 1.7;
+      line-height: 1.68;
       flex-grow: 1;
     }
 
@@ -78,8 +124,8 @@
       background: #FFFFFF;
       border: 1px solid #E5DFD5;
       border-radius: 12px;
-      padding: 16px;
-      margin: 12px 0;
+      padding: 15px 16px;
+      margin: 10px 0;
       font-size: 13px;
       color: #374151;
       box-shadow: 0 2px 8px rgba(0,0,0,0.03);
@@ -110,29 +156,80 @@
       color: #5C5245;
       font-weight: 600;
     }
-    .author-avatar {
-      width: 24px;
-      height: 24px;
+    .author-avatar-img {
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
-      background: #D8CEBD;
-      color: #4A3E31;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 800;
+      object-fit: cover;
+      border: 1.5px solid #D8CEBD;
+      background: #EFE9DD;
+    }
+
+    /* 1080x1440 真实导出模式样式 */
+    body.hd-mode .carousel-container {
+      max-width: 100%;
+    }
+    body.hd-mode .card {
+      width: 540px;
+      height: 720px;
+      padding: 48px 42px;
+      border-radius: 30px;
+    }
+    body.hd-mode .card-title {
+      font-size: 34px;
+      margin: 24px 0 18px 0;
+    }
+    body.hd-mode .tag {
+      font-size: 16px;
+      padding: 8px 18px;
+      border-radius: 12px;
+    }
+    body.hd-mode .tape {
+      font-size: 15px;
+      padding: 5px 20px;
+      top: 20px;
+      right: 40px;
+    }
+    body.hd-mode .card-body {
+      font-size: 19px;
+      line-height: 1.75;
+    }
+    body.hd-mode .memo-box {
+      padding: 22px 24px;
+      border-radius: 18px;
+      font-size: 18px;
+      margin: 16px 0;
+    }
+    body.hd-mode .memo-row {
+      padding: 9px 0;
+      gap: 12px;
+    }
+    body.hd-mode .card-footer {
+      padding-top: 20px;
+      font-size: 16px;
+    }
+    body.hd-mode .author-avatar-img {
+      width: 38px;
+      height: 38px;
     }
   </style>
 </head>
 <body>
 
-  <h1>📱 IT佬Kelvin · 小红书 3:4 视觉轮播卡片 (首发第 01 期)</h1>
-  <p class="subtitle">大湾区独立开发实录 ｜ 暖米白纸质手作风 #F9F7F2 ｜ 严格对齐白皮书事实</p>
+  <div class="header-bar">
+    <h1>📱 IT佬Kelvin · 小红书 3:4 视觉轮播卡片 (首发第 01 期)</h1>
+    <p class="subtitle">大湾区独立开发实录 ｜ 暖米白纸质手作风 #F9F7F2 ｜ 100% 对应真实 Excel 模板与代码事实</p>
+    <div class="toolbar">
+      <button class="btn active" id="btn-std" onclick="setMode('std')">标准网格预览 (360×480)</button>
+      <button class="btn" id="btn-hd" onclick="setMode('hd')">🔍 高清原画预览 (540×720 / 3:4 原型)</button>
+    </div>
+  </div>
 
   <div class="carousel-container">
 
     <!-- Card 1: 封面 -->
-    <div class="card">
+    <div class="card" id="card-1">
+      <div class="tape">BUILD IN PUBLIC</div>
       <div>
         <div class="tag tag-warm">☕ 独立开发实录 #01</div>
         <div class="card-title">
@@ -147,13 +244,13 @@
           <div>• 海运港杂按体积科学平摊</div>
           <div>• 汇率与目标毛利全表联动倒算</div>
         </div>
-        <p style="font-size: 12.5px; color: #6B7280; margin-top: 8px;">
+        <p style="font-size: 12.5px; color: #6B7280; margin-top: 6px;">
           大湾区独立开发 Kelvin ｜ 做个纯净实用工具帮大家省时间
         </p>
       </div>
       <div class="card-footer">
         <div class="author-badge">
-          <div class="author-avatar">K</div>
+          <img src="../avatar_kelvin_crayon_exact_match.jpg" alt="Kelvin" class="author-avatar-img" onerror="this.style.display='none'">
           <span>IT佬Kelvin ｜ 大湾区独立开发</span>
         </div>
         <span>1 / 4</span>
@@ -161,7 +258,8 @@
     </div>
 
     <!-- Card 2: 痛点 -->
-    <div class="card">
+    <div class="card" id="card-2">
+      <div class="tape">PAIN POINTS</div>
       <div>
         <div class="tag tag-amber">🔍 日常痛点拆解</div>
         <div class="card-title">
@@ -173,7 +271,7 @@
         <div class="memo-box">
           <div class="memo-row">
             <span>📌</span>
-            <span><b>型号繁多翻找费力</b>：买家询盘数量不一，要在底价表里逐个找阶梯价；</span>
+            <span><b>型号繁多翻找费力</b>：买家询盘数量不一，要在底价表里逐个找阶梯底价；</span>
           </div>
           <div class="memo-row">
             <span>📌</span>
@@ -187,7 +285,7 @@
       </div>
       <div class="card-footer">
         <div class="author-badge">
-          <div class="author-avatar">K</div>
+          <img src="../avatar_kelvin_crayon_exact_match.jpg" alt="Kelvin" class="author-avatar-img" onerror="this.style.display='none'">
           <span>业务真实痛点</span>
         </div>
         <span>2 / 4</span>
@@ -195,7 +293,8 @@
     </div>
 
     <!-- Card 3: 交付 -->
-    <div class="card">
+    <div class="card" id="card-3">
+      <div class="tape">FREE TOOL</div>
       <div>
         <div class="tag tag-blue">🛠️ 提炼自独立开发引擎</div>
         <div class="card-title">
@@ -225,7 +324,7 @@
       </div>
       <div class="card-footer">
         <div class="author-badge">
-          <div class="author-avatar">K</div>
+          <img src="../avatar_kelvin_crayon_exact_match.jpg" alt="Kelvin" class="author-avatar-img" onerror="this.style.display='none'">
           <span>实用工具交付</span>
         </div>
         <span>3 / 4</span>
@@ -233,7 +332,8 @@
     </div>
 
     <!-- Card 4: 行动 -->
-    <div class="card">
+    <div class="card" id="card-4">
+      <div class="tape">COMMUNITY</div>
       <div>
         <div class="tag tag-green">🎁 实用工具箱自取</div>
         <div class="card-title">
@@ -244,17 +344,17 @@
       <div class="card-body">
         <div class="memo-box">
           <div style="font-weight: 700; color: #2E7D32; margin-bottom: 8px;">📦 获取方式：</div>
-          <div style="line-height: 1.7;">
+          <div style="line-height: 1.65;">
             进入主页点击<b>【群聊】</b>进官方交流群，在<b>【群文件】</b>即可直接免费下载《2026外贸精准核价Excel模板》。
           </div>
         </div>
         <p style="font-size: 12.5px; color: #4B5563; line-height: 1.6; margin-top: 10px;">
-          💬 平时处理询盘邮件或表格最烦哪个环节？欢迎在评论区交流，我很乐意用代码帮大家一步步优化解决。
+          💬 平时处理询盘邮件或表格最烦哪个环节？欢迎在评论区交流，我很乐意用技术帮大家一步步优化解决。
         </p>
       </div>
       <div class="card-footer">
         <div class="author-badge">
-          <div class="author-avatar">K</div>
+          <img src="../avatar_kelvin_crayon_exact_match.jpg" alt="Kelvin" class="author-avatar-img" onerror="this.style.display='none'">
           <span>IT佬Kelvin ｜ 大湾区独立开发</span>
         </div>
         <span>4 / 4</span>
@@ -262,6 +362,20 @@
     </div>
 
   </div>
+
+  <script>
+    function setMode(mode) {
+      if (mode === 'hd') {
+        document.body.classList.add('hd-mode');
+        document.getElementById('btn-hd').classList.add('active');
+        document.getElementById('btn-std').classList.remove('active');
+      } else {
+        document.body.classList.remove('hd-mode');
+        document.getElementById('btn-std').classList.add('active');
+        document.getElementById('btn-hd').classList.remove('active');
+      }
+    }
+  </script>
 
 </body>
 </html>
