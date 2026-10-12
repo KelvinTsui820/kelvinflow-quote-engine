@@ -479,41 +479,76 @@ async function buildUnifiedMasterTemplate() {
   // -------------------------------------------------------------
   const ws3 = workbook.addWorksheet('📄 对外纯净批量报价单 (脱敏单)', {
     views: [
-      { state: 'frozen', ySplit: 3, topLeftCell: 'A4', activeCell: 'A4', showGridLines: true }
+      { state: 'frozen', xSplit: 2, ySplit: 3, topLeftCell: 'C4', activeCell: 'C4', showGridLines: true }
     ]
   });
 
+  // Balanced column widths for clean viewing without horizontal bloat
   ws3.columns = [
     { width: 8 },  // A: Item
-    { width: 20 }, // B: Model No.
-    { width: 55 }, // C: Description
-    { width: 14 }, // D: MOQ
-    { width: 22 }, // E: FOB Price (USD)
-    { width: 18 }, // F: Packing
-    { width: 20 }, // G: 20GP Est.
-    { width: 20 }, // H: 40HQ Est.
-    { width: 20 }  // I: Lead Time
+    { width: 18 }, // B: Model No.
+    { width: 48 }, // C: Description
+    { width: 13 }, // D: MOQ
+    { width: 18 }, // E: FOB Price (USD)
+    { width: 16 }, // F: Packing
+    { width: 16 }, // G: 20GP Est.
+    { width: 16 }, // H: 40HQ Est.
+    { width: 16 }  // I: Lead Time
   ];
 
-  ws3.mergeCells('A1:I1');
-  ws3.getCell('A1').value = 'GLOBAL EXPORT FORMAL QUOTATION (COMMERCIAL OFFER)';
-  ws3.getCell('A1').font = { name: 'Arial', size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
-  ws3.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NAVY } };
-  ws3.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
+  // Row 1: Header Banner (Split cleanly across A1:B1 and C1:I1 to eliminate freeze-pane slicing tear)
+  ws3.mergeCells('A1:B1');
+  const cellA1 = ws3.getCell('A1');
+  cellA1.value = 'GLOBAL EXPORT';
+  cellA1.font = { name: 'Arial', size: 12, bold: true, color: { argb: 'FFFFFFFF' } };
+  cellA1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NAVY } };
+  cellA1.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  ws3.mergeCells('C1:I1');
+  const cellC1 = ws3.getCell('C1');
+  cellC1.value = 'FORMAL COMMERCIAL OFFER (FOB SHENZHEN)';
+  cellC1.font = { name: 'Arial', size: 12.5, bold: true, color: { argb: 'FFFFFFFF' } };
+  cellC1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NAVY } };
+  cellC1.alignment = { vertical: 'middle', horizontal: 'center' };
+
   ws3.getRow(1).height = 36;
+  for (let c = 1; c <= 9; c++) {
+    const cell = ws3.getRow(1).getCell(c);
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NAVY } };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+      bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+      left: (c === 1 || c === 3) ? { style: 'thin', color: { argb: 'FFCBD5E1' } } : undefined,
+      right: (c === 2 || c === 9) ? { style: 'thin', color: { argb: 'FFCBD5E1' } } : undefined
+    };
+  }
 
-  ws3.mergeCells('A2:E2');
-  ws3.getCell('A2').value = 'Trade Term: FOB Shenzhen (Incoterms 2020)  |  Currency: USD ($)';
-  ws3.getCell('A2').font = { name: 'Arial', size: 9.5, italic: true, color: { argb: COLOR_TEXT } };
-  ws3.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
-  ws3.getCell('A2').alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+  // Row 2: Terms & Payment (Split cleanly across A2:B2 and C2:I2 to stay intact on horizontal scroll)
+  ws3.mergeCells('A2:B2');
+  const cellA2 = ws3.getCell('A2');
+  cellA2.value = 'Incoterms® 2020 · USD ($)';
+  cellA2.font = { name: 'Arial', size: 9, italic: true, bold: true, color: { argb: COLOR_TEXT } };
+  cellA2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
+  cellA2.alignment = { vertical: 'middle', horizontal: 'center' };
 
-  ws3.mergeCells('F2:I2');
-  ws3.getCell('F2').value = 'Payment: 30% T/T Deposit, 70% Balance Before Shipment  |  Price Validity: 30 Days';
-  ws3.getCell('F2').font = { name: 'Arial', size: 9.5, italic: true, color: { argb: COLOR_TEXT } };
-  ws3.getCell('F2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
-  ws3.getCell('F2').alignment = { vertical: 'middle', horizontal: 'right' };
+  ws3.mergeCells('C2:I2');
+  const cellC2 = ws3.getCell('C2');
+  cellC2.value = 'Payment: 30% T/T Deposit, 70% Balance Before Shipment  |  Price Validity: 30 Days';
+  cellC2.font = { name: 'Arial', size: 9.5, italic: true, color: { argb: COLOR_TEXT } };
+  cellC2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
+  cellC2.alignment = { vertical: 'middle', horizontal: 'right', indent: 1 };
+
   ws3.getRow(2).height = 24;
+  for (let c = 1; c <= 9; c++) {
+    const cell = ws3.getRow(2).getCell(c);
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+      bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+      left: (c === 1 || c === 3) ? { style: 'thin', color: { argb: 'FFCBD5E1' } } : undefined,
+      right: (c === 2 || c === 9) ? { style: 'thin', color: { argb: 'FFCBD5E1' } } : undefined
+    };
+  }
 
   const quoteHeaders = [
     'Item',

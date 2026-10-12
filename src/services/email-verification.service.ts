@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import dns from 'dns';
 import util from 'util';
+import crypto from 'crypto';
 import { NotificationService } from './notification.service.js';
 
 const resolveMxAsync = util.promisify(dns.resolveMx);
@@ -9,6 +10,8 @@ interface VerificationCodeEntry {
   code: string;
   expiresAt: number;
   lastSentAt: number;
+  resetToken?: string;
+  resetTokenExpiresAt?: number;
 }
 
 // 临时 / 一次性匿名邮箱黑名单 (防刷核心风控)
@@ -80,6 +83,7 @@ const COMMON_PUBLIC_DOMAINS = new Set([
 
 export class EmailVerificationService {
   private static codeStore = new Map<string, VerificationCodeEntry>();
+  private static resetCodeStore = new Map<string, VerificationCodeEntry>();
   private static ipRequestCount = new Map<string, { count: number; windowStart: number }>();
 
   /**
@@ -130,7 +134,7 @@ export class EmailVerificationService {
   /**
    * 通过目标邮箱域名的 DNS MX 记录直投邮件 (无需第三方 SMTP 中继)
    */
-  private static async sendViaDirectMx(targetEmail: string, code: string): Promise<boolean> {
+  private static async sendViaDirectMx(targetEmail: string, subject: string, html: string, text: string): Promise<boolean> {
     const domain = targetEmail.split('@')[1];
     if (!domain) return false;
 
@@ -143,28 +147,6 @@ export class EmailVerificationService {
 
       mxRecords.sort((a, b) => a.priority - b.priority);
       console.log(`📡 [Direct MX] 为 [${domain}] 解析到 ${mxRecords.length} 个 MX 节点，首选: ${mxRecords[0].exchange}`);
-
-      const emailHtml = `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #0b0f19; color: #f1f5f9; border-radius: 16px; border: 1px solid #1e293b;">
-          <div style="margin-bottom: 24px; text-align: center;">
-            <h2 style="color: #38bdf8; margin: 0; font-size: 22px;">⚡ KelvinFlow 外贸智能出单中枢</h2>
-            <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">7 天免费全功能试用 · 开启外贸自动化出单体验</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
-            <p style="color: #cbd5e1; font-size: 14px; margin: 0 0 12px 0;">您正在申请开通工作台试用席位，本次安全验证码为：</p>
-            <div style="font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #00f0ff; background: rgba(0,240,255,0.08); padding: 12px 20px; border-radius: 8px; display: inline-block; font-family: monospace;">
-              ${code}
-            </div>
-            <p style="color: #64748b; font-size: 12px; margin: 12px 0 0 0;">验证码有效期为 10 分钟。如非本人操作，请忽略此邮件。</p>
-          </div>
-          <div style="font-size: 12px; color: #64748b; line-height: 1.6; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
-            <p style="margin: 0;">遇到问题或需人工导入底价表？添加创始人微信：<strong style="color: #38bdf8;">kt_data</strong></p>
-            <p style="margin: 4px 0 0 0;">数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。</p>
-          </div>
-        </div>
-      `;
-
-      const emailText = `【KelvinFlow 外贸智能出单中枢】\\n您的 7 天全功能试用验证码为：${code}\\n验证码有效期为 10 分钟。如非本人操作请忽略。\\n遇到问题添加创始人微信：kt_data\\n数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。`;
 
       for (const record of mxRecords.slice(0, 2)) {
         try {
@@ -183,9 +165,9 @@ export class EmailVerificationService {
             from: '"KelvinFlow 验证中心" <noreply@kelvinflow.com>',
             replyTo: '"Kelvin Tsui" <sales@kelvinflow.com>',
             to: targetEmail,
-            subject: `【KelvinFlow】您的 7 天全功能试用验证码: ${code}`,
-            text: emailText,
-            html: emailHtml
+            subject,
+            text,
+            html
           });
 
           console.log(`✅ [Direct MX 直投成功] 目标: [${targetEmail}], 节点: ${record.exchange}, 响应: ${info.response || info.messageId}`);
@@ -199,6 +181,89 @@ export class EmailVerificationService {
       console.warn(`⚠️ [Direct MX 路由异常]: ${err.message}`);
       return false;
     }
+  }
+
+  /**
+   * 统一邮件安全投递引擎 (Resend API -> SMTP 中继 -> Direct MX 直投)
+   */
+  private static async sendEmailMessage(targetEmail: string, subject: string, html: string, text: string): Promise<boolean> {
+    const cleanEmail = targetEmail.trim().toLowerCase();
+    let emailSent = false;
+
+    // 1. 优先尝试 Resend API 官方事务发信通道
+    const resendApiKey = process.env.RESEND_API_KEY?.trim();
+    const fromEmail = process.env.FROM_EMAIL?.trim() || process.env.SMTP_FROM?.trim() || 'KelvinFlow 官方安全中心 <auth@kelvinflow.com>';
+
+    if (resendApiKey) {
+      try {
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: fromEmail,
+            to: [cleanEmail],
+            subject,
+            html,
+            text
+          })
+        });
+
+        const resData = await res.json() as any;
+        if (res.ok && resData?.id) {
+          emailSent = true;
+          console.log(`✅ [Resend API 投递成功] 验证码已成功投递至 [${cleanEmail}], 邮件 ID: ${resData.id}`);
+        } else {
+          console.warn(`⚠️ [Resend API 响应异常]: HTTP ${res.status} - ${JSON.stringify(resData)}`);
+        }
+      } catch (resendErr: any) {
+        console.warn(`⚠️ [Resend API 发信异常]: ${resendErr.message}`);
+      }
+    }
+
+    // 2. 尝试标准 SMTP 配置发送真实邮件
+    const smtpHost = process.env.SMTP_HOST?.trim();
+    const smtpUser = (process.env.SMTP_USER || process.env.EMAIL_USER)?.trim();
+    const smtpPass = (process.env.SMTP_PASS || process.env.EMAIL_PASS)?.trim();
+    const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
+    const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
+
+    if (!emailSent && smtpHost && smtpUser && smtpPass) {
+      try {
+        const transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: smtpPort,
+          secure: smtpSecure,
+          auth: {
+            user: smtpUser,
+            pass: smtpPass
+          }
+        });
+
+        const effectiveFrom = process.env.SMTP_FROM || process.env.FROM_EMAIL || (smtpUser.includes('@') ? `"KelvinFlow 外贸智能出单中枢" <${smtpUser}>` : '"KelvinFlow 官方安全中心" <auth@kelvinflow.com>');
+
+        await transporter.sendMail({
+          from: effectiveFrom,
+          to: cleanEmail,
+          subject,
+          html,
+          text
+        });
+        emailSent = true;
+        console.log(`✅ [SMTP 中继投递成功] 邮件已成功投递至邮箱 [${cleanEmail}]`);
+      } catch (err: any) {
+        console.warn(`⚠️ [SMTP 发信异常]: ${err.message}，将触发 Direct MX 自动直投通道`);
+      }
+    }
+
+    // 3. 若未配置 SMTP 或 SMTP 发信受阻，尝试 Direct MX 直投引擎
+    if (!emailSent) {
+      emailSent = await this.sendViaDirectMx(cleanEmail, subject, html, text);
+    }
+
+    return emailSent;
   }
 
   /**

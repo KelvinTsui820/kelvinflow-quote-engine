@@ -435,7 +435,7 @@
               <!-- 1. 询盘编号 (置灰只读展示 + 显式图文复制按钮，交互清晰明确) -->
               <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full">
                 <div>
-                  <div class="flex items-center justify-between mb-1.5">
+                  <div class="flex items-center justify-between mb-1.5 min-h-[22px]">
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">询盘单据编号</span>
                     <div class="flex items-center gap-1">
                       <span v-if="isDemoQuote" class="inline-flex items-center text-[10px] text-blue-700 font-bold bg-blue-100/90 border border-blue-300 px-1.5 py-0.5 rounded">
@@ -465,16 +465,19 @@
                     </div>
                   </div>
                 </div>
-                <div class="text-[10px] text-slate-400 flex items-center pt-0.5">
-                  <i class="fa-solid fa-shield-halved text-blue-500 mr-1 text-[10px]"></i>
-                  <span>系统自动生成的唯一核算单号</span>
+                <div class="h-[28px] flex items-center text-[10px] text-slate-400 select-none overflow-hidden">
+                  <i class="fa-solid fa-shield-halved text-blue-500 mr-1.5 text-[10px] flex-shrink-0"></i>
+                  <span class="truncate">系统自动生成的唯一核算单号</span>
                 </div>
               </div>
 
               <!-- 2. 买家企业名称 -->
               <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full">
                 <div>
-                  <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">买家企业名称</label>
+                  <div class="flex items-center justify-between mb-1.5 min-h-[22px]">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">买家企业名称</label>
+                    <span class="text-[10px] text-blue-600 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded font-bold">可直接编辑</span>
+                  </div>
                   <div class="relative flex items-center group">
                     <input v-model="quotation.customerName" placeholder="例如 Acme Global Ltd." class="header-input font-bold text-slate-800 pr-7">
                     <button v-if="quotation.customerName" type="button" @mousedown.prevent="quotation.customerName = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
@@ -482,18 +485,18 @@
                     </button>
                   </div>
                 </div>
-                <div class="text-[10px] text-slate-400 flex items-center pt-0.5">
-                  <i class="fa-regular fa-building text-slate-400 mr-1 text-[10px]"></i>
-                  <span>用于形式发票 (PI) 与邮件抬头称谓</span>
+                <div class="h-[28px] flex items-center text-[10px] text-slate-400 select-none overflow-hidden">
+                  <i class="fa-regular fa-building text-slate-400 mr-1.5 text-[10px] flex-shrink-0"></i>
+                  <span class="truncate">用于形式发票 (PI) 与邮件抬头称谓</span>
                 </div>
               </div>
 
               <!-- 3. 贸易条款 (INCOTERM - 极简实用：自由打字 + 底价表动态快捷胶囊) -->
               <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full">
                 <div>
-                  <div class="flex items-center justify-between mb-1.5">
+                  <div class="flex items-center justify-between mb-1.5 min-h-[22px]">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">贸易条款 (INCOTERM)</label>
-                    <span class="text-[10px] text-blue-600 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded font-bold">可直接打字修改</span>
+                    <span class="text-[10px] text-blue-600 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded font-bold">可直接编辑</span>
                   </div>
                   <div class="relative flex items-center group">
                     <input v-model="quotation.incotermUsed" 
@@ -505,7 +508,7 @@
                   </div>
                 </div>
                 <!-- 底价表动态驱动的常用条款快捷胶囊，点击一键秒切 (单行紧凑排版) -->
-                <div class="flex items-center gap-1.5 pt-1 pb-1.5 overflow-x-auto whitespace-nowrap compact-scroll">
+                <div class="h-[28px] flex items-center gap-1.5 overflow-x-auto whitespace-nowrap compact-scroll">
                   <span class="text-[10px] text-slate-400 font-medium mr-0.5 flex-shrink-0">快捷:</span>
                   <button v-for="term in availableIncoterms" :key="term.val"
                           type="button"
@@ -521,7 +524,10 @@
               <!-- 4. 对接人姓名 -->
               <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full">
                 <div>
-                  <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">采购对接人姓名</label>
+                  <div class="flex items-center justify-between mb-1.5 min-h-[22px]">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">采购对接人姓名</label>
+                    <span class="text-[10px] text-blue-600 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded font-bold">可直接编辑</span>
+                  </div>
                   <div class="relative flex items-center group">
                     <input v-model="quotation.buyerName" placeholder="联系人姓名 (如 Marcus Weber)" class="header-input font-semibold text-slate-800 pr-7">
                     <button v-if="quotation.buyerName" type="button" @mousedown.prevent="quotation.buyerName = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
@@ -529,16 +535,19 @@
                     </button>
                   </div>
                 </div>
-                <div class="text-[10px] text-slate-400 flex items-center pt-0.5">
-                  <i class="fa-regular fa-user text-slate-400 mr-1 text-[10px]"></i>
-                  <span>回复邮件正文买家尊称对接人</span>
+                <div class="h-[28px] flex items-center text-[10px] text-slate-400 select-none overflow-hidden">
+                  <i class="fa-regular fa-user text-slate-400 mr-1.5 text-[10px] flex-shrink-0"></i>
+                  <span class="truncate">回复邮件正文买家尊称对接人</span>
                 </div>
               </div>
 
               <!-- 5. 对接人邮箱 -->
               <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full">
                 <div>
-                  <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">买家电子邮箱</label>
+                  <div class="flex items-center justify-between mb-1.5 min-h-[22px]">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">买家电子邮箱</label>
+                    <span class="text-[10px] text-blue-600 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded font-bold">可直接编辑</span>
+                  </div>
                   <div class="relative flex items-center group">
                     <input v-model="quotation.buyerEmail" placeholder="buyer@example.com" class="header-input font-mono text-slate-700 pr-7">
                     <button v-if="quotation.buyerEmail" type="button" @mousedown.prevent="quotation.buyerEmail = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
@@ -546,16 +555,16 @@
                     </button>
                   </div>
                 </div>
-                <div class="text-[10px] text-slate-400 flex items-center pt-0.5">
-                  <i class="fa-regular fa-envelope text-slate-400 mr-1 text-[10px]"></i>
-                  <span>{{ isPaidUser ? '出单后自动同步写入企业邮箱草稿箱' : '买家询盘回信发送目标邮箱' }}</span>
+                <div class="h-[28px] flex items-center text-[10px] text-slate-400 select-none overflow-hidden">
+                  <i class="fa-regular fa-envelope text-slate-400 mr-1.5 text-[10px] flex-shrink-0"></i>
+                  <span class="truncate">{{ isPaidUser ? '出单后自动同步写入企业邮箱草稿箱' : '买家询盘回信发送目标邮箱' }}</span>
                 </div>
               </div>
 
               <!-- 6. 结算币种与基准汇率 (动态币种选择 + 实时银行现汇买入参考 + 汇率波动安全垫智能诊断) -->
               <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full rate-card-container relative">
                 <div>
-                  <div class="flex items-center justify-between mb-1.5">
+                  <div class="flex items-center justify-between mb-1.5 min-h-[22px]">
                     <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">结算币种与汇率</label>
                     <button type="button" @click.stop="rateDiagnosticModalVisible = true" 
                             :class="rateDiagnostic.badgeClass" 
@@ -616,7 +625,7 @@
                 </div>
 
                 <!-- 底部单行：现汇买入参考牌价 + 一键填入 + 核算逻辑 (与卡片4/5高度严格对齐一致) -->
-                <div class="text-[10px] text-slate-500 flex items-center justify-between pt-0.5 select-none relative">
+                <div class="h-[28px] flex items-center justify-between text-[10px] text-slate-500 select-none relative">
                   <div v-if="currentLiveRate" class="flex items-center gap-1.5 truncate text-slate-600 min-w-0 pr-1">
                     <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" title="实时结汇牌价正常 (5分钟自动刷新)"></span>
                     <span class="text-slate-500 font-medium whitespace-nowrap">现汇买入:</span>
@@ -650,7 +659,7 @@
               <!-- 7. 付款条款 (PAYMENT TERMS - 底价表动态驱动) -->
               <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full">
                 <div>
-                  <div class="flex items-center justify-between mb-1.5">
+                  <div class="flex items-center justify-between mb-1.5 min-h-[22px]">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">付款条款 (PAYMENT)</label>
                     <span class="text-[10px] text-blue-600 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded font-bold">可直接编辑</span>
                   </div>
@@ -663,7 +672,7 @@
                     </button>
                   </div>
                 </div>
-                <div class="flex items-center gap-1.5 pt-1 pb-1.5 overflow-x-auto whitespace-nowrap compact-scroll">
+                <div class="h-[28px] flex items-center gap-1.5 overflow-x-auto whitespace-nowrap compact-scroll">
                   <span class="text-[10px] text-slate-400 font-medium mr-0.5 flex-shrink-0">快捷:</span>
                   <button v-for="p in availablePaymentTerms" :key="p.val"
                           type="button" 
@@ -679,7 +688,7 @@
               <!-- 8. 生产交期 (PRODUCTION LEAD TIME - 底价表动态驱动) -->
               <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full">
                 <div>
-                  <div class="flex items-center justify-between mb-1.5">
+                  <div class="flex items-center justify-between mb-1.5 min-h-[22px]">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">生产交期 (LEAD TIME)</label>
                     <span class="text-[10px] text-blue-600 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded font-bold">可直接编辑</span>
                   </div>
@@ -692,7 +701,7 @@
                     </button>
                   </div>
                 </div>
-                <div class="flex items-center gap-1.5 pt-1 pb-1.5 overflow-x-auto whitespace-nowrap compact-scroll">
+                <div class="h-[28px] flex items-center gap-1.5 overflow-x-auto whitespace-nowrap compact-scroll">
                   <span class="text-[10px] text-slate-400 font-medium mr-0.5 flex-shrink-0">快捷:</span>
                   <button type="button" @click="terms.leadTime = '7-10 days for ready stock'"
                           class="px-1.5 py-0.5 text-[10px] font-bold rounded-md border transition cursor-pointer flex-shrink-0"
@@ -715,7 +724,7 @@
               <!-- 9. 报价有效期 (PRICE VALIDITY - 底价表动态驱动) -->
               <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full">
                 <div>
-                  <div class="flex items-center justify-between mb-1.5">
+                  <div class="flex items-center justify-between mb-1.5 min-h-[22px]">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">报价有效期 (VALIDITY)</label>
                     <span class="text-[10px] text-blue-600 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded font-bold">可直接编辑</span>
                   </div>
@@ -729,7 +738,7 @@
                     </button>
                   </div>
                 </div>
-                <div class="flex items-center gap-1.5 pt-1 pb-1.5 overflow-x-auto whitespace-nowrap compact-scroll">
+                <div class="h-[28px] flex items-center gap-1.5 overflow-x-auto whitespace-nowrap compact-scroll">
                   <span class="text-[10px] text-slate-400 font-medium mr-0.5 flex-shrink-0">快捷:</span>
                   <button type="button" @click="terms.validity = '7 Days from quote date'"
                           class="px-1.5 py-0.5 text-[10px] font-bold rounded-md border transition cursor-pointer flex-shrink-0"

@@ -621,6 +621,40 @@ export class TrialService {
   }
 
   /**
+   * 重置账户密码 (支持试用/付费租户与内置系统用户)
+   */
+  static resetPassword(accountOrEmail: string, newPassword: string): { success: boolean; error?: string } {
+    const raw = (accountOrEmail || '').trim();
+    if (!raw) {
+      return { success: false, error: '请提供待重置密码的邮箱或账号' };
+    }
+    const pwdCheck = this.validatePasswordComplexity(newPassword);
+    if (!pwdCheck.valid) {
+      return { success: false, error: pwdCheck.error || '新密码长度至少须为 6 位字符' };
+    }
+
+    const cleanEmail = raw.toLowerCase();
+    const trial = this.findTrialByEmail(cleanEmail) || this.findTrialByPhoneOrEmail(raw);
+
+    if (trial) {
+      trial.passwordHash = this.hashPassword(newPassword);
+      const all = this.getAllTrials().map(t => t.id === trial.id ? trial : t);
+      this.saveTrials(all);
+      console.log(`🔐 [密码重置成功] 试用账号 [${trial.email}] 密码已成功更新！`);
+      return { success: true };
+    }
+
+    // 检查是否为内置用户
+    const defaultUserUpdated = AuthService.resetDefaultUserPassword(cleanEmail, newPassword);
+    if (defaultUserUpdated) {
+      console.log(`🔐 [密码重置成功] 内置管理员账号 [${cleanEmail}] 密码已成功更新！`);
+      return { success: true };
+    }
+
+    return { success: false, error: '未找到该邮箱关联的账户记录，请核对邮箱或先开通试用' };
+  }
+
+  /**
    * 管理员手动或支付回调升级租户为正式付费版 (个人版 / 团队版)
    * 自动化核心闭环：
    * 1. 顺延有效期（在当前未过期天数基础上累加，保障用户权益）

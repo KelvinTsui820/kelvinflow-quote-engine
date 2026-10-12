@@ -187,6 +187,17 @@ export class AuthService {
   }
 
   /**
+   * 重置系统内置管理员/业务员密码
+   */
+  static resetDefaultUserPassword(email: string, newPassword: string): boolean {
+    const cleanEmail = email.toLowerCase().trim();
+    const found = this.DEFAULT_USERS.find(u => u.email.toLowerCase() === cleanEmail);
+    if (!found) return false;
+    found.passwordHash = newPassword.trim();
+    return true;
+  }
+
+  /**
    * 通過 API Key 認證外部請求 (如 Webhook, n8n, 腳本)
    */
   static authenticateApiKey(apiKey: string): { user: AuthUser; tenantId: string } | null {
