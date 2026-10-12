@@ -52,10 +52,15 @@ def deploy(password):
 
         sftp.put(local_tar, remote_tar, callback=progress_callback)
         
-        # 确保并同步标准种子单据数据（QT-20260904-888.json & pdf）
-        print("📋 正在同步标准样板单据数据...")
-        remote_quote_dirs = ["/var/www/quote_app/data/quotes", "/var/www/quote_app/data/tenants/default/quotes"]
-        for r_dir in remote_quote_dirs:
+        # 确保并同步标准种子单据数据与出厂底价表标准模板
+        print("📋 正在同步标准样板单据与出厂底价表数据...")
+        remote_dirs = [
+            "/var/www/quote_app/data/quotes",
+            "/var/www/quote_app/data/tenants/default/quotes",
+            "/var/www/quote_app/商品底价表",
+            "/var/www/quote_app/public/templates"
+        ]
+        for r_dir in remote_dirs:
             try:
                 ssh.exec_command(f"mkdir -p {r_dir}")
             except Exception:
@@ -65,16 +70,20 @@ def deploy(password):
             ("data/quotes/QT-20260904-888.json", "/var/www/quote_app/data/quotes/QT-20260904-888.json"),
             ("data/quotes/QT-20260904-888.pdf", "/var/www/quote_app/data/quotes/QT-20260904-888.pdf"),
             ("data/tenants/default/quotes/QT-20260904-888.json", "/var/www/quote_app/data/tenants/default/quotes/QT-20260904-888.json"),
-            ("data/tenants/default/quotes/QT-20260904-888.pdf", "/var/www/quote_app/data/tenants/default/quotes/QT-20260904-888.pdf")
+            ("data/tenants/default/quotes/QT-20260904-888.pdf", "/var/www/quote_app/data/tenants/default/quotes/QT-20260904-888.pdf"),
+            ("商品底价表/出厂底价表.xlsx", "/var/www/quote_app/商品底价表/出厂底价表.xlsx"),
+            ("商品底价表/出厂底价表.xlsx", "/var/www/quote_app/data/active_pricing.xlsx"),
+            ("商品底价表/出厂底价表.xlsx", "/var/www/quote_app/public/templates/出厂底价表.xlsx"),
+            ("商品底价表/出厂底价表.xlsx", "/var/www/quote_app/public/templates/Minimal_Export_Pricing_Template.xlsx")
         ]
         for l_sub, r_dest in sample_sync_items:
             l_full = os.path.join(root_dir, l_sub)
             if os.path.exists(l_full):
                 try:
                     sftp.put(l_full, r_dest)
-                    print(f"   已更新单据数据: {l_sub} -> {r_dest}")
+                    print(f"   已更新核心数据: {l_sub} -> {r_dest}")
                 except Exception as e:
-                    print(f"   ⚠️ 同步单据跳过: {e}")
+                    print(f"   ⚠️ 同步核心数据跳过: {e}")
 
         sftp.close()
         print("✅ 部署包与核心数据同步完成！")

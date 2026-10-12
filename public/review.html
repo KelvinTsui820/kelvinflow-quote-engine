@@ -2456,10 +2456,11 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         <div class="border-t border-slate-100 pt-3.5 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs">
           <div class="flex items-center space-x-1.5">
             <span class="text-slate-400">没有现成表格？</span>
-            <button @click="downloadPricingTemplate('minimal')" 
-                    class="inline-flex items-center text-blue-600 hover:text-blue-700 font-bold hover:underline transition cursor-pointer">
+            <button @click="downloadPricingTemplate('standard')" 
+                    class="inline-flex items-center text-blue-600 hover:text-blue-700 font-bold hover:underline transition cursor-pointer"
+                    title="点击下载官方标准《出厂底价表.xlsx》模板">
               <i class="fa-regular fa-file-excel mr-1 text-emerald-600"></i>
-              下载空白标准底价模板.xlsx
+              下载出厂底价表.xlsx
             </button>
           </div>
           <button @click="pricingModal.show = false" class="text-xs font-bold text-slate-500 hover:text-slate-700 px-4 py-2 hover:bg-slate-100 rounded-xl transition cursor-pointer">
@@ -5180,7 +5181,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           }
         };
 
-        const downloadPricingTemplate = (type = 'minimal') => {
+        const downloadPricingTemplate = (type = 'standard') => {
           window.open(`/api/v1/template/pricing-sheet?type=${type}`, '_blank');
         };
 

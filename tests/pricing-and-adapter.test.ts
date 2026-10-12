@@ -1,4 +1,7 @@
 import * as XLSX from 'xlsx';
+import express from 'express';
+import { quoteRouter } from '../src/routes/quote.router.js';
+import { TenantService } from '../src/services/tenant.service.js';
 import { normalizeSKU } from '../src/utils/sku-normalizer.js';
 import { matchColumns } from '../src/adapters/schema-matcher.js';
 import { ExcelAdapter } from '../src/adapters/excel.adapter.js';
@@ -206,6 +209,37 @@ describe('4. PricingService 報價核算與零漏報防護測試', () => {
     expect(item003.profitMargin).toBe(0.2);
     expect(item003.unitPriceForeign).toBe(16.67);
     expect(item003.subTotalForeign).toBe(8335.00);
+  });
+});
+
+describe('5. 出厂底价表模板下载接口测试 (/api/v1/template/pricing-sheet)', () => {
+  it('应该正确下载《出厂底价表.xlsx》并包含双工作表配置与标准SKU', async () => {
+    TenantService.init();
+    const app = express();
+    app.use('/api/v1', quoteRouter);
+    const server = app.listen(0);
+    const port = (server.address() as any).port;
+
+    try {
+      const res = await fetch(`http://127.0.0.1:${port}/api/v1/template/pricing-sheet`);
+      expect(res.status).toBe(200);
+
+      const disposition = res.headers.get('content-disposition') || '';
+      expect(decodeURIComponent(disposition)).toContain('出厂底价表.xlsx');
+
+      const arrayBuffer = await res.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const wb = XLSX.read(buffer, { type: 'buffer' });
+      expect(wb.SheetNames).toContain('⚙️ 全局核算参数 (Config)');
+      expect(wb.SheetNames).toContain('📦 商品出厂底价库 (Products)');
+
+      const productSheet = wb.Sheets['📦 商品出厂底价库 (Products)'];
+      const rows = XLSX.utils.sheet_to_json(productSheet, { header: 1 }) as any[];
+      expect(rows.length).toBeGreaterThan(1);
+      expect(JSON.stringify(rows)).toContain('ST-2026-A');
+    } finally {
+      server.close();
+    }
   });
 });
 

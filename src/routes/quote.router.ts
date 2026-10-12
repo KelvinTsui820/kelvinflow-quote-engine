@@ -656,32 +656,37 @@ quoteRouter.get('/rates/latest', async (req: Request, res: Response): Promise<an
 });
 
 /**
- * 下載出廠底價表 Excel 模板 (支持極簡 4 列單表版與進階 7-Sheet 企業版)
+ * 下載出廠底價表 Excel 模板 (優先讀取「商品底价表/出厂底价表.xlsx」)
  */
 quoteRouter.get('/template/pricing-sheet', (req: Request, res: Response) => {
-  const type = (req.query.type as string) || 'minimal';
-  const isAdvanced = type === 'advanced' || type === 'full';
+  // 優先動態檢索「商品底价表」目錄下的出廠底價表
+  const commodityPricing = TenantService.getCommodityPricingFile();
+  const directPath = path.join(process.cwd(), '商品底价表', '出厂底价表.xlsx');
+  const templatePath = path.join(process.cwd(), 'public', 'templates', '出厂底价表.xlsx');
+  const activePath = path.join(process.cwd(), 'data', 'active_pricing.xlsx');
 
-  const minimalPath = path.join(process.cwd(), 'public', 'templates', '极简出厂底价表_单表模板.xlsx');
-  const advancedPath = path.join(process.cwd(), 'public', 'templates', 'pricing_template.xlsx');
-  const fallbackPath = path.join(process.cwd(), 'data', 'active_pricing.xlsx');
-
-  let fileToSend: string;
-  let filename: string;
-
-  if (isAdvanced) {
-    fileToSend = fs.existsSync(advancedPath) ? advancedPath : fallbackPath;
-    filename = 'Advanced_Export_Pricing_Template_7Sheets.xlsx';
+  let fileToSend = '';
+  if (commodityPricing && fs.existsSync(commodityPricing.sourcePath)) {
+    fileToSend = commodityPricing.sourcePath;
+  } else if (fs.existsSync(directPath)) {
+    fileToSend = directPath;
+  } else if (fs.existsSync(templatePath)) {
+    fileToSend = templatePath;
+  } else if (fs.existsSync(activePath)) {
+    fileToSend = activePath;
   } else {
-    fileToSend = fs.existsSync(minimalPath) ? minimalPath : (fs.existsSync(advancedPath) ? advancedPath : fallbackPath);
-    filename = 'Minimal_Export_Pricing_Template.xlsx';
+    fileToSend = path.join(process.cwd(), 'public', 'templates', 'pricing_template.xlsx');
   }
 
   if (!fs.existsSync(fileToSend)) {
     return res.status(404).json({ success: false, error: '底價表模板未就緒' });
   }
 
-  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  const encodedFilename = encodeURIComponent('出厂底价表.xlsx');
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="factory_cost_pricing_template.xlsx"; filename*=UTF-8''${encodedFilename}`
+  );
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   return res.sendFile(fileToSend);
 });
