@@ -35,21 +35,19 @@ async function buildUnifiedMasterTemplate() {
     views: [{ showGridLines: true }]
   });
 
+  // Zero empty column A, zero empty row 1: direct A1 starting layout!
   ws0.columns = [
-    { width: 5 },   // A
-    { width: 40 },  // B (widened for comfortable title padding without truncation)
-    { width: 95 }   // C (widened for comfortable reading without truncation)
+    { width: 38 },  // A: Guide Item Titles
+    { width: 96 }   // B: Detailed Guide Content
   ];
 
-  ws0.mergeCells('B2:C2');
-  ws0.getCell('B2').value = '【2026外贸出厂底价表与智能核价模板】使用指南';
-  ws0.getCell('B2').font = { name: FONT_NAME, size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
-  ws0.getCell('B2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NAVY } };
-  ws0.getCell('B2').alignment = { vertical: 'middle', horizontal: 'center' };
-  ws0.getRow(2).height = 38;
-
-  // Row 3: Clean subtle spacing buffer
-  ws0.getRow(3).height = 12;
+  // Header Banner: Merged A1:B1
+  ws0.mergeCells('A1:B1');
+  ws0.getCell('A1').value = '【2026外贸出厂底价表与智能核价模板】使用指南';
+  ws0.getCell('A1').font = { name: FONT_NAME, size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
+  ws0.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NAVY } };
+  ws0.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
+  ws0.getRow(1).height = 38;
 
   const guideItems = [
     [
@@ -80,18 +78,18 @@ async function buildUnifiedMasterTemplate() {
 
   const guideHeights = [52, 52, 52, 45, 88, 45];
   guideItems.forEach((item, idx) => {
-    const rowNum = idx + 4;
-    ws0.getCell(`B${rowNum}`).value = item[0];
-    ws0.getCell(`B${rowNum}`).font = { name: FONT_NAME, size: 10, bold: true, color: { argb: COLOR_NAVY } };
-    ws0.getCell(`B${rowNum}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_SKY } };
-    ws0.getCell(`B${rowNum}`).border = thinBorder;
-    ws0.getCell(`B${rowNum}`).alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+    const rowNum = idx + 2;
+    ws0.getCell(`A${rowNum}`).value = item[0];
+    ws0.getCell(`A${rowNum}`).font = { name: FONT_NAME, size: 10, bold: true, color: { argb: COLOR_NAVY } };
+    ws0.getCell(`A${rowNum}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_SKY } };
+    ws0.getCell(`A${rowNum}`).border = thinBorder;
+    ws0.getCell(`A${rowNum}`).alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
 
-    ws0.getCell(`C${rowNum}`).value = item[1];
-    ws0.getCell(`C${rowNum}`).font = { name: FONT_NAME, size: 9.5, color: { argb: COLOR_TEXT } };
-    ws0.getCell(`C${rowNum}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: (idx % 2 === 0 ? 'FFFFFFFF' : COLOR_LIGHT_BG) } };
-    ws0.getCell(`C${rowNum}`).border = thinBorder;
-    ws0.getCell(`C${rowNum}`).alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+    ws0.getCell(`B${rowNum}`).value = item[1];
+    ws0.getCell(`B${rowNum}`).font = { name: FONT_NAME, size: 9.5, color: { argb: COLOR_TEXT } };
+    ws0.getCell(`B${rowNum}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: (idx % 2 === 0 ? 'FFFFFFFF' : COLOR_LIGHT_BG) } };
+    ws0.getCell(`B${rowNum}`).border = thinBorder;
+    ws0.getCell(`B${rowNum}`).alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
     ws0.getRow(rowNum).height = guideHeights[idx] || 48;
   });
 
@@ -150,8 +148,8 @@ async function buildUnifiedMasterTemplate() {
   }
 
   // Module 1: Currency & Exchange Rates
-  addSectionHeader(4, '💵 模块一：结算币种与内部锁定汇率 (Currency & Exchange Rates)');
-  addTableHeaders(5, ['外币币种 (Target Currency)', '内部锁定汇率 (Rate To RMB)', '币种符号 (Symbol)', '汇率波动预警保护基准', '适用采购区域 (采购商来源)']);
+  addSectionHeader(3, '💵 模块一：结算币种与内部锁定汇率 (Currency & Exchange Rates)');
+  addTableHeaders(4, ['外币币种 (Target Currency)', '内部锁定汇率 (Rate To RMB)', '币种符号 (Symbol)', '汇率波动预警保护基准', '适用采购区域 (采购商来源)']);
   
   const m1Data = [
     ['USD', 7.20, '$', '★ 基准主币种 (波动±3%保护)', '北美、东南亚、全球主流外贸结算 (默认主币种)'],
@@ -161,7 +159,7 @@ async function buildUnifiedMasterTemplate() {
     ['CAD', 5.30, 'C$', '基准锁定汇率 (波动±3%保护)', '加拿大市场专属采购商']
   ];
   m1Data.forEach((d, i) => {
-    const rNum = i + 6;
+    const rNum = i + 5;
     const r = ws1.getRow(rNum);
     d.forEach((val, ci) => {
       const c = r.getCell(ci + 1);
@@ -176,8 +174,8 @@ async function buildUnifiedMasterTemplate() {
   });
 
   // Module 2: Profit Margin & Redline
-  addSectionHeader(12, '📈 模块二：利润红线与防穿底控制 (Profit Margin & Cost Protection)');
-  addTableHeaders(13, ['参数控制项 (Control Parameter)', '设置基准值 (Setting Value)', '参数格式/单位', '系统生效机制与风控规则说明', '💡 实战风控与业务避坑建议']);
+  addSectionHeader(11, '📈 模块二：利润红线与防穿底控制 (Profit Margin & Cost Protection)');
+  addTableHeaders(12, ['参数控制项 (Control Parameter)', '设置基准值 (Setting Value)', '参数格式/单位', '系统生效机制与风控规则说明', '💡 实战风控与业务避坑建议']);
 
   const m2Data = [
     ['全厂默认保底毛利率 (Default Margin)', 0.15, '百分比 (0.15)', '出厂安全底价基础上浮动加价；单品未设时自动继承此参数', '建议常规大货订单基准，给买家还价预留 3%~5% 安全博弈空间'],
@@ -186,7 +184,7 @@ async function buildUnifiedMasterTemplate() {
     ['报价单默认有效期 (Price Validity)', '30 Days', '天数', '超出 30 天需重新核实原材料成本与外币汇率波动情况', '严防海运费与汇率剧烈波动风险，超期需重新核算，避免履约亏损']
   ];
   m2Data.forEach((d, i) => {
-    const rNum = i + 14;
+    const rNum = i + 13;
     const r = ws1.getRow(rNum);
     d.forEach((val, ci) => {
       const c = r.getCell(ci + 1);
@@ -209,8 +207,8 @@ async function buildUnifiedMasterTemplate() {
   });
 
   // Module 3: Incoterms & Port Charges
-  addSectionHeader(19, '🚢 模块三：默认贸易术语与杂费基准 (Incoterms & Port Charges)');
-  addTableHeaders(20, ['贸易术语 (Incoterm)', '指定交货港口 / 地点', '单件均摊杂费 (RMB)', '整柜固定杂费 (RMB)', '费用包含范围与口岸说明']);
+  addSectionHeader(18, '🚢 模块三：默认贸易术语与杂费基准 (Incoterms & Port Charges)');
+  addTableHeaders(19, ['贸易术语 (Incoterm)', '指定交货港口 / 地点', '单件均摊杂费 (RMB)', '整柜固定杂费 (RMB)', '费用包含范围与口岸说明']);
 
   const m3Data = [
     ['EXW', '工厂车间自提 (Factory Ex-works)', 0.00, 0.00, '买家自提，仅含标准纸箱包装，无港口杂费与拖车费'],
@@ -218,7 +216,7 @@ async function buildUnifiedMasterTemplate() {
     ['CIF', '目的港（根据买家询盘实时测算）', '实时测算', '含基础货运险', '根据货柜实际目的港与实时船期核算海运费与保费']
   ];
   m3Data.forEach((d, i) => {
-    const rNum = i + 21;
+    const rNum = i + 20;
     const r = ws1.getRow(rNum);
     d.forEach((val, ci) => {
       const c = r.getCell(ci + 1);
@@ -235,8 +233,8 @@ async function buildUnifiedMasterTemplate() {
   });
 
   // Module 4: Payment Terms
-  addSectionHeader(25, '💳 模块四：默认付款方式与结算浮动 (Payment Terms)');
-  addTableHeaders(26, ['付款方式 (Payment Term)', '价格浮动比例 (%)', '支持结算币种', '资金周转成本与商业规则说明', '适用客户等级与授信']);
+  addSectionHeader(24, '💳 模块四：默认付款方式与结算浮动 (Payment Terms)');
+  addTableHeaders(25, ['付款方式 (Payment Term)', '价格浮动比例 (%)', '支持结算币种', '资金周转成本与商业规则说明', '适用客户等级与授信']);
 
   const m4Data = [
     ['100% T/T Advance (全款预付)', -0.02, 'USD / EUR / GBP', '买家全款预付直享 98 折，极大加速工厂现金流周转', '新老客户通用优惠'],
@@ -244,7 +242,7 @@ async function buildUnifiedMasterTemplate() {
     ['L/C at Sight (即期不可撤销信用证)', 0.015, 'USD / EUR', '覆盖银行开证手续费与议付审单合规成本', '信用优良大客户']
   ];
   m4Data.forEach((d, i) => {
-    const rNum = i + 27;
+    const rNum = i + 26;
     const r = ws1.getRow(rNum);
     d.forEach((val, ci) => {
       const c = r.getCell(ci + 1);
@@ -261,8 +259,8 @@ async function buildUnifiedMasterTemplate() {
   });
 
   // Module 5: Container Guidelines
-  addSectionHeader(31, '📦 模块五：集装箱装载容积速查标尺 (Container Volume Guidelines)');
-  addTableHeaders(32, ['集装箱型号 (Container Type)', '安全装载容积 (CBM)', '理论容积 (CBM)', '最大限重 (KG)', '装柜适用选型建议']);
+  addSectionHeader(30, '📦 模块五：集装箱装载容积速查标尺 (Container Volume Guidelines)');
+  addTableHeaders(31, ['集装箱型号 (Container Type)', '安全装载容积 (CBM)', '理论容积 (CBM)', '最大限重 (KG)', '装柜适用选型建议']);
 
   const m5Data = [
     ['20GP (20尺小柜)', 28.0, 33.2, 21800, '适合五金紧固件、金属椅脚等高密度重货或试单'],
@@ -270,7 +268,7 @@ async function buildUnifiedMasterTemplate() {
     ['40HQ (40尺高柜)', 68.0, 76.3, 26000, '适合办公椅、支架、轻泡货等大体积外贸商品']
   ];
   m5Data.forEach((d, i) => {
-    const rNum = i + 33;
+    const rNum = i + 32;
     const r = ws1.getRow(rNum);
     d.forEach((val, ci) => {
       const c = r.getCell(ci + 1);
@@ -440,27 +438,27 @@ async function buildUnifiedMasterTemplate() {
 
     // L-Q Live Formulas
     const cellL = r.getCell(12);
-    cellL.value = { formula: `'⚙️ 全局核算参数 (Config)'!$C$22` };
+    cellL.value = { formula: `'⚙️ 全局核算参数 (Config)'!$C$21` };
     cellL.numFmt = '¥#,##0.00';
 
     const cellM = r.getCell(13);
-    cellM.value = { formula: `IF(ISBLANK(I${rowNum}), '⚙️ 全局核算参数 (Config)'!$B$14, I${rowNum})` };
+    cellM.value = { formula: `IF(ISBLANK(I${rowNum}), '⚙️ 全局核算参数 (Config)'!$B$13, I${rowNum})` };
     cellM.numFmt = '0.0%';
 
     const cellN = r.getCell(14);
-    cellN.value = { formula: `ROUND(((D${rowNum} * (1 + M${rowNum}) + L${rowNum}) / '⚙️ 全局核算参数 (Config)'!$B$6), 2)` };
+    cellN.value = { formula: `ROUND(((D${rowNum} * (1 + M${rowNum}) + L${rowNum}) / '⚙️ 全局核算参数 (Config)'!$B$5), 2)` };
     cellN.numFmt = '$#,##0.00';
 
     const cellO = r.getCell(15);
-    cellO.value = { formula: `IF(AND(G${rowNum}>0, F${rowNum}>0), INT(('⚙️ 全局核算参数 (Config)'!$B$33 / G${rowNum})) * F${rowNum}, "-")` };
+    cellO.value = { formula: `IF(AND(G${rowNum}>0, F${rowNum}>0), INT(('⚙️ 全局核算参数 (Config)'!$B$32 / G${rowNum})) * F${rowNum}, "-")` };
     cellO.numFmt = '#,##0';
 
     const cellP = r.getCell(16);
-    cellP.value = { formula: `IF(AND(G${rowNum}>0, F${rowNum}>0), INT(('⚙️ 全局核算参数 (Config)'!$B$35 / G${rowNum})) * F${rowNum}, "-")` };
+    cellP.value = { formula: `IF(AND(G${rowNum}>0, F${rowNum}>0), INT(('⚙️ 全局核算参数 (Config)'!$B$34 / G${rowNum})) * F${rowNum}, "-")` };
     cellP.numFmt = '#,##0';
 
     const cellQ = r.getCell(17);
-    cellQ.value = { formula: `IF(M${rowNum}<'⚙️ 全局核算参数 (Config)'!$B$15, "🚨 穿透红线", IF(M${rowNum}>=0.25, "💎 高毛利款", "✅ 利润健康"))` };
+    cellQ.value = { formula: `IF(M${rowNum}<'⚙️ 全局核算参数 (Config)'!$B$14, "🚨 穿透红线", IF(M${rowNum}>=0.25, "💎 高毛利款", "✅ 利润健康"))` };
 
     for (let c = 12; c <= 17; c++) {
       const cell = r.getCell(c);
@@ -481,7 +479,7 @@ async function buildUnifiedMasterTemplate() {
   // -------------------------------------------------------------
   const ws3 = workbook.addWorksheet('📄 对外纯净批量报价单 (脱敏单)', {
     views: [
-      { state: 'frozen', xSplit: 2, ySplit: 3, topLeftCell: 'C4', activeCell: 'C4', showGridLines: true }
+      { state: 'frozen', ySplit: 3, topLeftCell: 'A4', activeCell: 'A4', showGridLines: true }
     ]
   });
 
@@ -511,7 +509,7 @@ async function buildUnifiedMasterTemplate() {
   ws3.getCell('A2').alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
 
   ws3.mergeCells('F2:I2');
-  ws3.getCell('F2').value = 'Payment: 30% Deposit, 70% Before Shipment  |  Price Validity: 30 Days';
+  ws3.getCell('F2').value = 'Payment: 30% T/T Deposit, 70% Balance Before Shipment  |  Price Validity: 30 Days';
   ws3.getCell('F2').font = { name: 'Arial', size: 9.5, italic: true, color: { argb: COLOR_TEXT } };
   ws3.getCell('F2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
   ws3.getCell('F2').alignment = { vertical: 'middle', horizontal: 'right' };
