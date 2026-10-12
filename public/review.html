@@ -258,14 +258,14 @@
             <img src="/kelvinflow_emblem.png" alt="KelvinFlow" class="h-6 sm:h-7 w-auto object-contain block select-none flex-shrink-0" />
             <span class="text-base sm:text-lg font-black tracking-tight text-white font-sans select-none">KelvinFlow</span>
           </a>
-          <!-- 2. 中枢系统标题与版本标识 (根据用户实际套餐动态显示：极客版 / 免费试用版 / 演示体验版) -->
+          <!-- 2. 中枢系统标题与版本标识 (根据用户实际套餐动态显示：个人版 / 免费试用版 / 演示体验版) -->
           <div class="items-center space-x-2 hidden lg:flex min-w-0">
             <span class="text-slate-600 font-light select-none">|</span>
             <h1 class="text-xs sm:text-sm font-semibold text-slate-200 tracking-tight truncate">
               AI 外贸智能出单中枢
             </h1>
             <span v-if="isPaidUser" class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30 flex-shrink-0 shadow-xs">
-              <i class="fa-solid fa-crown text-amber-400 text-[9px]"></i> 个人极客版
+              <i class="fa-solid fa-crown text-amber-400 text-[9px]"></i> 个人版
             </span>
             <span v-else-if="trialState.isTrial && !trialState.expired" class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/30 flex-shrink-0 shadow-xs">
               <i class="fa-solid fa-bolt text-amber-400 text-[9px]"></i> 免费试用版
@@ -300,9 +300,10 @@
             <span class="md:hidden text-xs">底价</span>
           </button>
 
-          <!-- 🎨 报价单企业 Logo 设置 (超窄屏幕隐藏以保核心功能) -->
-          <button @click="openLogoModal" class="hidden min-[520px]:inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="上传企业商标，自动印于导出的 A4 PDF 报价单抬头" aria-label="上传企业商标，自动印于导出的 A4 PDF 报价单抬头">
-            <i class="fa-solid fa-image text-cyan-400 text-xs"></i>
+          <!-- 🎨 报价单企业 Logo 设置 (超窄屏幕隐藏以保核心功能，个人版专属特权) -->
+          <button @click="openLogoModal" class="hidden min-[520px]:inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="上传企业商标，自动印于导出的 A4 PDF 报价单抬头（个人版专属）" aria-label="上传企业商标，自动印于导出的 A4 PDF 报价单抬头">
+            <i class="fa-solid fa-crown text-amber-400 text-xs" v-if="!isPaidUser"></i>
+            <i class="fa-solid fa-image text-cyan-400 text-xs" v-else></i>
             <span class="hidden xl:inline">报价单Logo</span>
             <span class="xl:hidden text-xs">Logo</span>
           </button>
@@ -318,7 +319,7 @@
           <div v-if="isLoggedIn" class="inline-flex items-center space-x-1 sm:space-x-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg bg-blue-950/90 border border-blue-500/40 text-xs flex-shrink-0 shadow-inner">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span class="font-mono text-cyan-300 font-bold text-[11px] sm:text-xs hidden min-[440px]:inline">{{ maskedPhone }}</span>
-            <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hidden md:inline">
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hidden md:inline">
               余{{ trialState.remainingDays }}天
             </span>
             <button @click.stop="openLogoutModal" class="text-slate-400 hover:text-rose-400 transition cursor-pointer p-1 ml-0.5 flex items-center justify-center rounded hover:bg-white/10" title="退出登录或切换账号" aria-label="退出登录或切换账号">
@@ -350,18 +351,18 @@
           </button>
           <button type="button" @click="openUpgradeModal('monthly')" class="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-xs transition flex items-center space-x-1 shadow-md shadow-amber-500/25 cursor-pointer active:scale-95">
             <i class="fa-solid fa-crown text-slate-950 text-xs mr-0.5"></i>
-            <span>升级极客版 ➔</span>
+            <span>升级个人版 ➔</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- 极客版已开通会员状态条 (已付费用户显示) -->
+    <!-- 个人版已开通会员状态条 (已付费用户显示) -->
     <div v-if="isPaidUser" class="bg-gradient-to-r from-emerald-950 via-slate-900 to-blue-950 border-b border-emerald-500/30 shadow-inner">
       <div class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-2 text-xs text-slate-200 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center space-x-2 text-xs text-emerald-300 font-medium">
           <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
-          <span>您已开通极客尊享版（有效期剩余 <strong class="text-amber-300 font-mono font-bold">{{ trialState.remainingDays }} 天</strong>）· 邮箱全自动出单与草稿箱直达已激活！</span>
+          <span>您已开通个人尊享版（有效期剩余 <strong class="text-amber-300 font-mono font-bold">{{ trialState.remainingDays }} 天</strong>）· 邮箱全自动出单与草稿箱直达已激活！</span>
         </div>
         <div class="flex items-center space-x-2.5">
           <button @click="openReferralShareModal" class="px-3 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 font-bold text-xs transition flex items-center space-x-1.5 cursor-pointer">
@@ -380,7 +381,7 @@
             🔒 试用已到期
           </span>
           <span class="text-rose-200">
-            您的 7 天全功能试用已到期，底价表与历史单据将安全保留 30 天。如需继续使用请升级极客版或扫码联系创始人微信恢复自动出单！
+            您的 7 天全功能试用已到期，底价表与历史单据将安全保留 30 天。如需继续使用请升级个人版或扫码联系创始人微信恢复自动出单！
           </span>
         </div>
         <div class="flex items-center space-x-2">
@@ -390,7 +391,7 @@
           </button>
           <button @click="openUpgradeModal('monthly')" class="px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition flex items-center space-x-1 cursor-pointer">
             <i class="fa-solid fa-crown mr-1"></i>
-            <span>升级极客版 / 联系客服 ➔</span>
+            <span>升级个人版 / 联系客服 ➔</span>
           </button>
         </div>
       </div>
@@ -445,10 +446,10 @@
                       </span>
                     </div>
                   </div>
-                  <div class="flex items-center justify-between h-[34px] bg-slate-100/90 border border-slate-200 rounded-lg px-2.5 cursor-default select-all">
-                    <span class="text-xs font-extrabold text-slate-600 font-mono tracking-wide select-all">{{ quotation.quotationNumber }}</span>
+                  <div class="flex items-center justify-between h-[34px] bg-slate-100/90 border border-slate-200 rounded-lg px-2.5 cursor-default">
+                    <span class="text-xs font-extrabold text-slate-600 font-mono tracking-wide select-text">{{ quotation.quotationNumber }}</span>
                     <div class="flex items-center space-x-1.5">
-                      <button type="button" @click="quotesHistoryModal.show = true" 
+                      <button type="button" @click.stop="openQuotesHistoryModal" 
                               title="查看当前租户历史报价单列表" aria-label="查看当前租户历史报价单列表"
                               class="inline-flex items-center space-x-1 text-[11px] font-bold px-2 py-0.5 rounded-md transition shadow-xs border bg-white hover:bg-blue-50 text-slate-600 hover:text-blue-600 border-slate-200 hover:border-blue-300 active:scale-95 cursor-pointer">
                         <i class="fa-solid fa-clock-rotate-left text-slate-400"></i>
@@ -551,17 +552,18 @@
                 </div>
               </div>
 
-              <!-- 6. 结算币种与基准汇率 (动态币种选择 + 汇率波动±3%安全保护预警) -->
-              <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full">
+              <!-- 6. 结算币种与基准汇率 (动态币种选择 + 实时银行现汇买入参考 + 汇率波动安全垫智能诊断) -->
+              <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-2 h-full rate-card-container relative">
                 <div>
                   <div class="flex items-center justify-between mb-1.5">
                     <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">结算币种与汇率</label>
-                    <span v-if="isRateOutOfSafeRange" class="text-[9px] font-extrabold text-amber-700 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded animate-pulse" :title="`偏离底价表基准汇率 ${baseCurrencyRate} 超过 ±3%`">
-                      ⚠️ 偏离基准 ±3%
-                    </span>
-                    <span v-else class="text-[9px] text-emerald-600 bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.5 rounded font-bold">
-                      ±3% 保护中
-                    </span>
+                    <button type="button" @click.stop="rateDiagnosticModalVisible = true" 
+                            :class="rateDiagnostic.badgeClass" 
+                            class="text-[9px] font-extrabold border px-1.5 py-0.5 rounded cursor-pointer flex items-center gap-1 transition select-none shadow-2xs hover:opacity-90 active:scale-95" 
+                            title="点击查看外贸汇率核算与结汇安全垫深度分析">
+                      <span>{{ rateDiagnostic.text }}</span>
+                      <i class="fa-solid fa-circle-info text-[8px] opacity-75"></i>
+                    </button>
                   </div>
                   <div class="relative flex items-center h-[34px] bg-white border border-slate-200 hover:border-slate-300 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-600/20 rounded-lg transition shadow-xs group currency-dropdown-container">
                     <!-- 自定义高质感外币下拉组件 (底价表动态驱动，支持 USD / EUR / GBP / AUD / CAD 等) -->
@@ -574,10 +576,10 @@
 
                       <!-- 下拉弹窗 -->
                       <div v-if="currencyDropdownOpen" 
-                           class="absolute left-0 top-full mt-1 z-50 w-52 rounded-xl bg-white border border-slate-200/90 shadow-2xl p-1.5 space-y-0.5 animate-in fade-in duration-150">
+                           class="absolute left-0 top-full mt-1 z-50 w-60 rounded-xl bg-white border border-slate-200/90 shadow-2xl p-1.5 space-y-0.5 animate-in fade-in duration-150">
                         <div class="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1 flex items-center justify-between">
                           <span>底价表外币币种</span>
-                          <span class="font-normal font-mono text-[9px]">基准汇率</span>
+                          <span class="font-normal font-mono text-[9px]">基准 / 现汇买入</span>
                         </div>
                         <div v-for="c in availableCurrencies" :key="c.currency"
                              @click="onCurrencySelectChange(c.currency); currencyDropdownOpen = false"
@@ -589,6 +591,7 @@
                           </div>
                           <div class="flex items-center gap-1.5">
                             <span class="text-[11px] font-mono" :class="quotation.currency === c.currency ? 'text-blue-600 font-bold' : 'text-slate-500'">¥{{ c.rateToRMB }}</span>
+                            <span v-if="liveRates?.rates && liveRates.rates[c.currency]" class="text-[9px] font-mono text-emerald-600 font-semibold" :title="`今日银行现汇买入价: ¥${liveRates.rates[c.currency].buyingRate}`">(现:{{ liveRates.rates[c.currency].buyingRate }})</span>
                             <i v-if="quotation.currency === c.currency" class="fa-solid fa-check text-blue-600 text-[10px]"></i>
                           </div>
                         </div>
@@ -599,9 +602,9 @@
                       1 = ¥
                     </span>
                     <div class="relative flex-1 h-full flex items-center">
-                      <input type="number" step="0.01" role="textbox" v-model.number="quotation.rateUsed" @input="onRateChange" @change="quotation.rateUsed = round2(quotation.rateUsed); onRateChange()"
+                      <input type="number" step="0.0001" role="textbox" v-model.number="quotation.rateUsed" @input="onRateChange" @change="quotation.rateUsed = round4(quotation.rateUsed); onRateChange()"
                              class="w-full h-full px-2.5 pr-7 text-xs font-extrabold text-slate-900 font-mono focus:outline-none bg-transparent"
-                             :class="isRateOutOfSafeRange ? 'text-amber-600 bg-amber-50/30' : ''">
+                             :class="rateDiagnostic.type === 'risk' ? 'text-amber-600 bg-amber-50/30' : ''">
                       <button v-if="quotation.rateUsed" type="button" @mousedown.prevent="quotation.rateUsed = null" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
@@ -611,26 +614,35 @@
                     </span>
                   </div>
                 </div>
-                <div class="text-[10px] text-slate-400 flex items-center justify-between pt-0.5 relative group/rate-tip cursor-pointer"
-                     @click.stop="rateTipVisible = !rateTipVisible">
-                  <div class="flex items-center truncate">
+
+                <!-- 底部单行：现汇买入参考牌价 + 一键填入 + 核算逻辑 (与卡片4/5高度严格对齐一致) -->
+                <div class="text-[10px] text-slate-500 flex items-center justify-between pt-0.5 select-none relative">
+                  <div v-if="currentLiveRate" class="flex items-center gap-1.5 truncate text-slate-600 min-w-0 pr-1">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" title="实时结汇牌价正常 (5分钟自动刷新)"></span>
+                    <span class="text-slate-500 font-medium whitespace-nowrap">现汇买入:</span>
+                    <span class="font-mono font-black text-blue-700 whitespace-nowrap">¥{{ currentLiveRate.buyingRate }}</span>
+                    <span v-if="currentLiveRate.time" class="text-[9px] text-slate-400 font-mono hidden xl:inline" :title="'行情时间: ' + (currentLiveRate.date ? currentLiveRate.date + ' ' : '') + currentLiveRate.time + ' (北京时间)'">({{ currentLiveRate.time }})</span>
+                    <button type="button" @click.stop="fetchLiveRates(true)" class="text-slate-400 hover:text-blue-600 transition p-0.5 rounded cursor-pointer flex-shrink-0" title="点击立即获取最新牌价">
+                      <i class="fa-solid fa-arrows-rotate text-[9px]" :class="{ 'animate-spin': loadingLiveRates }"></i>
+                    </button>
+                  </div>
+                  <div v-else class="flex items-center truncate text-slate-400 min-w-0 pr-1">
                     <i class="fa-solid fa-shield-halved text-blue-500 mr-1 text-[10px] flex-shrink-0"></i>
                     <span class="truncate">基准 {{ baseCurrencyRate }} (安全区: {{ rateSafeRange.min }}~{{ rateSafeRange.max }})</span>
                   </div>
-                  <span class="text-blue-600 hover:text-blue-700 cursor-help flex items-center gap-0.5 text-[10px] font-medium flex-shrink-0 ml-1">
-                    <i class="fa-solid fa-circle-question"></i>
-                    <span>核算逻辑</span>
-                  </span>
-                  <!-- Hover & Touch Click Tooltip -->
-                  <div :class="rateTipVisible ? 'opacity-100 pointer-events-auto translate-y-0' : 'opacity-0 pointer-events-none -translate-y-1 group-hover/rate-tip:opacity-100 group-hover/rate-tip:pointer-events-auto group-hover/rate-tip:translate-y-0'"
-                       class="absolute bottom-full right-0 mb-2 w-80 max-w-[calc(100vw-32px)] p-3 bg-slate-950/95 text-slate-200 text-[11px] rounded-xl shadow-2xl border border-slate-700/80 backdrop-blur-xl transition-all duration-200 z-50 leading-relaxed">
-                    <div class="flex items-center space-x-1.5 mb-1.5 text-blue-400 font-bold text-xs">
-                      <i class="fa-solid fa-circle-info"></i>
-                      <span>底价表汇率波动保护机制 (±3%)</span>
-                    </div>
-                    <p class="text-slate-300">
-                      底价表中 {{ quotation.currency }} 设定的基准汇率为 <strong>{{ baseCurrencyRate }}</strong>。安全浮动区间为 <strong>{{ rateSafeRange.min }} ~ {{ rateSafeRange.max }}</strong> (±3%)。当汇率波动超出此区间时建议重新锁定汇率或微调价格。
-                    </p>
+
+                  <div class="flex items-center gap-1.5 flex-shrink-0">
+                    <button v-if="currentLiveRate" type="button" @click.stop="applyLiveRate"
+                            class="text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 border border-blue-200 hover:border-blue-300 px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition cursor-pointer shadow-2xs active:scale-95"
+                            title="一键将今日银行现汇买入参考价填入当前报价">
+                      <i class="fa-solid fa-wand-magic-sparkles text-[9px] text-blue-500"></i>
+                      <span>一键填入</span>
+                    </button>
+                    <button type="button" @click.stop="rateDiagnosticModalVisible = true"
+                            class="text-slate-400 hover:text-blue-600 cursor-pointer p-0.5 flex items-center transition"
+                            title="点击打开外贸汇率核算与结汇安全垫分析弹窗">
+                      <i class="fa-solid fa-circle-question text-[11px]"></i>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -709,6 +721,7 @@
                   </div>
                   <div class="relative flex items-center group">
                     <input v-model="terms.validity" 
+                           :title="terms.validity || '报价有效期'"
                            placeholder="如 30 Days (Subject to raw material & exchange fluctuation)..."
                            class="header-input font-medium text-slate-800 text-xs pr-7">
                     <button v-if="terms.validity" type="button" @mousedown.prevent="terms.validity = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
@@ -794,11 +807,11 @@
                   </div>
 
                   <!-- AI 促单建议提示框 (深色极客风悬浮毛玻璃提示框，对齐控制台视觉体系) -->
-                  <div class="p-1.5 px-2 rounded-lg text-[11px] flex items-center justify-between gap-1.5 relative group/aitip"
+                  <div class="p-2 rounded-lg text-[11px] flex items-start sm:items-center justify-between gap-2 relative group/aitip"
                        :class="computedContainerEstimate.isOverWeight ? 'bg-rose-500/15 border border-rose-500/30 text-rose-200' : 'bg-amber-500/10 border border-amber-500/25 text-amber-200'">
-                    <div class="flex items-center space-x-1 min-w-0 flex-1 cursor-help">
-                      <i :class="computedContainerEstimate.isOverWeight ? 'fa-solid fa-weight-hanging text-rose-400' : 'fa-solid fa-lightbulb text-amber-400'" class="flex-shrink-0 text-[10px]"></i>
-                      <span class="truncate text-[10px] font-medium" :class="computedContainerEstimate.isOverWeight ? 'text-rose-300' : 'text-amber-300'">
+                    <div class="flex items-start space-x-1.5 min-w-0 flex-1 cursor-help">
+                      <i :class="computedContainerEstimate.isOverWeight ? 'fa-solid fa-weight-hanging text-rose-400' : 'fa-solid fa-lightbulb text-amber-400'" class="flex-shrink-0 text-[10px] mt-0.5"></i>
+                      <span class="text-[10px] leading-snug break-words font-medium" :class="computedContainerEstimate.isOverWeight ? 'text-rose-300' : 'text-amber-300'">
                         {{ computedContainerEstimate.aiRecommendation }}
                       </span>
                     </div>
@@ -820,7 +833,7 @@
                         <i class="fa-solid fa-arrow-turn-down text-[9px]"></i>
                       </div>
                     </div>
-                    <button type="button" @click="insertLogisticsAdviceToEmail" class="text-[9px] font-bold px-1.5 py-0.5 rounded border transition cursor-pointer flex-shrink-0 flex items-center gap-0.5 whitespace-nowrap"
+                    <button type="button" @click="insertLogisticsAdviceToEmail" class="text-[9px] font-bold px-1.5 py-0.5 rounded border transition cursor-pointer flex-shrink-0 flex items-center gap-0.5 whitespace-nowrap mt-0.5 sm:mt-0"
                             :class="computedContainerEstimate.isOverWeight ? 'text-rose-300 hover:text-white bg-rose-500/25 hover:bg-rose-500/40 border-rose-500/40' : 'text-amber-300 hover:text-white bg-amber-500/25 hover:bg-amber-500/40 border-amber-500/40'"
                             title="将此条凑柜建议追加至英文邮件草稿" aria-label="将此条凑柜建议追加至英文邮件草稿">
                       <i class="fa-solid fa-pen-to-square text-[8px]"></i>
@@ -2247,7 +2260,7 @@
           <!-- 主行动按钮：开始 AI 智能建单 -->
           <button @click="submitNewPo(false)" 
                   :disabled="newPoModal.uploading || !newPoModal.selectedFile" 
-                  class="w-full h-11 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition disabled:opacity-50 disabled:shadow-none flex items-center justify-center space-x-2 cursor-pointer">
+                  class="w-full h-11 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center space-x-2 cursor-pointer">
             <i v-if="newPoModal.uploading" class="fa-solid fa-spinner animate-spin"></i>
             <i v-else class="fa-solid fa-bolt"></i>
             <span>{{ newPoModal.uploading ? 'AI 正在全力解析建单中...' : '开始 AI 智能建单' }}</span>
@@ -2279,9 +2292,10 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </div>
 
 
+          <!-- 主行动按钮：开始 AI 智能建单 (有内容且未上传时才可点击) -->
           <button @click="submitQuickQuoteText" 
-                  :disabled="newPoModal.uploading" 
-                  class="w-full h-11 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition disabled:opacity-50 disabled:shadow-none flex items-center justify-center space-x-2 cursor-pointer">
+                  :disabled="newPoModal.uploading || !newPoModal.rawText || !newPoModal.rawText.trim()" 
+                  class="w-full h-11 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center space-x-2 cursor-pointer">
             <i v-if="newPoModal.uploading" class="fa-solid fa-spinner animate-spin"></i>
             <i v-else class="fa-solid fa-bolt"></i>
             <span>{{ newPoModal.uploading ? 'AI 正在全力解析建单中...' : '开始 AI 智能建单' }}</span>
@@ -2456,7 +2470,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
-    <!-- 3. 📬 极客专属特权 · 企业邮箱全自动化出单中枢 (IMAP & Forwarding Modal) -->
+    <!-- 3. 📬 个人版专属特权 · 企业邮箱全自动化出单中枢 (IMAP & Forwarding Modal) -->
     <div v-if="imapModal.show" v-cloak @click.self="imapModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
       <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100/80 overflow-hidden animate-in fade-in zoom-in duration-200">
         <!-- 固定顶栏 (消除滚动破角，保持标题与Tab固定) -->
@@ -2490,7 +2504,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                     :class="imapModal.tab === 'draft' ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm shadow-emerald-500/20 font-black' : 'text-slate-600 hover:text-slate-900 border-transparent hover:bg-white/60'">
               <i class="fa-solid fa-crown text-amber-300 text-xs flex-shrink-0"></i>
               <span class="sm:hidden">2. 草稿直达</span>
-              <span class="hidden sm:inline">2. 草稿箱直达 (👑 极客版专属)</span>
+              <span class="hidden sm:inline">2. 草稿箱直达 (👑 个人版专属)</span>
             </button>
           </div>
         </div>
@@ -2811,15 +2825,15 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
         <!-- Tab 2: 草稿箱直达 (只写不读 · 选配授权码) -->
         <div v-else class="space-y-3.5">
-          <!-- 非付费用户 (试用期)：仅展示极客版专属特权说明与升级入口，隐藏具体配置表单 -->
+          <!-- 非付费用户 (试用期)：仅展示个人版专属特权说明与升级入口，隐藏具体配置表单 -->
           <div v-if="!isPaidUser" class="p-6 rounded-2xl bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-white border border-amber-500/25 text-center space-y-4">
             <div class="w-14 h-14 rounded-2xl bg-amber-500/15 text-amber-600 flex items-center justify-center mx-auto text-2xl shadow-inner">
               <i class="fa-solid fa-crown text-amber-500"></i>
             </div>
             <div class="max-w-md mx-auto space-y-1.5">
-              <h4 class="text-base font-extrabold text-slate-900">👑 极客草稿箱直达为极客版专属特权</h4>
+              <h4 class="text-base font-extrabold text-slate-900">👑 草稿箱直达为个人版专属特权</h4>
               <p class="text-xs text-slate-600 leading-relaxed">
-                升级极客版后，配置日常外贸邮箱授权码，AI 算出的所有单据与地道英文回信将<strong class="text-amber-800">自动静默存入您的外贸常用邮箱（全面支持阿里企业邮、网易企业邮、腾讯企业邮/Foxmail、Outlook、Gmail等主流外贸企业邮箱及个人邮箱）发件草稿箱</strong>，业务员打开邮箱即可一键发送，彻底省去手动复制粘贴与下载附件的繁琐步骤！
+                升级个人版后，配置日常外贸邮箱授权码，AI 算出的所有单据与地道英文回信将<strong class="text-amber-800">自动静默存入您的外贸常用邮箱（全面支持阿里企业邮、网易企业邮、腾讯企业邮/Foxmail、Outlook、Gmail等主流外贸企业邮箱及个人邮箱）发件草稿箱</strong>，业务员打开邮箱即可一键发送，彻底省去手动复制粘贴与下载附件的繁琐步骤！
               </p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto text-left pt-1">
@@ -2848,12 +2862,12 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <div class="pt-2 flex items-center justify-center">
               <button @click="openUpgradeModal('monthly')" type="button" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-extrabold text-xs shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95 transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-crown text-amber-200"></i>
-                <span>立即升级极客版解锁特权</span>
+                <span>立即升级个人版解锁特权</span>
               </button>
             </div>
           </div>
 
-          <!-- 付费用户 (已开通极客版/企业版)：完整呈现 IMAP 邮箱配置与连接测试表单 -->
+          <!-- 付费用户 (已开通个人版/企业版)：完整呈现 IMAP 邮箱配置与连接测试表单 -->
           <div v-else class="space-y-3.5">
             <!-- 进阶特权轻量说明条 -->
             <div class="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 flex items-center justify-between gap-3 text-xs">
@@ -2863,7 +2877,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 </div>
                 <div class="min-w-0">
                   <div class="font-bold text-slate-900 flex items-center gap-1.5">
-                    <span>👑 极客尊享出单特权</span>
+                    <span>👑 个人版尊享出单特权</span>
                     <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">已开通特权</span>
                   </div>
                   <div class="text-[11px] text-slate-500 truncate sm:whitespace-normal">配置客户端授权码后，AI 出单将静默写入日常邮箱【发件草稿箱】，点开直接发送</div>
@@ -3038,7 +3052,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
     </div>
     </div>
 
-    <!-- 📋 历史报价单切换弹窗 (Quotes History Switcher Modal) -->
+    <!-- 📋 历史报价单切换弹窗 (Quotes History Switcher Modal) (Issue 5B) -->
     <div v-if="quotesHistoryModal.show" v-cloak @click.self="quotesHistoryModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
       <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -3048,7 +3062,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             </div>
             <div>
               <h3 class="font-bold text-slate-900 text-sm">租户历史报价单切换</h3>
-              <p class="text-[11px] text-slate-400">当前租户名下已生成的报价单 (共 {{ userQuotesList.length }} 份)</p>
+              <p class="text-[11px] text-slate-400">当前租户名下已生成的报价单（共 {{ userQuotesList.length }} 份<span v-if="quoteHistorySearchKeyword && filteredUserQuotesList.length !== userQuotesList.length" class="text-blue-600 font-bold"> · 匹配 {{ filteredUserQuotesList.length }} 份</span>）</p>
             </div>
           </div>
           <button @click="quotesHistoryModal.show = false" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer">
@@ -3056,11 +3070,27 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </button>
         </div>
 
+        <!-- 🔍 单据编号与买家快速搜索框 -->
+        <div class="relative flex items-center">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-xs"></i>
+          <input v-model="quoteHistorySearchKeyword" 
+                 type="text" 
+                 placeholder="输入单据编号或买家企业名称搜索..."
+                 class="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition font-medium">
+          <button v-if="quoteHistorySearchKeyword" 
+                  type="button" 
+                  @click="quoteHistorySearchKeyword = ''" 
+                  class="absolute right-2.5 text-slate-400 hover:text-slate-600 text-xs cursor-pointer p-0.5">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </button>
+        </div>
+
         <div class="max-h-80 overflow-y-auto space-y-2 pr-1">
-          <div v-if="userQuotesList.length === 0" class="text-center py-8 text-xs text-slate-400">
-            暂无历史单据记录
+          <div v-if="filteredUserQuotesList.length === 0" class="text-center py-8 text-xs text-slate-400">
+            <i class="fa-solid fa-folder-open text-2xl text-slate-300 block mb-2"></i>
+            {{ quoteHistorySearchKeyword ? '未找到匹配的单据编号或买家' : '暂无历史单据记录' }}
           </div>
-          <div v-for="q in userQuotesList" :key="q.quotationNumber"
+          <div v-for="q in filteredUserQuotesList" :key="q.quotationNumber"
                @click="switchQuotation(q.quotationNumber)"
                class="p-3 rounded-xl border transition cursor-pointer flex items-center justify-between group"
                :class="q.quotationNumber === quotation.quotationNumber ? 'bg-blue-50/70 border-blue-300 shadow-xs' : 'bg-slate-50/60 hover:bg-blue-50/40 border-slate-200/80'">
@@ -3072,12 +3102,12 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 <span v-if="q.quotationNumber === quotation.quotationNumber" class="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-blue-600 text-white">当前打开</span>
               </div>
               <div class="text-[11px] text-slate-500">
-                买家: {{ q.customerName || q.buyerName || 'Valued Buyer' }}
+                买家: {{ (!q.customerName || q.customerName === 'N/A') ? ((q.buyerName && q.buyerName !== 'N/A') ? q.buyerName : 'Valued Buyer') : q.customerName }}
               </div>
             </div>
             <div class="text-right">
               <div class="font-mono font-bold text-xs text-slate-900">
-                {{ q.currency || 'USD' }} {{ formatNumber(q.totalAmountForeign || 0) }}
+                {{ (!q.currency || q.currency === 'N/A') ? 'USD' : q.currency }} {{ formatNumber(q.totalAmountForeign || 0) }}
               </div>
               <div class="text-[10px] text-slate-400">
                 {{ q.createdAt ? new Date(q.createdAt).toLocaleDateString('zh-CN') : '' }}
@@ -3094,6 +3124,128 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
+    <!-- 🌍 外贸汇率核算与结汇安全垫深度诊断弹窗 (Exchange Rate Diagnostic Modal) (Issue 3) -->
+    <div v-if="rateDiagnosticModalVisible" v-cloak @click.self="rateDiagnosticModalVisible = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
+      <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in zoom-in-95 duration-150">
+        <!-- 弹窗头部 -->
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <span>外贸汇率核算与结汇安全垫分析</span>
+                <span :class="rateDiagnostic.badgeClass" class="text-[10px] font-bold px-2 py-0.5 rounded border">
+                  {{ rateDiagnostic.text }}
+                </span>
+              </h3>
+              <p class="text-[11px] text-slate-400">实时直连中国银行现汇买入牌价 · 防范人民币升值与汇兑损失</p>
+            </div>
+          </div>
+          <button @click="rateDiagnosticModalVisible = false" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- 核心汇率对比卡片 (两列对比) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- 卡片 1: 当前报价采用汇率 -->
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between space-y-2">
+            <div>
+              <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">当前报价单使用汇率</div>
+              <div class="flex items-baseline space-x-1.5 mt-1">
+                <span class="text-xs text-slate-400 font-mono">1 {{ quotation.currency }} =</span>
+                <span class="text-2xl font-black text-slate-900 font-mono tracking-tight">¥{{ quotation.rateUsed || '-' }}</span>
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-500 flex items-center">
+              <i class="fa-regular fa-calendar-check text-blue-500 mr-1 text-[10px]"></i>
+              <span>用于当前全单各品类外币单价折算</span>
+            </div>
+          </div>
+
+          <!-- 卡片 2: 今日银行现汇买入参考价 -->
+          <div class="p-3.5 rounded-xl bg-blue-50/50 border border-blue-200/80 flex flex-col justify-between space-y-2">
+            <div>
+              <div class="flex items-center justify-between">
+                <div class="text-[11px] font-bold text-blue-900 uppercase tracking-wide flex items-center gap-1.5">
+                  <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>今日银行现汇买入牌价</span>
+                </div>
+                <button type="button" @click="fetchLiveRates(true)" class="text-blue-600 hover:text-blue-800 text-[10px] font-semibold flex items-center gap-1 cursor-pointer" title="点击立即刷新最新行情">
+                  <i class="fa-solid fa-arrows-rotate text-[9px]" :class="{ 'animate-spin': loadingLiveRates }"></i>
+                  <span>刷新</span>
+                </button>
+              </div>
+              <div class="flex items-baseline space-x-1.5 mt-1">
+                <span class="text-xs text-blue-500 font-mono">1 {{ quotation.currency }} =</span>
+                <span class="text-2xl font-black text-blue-700 font-mono tracking-tight">¥{{ currentLiveRate?.buyingRate || '-' }}</span>
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-500 flex items-center justify-between">
+              <span v-if="currentLiveRate?.time">北京时间: {{ currentLiveRate.date ? currentLiveRate.date + ' ' : '' }}{{ currentLiveRate.time }} (5分钟自动刷新)</span>
+              <span v-else>基准 {{ baseCurrencyRate }}</span>
+              <button v-if="currentLiveRate && quotation.rateUsed !== currentLiveRate.buyingRate" 
+                      type="button" 
+                      @click="applyLiveRate(); rateDiagnosticModalVisible = false;" 
+                      class="text-blue-700 font-bold hover:underline cursor-pointer text-[10px]">
+                一键采纳牌价 &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 诊断结论框 -->
+        <div class="p-3 rounded-xl border flex items-start space-x-2.5 text-xs leading-relaxed"
+             :class="rateDiagnostic.type === 'risk' ? 'bg-amber-50 border-amber-200 text-amber-900' : (rateDiagnostic.type === 'cushion' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-blue-50/60 border-blue-200 text-blue-900')">
+          <i :class="rateDiagnostic.type === 'risk' ? 'fa-solid fa-triangle-exclamation text-amber-600' : (rateDiagnostic.type === 'cushion' ? 'fa-solid fa-shield-halved text-emerald-600' : 'fa-solid fa-scale-balanced text-blue-600')" class="mt-0.5 flex-shrink-0 text-sm"></i>
+          <div>
+            <div class="font-bold mb-0.5">{{ rateDiagnostic.text }}</div>
+            <div class="text-[11px] opacity-90">{{ rateDiagnostic.tooltip }}</div>
+          </div>
+        </div>
+
+        <!-- 三大业务逻辑指引 -->
+        <div class="space-y-2 text-xs text-slate-600 bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/60 leading-relaxed">
+          <div class="flex items-start space-x-2">
+            <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+            <div>
+              <strong class="text-slate-800">实时行情参考 (每 5 分钟自动更新)</strong>：系统实时直连中国银行现汇买入牌价。外贸出口企业在收到海外买家外汇电汇 (T/T) 并在银行结汇换成人民币时，银行以此牌价办理结汇。
+            </div>
+          </div>
+          <div class="flex items-start space-x-2">
+            <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+            <div>
+              <strong class="text-slate-800">汇率安全垫机制 (外贸实战风控)</strong>：建议报价汇率略微低于当前市场牌价（例如市场为 7.24，报价按 7.18 核算），为生产到交付周期的汇率波动预留安全缓冲；反之若报价汇率高于市场牌价，未来买家结汇时将直接造成汇兑亏损。
+            </div>
+          </div>
+          <div class="flex items-start space-x-2">
+            <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+            <div>
+              <strong class="text-slate-800">底价基准保护 (±3%)</strong>：底价表预设基准汇率为 <strong class="font-mono text-slate-900">{{ baseCurrencyRate }}</strong>，当实际报价汇率波动超出 <strong class="font-mono text-slate-900">{{ rateSafeRange.min }} ~ {{ rateSafeRange.max }}</strong> 区间时，系统将自动触发风控警示。
+            </div>
+          </div>
+        </div>
+
+        <!-- 弹窗底部操作按钮 -->
+        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+          <div>
+            <button v-if="currentLiveRate && quotation.rateUsed !== currentLiveRate.buyingRate"
+                    type="button"
+                    @click="applyLiveRate(); rateDiagnosticModalVisible = false;"
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition flex items-center gap-1.5 cursor-pointer">
+              <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i>
+              <span>采纳今日现汇买入价 (¥{{ currentLiveRate.buyingRate }})</span>
+            </button>
+          </div>
+          <button @click="rateDiagnosticModalVisible = false" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition cursor-pointer">
+            我知道了
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 二次确认弹窗 (Secondary Confirmation Modal) -->
     <div v-if="showConfirmModal" id="confirm-modal-overlay" v-cloak @click.self="showConfirmModal = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
       <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in fade-in zoom-in duration-200">
@@ -3104,7 +3256,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </div>
           <div>
             <h3 class="text-base font-bold text-slate-900">
-              {{ isPaidUser ? '👑 极客出单 · 确认存入邮箱草稿箱？' : '⚡ 试用出单 · 确认生成并下载报价单？' }}
+              {{ isPaidUser ? '👑 个人版出单 · 确认存入邮箱草稿箱？' : '⚡ 试用出单 · 确认生成并下载报价单？' }}
             </h3>
             <p class="text-xs text-slate-500">请核对以下调整后的单据关键摘要与出单指引</p>
           </div>
@@ -3145,7 +3297,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         <div v-else-if="hasImapConfigured" class="p-3 bg-emerald-50/80 rounded-xl border border-emerald-200/80 text-[11px] text-emerald-900 leading-relaxed flex items-start space-x-2">
           <i class="fa-solid fa-crown text-emerald-600 mt-0.5 flex-shrink-0"></i>
           <div>
-            <strong>极客直达特权：</strong>系统将生成最新正式 PDF 报价单，并将买家收件地址、英文回信与 PDF 附件<strong>静默存入您的 Foxmail/企业邮【发件草稿箱】</strong>！打开邮箱点击发送即可秒速出单。
+            <strong>个人版直达特权：</strong>系统将生成最新正式 PDF 报价单，并将买家收件地址、英文回信与 PDF 附件<strong>静默存入您的 Foxmail/企业邮【发件草稿箱】</strong>！打开邮箱点击发送即可秒速出单。
           </div>
         </div>
 
@@ -3153,7 +3305,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         <div v-else class="p-3 bg-amber-50/80 rounded-xl border border-amber-200/80 text-[11px] text-amber-900 leading-relaxed flex items-start space-x-2">
           <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 flex-shrink-0"></i>
           <div>
-            <strong>您享有极客草稿箱直达特权：</strong>检测到您尚未绑定企业邮箱授权码。点击下方按钮将为您唤起极速配置窗口（2分钟即可完成），绑定后即可享受全自动静默直达草稿箱！
+            <strong>您享有个人版草稿箱直达特权：</strong>检测到您尚未绑定企业邮箱授权码。点击下方按钮将为您唤起极速配置窗口（2分钟即可完成），绑定后即可享受全自动静默直达草稿箱！
           </div>
         </div>
 
@@ -3274,7 +3426,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               </a>
             </div>
             <p class="text-[10px] text-slate-400 bg-slate-50 rounded-lg p-2 leading-relaxed text-center">
-              👑 若已开通极客版邮箱联动，本单草稿已由后台<strong>自动存入您的常用邮箱【草稿箱】</strong>，手机或电脑打开邮箱直接点击“发送”即可！
+              👑 若已开通个人版邮箱联动，本单草稿已由后台<strong>自动存入您的常用邮箱【草稿箱】</strong>，手机或电脑打开邮箱直接点击“发送”即可！
             </p>
           </div>
         </div>
@@ -3320,7 +3472,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
-    <!-- 极客版 VIP 会员尊享升级弹窗 (与官网 100% 统一，单屏极简无滚动条) -->
+    <!-- 个人版 VIP 会员尊享升级弹窗 (与官网 100% 统一，单屏极简无滚动条) -->
     <div v-if="upgradeModal.show" v-cloak @click.self="upgradeModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
       <div class="relative max-w-md w-full bg-[#060B1A] border border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl overflow-hidden text-left my-auto space-y-3.5 text-white animate-in fade-in zoom-in duration-200">
         <!-- 内部微光背景 (独立圆角裁剪，杜绝外溢膨胀) -->
@@ -3338,7 +3490,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         <div class="text-center space-y-1.5 pb-2 border-b border-white/10">
           <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold">
             <i class="fa-solid fa-crown text-amber-400"></i>
-            <span>升级个人极客版 · 解锁全功能智能出单</span>
+            <span>升级个人专业版 · 解锁全功能智能出单</span>
           </div>
           <h4 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
             开通 / 续费外贸智能中枢
@@ -3354,17 +3506,17 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                   class="p-3.5 rounded-2xl transition cursor-pointer border relative overflow-hidden"
                   :class="upgradeModal.cycle === 'monthly' ? 'bg-amber-500/15 border-amber-400/60 shadow-lg shadow-amber-500/10' : 'bg-white/[0.03] border-white/10 hover:border-white/20 text-slate-400'">
             <div class="flex items-center justify-between mb-1">
-              <span class="text-xs font-bold" :class="upgradeModal.cycle === 'monthly' ? 'text-amber-300' : 'text-slate-300'">月付极客版</span>
-              <span v-if="firstMonthPromoActive" class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">首月特惠</span>
+              <span class="text-xs font-bold" :class="upgradeModal.cycle === 'monthly' ? 'text-amber-300' : 'text-slate-300'">月付专业版</span>
+              <span v-if="firstMonthPromoActive" class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">首月特惠</span>
             </div>
             <div class="flex items-baseline gap-1">
               <span class="text-xl sm:text-2xl font-black font-mono tracking-tight" :class="upgradeModal.cycle === 'monthly' ? 'text-white' : 'text-slate-300'">
-                {{ firstMonthPromoActive ? '¥39' : '¥99' }}
+                {{ firstMonthPromoActive ? '¥39' : '¥69' }}
               </span>
               <span class="text-[11px] text-slate-400">/ {{ firstMonthPromoActive ? '首月' : '月' }}</span>
             </div>
             <div class="text-[10px] text-slate-400 mt-1">
-              {{ firstMonthPromoActive ? '首月特惠 · 次月起按 ¥99/月' : '按月订阅 · 灵活起步' }}
+              {{ firstMonthPromoActive ? '首月特惠 · 次月起按 ¥69/月' : '按月订阅 · 灵活起步' }}
             </div>
           </button>
 
@@ -3372,16 +3524,16 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                   class="p-3.5 rounded-2xl transition cursor-pointer border relative overflow-hidden"
                   :class="upgradeModal.cycle === 'annual' ? 'bg-amber-500/15 border-amber-400/60 shadow-lg shadow-amber-500/10' : 'bg-white/[0.03] border-white/10 hover:border-white/20 text-slate-400'">
             <div class="absolute top-0 right-0 bg-gradient-to-l from-amber-400 to-amber-500 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
-              省¥298
+              省¥229
             </div>
             <div class="flex items-center justify-between mb-1">
-              <span class="text-xs font-bold" :class="upgradeModal.cycle === 'annual' ? 'text-amber-300' : 'text-slate-300'">年付特惠版</span>
+              <span class="text-xs font-bold" :class="upgradeModal.cycle === 'annual' ? 'text-amber-300' : 'text-slate-300'">年付专业版</span>
             </div>
             <div class="flex items-baseline gap-1">
-              <span class="text-xl sm:text-2xl font-black font-mono tracking-tight" :class="upgradeModal.cycle === 'annual' ? 'text-amber-300' : 'text-slate-300'">¥890</span>
+              <span class="text-xl sm:text-2xl font-black font-mono tracking-tight" :class="upgradeModal.cycle === 'annual' ? 'text-amber-300' : 'text-slate-300'">¥599</span>
               <span class="text-[11px] text-slate-400">/ 年</span>
             </div>
-            <div class="text-[10px] text-emerald-400 font-medium mt-1">仅合 ¥74/月 · 赠专属顾问</div>
+            <div class="text-[10px] text-emerald-400 font-medium mt-1">仅合 ¥49.9/月 · 赠专属顾问</div>
           </button>
         </div>
 
@@ -3452,7 +3604,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <span>{{ trialModal.isExpired ? '试用到期服务续订' : (trialModal.mode === 'login' ? '已有账号安全登录' : '登录 / 免费开通 7 天试用') }}</span>
           </div>
           <h4 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-            {{ trialModal.isExpired ? '试用期满 · 升级极客版' : (trialModal.mode === 'login' ? '欢迎登录工作台' : '开启外贸智能出单体验') }}
+            {{ trialModal.isExpired ? '试用期满 · 升级个人版' : (trialModal.mode === 'login' ? '欢迎登录工作台' : '开启外贸智能出单体验') }}
           </h4>
           <p class="text-xs text-slate-400">
             {{ trialModal.mode === 'login' ? '密码加密保护 · 安全管理私有底价与报价草稿' : '开箱自带演示底价库 · 两种方式任选开启' }}
@@ -3481,10 +3633,10 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <div class="text-left space-y-1.5">
               <div class="text-[11px] text-slate-300 font-medium">扫码添加创始人 Kelvin 微信：</div>
               <div class="text-xs font-mono font-bold text-cyan-300 bg-black/40 px-2 py-1 rounded border border-cyan-500/30 select-all">
-                升级极客版 + {{ maskedPhone || '外贸同行' }}
+                升级个人版 + {{ maskedPhone || '外贸同行' }}
               </div>
               <a href="/?landing=1#pricing" class="inline-block px-3 py-1 bg-amber-400 text-slate-950 font-bold rounded-lg text-xs hover:bg-amber-300 transition">
-                查看极客版特惠定价 ➔
+                查看个人版特惠定价 ➔
               </a>
             </div>
           </div>
@@ -3707,7 +3859,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         </div>
         <h3 class="text-xl font-extrabold text-white mb-2">邀请同行，双方各送 7 天</h3>
         <p class="text-xs text-slate-400 mb-6">
-          每成功邀请 1 位外贸同行注册体验，您的账户（免费试用或极客版）均直接累加 7 天全功能使用时长（天数自动累加，上不封顶）！
+          每成功邀请 1 位外贸同行注册体验，您的账户（免费试用或个人版）均直接累加 7 天全功能使用时长（天数自动累加，上不封顶）！
         </p>
 
         <div class="grid grid-cols-2 gap-3 mb-6 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center">
@@ -3802,6 +3954,17 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <span class="text-slate-300 font-medium">格式要求：</span>支持透明底 PNG 及 JPG/JPEG 图片文件，建议长宽比为 2:1 至 4:1，系统将自动等比缩放适配于 PDF 报价单抬头。
           </div>
         </div>
+
+        <!-- 个人专业版特权说明条 -->
+        <div v-if="!isPaidUser" class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-300 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-crown text-amber-400"></i>
+            <span>企业 Logo 高清嵌入为个人专业版专属特权</span>
+          </div>
+          <button type="button" @click="logoModal.show = false; openUpgradeModal('monthly')" class="font-bold underline hover:text-amber-200 cursor-pointer">
+            立即升级 ➔
+          </button>
+        </div>
       </div>
     </div>
 
@@ -3835,6 +3998,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         const previewLoading = ref(false);
         const showConfirmModal = ref(false);
         const quotesHistoryModal = ref({ show: false });
+        const quoteHistorySearchKeyword = ref('');
+        const rateDiagnosticModalVisible = ref(false);
         const userQuotesList = ref([]);
 
         // D-05: 统一高精度两倍小数工具函数 (确保底层值与显示值均为干净小数，避免浮点尾数)
@@ -3845,6 +4010,24 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         const round4 = (num) => {
           if (num === null || num === undefined || isNaN(Number(num))) return 0;
           return Math.round((Number(num) + Number.EPSILON) * 10000) / 10000;
+        };
+
+        const filteredUserQuotesList = computed(() => {
+          const kw = (quoteHistorySearchKeyword.value || '').trim().toLowerCase();
+          if (!kw) return userQuotesList.value;
+          return userQuotesList.value.filter(q => {
+            const qNum = (q.quotationNumber || '').toLowerCase();
+            const cust = (q.customerName || q.buyerName || '').toLowerCase();
+            return qNum.includes(kw) || cust.includes(kw);
+          });
+        });
+
+        const openQuotesHistoryModal = () => {
+          if (window.getSelection) {
+            window.getSelection().removeAllRanges();
+          }
+          quoteHistorySearchKeyword.value = '';
+          quotesHistoryModal.value.show = true;
         };
 
         const fetchUserQuotes = async () => {
@@ -3863,6 +4046,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         };
 
         const switchQuotation = (qNum) => {
+          quotesHistoryModal.value.show = false;
+          quoteHistorySearchKeyword.value = '';
           const token = getTokenFromUrl() || authToken.value;
           window.location.href = `/review/${qNum}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
         };
@@ -3966,6 +4151,11 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         });
 
         const openLogoModal = () => {
+          if (!isPaidUser.value) {
+            showToast('💡 自定义企业 Logo 为个人版专属特权，请升级后使用～', 'info');
+            openUpgradeModal('monthly');
+            return;
+          }
           logoModal.value.show = true;
         };
 
@@ -4122,10 +4312,10 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             badge: '步骤 3/3 · 一键出单',
             title: isPaidUser.value ? '确认毛利，直达草稿箱' : '确认毛利，一键出单',
             description: isPaidUser.value
-              ? '确认目标利润率与汇率后，一键生成正式商业 PDF 报价单，并全自动静默直达常用邮箱/企业邮箱【发件草稿箱】，点开直接发送！'
-              : '确认目标利润率与汇率后，一键生成外贸标准商业 PDF 报价单并自动下载，地道英文回信已一键复制到剪贴板，直接在常用邮箱中粘贴发送，零门槛出单。',
+              ? '确认目标利润率与汇率后，一键生成正式商业 PDF 报价单（含企业专属 Logo 抬头），并全自动静默直达常用邮箱/企业邮箱【发件草稿箱】，点开直接发送！'
+              : '确认目标利润率与汇率后，一键生成外贸标准商业 PDF 报价单并自动下载，地道英文回信已一键复制到剪贴板，直接在常用邮箱中粘贴发送，零门槛出单。升级个人专业版后更可解锁专属企业 Logo 上传与草稿箱全自动托管！',
             tip: isPaidUser.value
-              ? '👑 极客专属特权已就绪！点击按钮即可将报价单与英文回复存入草稿箱。'
+              ? '👑 个人专业版特权已就绪！点击按钮即可将报价单与英文回复存入草稿箱。'
               : '🎉 引导完成！点击按钮即可立即下载最新 PDF 报价单并复制英文回信。',
             placement: 'top'
           }
@@ -4353,6 +4543,111 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         });
 
         const rateTipVisible = ref(false);
+
+        // =========================================================================
+        // 🌍 实时外贸汇率参考引擎与结汇安全垫诊断机制 (Live Bank FX & Safety Cushion)
+        // =========================================================================
+        const liveRates = ref(null);
+        const loadingLiveRates = ref(false);
+
+        const fetchLiveRates = async (force = false) => {
+          loadingLiveRates.value = true;
+          try {
+            const res = await fetch(`/api/v1/rates/latest${force ? '?refresh=1' : ''}`);
+            const data = await res.json();
+            if (data && data.success && data.rates) {
+              liveRates.value = data;
+            }
+          } catch (e) {
+            console.warn('[LiveRates] fetch failed:', e);
+          } finally {
+            loadingLiveRates.value = false;
+          }
+        };
+
+        const currentLiveRate = computed(() => {
+          const cur = (quotation.value?.currency || 'USD').toUpperCase();
+          if (!liveRates.value?.rates) return null;
+          return liveRates.value.rates[cur] || null;
+        });
+
+        const liveMarketRate = computed(() => {
+          return currentLiveRate.value?.buyingRate || 0;
+        });
+
+        const applyLiveRate = () => {
+          if (!currentLiveRate.value?.buyingRate) return;
+          if (!quotation.value) return;
+          quotation.value.rateUsed = currentLiveRate.value.buyingRate;
+          onRateChange();
+          showToast(`已应用今日银行现汇买入价 ${currentLiveRate.value.buyingRate}，全单已自动重新核算！`);
+        };
+
+        const rateDiagnostic = computed(() => {
+          const rateUsed = Number(quotation.value?.rateUsed);
+          const market = Number(liveMarketRate.value);
+
+          if (!rateUsed || rateUsed <= 0) {
+            return {
+              type: 'unknown',
+              badgeClass: 'text-slate-500 bg-slate-100 border-slate-200',
+              text: '汇率未填写',
+              pctText: '0.0%',
+              tooltip: '请填写结算汇率'
+            };
+          }
+
+          if (market > 0) {
+            // 安全垫逻辑：当报价汇率低于市场现汇买入价时，预留了防范人民币升值的安全垫；反之高于市场则有汇损风险
+            const diffPct = ((market - rateUsed) / market) * 100;
+            const absDiff = Math.abs(diffPct);
+
+            if (absDiff < 0.05) {
+              return {
+                type: 'flat',
+                badgeClass: 'text-blue-700 bg-blue-100 border-blue-300',
+                text: '⚖️ 与市场牌价持平',
+                pctText: '0.0%',
+                tooltip: `当前报价汇率 (${rateUsed}) 与今日银行现汇买入价 (${market}) 基本持平。`
+              };
+            } else if (diffPct > 0) {
+              return {
+                type: 'cushion',
+                badgeClass: 'text-emerald-700 bg-emerald-100 border-emerald-300',
+                text: `🛡️ 预留 ${absDiff.toFixed(1)}% 安全垫`,
+                pctText: `${absDiff.toFixed(1)}%`,
+                tooltip: `当前报价汇率 (${rateUsed}) 低于今日银行现汇买入价 (${market})，已预留 ${absDiff.toFixed(1)}% 的汇率防跌安全缓冲垫，可抵御人民币升值风险。`
+              };
+            } else {
+              return {
+                type: 'risk',
+                badgeClass: 'text-amber-700 bg-amber-100 border-amber-300 animate-pulse',
+                text: `⚠️ 偏高 ${absDiff.toFixed(1)}% (汇损隐患)`,
+                pctText: `${absDiff.toFixed(1)}%`,
+                tooltip: `当前报价汇率 (${rateUsed}) 高于今日银行现汇买入价 (${market})。若买家以此下单，结汇时可能产生约 ${absDiff.toFixed(1)}% 的汇兑亏损，建议适当调低。`
+              };
+            }
+          }
+
+          // 兜底：对比底价表基准
+          if (isRateOutOfSafeRange.value) {
+            return {
+              type: 'base_warn',
+              badgeClass: 'text-amber-700 bg-amber-100 border-amber-300 animate-pulse',
+              text: '⚠️ 偏离基准 ±3%',
+              pctText: '±3%',
+              tooltip: `偏离底价表基准汇率 ${baseCurrencyRate.value} 超过 ±3%`
+            };
+          }
+
+          return {
+            type: 'base_safe',
+            badgeClass: 'text-emerald-600 bg-emerald-50 border-emerald-200/80',
+            text: '±3% 保护中',
+            pctText: '±3%',
+            tooltip: `当前汇率在底价表基准安全保护区间 (${rateSafeRange.value.min} ~ ${rateSafeRange.value.max}) 内`
+          };
+        });
 
         const availableIncoterms = computed(() => {
           return pricingConfig.value?.incoterms && pricingConfig.value.incoterms.length > 0
@@ -4893,7 +5188,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           window.open('/api/v1/template/sample-po', '_blank');
         };
 
-        // 3. 📬 个人草稿箱静默写入与企业邮箱自动转发配置 (IMAP Modal - Track B 进阶极客版)
+        // 3. 📬 个人草稿箱静默写入与企业邮箱自动转发配置 (IMAP Modal - Track B 个人版)
         const imapModal = ref({
           show: false,
           tab: 'forward', // 'forward' | 'draft'
@@ -5389,11 +5684,11 @@ Acme Global Sourcing GmbH, Munich, Germany`;
 
         const currentUpgradeNote = computed(() => {
           if (upgradeModal.value.cycle === 'annual') {
-            return '升级年付极客版890';
+            return '升级年付专业版599';
           }
           return firstMonthPromoActive.value
-            ? '开通极客版39'
-            : '升级极客版99';
+            ? '开通专业版39'
+            : '升级专业版69';
         });
 
         const openUpgradeModal = (cycle) => {
@@ -5492,10 +5787,23 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           }
         };
 
+        const formatExpiryDisplay = (val) => {
+          if (!val) return '近期';
+          const d = new Date(val);
+          if (isNaN(d.getTime())) return '已到期';
+          const y = d.getFullYear();
+          const m = d.getMonth() + 1;
+          const day = d.getDate();
+          const h = String(d.getHours()).padStart(2, '0');
+          const min = String(d.getMinutes()).padStart(2, '0');
+          return `${y}年${m}月${day}日 ${h}:${min}`;
+        };
+
         const openTrialExpiredModal = () => {
           trialModal.value.show = true;
           trialModal.value.isExpired = true;
-          trialModal.value.expiredMessage = '您的 7 天全功能免费试用已到期。您的底价表与历史报价数据将为您安全保留 30 天。为保障平台算法算力与数据公平，免费名额限体验 1 次。如需继续出单，请升级极客版或扫码添加创始人微信进行商务开通！';
+          const expiryStr = trialState.value.formattedExpiresAt || formatExpiryDisplay(trialState.value.expiresAt);
+          trialModal.value.expiredMessage = `您的 7 天全功能免费试用已于 ${expiryStr} 到期（底价库与历史单据已为您安全保留 30 天）。☕ 少喝一杯星巴克，首月特惠仅 ¥39 即可保留整月无限次私人出单特权！试用到期后，每月仍享有 10 笔免费出单额度。如需解锁无限次极速出单与公司 Logo 上传，请升级个人专业版！`;
         };
 
         const applyTrialAuthSuccess = async (data, email) => {
@@ -5512,6 +5820,8 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           trialState.value.isTrial = true;
           trialState.value.remainingDays = data.remainingDays || 7;
           trialState.value.expired = false;
+          trialState.value.expiresAt = data.expiresAt || '';
+          trialState.value.formattedExpiresAt = data.formattedExpiresAt || formatExpiryDisplay(data.expiresAt);
           trialState.value.tenantId = data.tenant?.tenantId || data.tenantId || `tenant_trial_${effectiveEmail.split('@')[0]}`;
           trialState.value.email = effectiveEmail;
           if (data.user) {
@@ -5681,6 +5991,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
               trialState.value.expired = data.expired || false;
               trialState.value.remainingDays = data.remainingDays !== undefined ? data.remainingDays : 7;
               trialState.value.expiresAt = data.expiresAt || '';
+              trialState.value.formattedExpiresAt = data.formattedExpiresAt || (data.expiresAt ? formatExpiryDisplay(data.expiresAt) : '');
               trialState.value.tenantId = data.tenantId || '';
               trialState.value.isPaid = Boolean(data.isPaid);
               trialState.value.plan = data.plan || 'trial';
@@ -6795,7 +7106,7 @@ Sales Team | KelvinFlow Global Technology`;
               showConfirmModal.value = false;
 
               if (isPaidUser.value && hasImapConfigured.value) {
-                // 付费极客模式：草稿箱直达
+                // 付费个人版模式：草稿箱直达
                 if (data.draftInjection?.success) {
                   draftInjectionStatus.value = {
                     injected: true,
@@ -6842,6 +7153,8 @@ Sales Team | KelvinFlow Global Technology`;
             logoutModal.value?.show ||
             emailFullscreenModal.value ||
             showConfirmModal.value ||
+            quotesHistoryModal.value?.show ||
+            rateDiagnosticModalVisible.value ||
             successModal.value?.show ||
             warningModal.value?.show ||
             deleteModal.value?.show ||
@@ -6896,8 +7209,9 @@ Sales Team | KelvinFlow Global Technology`;
             }
           }
 
-          // 2. 加载单据数据
+          // 2. 加载单据数据与实时结汇牌价 (非阻塞异步背景加载)
           fetchQuotation();
+          fetchLiveRates();
 
           // 3. 如果受邀用户通过邀请链接进入且当前未登入，则自动弹出免费开通/登录模态框并直选填表绑定
           if (refCode && !isLoggedIn.value) {
@@ -6934,10 +7248,12 @@ Sales Team | KelvinFlow Global Technology`;
               if (termsModal.value.show) termsModal.value.show = false;
               if (warningSkuDropdownOpen.value) warningSkuDropdownOpen.value = false;
               if (currencyDropdownOpen.value) currencyDropdownOpen.value = false;
+              if (quotesHistoryModal.value.show) quotesHistoryModal.value.show = false;
+              if (rateDiagnosticModalVisible.value) rateDiagnosticModalVisible.value = false;
             }
           });
 
-          // 5. 点击外部关闭底价选型器下拉与快捷换型下拉
+          // 5. 点击外部关闭底价选型器下拉、快捷换型下拉及汇率诊断浮层
           window.addEventListener('click', (e) => {
             if (!e.target.closest('.sku-picker-container')) {
               activeSkuPickerIdx.value = null;
@@ -7132,7 +7448,16 @@ Sales Team | KelvinFlow Global Technology`;
           baseCurrencyRate,
           rateSafeRange,
           isRateOutOfSafeRange,
-          rateTipVisible,
+          rateTipVisible: rateDiagnosticModalVisible,
+          rateDiagnosticModalVisible,
+          // 🌍 实时汇率引擎与安全垫诊断
+          liveRates,
+          loadingLiveRates,
+          fetchLiveRates,
+          currentLiveRate,
+          liveMarketRate,
+          applyLiveRate,
+          rateDiagnostic,
           currencyDropdownOpen,
           availableIncoterms,
           availablePaymentTerms,
@@ -7171,6 +7496,9 @@ Sales Team | KelvinFlow Global Technology`;
           clearItemAddons,
           refreshCatalogItems,
           quotesHistoryModal,
+          quoteHistorySearchKeyword,
+          filteredUserQuotesList,
+          openQuotesHistoryModal,
           userQuotesList,
           fetchUserQuotes,
           switchQuotation,

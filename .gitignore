@@ -47,6 +47,16 @@ test_freeze.xlsx
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.png
+*.pdf
+*.txt
+audit_results*.json
+data/exchange_rates_cache.json
+scripts/screenshots_*/
+scripts/*.png
+scripts/*.pdf
+scripts/*.json
+scripts/*.txt
 
 # OS & Editor Files
 .DS_Store

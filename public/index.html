@@ -221,7 +221,7 @@
       <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-400">
         <a href="#features" class="hover:text-white transition-colors">核心突破</a>
         <a href="#workflow" class="hover:text-white transition-colors">出单流程</a>
-        <a href="#pricing" class="hover:text-white transition-colors">极客套餐</a>
+        <a href="#pricing" class="hover:text-white transition-colors">版本定价</a>
         <a href="#faq" class="hover:text-white transition-colors">常见疑问</a>
       </nav>
 
@@ -271,7 +271,7 @@
         </a>
         <a href="#pricing" onclick="closeMobileNav()" class="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-slate-300 hover:text-white hover:bg-white/[0.08] flex items-center space-x-2">
           <i class="fa-solid fa-tag text-amber-400 text-xs"></i>
-          <span>极客套餐</span>
+          <span>版本定价</span>
         </a>
         <a href="#faq" onclick="closeMobileNav()" class="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-slate-300 hover:text-white hover:bg-white/[0.08] flex items-center space-x-2">
           <i class="fa-solid fa-circle-question text-emerald-400 text-xs"></i>
@@ -728,7 +728,7 @@
   </section>
 
   <!-- ========================================================================= -->
-  <!-- 5. SCREEN 4: 极客套餐、FAQ 抽屉与收尾 (Conversion & Footer)               -->
+  <!-- 5. SCREEN 4: 个人版套餐、FAQ 抽屉与收尾 (Conversion & Footer)               -->
   <!-- ========================================================================= -->
   <section id="pricing" class="py-24 relative border-t border-white/[0.06] bg-[#07070e]/60">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -736,88 +736,206 @@
       <!-- 标题与按月/按年计费切换 -->
       <div class="text-center max-w-3xl mx-auto mb-14 reveal">
         <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
-          透明直观的极客版定价
+          灵活透明的版本定价
         </h2>
         <p class="text-slate-400 text-base mb-8">
-          一个人，也能拥有媲美 10 人外贸团队的报价响应速度。
+          无论是外贸新人、独立 SOHO，还是外贸工作室，都能找到最适合你的自动化出单方案。
         </p>
 
         <!-- 计费切换按钮 -->
         <div class="inline-flex p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md">
           <button id="btn-billing-monthly" onclick="switchBillingCycle('monthly')" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white bg-blue-600 shadow-md cursor-pointer">
-            按月付 (¥99/月)
+            按月付 (次月¥69/月)
           </button>
           <button id="btn-billing-annual" onclick="switchBillingCycle('annual')" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center space-x-1.5 cursor-pointer">
-            <span>按年付 (¥890/年)</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">省 ¥298</span>
+            <span>按年付 (¥599/年)</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">省 ¥229 · 折合 ¥49.9/月</span>
           </button>
         </div>
       </div>
 
-      <!-- 单一核心极客卡片 (精简为优雅紧凑的 max-w-lg 黄金比例，告别笨重庞大) -->
-      <div class="max-w-lg mx-auto glass-panel spotlight-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl relative reveal">
-        <div class="text-center mb-6">
-          <div id="pricing-badge-text" class="inline-block text-xs font-bold text-amber-300 bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full mb-3.5">
-            🔥 试用专享 · 首月特惠仅 ¥39 (原价 ¥99)
+      <!-- 3 卡片响应式定价矩阵 (免费体验版 / 个人专业版 / 团队工作室版) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch max-w-6xl mx-auto reveal">
+        
+        <!-- 卡片 1: 免费体验版 (Free) -->
+        <div class="glass-panel rounded-3xl p-6 sm:p-7 border border-white/10 shadow-xl flex flex-col justify-between relative bg-white/[0.02]">
+          <div>
+            <div class="mb-4 min-h-[96px]">
+              <div class="inline-block text-xs font-bold text-slate-300 bg-white/5 border border-white/10 px-3 py-1 rounded-full mb-3">
+                入门首选
+              </div>
+              <h3 class="text-xl font-extrabold text-white">免费体验版</h3>
+              <p class="text-xs text-slate-400 mt-1">适合新手体验与低频出单外贸人</p>
+            </div>
+
+            <div class="mb-6 pb-6 border-b border-white/[0.08] min-h-[128px] flex flex-col justify-between">
+              <div class="flex items-baseline space-x-1">
+                <span class="text-4xl sm:text-5xl font-black text-white">¥0</span>
+                <span class="text-slate-400 text-xs sm:text-sm font-medium">/ 永久免费</span>
+              </div>
+              <div class="min-h-[44px] flex items-center text-xs text-slate-400 font-mono">
+                试用到期后每月享有 10 笔免费出单额度
+              </div>
+            </div>
+
+            <ul class="space-y-3 text-xs sm:text-sm text-slate-300 mb-8 text-left">
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-slate-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>7 天全功能免费体验</strong>：试用期内尊享专业版全部出单特权</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-slate-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>每月 10 笔免费出单</strong>：基础出单额度每月自动刷新</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-slate-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>极简 4 列底价导入</strong>：30 秒一键更新工厂成本表</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-slate-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>底价算法保密隔离</strong>：锁定 8% 毛利红线，核心底价绝不外泄</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-slate-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>国际正规 A4 PDF 单据</strong>：合规素面黑白排版，随时下载</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-slate-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>邮件与单据一键复制</strong>：手动贴入常用邮箱直接发送</span>
+              </li>
+            </ul>
           </div>
-          <div class="flex items-baseline justify-center space-x-1">
-            <span class="text-2xl font-extrabold text-white">¥</span>
-            <span id="pricing-amount" class="text-5xl sm:text-6xl font-black text-white tracking-tight">39</span>
-            <span id="pricing-cycle" class="text-slate-400 text-sm font-medium">/ 首月</span>
-          </div>
-          <div class="mt-2">
-            <span id="pricing-subtext" class="inline-block text-xs text-amber-400 font-mono px-2.5 py-0.5 rounded-lg bg-amber-400/10 border border-amber-400/20 leading-relaxed">
-              (新人限时首月特惠仅 ¥39 · 次月起按 ¥99/月 正常续订)
-            </span>
+
+          <div>
+            <button id="pricing-card1-btn" onclick="openInboundModal('starter')" class="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm text-slate-200 bg-white/10 hover:bg-white/15 border border-white/15 transition-all cursor-pointer flex items-center justify-center space-x-1.5 active:scale-98">
+              <span>免费开通 (7天全功能体验)</span>
+            </button>
           </div>
         </div>
 
-        <!-- 真实能力权益清单 (精炼精简，紧凑排版，杜绝臃肿) -->
-        <ul class="space-y-3 text-xs sm:text-sm text-slate-300 mb-7 border-t border-b border-white/[0.08] py-5 text-left">
-          <li class="flex items-start space-x-2.5">
-            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
-            <span><strong>极简 4 列底价导入</strong>：标准 Excel 模板，30秒一键更新工厂成本</span>
-          </li>
-          <li class="flex items-start space-x-2.5">
-            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
-            <span><strong>出厂底价算法锁死</strong>：独立加密隔离，底价绝不外泄，锁死预期毛利</span>
-          </li>
-          <li class="flex items-start space-x-2.5">
-            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
-            <span><strong>国际正规 A4 PDF 单据</strong>：合规贸易条款、40HQ/20GP 柜量速算</span>
-          </li>
-          <li class="flex items-start space-x-2.5">
-            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
-            <span><strong>发件草稿箱静默托管</strong>：后台静默存入，发信确认权 100% 属于你</span>
-          </li>
-          <li class="flex items-start space-x-2.5">
-            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
-            <span><strong>10 秒极速审单微调台</strong>：手机电脑均可随时微调单价，单据实时重绘</span>
-          </li>
-          <li class="flex items-start space-x-2.5">
-            <i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
-            <span><strong>7 天全功能免费试用</strong>：开箱自带演示底价库，零绑卡无扣费风险</span>
-          </li>
-        </ul>
+        <!-- 卡片 2: 个人专业版 (Pro) 🔥 (Recommended) -->
+        <div class="glass-panel spotlight-card rounded-3xl p-6 sm:p-7 border-2 border-amber-400/60 shadow-2xl shadow-amber-500/10 flex flex-col justify-between relative bg-[#090b16]">
+          <div>
+            <div class="mb-4 min-h-[96px]">
+              <div id="pricing-badge-text" class="inline-block text-xs font-bold text-amber-300 bg-amber-400/15 border border-amber-400/30 px-3 py-1 rounded-full mb-3">
+                🔥 最受 SOHO / 业务员欢迎
+              </div>
+              <div class="flex items-center justify-between">
+                <h3 class="text-xl font-extrabold text-white flex items-center gap-1.5">
+                  个人专业版 <i class="fa-solid fa-crown text-amber-400 text-sm"></i>
+                </h3>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">适合外贸业务员、独立 SOHO 与外贸创业者</p>
+            </div>
 
-        <!-- 按钮容器 (层级清晰的主副按钮布局) -->
-        <div id="pricing-btn-container" class="space-y-3">
-          <button id="pricing-trial-btn" onclick="openInboundModal('starter')" class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-xl shadow-blue-500/25 active:scale-98 transition-all cursor-pointer flex items-center justify-center space-x-2">
-            <i class="fa-solid fa-wand-magic-sparkles text-cyan-200 text-xs"></i>
-            <span>免费开通 7 天试用</span>
-            <i class="fa-solid fa-arrow-right text-xs text-white/80"></i>
-          </button>
-          <button id="pricing-pay-btn" onclick="openPaymentModal(currentBillingCycle === 'annual' ? 'annual' : 'monthly')" class="w-full py-3.5 rounded-xl font-bold text-sm text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/35 hover:border-amber-400/60 shadow-lg shadow-amber-500/10 active:scale-98 transition-all flex items-center justify-center space-x-2 cursor-pointer">
-            <i class="fa-solid fa-crown text-amber-400 text-sm"></i>
-            <span id="btn-pay-text">🔥 立即解锁首月特惠 (¥39/首月)</span>
-          </button>
+            <div class="mb-6 pb-6 border-b border-white/[0.08] min-h-[128px] flex flex-col justify-between">
+              <div class="flex items-baseline space-x-1">
+                <span class="text-2xl font-extrabold text-white">¥</span>
+                <span id="pricing-amount" class="text-4xl sm:text-5xl font-black text-white tracking-tight">39</span>
+                <span id="pricing-cycle" class="text-slate-400 text-xs sm:text-sm font-medium">/ 首月</span>
+              </div>
+              <div class="min-h-[44px] flex items-center">
+                <span id="pricing-subtext" class="inline-block text-xs text-amber-400 font-mono px-2.5 py-1 rounded-lg bg-amber-400/10 border border-amber-400/20 leading-snug">
+                  (新人限时首月特惠仅 ¥39 · 次月起按 ¥69/月 灵活续订)
+                </span>
+              </div>
+            </div>
+
+            <ul class="space-y-3 text-xs sm:text-sm text-slate-200 mb-8 text-left">
+              <li class="flex items-start space-x-2.5 text-cyan-300 font-semibold">
+                <i class="fa-solid fa-circle-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span>包含免费体验版全部功能</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-amber-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>无限次极速自动出单</strong>：不限单量，买家询盘即来即出</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-amber-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>企业 Logo 专属上传嵌入</strong>：高保真自适应渲染至 A4 抬头</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-amber-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>发件草稿箱静默托管</strong>：直存主流外贸邮箱，保留 100% 发送权</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-amber-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>10 秒极速审单微调台</strong>：手机电脑随时微调，单据实时重绘</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-amber-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>底价库数据安全保留 30 天</strong>：出差休假不丢失业务配置</span>
+              </li>
+            </ul>
+          </div>
+
+          <div id="pricing-btn-container" class="w-full flex flex-col justify-end">
+            <div id="pricing-logged-in-box" class="hidden mb-2.5 py-1 px-3 rounded-full bg-emerald-500/15 border border-emerald-500/30 items-center justify-center text-xs text-emerald-300 text-center font-medium mx-auto w-fit">
+              <i class="fa-solid fa-circle-check mr-1.5 text-emerald-400"></i>
+              <span id="pricing-logged-in-text">您当前处于 7 天全功能免费试用中</span>
+            </div>
+            <button id="pricing-pay-btn" onclick="openPaymentModal(currentBillingCycle === 'annual' ? 'annual' : 'monthly')" class="w-full py-3.5 rounded-xl font-bold text-sm text-slate-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 shadow-xl shadow-amber-500/25 active:scale-98 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+              <i class="fa-solid fa-crown text-slate-950 text-xs"></i>
+              <span id="btn-pay-text">🔥 立即解锁首月特惠 (¥39/首月)</span>
+            </button>
+          </div>
         </div>
 
-        <!-- 已登录状态提示框 -->
-        <div id="pricing-logged-in-box" class="hidden mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 items-center justify-center text-xs text-emerald-300">
-          <i class="fa-solid fa-circle-check mr-1.5"></i>
-          <span id="pricing-logged-in-text">您当前处于 7 天全功能免费试用中</span>
+        <!-- 卡片 3: 团队工作室版 (Team Studio) (Coming Soon / Anchoring) -->
+        <div class="glass-panel rounded-3xl p-6 sm:p-7 border border-white/10 shadow-xl flex flex-col justify-between relative bg-white/[0.02] opacity-90">
+          <div>
+            <div class="mb-4 min-h-[96px]">
+              <div class="inline-block text-xs font-bold text-blue-300 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full mb-3">
+                企业与团队首选
+              </div>
+              <h3 class="text-xl font-extrabold text-white">团队工作室版</h3>
+              <p class="text-xs text-slate-400 mt-1">适合 3-10 人外贸团队、外贸工作室与出口工厂</p>
+            </div>
+
+            <div class="mb-6 pb-6 border-b border-white/[0.08] min-h-[128px] flex flex-col justify-between">
+              <div class="flex items-baseline space-x-1">
+                <span class="text-2xl font-extrabold text-white">¥</span>
+                <span id="pricing-team-amount" class="text-4xl sm:text-5xl font-black text-white tracking-tight">299</span>
+                <span id="pricing-team-cycle" class="text-slate-400 text-xs sm:text-sm font-medium">/ 月</span>
+              </div>
+              <div class="min-h-[44px] flex flex-col justify-center text-xs text-slate-400 font-mono">
+                <span id="pricing-team-subnote">（年付 ¥1,999/年）</span>
+                <div class="text-[10px] text-amber-400/80">（以下为规划中增值功能，以实际发布为准）</div>
+              </div>
+            </div>
+
+            <ul class="space-y-3 text-xs sm:text-sm text-slate-300 mb-8 text-left">
+              <li class="flex items-start space-x-2.5 text-cyan-300 font-semibold">
+                <i class="fa-solid fa-circle-check text-cyan-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span>包含个人专业版全部功能</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-blue-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>3-5 人团队多账号协同</strong>：主账号集中管理，业务员协同出单</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-blue-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>底价分权与品类隔离</strong>：按业务员分配品类权限，保障核心成本</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-blue-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>团队出单汇总与数据看板</strong>：实时监控团队报价与利润转化</span>
+              </li>
+              <li class="flex items-start space-x-2.5">
+                <i class="fa-solid fa-check text-blue-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>专属顾问 1v1 定制支持</strong>：专属技术群响应，底价模板深度定制</span>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <button onclick="openWaitlistModal()" class="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-all cursor-pointer flex items-center justify-center space-x-1.5 active:scale-98">
+              <i class="fa-regular fa-clock text-xs"></i>
+              <span>即将推出 · 敬请期待</span>
+            </button>
+          </div>
         </div>
+
       </div>
 
       <!-- FAQ 抽屉式手风琴 (平滑丝滑 CSS 动效展开) -->
@@ -933,7 +1051,7 @@
       </div>
       <div class="flex items-center space-x-6">
         <a href="javascript:void(0)" onclick="openInboundModal('starter')" class="hover:text-slate-300 transition-colors">开通试用</a>
-        <a href="#pricing" class="hover:text-slate-300 transition-colors">极客版方案</a>
+        <a href="#pricing" class="hover:text-slate-300 transition-colors">版本定价</a>
       </div>
       <div>
         <span>© 2026 KelvinFlow. All rights reserved.</span>
@@ -1110,7 +1228,7 @@
       <h3 class="text-xl font-extrabold text-white mb-1">🎉 免费试用开通成功！</h3>
       <p class="text-xs text-slate-400 mb-4">欢迎加入 KelvinFlow · 外贸智能出单</p>
 
-      <!-- 权益亮点卡片 (精炼紧凑，去除歧义项，突出极客版核价模板钩子) -->
+      <!-- 权益亮点卡片 (精炼紧凑，去除歧义项，突出个人版核价模板钩子) -->
       <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 text-left space-y-2.5 mb-4">
         <div class="flex items-center gap-2 text-xs text-emerald-300">
           <i class="fa-solid fa-circle-check text-emerald-400 flex-shrink-0"></i>
@@ -1118,7 +1236,7 @@
         </div>
         <div class="flex items-center gap-2 text-xs text-amber-300">
           <i class="fa-solid fa-gift text-amber-400 flex-shrink-0"></i>
-          <span>专属附赠<strong>《2026 外贸防泄露自动核价模板 (极客版)》</strong></span>
+          <span>专属附赠<strong>《2026 外贸全能出单神表 (Excel 豪华版)》</strong></span>
         </div>
         <div class="flex items-center gap-2 text-xs text-sky-300">
           <i class="fa-solid fa-screwdriver-wrench text-sky-400 flex-shrink-0"></i>
@@ -1137,7 +1255,7 @@
           </button>
         </div>
         <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">
-          扫码备注「<span class="text-cyan-300 font-mono">核价模板</span>」即刻领取，遇到任何使用问题或底价表配置，创始人实时协助。
+          扫码备注「<span class="text-cyan-300 font-mono">出单神表</span>」即刻领取，遇到任何使用问题或底价表配置，创始人实时协助。
         </p>
       </div>
 
@@ -1149,7 +1267,7 @@
     </div>
   </div>
 
-  <!-- B. 升级极客版支付与转账弹窗 (Payment Modal - 与工作台 100% 统一，单屏极简无滚动条) -->
+  <!-- B. 升级个人版支付与转账弹窗 (Payment Modal - 与工作台 100% 统一，单屏极简无滚动条) -->
   <div id="payment-modal" class="fixed inset-0 z-[220] bg-black/85 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 overflow-y-auto">
     <div onclick="event.stopPropagation()" class="relative max-w-md w-full bg-[#060B1A] border border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl overflow-hidden text-left my-auto space-y-3.5 text-white">
       <!-- 内部微光背景 (独立圆角裁剪，杜绝外溢膨胀) -->
@@ -1167,7 +1285,7 @@
       <div class="text-center space-y-1.5 pb-2 border-b border-white/10">
         <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold">
           <i class="fa-solid fa-crown text-amber-400"></i>
-          <span>升级个人极客版 · 解锁全功能智能出单</span>
+          <span>升级个人专业版 · 解锁全功能智能出单</span>
         </div>
         <h4 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
           开通 / 续费外贸智能中枢
@@ -1182,29 +1300,29 @@
         <button id="pay-switch-monthly" type="button" onclick="switchPaymentModalCycle('monthly')"
                 class="p-3.5 rounded-2xl transition cursor-pointer border relative overflow-hidden bg-amber-500/20 border-amber-400/60 shadow-lg shadow-amber-500/10 text-white">
           <div class="flex items-center justify-between mb-1">
-            <span class="text-xs font-bold text-amber-300">月付极客版</span>
+            <span class="text-xs font-bold text-amber-300">月付专业版</span>
             <span id="pay-monthly-promo-badge" class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">首月特惠</span>
           </div>
           <div class="flex items-baseline gap-1">
             <span id="pay-modal-monthly-amount" class="text-xl sm:text-2xl font-black font-mono tracking-tight text-white">¥39</span>
             <span id="pay-modal-monthly-period" class="text-[11px] text-slate-400">/ 首月</span>
           </div>
-          <div id="pay-modal-monthly-subnote" class="text-[10px] text-slate-400 mt-1">首月特惠 · 次月起按 ¥99/月</div>
+          <div id="pay-modal-monthly-subnote" class="text-[10px] text-slate-400 mt-1">首月特惠 · 次月起按 ¥69/月</div>
         </button>
 
         <button id="pay-switch-annual" type="button" onclick="switchPaymentModalCycle('annual')"
                 class="p-3.5 rounded-2xl transition cursor-pointer border relative overflow-hidden bg-white/[0.03] border-white/10 hover:border-white/20 text-slate-400">
           <div class="absolute top-0 right-0 bg-gradient-to-l from-amber-400 to-amber-500 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
-            省¥298
+            省¥229
           </div>
           <div class="flex items-center justify-between mb-1">
-            <span class="text-xs font-bold text-slate-300">年付特惠版</span>
+            <span class="text-xs font-bold text-slate-300">年付专业版</span>
           </div>
           <div class="flex items-baseline gap-1">
-            <span class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-300">¥890</span>
+            <span class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-300">¥599</span>
             <span class="text-[11px] text-slate-400">/ 年</span>
           </div>
-          <div class="text-[10px] text-emerald-400 font-medium mt-1">仅合 ¥74/月 · 赠专属顾问</div>
+          <div class="text-[10px] text-emerald-400 font-medium mt-1">仅合 ¥49.9/月 · 赠专属顾问</div>
         </button>
       </div>
 
@@ -1223,7 +1341,7 @@
           <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-500/25 flex items-center justify-between text-xs">
             <div class="flex items-center space-x-1.5 min-w-0 pr-2">
               <span class="text-slate-300 font-medium whitespace-nowrap">转账请备注：</span>
-              <span id="payment-note-text" class="text-amber-300 font-mono font-bold text-xs sm:text-sm whitespace-nowrap select-all">开通极客版39</span>
+              <span id="payment-note-text" class="text-amber-300 font-mono font-bold text-xs sm:text-sm whitespace-nowrap select-all">开通专业版39</span>
             </div>
             <button type="button" onclick="copyPaymentNote()" class="shrink-0 px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-bold transition cursor-pointer active:scale-95 flex items-center gap-1">
               <i class="fa-regular fa-copy"></i>
@@ -1369,41 +1487,52 @@
       const priceSubtext = document.getElementById('pricing-subtext');
       const badgeText = document.getElementById('pricing-badge-text');
       const btnPayText = document.getElementById('btn-pay-text');
+      const teamAmount = document.getElementById('pricing-team-amount');
+      const teamCycle = document.getElementById('pricing-team-cycle');
+      const teamSubnote = document.getElementById('pricing-team-subnote');
       const isPromoUsed = localStorage.getItem('kelvinflow_user_paid_promo') === 'true' || 
                           localStorage.getItem('kelvinflow_user_is_paid') === 'true';
 
       if (cycle === 'annual') {
         if (btnMonthly) btnMonthly.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer';
         if (btnAnnual) btnAnnual.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white bg-blue-600 shadow-md flex items-center space-x-1.5 cursor-pointer';
-        if (priceAmount) priceAmount.textContent = '890';
+        if (priceAmount) priceAmount.textContent = '599';
         if (priceCycle) priceCycle.textContent = '/ 年';
         if (priceSubtext) {
-          priceSubtext.textContent = '(立省 ¥298 · 相当于 ¥74/月 · 赠送 3 个月)';
+          priceSubtext.textContent = '(立省 ¥229 · 折合 ¥49.9/月 · 赠专属顾问)';
           priceSubtext.className = 'inline-block text-xs text-amber-300 font-mono px-2.5 py-1 rounded-lg bg-amber-400/20 border border-amber-400/30 leading-relaxed';
         }
-        if (badgeText) badgeText.textContent = '🔥 限前 50 席 · 终身锁定 ¥99 特权 (立省 ¥298)';
-        if (btnPayText) btnPayText.textContent = '立即开通年付极客版 (¥890/年)';
+        if (badgeText) badgeText.textContent = '🔥 限前 50 席 · 锁定 ¥599/年 特权 (立省 ¥229)';
+        if (btnPayText) btnPayText.textContent = '立即开通年付专业版 (¥599/年)';
+
+        if (teamAmount) teamAmount.textContent = '1,999';
+        if (teamCycle) teamCycle.textContent = '/ 年';
+        if (teamSubnote) teamSubnote.textContent = '（立省 ¥1,589 · 折合 ¥166/月）';
       } else {
         if (btnMonthly) btnMonthly.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white bg-blue-600 shadow-md cursor-pointer';
         if (btnAnnual) btnAnnual.className = 'px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center space-x-1.5 cursor-pointer';
         
+        if (teamAmount) teamAmount.textContent = '299';
+        if (teamCycle) teamCycle.textContent = '/ 月';
+        if (teamSubnote) teamSubnote.textContent = '（年付 ¥1,999/年）';
+
         if (isPromoUsed) {
-          if (priceAmount) priceAmount.textContent = '99';
+          if (priceAmount) priceAmount.textContent = '69';
           if (priceCycle) priceCycle.textContent = '/ 月';
           if (priceSubtext) {
-            priceSubtext.textContent = '(极客版标准月付 · 随心续订)';
+            priceSubtext.textContent = '(个人专业版标准月付 · 随心续订)';
             priceSubtext.className = 'inline-block text-xs text-slate-300 font-mono px-2.5 py-0.5 rounded-lg bg-white/5 border border-white/10 leading-relaxed';
           }
-          if (badgeText) badgeText.textContent = '🔥 极客版月付会员';
-          if (btnPayText) btnPayText.textContent = '续费极客版 (¥99/月)';
+          if (badgeText) badgeText.textContent = '🔥 个人专业版月付会员';
+          if (btnPayText) btnPayText.textContent = '续费专业版 (¥69/月)';
         } else {
           if (priceAmount) priceAmount.textContent = '39';
           if (priceCycle) priceCycle.textContent = '/ 首月';
           if (priceSubtext) {
-            priceSubtext.textContent = '(新人限时首月特惠仅 ¥39 · 次月起按 ¥99/月 正常续订)';
+            priceSubtext.textContent = '(新人限时首月特惠仅 ¥39 · 次月起按 ¥69/月 正常续订)';
             priceSubtext.className = 'inline-block text-xs text-amber-400 font-mono px-2.5 py-0.5 rounded-lg bg-amber-400/10 border border-amber-400/20 leading-relaxed';
           }
-          if (badgeText) badgeText.textContent = '🔥 试用专享 · 首月特惠仅 ¥39 (原价 ¥99)';
+          if (badgeText) badgeText.textContent = '🔥 试用专享 · 首月特惠仅 ¥39 (原价 ¥69)';
           if (btnPayText) btnPayText.textContent = '🔥 立即解锁首月特惠 (¥39/首月)';
         }
       }
@@ -1419,14 +1548,14 @@
       const promoBadge = document.getElementById('pay-monthly-promo-badge');
 
       if (isPromoUsed) {
-        if (monthlyAmount) monthlyAmount.textContent = '¥99';
+        if (monthlyAmount) monthlyAmount.textContent = '¥69';
         if (monthlyPeriod) monthlyPeriod.textContent = '/月';
         if (monthlySubnote) monthlySubnote.textContent = '标准月付续订';
         if (promoBadge) promoBadge.style.display = 'none';
       } else {
         if (monthlyAmount) monthlyAmount.textContent = '¥39';
         if (monthlyPeriod) monthlyPeriod.textContent = '/首月';
-        if (monthlySubnote) monthlySubnote.textContent = '次月起恢复 ¥99/月';
+        if (monthlySubnote) monthlySubnote.textContent = '次月起恢复 ¥69/月';
         if (promoBadge) promoBadge.style.display = 'inline-block';
       }
     }
@@ -1451,14 +1580,14 @@
       if (currentPaymentCycle === 'annual') {
         if (btnMonthly) btnMonthly.className = inactiveClass;
         if (btnAnnual) btnAnnual.className = activeAnnualClass;
-        if (noteEl) noteEl.textContent = '升级年付极客版890';
+        if (noteEl) noteEl.textContent = '升级年付专业版599';
       } else {
         if (btnMonthly) btnMonthly.className = activeMonthlyClass;
         if (btnAnnual) btnAnnual.className = inactiveClass;
         if (noteEl) {
           noteEl.textContent = isPromoUsed 
-            ? '升级极客版99' 
-            : '开通极客版39';
+            ? '升级专业版69' 
+            : '开通专业版39';
         }
       }
     }
@@ -1498,6 +1627,10 @@
       closePaymentModal(e);
     }
 
+    function openWaitlistModal() {
+      alert('团队工作室版（支持 3-5 人团队多账号协同与团队出单看板）正在紧锣密鼓开发中！\n\n建议先免费体验个人专业版，或添加创始人微信 kt_data 提前登记团队定制需求。');
+    }
+
     function copyFounderWechat() {
       const text = 'kt_data';
       const btnText = document.getElementById('copy-founder-wechat-text');
@@ -1513,7 +1646,7 @@
 
     function copyPaymentNote() {
       const noteEl = document.getElementById('payment-note-text');
-      const text = noteEl ? noteEl.textContent.trim() : '开通极客版39';
+      const text = noteEl ? noteEl.textContent.trim() : '开通专业版39';
       const btnText = document.getElementById('copy-pay-note-text');
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(() => {
@@ -1567,30 +1700,30 @@
         if (heroTrialText) heroTrialText.textContent = '进入工作审单台出单';
 
         if (pricingTrialBtn) pricingTrialBtn.style.display = 'none';
-        if (pricingBtnContainer) pricingBtnContainer.className = 'w-full';
+        if (pricingBtnContainer) pricingBtnContainer.className = 'w-full flex flex-col justify-end';
         if (pricingLoggedInBox) pricingLoggedInBox.style.display = 'flex';
 
         if (isPaid) {
-          if (pricingLoggedInText) pricingLoggedInText.textContent = '您已开通极客版尊享特权 (已享邮箱全自动联动)';
-          if (btnPayText) btnPayText.textContent = '已开通极客版特权';
+          if (pricingLoggedInText) pricingLoggedInText.textContent = '您已开通个人专业版尊享特权 (已享邮箱全自动联动)';
+          if (btnPayText) btnPayText.textContent = '已开通专业版特权';
           if (pricingPayBtn) pricingPayBtn.onclick = () => { window.location.href = wbUrl; };
         } else {
           const isExpired = localStorage.getItem('kelvinflow_user_expired') === 'true';
           const isPromoUsed = localStorage.getItem('kelvinflow_user_paid_promo') === 'true';
           if (isExpired) {
             if (pricingLoggedInText) pricingLoggedInText.textContent = isPromoUsed 
-              ? '您的 7 天试用已到期 · 续费极客版继续出单'
-              : '您的 7 天试用已到期 · 限时特权：首月仅需 ¥39 开通极客版！';
+              ? '您的 7 天试用已到期 · 续费专业版继续出单'
+              : '您的 7 天试用已到期 · 限时特权：首月仅需 ¥39 开通个人专业版！';
             if (btnPayText) btnPayText.textContent = isPromoUsed
-              ? '⚡ 续费极客版 (¥99/月)'
-              : '⚡ 立即领取首月 ¥39 破冰特权 (原价¥99)';
+              ? '⚡ 续费专业版 (¥69/月)'
+              : '⚡ 立即领取首月 ¥39 破冰特权 (原价¥69)';
           } else {
             if (pricingLoggedInText) pricingLoggedInText.textContent = isPromoUsed
               ? '您当前处于 7 天全功能免费试用中'
               : '您当前处于 7 天全功能免费试用中 (首月仅 ¥39)';
             if (btnPayText) btnPayText.textContent = isPromoUsed
-              ? '开通极客版 (¥99/月)'
-              : '🔥 抢先锁定首月 ¥39 破冰特权 (原价¥99)';
+              ? '开通专业版 (¥69/月)'
+              : '🔥 抢先锁定首月 ¥39 破冰特权 (原价¥69)';
           }
           if (pricingPayBtn) pricingPayBtn.onclick = () => openPaymentModal('monthly');
         }
@@ -1624,8 +1757,8 @@
         if (heroTrialBtn) heroTrialBtn.onclick = () => openInboundModal('starter');
         if (heroTrialText) heroTrialText.textContent = '免费开通 7 天试用';
 
-        if (pricingTrialBtn) pricingTrialBtn.style.display = 'flex';
-        if (pricingBtnContainer) pricingBtnContainer.className = 'space-y-2.5 w-full';
+        if (pricingTrialBtn) pricingTrialBtn.style.display = 'none';
+        if (pricingBtnContainer) pricingBtnContainer.className = 'w-full flex flex-col justify-end';
         if (pricingLoggedInBox) pricingLoggedInBox.style.display = 'none';
         if (btnPayText) btnPayText.textContent = '🔥 立即解锁首月特惠 (¥39/首月)';
         if (pricingPayBtn) pricingPayBtn.onclick = () => openPaymentModal('monthly');
@@ -1835,7 +1968,7 @@
         if (formReg) formReg.classList.add('hidden');
         if (formLogin) formLogin.classList.remove('hidden');
 
-        if (badge) badge.textContent = '已有账号登录 · 极客版/试用会员';
+        if (badge) badge.textContent = '已有账号登录 · 个人版/试用会员';
         if (title) title.textContent = '欢迎登录外贸智能工作台';
         if (desc) desc.textContent = '密码加密保护 · 安全管理私有底价库与报价草稿';
 

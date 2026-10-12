@@ -14,6 +14,7 @@ import { TrialService } from '../services/trial.service.js';
 import { DraftService } from '../services/draft.service.js';
 import { NotificationService } from '../services/notification.service.js';
 import { EmailVerificationService } from '../services/email-verification.service.js';
+import { ExchangeRateService } from '../services/exchangeRate.service.js';
 import { authMiddleware, requireRole, requireActiveTenant } from '../middlewares/auth.middleware.js';
 import { ProcessQuoteResponse, StandardPriceItem, StandardExchangeRate, QuotationResult } from '../types/index.js';
 
@@ -418,10 +419,11 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
         exists: true,
         isTrial: !isPaidUser,
         isPaid: isPaidUser,
-        plan: (profile && profile.plan) || (isPaidUser ? 'geek' : 'trial'),
+        plan: (profile && profile.plan) || (isPaidUser ? 'pro' : 'trial'),
         expired: isExpired,
         remainingDays,
         expiresAt: trial.expiresAt,
+        formattedExpiresAt: TrialService.formatExpiryDateTime(trial.expiresAt),
         tenantId: trial.tenantId,
         phone: trial.phone,
         email: trial.email,
@@ -450,10 +452,11 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
           exists: true,
           isTrial: !isPaidUser,
           isPaid: isPaidUser,
-          plan: (profile && profile.plan) || (isPaidUser ? 'geek' : 'trial'),
+          plan: (profile && profile.plan) || (isPaidUser ? 'pro' : 'trial'),
           expired: isExpired,
           remainingDays,
           expiresAt: trial.expiresAt,
+          formattedExpiresAt: TrialService.formatExpiryDateTime(trial.expiresAt),
           tenantId: trial.tenantId,
           phone: trial.phone,
           email: trial.email,
@@ -474,10 +477,11 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
           exists: true,
           isTrial: !isPaid,
           isPaid,
-          plan: profile.plan || (isPaid ? 'geek' : 'trial'),
+          plan: profile.plan || (isPaid ? 'pro' : 'trial'),
           expired,
           remainingDays,
           expiresAt,
+          formattedExpiresAt: expiresAt ? TrialService.formatExpiryDateTime(expiresAt) : null,
           tenantId,
           email: req.user?.email || profile.contactEmail,
           name: req.user?.name || profile.managerName || profile.companyName,
@@ -632,6 +636,23 @@ quoteRouter.get('/pricing/status', async (req: Request, res: Response): Promise<
     incotermRules,
     updatedAt
   });
+});
+
+/**
+ * 获取实时外贸银行结汇买入汇率 (支持新浪财经、Open ER 与本地高可用缓存三级保障)
+ */
+quoteRouter.get('/rates/latest', async (req: Request, res: Response): Promise<any> => {
+  try {
+    const force = req.query.refresh === 'true' || req.query.refresh === '1';
+    const data = await ExchangeRateService.getLatestRates(force);
+    return res.json(data);
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve exchange rates',
+      error: err?.message || String(err)
+    });
+  }
 });
 
 /**

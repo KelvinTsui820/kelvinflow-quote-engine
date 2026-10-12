@@ -708,9 +708,14 @@ export class PDFService {
         }
       }
 
-      // 2. 动态生成报价有效期
+      // 2. 动态生成报价有效期与汇率保护条款
+      const currCode = (quotation.currency || 'USD').toUpperCase();
+      const rateVal = quotation.rateUsed ? Number(quotation.rateUsed).toFixed(4).replace(/\.?0+$/, '') : '';
+      const fxBenchClause = rateVal && currCode !== 'CNY'
+        ? ` based on benchmark exchange rate (${currCode}/CNY = ${rateVal}) and`
+        : '';
       const validityHighlight = `${validityDays} Calendar Days`;
-      const validityRest = ` strictly valid from date of issue (until ${validUntilStr || 'specified date'}). Prices subject to mutual adjustment only if foreign exchange rate fluctuates by more than ±3%. Re-confirmation required upon expiration.`;
+      const validityRest = ` strictly valid from date of issue (until ${validUntilStr || 'specified date'}). Prices${fxBenchClause} subject to mutual adjustment if foreign exchange rate fluctuates by more than ±3%. Re-confirmation required upon expiration.`;
 
       // 3. 动态质量保障条款 (优先支持询盘要求/配置，默认 AQL抽检 + 产线全测 + 开放第三方验货)
       const warrantyHighlight = (quotation as any).qualityStandard || 'AQL 2.5 / 4.0 Standard';

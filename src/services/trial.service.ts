@@ -133,20 +133,32 @@ export class TrialService {
   }
 
   /**
+   * 格式化到期时间为年月日与时分 (如: 2026年10月30日 18:00)
+   * 确保用户看到的到期时间与开通时刻精确对齐，杜绝少算一天的错觉
+   */
+  static formatExpiryDateTime(expiresAt: string | Date | number): string {
+    const d = new Date(expiresAt);
+    if (isNaN(d.getTime())) return '已到期';
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}年${month}月${day}日 ${hours}:${minutes}`;
+  }
+
+  /**
    * 计算试用期剩余自然天数
-   * 底层逻辑优化：基于自然日（日历日）计算剩余天数。
-   * 避免纯毫秒差除以 24 小时 + Math.ceil 导致的「昨天下午登录是 14 天，今天上午登录（间隔 16 小时）仍然是 14 天」的问题。
-   * 规则：跨过自然日午夜 00:00，自然剩余天数即准确递减 1 天。
+   * 精确时间算法：基于 24 小时满时窗向上取整 (Math.ceil)。
+   * 确保用户在任意时间点开通（如晚上 18:00），到期时间严格为 7 天后的 18:00，绝不因跨过半夜被提前扣减一天。
    */
   static calculateRemainingDays(expiresAt: string | Date | number, now: Date = new Date()): number {
     const exp = new Date(expiresAt);
     if (isNaN(exp.getTime()) || now.getTime() >= exp.getTime()) {
       return 0;
     }
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const startOfExpiry = new Date(exp.getFullYear(), exp.getMonth(), exp.getDate()).getTime();
-    const diffDays = Math.round((startOfExpiry - startOfToday) / (24 * 3600 * 1000));
-    return Math.max(1, diffDays);
+    const diffMs = exp.getTime() - now.getTime();
+    return Math.max(1, Math.ceil(diffMs / (24 * 3600 * 1000)));
   }
 
   /**
@@ -243,12 +255,12 @@ export class TrialService {
         const all = this.getAllTrials().map(t => t.id === existing.id ? existing : t);
         this.saveTrials(all);
 
-        const expiryStr = expiryDate.toLocaleDateString('zh-CN');
+        const expiryStr = this.formatExpiryDateTime(existing.expiresAt);
         return {
           success: false,
           expired: true,
           code: 'TRIAL_EXPIRED',
-          message: `该邮箱（${existing.email}）的 7 天免费全功能试用已于 ${expiryStr} 到期。您的底价表与历史报价数据将为您安全保留 30 天。为保障平台算法算力与公平服务，免费名额仅限享受 1 次。如需继续使用，请升级极客版或扫码添加创始人微信进行商务开通！`,
+          message: `该邮箱（${existing.email}）的 7 天免费全功能试用已于 ${expiryStr} 到期。您的底价表与历史报价数据将为您安全保留 30 天。☕ 少喝一杯星巴克，首月特惠仅 ¥39 即可保留整月无限次私人出单特权！试用到期后，每月仍享有 10 笔免费出单额度。如需解锁无限次极速出单与公司 Logo 上传，请升级个人专业版！`,
           expiresAt: existing.expiresAt,
           founderWechat: 'kt_data'
         };
@@ -532,12 +544,12 @@ export class TrialService {
       const all = this.getAllTrials().map(t => t.id === existing.id ? existing : t);
       this.saveTrials(all);
 
-      const expiryStr = expiryDate.toLocaleDateString('zh-CN');
+      const expiryStr = this.formatExpiryDateTime(existing.expiresAt);
       return {
         success: false,
         expired: true,
         code: 'TRIAL_EXPIRED',
-        message: `您的 7 天全功能免费试用已于 ${expiryStr} 到期。您的底价表与历史报价数据将为您安全保留 30 天。为保障平台算法算力与数据公平，免费名额限体验 1 次。如需继续出单，请升级极客版或扫码添加创始人微信进行商务开通！`,
+        message: `您的 7 天全功能免费试用已于 ${expiryStr} 到期。您的底价表与历史报价数据将为您安全保留 30 天。☕ 少喝一杯星巴克，首月特惠仅 ¥39 即可保留整月无限次私人出单特权！试用到期后，每月仍享有 10 笔免费出单额度。如需解锁无限次极速出单与公司 Logo 上传，请升级个人专业版！`,
         expiresAt: existing.expiresAt,
         founderWechat: 'kt_data'
       };
@@ -609,11 +621,11 @@ export class TrialService {
   }
 
   /**
-   * 管理员手动或支付回调升级租户为正式付费版 (极客版 / 团队版)
+   * 管理员手动或支付回调升级租户为正式付费版 (个人版 / 团队版)
    * 自动化核心闭环：
    * 1. 顺延有效期（在当前未过期天数基础上累加，保障用户权益）
    * 2. 更新 profile.json 的 plan 为 'geek' / 'pro'，解除配额限制
-   * 3. 裂变激励：若该用户是被推荐人，自动给推荐人派发 +30 天（整整 1 个月）极客版奖励！
+   * 3. 裂变激励：若该用户是被推荐人，自动给推荐人派发 +30 天（整整 1 个月）个人版奖励！
    */
   static upgradeTenantToPaid(params: {
     phoneOrEmail: string;
@@ -741,8 +753,8 @@ export class TrialService {
     // 如果当前尚未到期，以当前到期时间为基准累加；如果已过期，以当前时间为基准累加
     const baseTime = (currentExp > now && !isNewAccount) ? currentExp : now;
     const newExpiresAt = isNewAccount ? currentTrial.expiresAt : new Date(baseTime + addDays * 24 * 3600 * 1000).toISOString();
-    const plan = params.plan || 'geek';
-    const amount = params.amountPaid !== undefined ? params.amountPaid : (params.isVip ? 0 : (params.months === 12 ? 1290 : 129));
+    const plan = params.plan || 'pro';
+    const amount = params.amountPaid !== undefined ? params.amountPaid : (params.isVip ? 0 : (params.months === 12 ? 599 : 69));
 
     trial.expiresAt = newExpiresAt;
     trial.status = 'converted';
@@ -825,7 +837,7 @@ export class TrialService {
 
     return {
       success: true,
-      message: `🎉 租户 [${trial.phone}] 成功升级为 [${plan}]！已顺延 ${addDays} 天，有效期至 ${new Date(newExpiresAt).toLocaleDateString('zh-CN')}`,
+      message: `🎉 租户 [${trial.phone}] 成功升级为 [${plan}]！已顺延 ${addDays} 天，有效期至 ${this.formatExpiryDateTime(newExpiresAt)}`,
       trial,
       tenant,
       referrerReward,
@@ -898,7 +910,7 @@ export class TrialService {
   static activatePaidUser(
     phoneOrEmail: string,
     options: {
-      plan?: 'geek' | 'annual';
+      plan?: 'pro' | 'geek' | 'annual';
       durationDays?: number;
       amount?: number;
       note?: string;
@@ -916,8 +928,8 @@ export class TrialService {
     const clean = phoneOrEmail.trim();
     let trial = this.findTrialByPhoneOrEmail(clean, clean);
 
-    const isAnnual = options.plan === 'annual' || options.amount === 890 || (options.durationDays && options.durationDays >= 360);
-    const planName = isAnnual ? 'annual' : 'geek';
+    const isAnnual = options.plan === 'annual' || options.amount === 599 || (options.durationDays && options.durationDays >= 360);
+    const planName = isAnnual ? 'annual' : (options.plan || 'pro');
     const durationDays = options.durationDays || (isAnnual ? 365 : 31);
 
     const now = new Date();
@@ -966,13 +978,13 @@ export class TrialService {
 
     // 同步更新租户配置
     TenantService.updateTenantProfile(trial.tenantId, {
-      plan: 'geek' as any,
+      plan: 'pro' as any,
       status: 'active',
       expiresAt: newExpiresAt,
       dataRetentionUntil: new Date(new Date(newExpiresAt).getTime() + 180 * 24 * 3600 * 1000).toISOString()
     });
 
-    console.log(`💎 [1秒开通付费会员] 用户 [${clean}] 已成功升级为【${isAnnual ? '年付创始特权版(¥890)' : '极客版(¥99)'}】，到期时间：${newExpiresAt}`);
+    console.log(`💎 [1秒开通付费会员] 用户 [${clean}] 已成功升级为【${isAnnual ? '年付个人专业版(¥599)' : '月付个人专业版(¥69)'}】，到期时间：${newExpiresAt}`);
 
     return {
       success: true,
@@ -980,7 +992,7 @@ export class TrialService {
       tenantId: trial.tenantId,
       plan: planName,
       expiresAt: newExpiresAt,
-      message: `成功激活！用户 ${clean} 已锁定创始特权，有效期至 ${new Date(newExpiresAt).toLocaleDateString('zh-CN')}`
+      message: `成功激活！用户 ${clean} 已锁定个人专业版特权，有效期至 ${this.formatExpiryDateTime(newExpiresAt)}`
     };
   }
 }
