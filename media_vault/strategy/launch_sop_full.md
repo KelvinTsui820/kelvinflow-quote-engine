@@ -1,7 +1,9 @@
-# 🎯 KelvinFlow 出海工具矩阵·小红书 0 到 1 战略定位与冷启动总案 (V3 终极实战版)
+# ⚠️ [历史归档草案 · 已作废] KelvinFlow 出海工具矩阵·小红书 0 到 1 战略定位与冷启动总案 (V3 历史版本)
 
-> **战略基调重塑**：**社群为王，以精打痛（Community-First, Product-Second）**  
-> 不搞几十个浅尝辄止的边缘工具，而是立足大湾区，先把精准出海老友社群聚起来，通过真实痛点调研与社群投票，打造极少、极精、直击要害的出海自动化精品工具！
+> 🛑 **【归档作废声明】**：本文件为项目早期头脑风暴草案（V3.0），**现已全量作废归档**！  
+> 核心昵称、人设哲学、主页五件套及合规发布标准请统一以根目录下最新的权威宪法文件为准：  
+> 👉 [XHS_MASTER_OPERATIONS_HANDOFF.md](file:///F:/xhs_operator/XHS_MASTER_OPERATIONS_HANDOFF.md) ｜ [account_setup.md](file:///F:/xhs_operator/strategy/account_setup.md) (V6.0 终版)  
+> *（禁止在任何后续运营创作中沿用本文件的旧昵称、微信私域外链或旧版夸大文案！）*
 
 ---
 

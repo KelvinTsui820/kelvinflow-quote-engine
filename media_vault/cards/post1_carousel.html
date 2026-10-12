@@ -2,27 +2,27 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>小红书 3:4 爆款轮播卡片预览 - 帮顺德老板修Excel</title>
+  <title>IT佬Kelvin · 小红书 3:4 视觉轮播卡片 (第 01 期)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif; }
-    body { background-color: #0b0d10; color: #fff; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
-    h1 { font-size: 24px; margin-bottom: 24px; color: #f3f4f6; text-align: center; }
-    p.subtitle { color: #9ca3af; font-size: 14px; margin-bottom: 30px; text-align: center; }
+    body { background-color: #2b2b2b; color: #2c2825; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+    h1 { font-size: 24px; margin-bottom: 12px; color: #f9f7f2; text-align: center; font-weight: 700; }
+    p.subtitle { color: #d4cfc7; font-size: 14px; margin-bottom: 30px; text-align: center; }
     
     .carousel-container {
       display: flex;
       flex-wrap: wrap;
       gap: 30px;
       justify-content: center;
-      max-width: 1300px;
+      max-width: 1400px;
     }
 
-    /* 3:4 小红书黄金比例卡片 */
+    /* 3:4 小红书黄金比例卡片 - 暖米白纸质手作风 #F9F7F2 */
     .card {
       width: 360px;
       height: 480px;
-      background: #14171d;
-      border: 1px solid #262c36;
+      background: #F9F7F2;
+      border: 1px solid #E5DFD5;
       border-radius: 20px;
       padding: 32px 28px;
       display: flex;
@@ -30,12 +30,12 @@
       justify-content: space-between;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .card:hover {
       transform: translateY(-4px);
-      border-color: #ffe600;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
     }
 
     /* 顶部 Tag */
@@ -45,111 +45,110 @@
       gap: 6px;
       font-size: 12px;
       font-weight: 700;
-      text-transform: uppercase;
       letter-spacing: 0.5px;
       padding: 6px 12px;
       border-radius: 8px;
       width: fit-content;
     }
-    .tag-red { background: rgba(255, 59, 48, 0.15); color: #ff453a; border: 1px solid rgba(255, 59, 48, 0.3); }
-    .tag-yellow { background: rgba(255, 230, 0, 0.15); color: #ffe600; border: 1px solid rgba(255, 230, 0, 0.3); }
-    .tag-blue { background: rgba(10, 132, 255, 0.15); color: #0a84ff; border: 1px solid rgba(10, 132, 255, 0.3); }
-    .tag-green { background: rgba(48, 209, 88, 0.15); color: #30d158; border: 1px solid rgba(48, 209, 88, 0.3); }
+    .tag-warm { background: #EFE9DD; color: #735D43; border: 1px solid #D8CEBD; }
+    .tag-blue { background: #E5EFFB; color: #1E6091; border: 1px solid #B6D4F1; }
+    .tag-green { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+    .tag-amber { background: #FEF3E2; color: #B45309; border: 1px solid #FDE68A; }
 
     /* 大字标题 */
     .card-title {
-      font-size: 26px;
-      font-weight: 900;
-      line-height: 1.35;
-      color: #ffffff;
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.4;
+      color: #1F2937;
       margin: 16px 0 12px 0;
     }
-    .highlight-yellow { color: #ffe600; }
-    .highlight-red { color: #ff453a; }
+    .highlight-brand { color: #8B4513; }
+    .highlight-accent { color: #1E6091; }
 
     .card-body {
-      font-size: 14px;
-      color: #cbd5e1;
-      line-height: 1.65;
+      font-size: 13.5px;
+      color: #4B5563;
+      line-height: 1.7;
       flex-grow: 1;
     }
 
-    /* 拟态 UI / 代码盒 */
-    .mock-box {
-      background: #0f1217;
-      border: 1px solid #1f242d;
+    /* 纸质便签拟态框 */
+    .memo-box {
+      background: #FFFFFF;
+      border: 1px solid #E5DFD5;
       border-radius: 12px;
       padding: 16px;
-      margin: 14px 0;
+      margin: 12px 0;
       font-size: 13px;
-      color: #94a3b8;
+      color: #374151;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }
-    .mock-excel-row {
+    .memo-row {
       display: flex;
-      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
       padding: 6px 0;
-      border-bottom: 1px dashed #262c36;
+      border-bottom: 1px dashed #EDE8E1;
     }
-    .mock-excel-row:last-child { border-bottom: none; }
-    .danger-text { color: #ff453a; font-weight: 700; }
-    .success-text { color: #30d158; font-weight: 700; }
+    .memo-row:last-child { border-bottom: none; }
 
     /* 底部博主标识 */
     .card-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-top: 1px solid #1f242d;
+      border-top: 1px solid #EBE5DB;
       padding-top: 14px;
       font-size: 12px;
-      color: #64748b;
+      color: #8C8275;
     }
     .author-badge {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #94a3b8;
+      color: #5C5245;
       font-weight: 600;
     }
     .author-avatar {
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: #ffe600;
-      color: #000;
+      background: #D8CEBD;
+      color: #4A3E31;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      font-weight: 900;
+      font-size: 11px;
+      font-weight: 800;
     }
   </style>
 </head>
 <body>
 
-  <h1>📱 小红书爆款 3:4 视觉轮播卡片 (第 01 期)</h1>
-  <p class="subtitle">大湾区独立开发者视角 ｜ 佛山顺德真实案发现场 ｜ 建议长按或截图存为 3:4 原图直接发布</p>
+  <h1>📱 IT佬Kelvin · 小红书 3:4 视觉轮播卡片 (首发第 01 期)</h1>
+  <p class="subtitle">大湾区独立开发实录 ｜ 暖米白纸质手作风 #F9F7F2 ｜ 严格对齐白皮书事实</p>
 
   <div class="carousel-container">
 
     <!-- Card 1: 封面 -->
     <div class="card">
       <div>
-        <div class="tag tag-red">⚠️ 外贸避坑实录 #01</div>
+        <div class="tag tag-warm">☕ 独立开发实录 #01</div>
         <div class="card-title">
-          帮顺德老板修 Excel<br/>
-          <span class="highlight-yellow">我血压直接上来了！</span>
+          独立手搓了一套外贸出单系统<br/>
+          <span class="highlight-brand">我把精准算价逻辑做成了免费模板 ☕</span>
         </div>
       </div>
       <div class="card-body">
-        <div class="mock-box">
-          <div style="font-size: 12px; color: #ff453a; font-weight: bold; margin-bottom: 8px;">🔥 真实案发现场：</div>
-          <div>• 祖传表格嵌套 <span class="highlight-yellow">9 层 VLOOKUP + IF</span></div>
-          <div>• 出厂底价列居然只点了“隐藏”！</div>
-          <div>• 难怪上个月被海外买家死命压价...</div>
+        <div class="memo-box">
+          <div style="font-size: 12px; color: #8B4513; font-weight: bold; margin-bottom: 6px;">💡 核心亮点：</div>
+          <div>• 阶梯底价自适应匹配</div>
+          <div>• 海运港杂按体积科学平摊</div>
+          <div>• 汇率与目标毛利全表联动倒算</div>
         </div>
-        <p style="font-size: 13px; color: #94a3b8; margin-top: 10px;">
-          👉 划到后面看买家是如何“一键看光底牌”的！
+        <p style="font-size: 12.5px; color: #6B7280; margin-top: 8px;">
+          大湾区独立开发 Kelvin ｜ 做个纯净实用工具帮大家省时间
         </p>
       </div>
       <div class="card-footer">
@@ -161,99 +160,102 @@
       </div>
     </div>
 
-    <!-- Card 2: 案发现场 -->
+    <!-- Card 2: 痛点 -->
     <div class="card">
       <div>
-        <div class="tag tag-yellow">🔍 案发现场拆解</div>
+        <div class="tag tag-amber">🔍 日常痛点拆解</div>
         <div class="card-title">
-          底价只点隐藏？<br/>
-          <span class="highlight-red">老外 1 秒看穿你的底牌</span>
+          外贸日常核价中<br/>
+          <span class="highlight-accent">那些繁琐琐碎的操作</span>
         </div>
       </div>
       <div class="card-body">
-        <div class="mock-box">
-          <div class="mock-excel-row">
-            <span>A列：商品型号</span>
-            <span style="color:#f3f4f6;">ST-2026-A</span>
+        <div class="memo-box">
+          <div class="memo-row">
+            <span>📌</span>
+            <span><b>型号繁多翻找费力</b>：买家询盘数量不一，要在底价表里逐个找阶梯价；</span>
           </div>
-          <div class="mock-excel-row">
-            <span>B列：对外报价 (USD)</span>
-            <span class="success-text">$18.50</span>
+          <div class="memo-row">
+            <span>📌</span>
+            <span><b>港杂平摊容易漏算</b>：海运固定杂费与报关费漏分摊，导致单单利润算薄；</span>
           </div>
-          <div class="mock-excel-row">
-            <span class="danger-text">F列：出厂成本 (已隐藏)</span>
-            <span class="danger-text">¥48.00 裸奔！</span>
+          <div class="memo-row">
+            <span>📌</span>
+            <span><b>汇率变动反复修改</b>：结汇汇率波动，需要一个个 SKU 重算美金单价。</span>
           </div>
         </div>
-        <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
-          买家只要把表格下载到电脑，选中表头点一下<b>【取消隐藏】</b>，成本公式清清楚楚！你还怎么跟人家谈利润？
-        </p>
       </div>
       <div class="card-footer">
         <div class="author-badge">
           <div class="author-avatar">K</div>
-          <span>致命盲区曝光</span>
+          <span>业务真实痛点</span>
         </div>
         <span>2 / 4</span>
       </div>
     </div>
 
-    <!-- Card 3: 程序员解法 -->
+    <!-- Card 3: 交付 -->
     <div class="card">
       <div>
-        <div class="tag tag-blue">⚡ 极客解法：轻量脚本搞定</div>
+        <div class="tag tag-blue">🛠️ 提炼自独立开发引擎</div>
         <div class="card-title">
-          别拿命手改了<br/>
-          <span class="highlight-yellow">自动化汇率 + 原生锁格</span>
+          给外贸老友的轻量解法：<br/>
+          <span class="highlight-brand">《外贸精准核价 Excel 模板》</span>
         </div>
       </div>
       <div class="card-body">
-        <div class="mock-box" style="font-family: monospace; font-size: 12px; line-height: 1.5;">
-          <span style="color: #64748b;"># 自动拉取中行实时结汇牌价</span><br/>
-          rate = get_boc_exchange_rate('USD')<br/>
-          <span style="color: #64748b;"># 锁死底价公式，对外一键脱敏导出</span><br/>
-          export_clean_pdf(secure_sheet)
+        <div class="memo-box">
+          <div class="memo-row">
+            <span>✅</span>
+            <span><b>阶梯底价自动匹配</b>：输入采购数量，自动命中底价；</span>
+          </div>
+          <div class="memo-row">
+            <span>✅</span>
+            <span><b>FOB 港杂科学平摊</b>：按体积自动分摊单件成本；</span>
+          </div>
+          <div class="memo-row">
+            <span>✅</span>
+            <span><b>目标毛利汇率联动</b>：填入汇率毛利，精准倒算美金价；</span>
+          </div>
+          <div class="memo-row">
+            <span>✅</span>
+            <span><b>核心公式锁定保护</b>：绿色填数黄色出结果，防误改。</span>
+          </div>
         </div>
-        <ul style="padding-left: 18px; font-size: 13px; color: #cbd5e1; line-height: 1.7;">
-          <li>中行汇率每小时自动更新，无需手敲</li>
-          <li>底价列原生密码锁格，彻底防篡改防泄露</li>
-          <li>发给客户一键自动转为脱敏纯数值</li>
-        </ul>
       </div>
       <div class="card-footer">
         <div class="author-badge">
           <div class="author-avatar">K</div>
-          <span>用工具解放双手</span>
+          <span>实用工具交付</span>
         </div>
         <span>3 / 4</span>
       </div>
     </div>
 
-    <!-- Card 4: 行动诱饵 -->
+    <!-- Card 4: 行动 -->
     <div class="card">
       <div>
         <div class="tag tag-green">🎁 实用工具箱自取</div>
         <div class="card-title">
-          外贸防泄露核价模板<br/>
-          <span class="highlight-yellow">锁格 + 自动汇率纯净版</span>
+          纯净核价模板已备好<br/>
+          <span class="highlight-accent">主页官方群聊自取 ☕</span>
         </div>
       </div>
       <div class="card-body">
-        <div class="mock-box">
-          <div style="font-weight: bold; color: #fff; margin-bottom: 6px;">📦 资料包清单：</div>
-          <div>✅ 《2026 外贸全自动防泄露核价 Excel 表》</div>
-          <div>✅ 集装箱 20GP/40HQ 装柜 CBM 速算器</div>
-          <div>✅ Python 底价脱敏自动转单小脚本</div>
+        <div class="memo-box">
+          <div style="font-weight: 700; color: #2E7D32; margin-bottom: 8px;">📦 获取方式：</div>
+          <div style="line-height: 1.7;">
+            进入主页点击<b>【群聊】</b>进官方交流群，在<b>【群文件】</b>即可直接免费下载《2026外贸精准核价Excel模板》。
+          </div>
         </div>
-        <div style="background: rgba(255,230,0,0.1); border: 1px dashed #ffe600; padding: 12px; border-radius: 8px; text-align: center; margin-top: 12px;">
-          <span style="color: #ffe600; font-weight: bold; font-size: 14px;">💬 模板已放主页群文件</span><br/>
-          <span style="font-size: 12px; color: #94a3b8;">点击下方群聊即可自取 ☕</span>
-        </div>
+        <p style="font-size: 12.5px; color: #4B5563; line-height: 1.6; margin-top: 10px;">
+          💬 平时处理询盘邮件或表格最烦哪个环节？欢迎在评论区交流，我很乐意用代码帮大家一步步优化解决。
+        </p>
       </div>
       <div class="card-footer">
         <div class="author-badge">
           <div class="author-avatar">K</div>
-          <span>IT佬Kelvin ｜ 独立全栈</span>
+          <span>IT佬Kelvin ｜ 大湾区独立开发</span>
         </div>
         <span>4 / 4</span>
       </div>
