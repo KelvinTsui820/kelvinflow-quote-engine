@@ -682,10 +682,10 @@ quoteRouter.get('/template/pricing-sheet', (req: Request, res: Response) => {
     return res.status(404).json({ success: false, error: '底價表模板未就緒' });
   }
 
-  const encodedFilename = encodeURIComponent('出厂底价表.xlsx');
+  const encodedFilename = encodeURIComponent('外贸出厂底价表与智能核价模板_双表旗舰版.xlsx');
   res.setHeader(
     'Content-Disposition',
-    `attachment; filename="factory_cost_pricing_template.xlsx"; filename*=UTF-8''${encodedFilename}`
+    `attachment; filename="foreign_trade_factory_cost_pricing_template.xlsx"; filename*=UTF-8''${encodedFilename}`
   );
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   return res.sendFile(fileToSend);

@@ -42,7 +42,7 @@ async function buildUnifiedMasterTemplate() {
   ];
 
   ws0.mergeCells('B2:C2');
-  ws0.getCell('B2').value = '【2026 外贸出厂核算控制台与批量算价神表 · Kelvin旗舰版】使用指南';
+  ws0.getCell('B2').value = '【2026 外贸出厂底价表与智能核价模板 · Kelvin旗舰版】使用指南';
   ws0.getCell('B2').font = { name: FONT_NAME, size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
   ws0.getCell('B2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NAVY } };
   ws0.getCell('B2').alignment = { vertical: 'middle', horizontal: 'center' };
@@ -574,13 +574,18 @@ async function buildUnifiedMasterTemplate() {
     });
   }
 
-  // Destination paths
+  // Destination paths (Local & Online standardized filenames)
   const targets = [
-    'F:/xhs_operator/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版.xlsx',
-    'F:/order_workflow/media_vault/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版.xlsx',
+    // 1. 小红书群文件分发版（本地版）
+    'F:/xhs_operator/lead_magnets/2026外贸出厂底价表与智能核价模板_Kelvin旗舰版.xlsx',
+    'F:/order_workflow/media_vault/lead_magnets/2026外贸出厂底价表与智能核价模板_Kelvin旗舰版.xlsx',
+    // 2. 线上系统模板（双表旗舰版）
+    'F:/order_workflow/商品底价表/外贸出厂底价表与智能核价模板.xlsx',
     'F:/order_workflow/商品底价表/出厂底价表.xlsx',
-    'F:/order_workflow/商品底价表/出厂底价表_含批量秒算与对外脱敏旗舰版.xlsx',
-    'F:/order_workflow/public/templates/极简出厂底价表_双表旗舰版.xlsx'
+    'F:/order_workflow/public/templates/外贸出厂底价表与智能核价模板_双表旗舰版.xlsx',
+    'F:/order_workflow/public/templates/极简出厂底价表_双表旗舰版.xlsx',
+    // 3. 兼容旧版文件名
+    'F:/xhs_operator/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版.xlsx'
   ];
 
   for (const t of targets) {
@@ -591,12 +596,6 @@ async function buildUnifiedMasterTemplate() {
       console.warn('⚠️ 写入失败 (可能被占用):', t, e.message);
     }
   }
-
-  // Remove fallback file if target1 succeeded
-  const fallback = 'F:/xhs_operator/lead_magnets/2026_外贸出厂核算控制台与批量算价神表_Kelvin旗舰版_新对齐.xlsx';
-  try {
-    await workbook.xlsx.writeFile(fallback);
-  } catch (e) {}
 
   console.log('🎉 全部出厂底价表与群文件模板已 100% 同步升级完毕！');
 }

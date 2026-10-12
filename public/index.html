@@ -19,7 +19,7 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', '"Noto Sans SC"', '"SF Pro Display"', '"Segoe UI"', 'Roboto', 'sans-serif'],
             mono: ['"JetBrains Mono"', 'Consolas', 'monospace']
           },
           colors: {
@@ -81,11 +81,13 @@
       border-color: rgba(255, 255, 255, 0.16);
     }
 
-    /* 大标题金属光泽渐变 */
+    /* 大标题金属光泽渐变与排版微调 */
     .gradient-hero-title {
-      background: linear-gradient(180deg, #FFFFFF 15%, #E2E8F0 65%, #94A3B8 100%);
+      background: linear-gradient(180deg, #FFFFFF 20%, #E2E8F0 70%, #94A3B8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      font-feature-settings: "palt" 1;
+      text-rendering: optimizeLegibility;
     }
 
     /* 酷炫流光与脉冲动画 */
@@ -298,7 +300,7 @@
 
       <!-- 核心 Apple 风格大标题 (移动端响应式字号 text-3xl sm:text-5xl md:text-7xl) -->
       <h1 class="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-5 gradient-hero-title leading-tight">
-        海外询盘，10 秒自动出单。
+        海外询盘 · 10 秒自动出单
       </h1>
 
       <!-- 精炼一句话副标 (桌面端单行呈现，移动端优雅自适应) -->
