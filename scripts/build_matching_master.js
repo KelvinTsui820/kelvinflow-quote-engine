@@ -56,11 +56,11 @@ async function buildUnifiedMasterTemplate() {
     ],
     [
       '2. 【⚙️ 全局核算参数】怎么用？',
-      '在第 2 张工作表设定贵司（或个人）内部锁定汇率（如 USD 7.20）、保底毛利（如 15%）、利润防穿底红线（如 8%）与海运进仓港杂平摊（如 0.20 元/件）。在此修改后，全库商品自动秒级联动更新。'
+      '在第 2 张工作表顶部可【一键下拉切换主结算币种】（支持 USD / EUR / GBP / AUD / CAD），全库商品底价与对外报价单秒级自动自适应切换！同时可设定内部锁定汇率、保底毛利（如 15%）、利润防穿底红线（如 8%）与海运进仓港杂平摊（如 0.20 元/件）。在此微调后，全库商品自动秒级联动更新。'
     ],
     [
       '3. 【📦 商品出厂底价库】怎么用？',
-      '在第 3 张工作表批量录入产品 SKU、出厂底价与包装尺寸。黄色公式区会自动联动倒算出精准 FOB 美金报价、自动算出 20GP/40HQ 可装柜件数；若某品毛利低于红线会自动闪烁警报。'
+      '在第 3 张工作表批量录入产品 SKU、出厂底价与包装尺寸。黄色公式区会自动联动倒算出精准 FOB 外币报价、自动算出 20GP/40HQ 可装柜件数；若某品毛利低于红线会自动闪烁警报。'
     ],
     [
       '4. 对外发给买家安全吗？',
@@ -76,7 +76,7 @@ async function buildUnifiedMasterTemplate() {
     ]
   ];
 
-  const guideHeights = [52, 52, 52, 45, 88, 45];
+  const guideHeights = [52, 64, 52, 45, 88, 45];
   guideItems.forEach((item, idx) => {
     const rowNum = idx + 2;
     ws0.getCell(`A${rowNum}`).value = item[0];
@@ -148,18 +148,64 @@ async function buildUnifiedMasterTemplate() {
   }
 
   // Module 1: Currency & Exchange Rates
-  addSectionHeader(3, '💵 模块一：结算币种与内部锁定汇率 (Currency & Exchange Rates)');
-  addTableHeaders(4, ['外币币种 (Target Currency)', '内部锁定汇率 (Rate To RMB)', '币种符号 (Symbol)', '汇率波动预警保护基准', '适用采购区域 (采购商来源)']);
+  addSectionHeader(3, '💵 模块一：结算币种与全局主报价切换 (Currency & Master Active Currency)');
+
+  // Row 4: Master Active Currency Controller
+  const r4 = ws1.getRow(4);
+  r4.height = 28;
+
+  const cellA4 = r4.getCell(1);
+  cellA4.value = '🎯 当前全局核算与报价主币种 (Active Currency)';
+  cellA4.font = { name: FONT_NAME, size: 10.5, bold: true, color: { argb: COLOR_NAVY } };
+  cellA4.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_AMBER_FILL } };
+  cellA4.border = thinBorder;
+  cellA4.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+
+  const cellB4 = r4.getCell(2);
+  cellB4.value = 'USD';
+  cellB4.font = { name: FONT_NAME, size: 11, bold: true, color: { argb: COLOR_NAVY } };
+  cellB4.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
+  cellB4.border = thinBorder;
+  cellB4.alignment = { vertical: 'middle', horizontal: 'center' };
+  cellB4.dataValidation = {
+    type: 'list',
+    allowBlank: false,
+    formulae: ['"USD,EUR,GBP,AUD,CAD"']
+  };
+
+  const cellC4 = r4.getCell(3);
+  cellC4.value = { formula: 'VLOOKUP(B4, A6:C10, 2, FALSE)', result: 7.20 };
+  cellC4.numFmt = '0.00';
+  cellC4.font = { name: FONT_NAME, size: 10.5, bold: true, color: { argb: COLOR_NAVY } };
+  cellC4.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_SKY } };
+  cellC4.border = thinBorder;
+  cellC4.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  const cellD4 = r4.getCell(4);
+  cellD4.value = { formula: 'VLOOKUP(B4, A6:C10, 3, FALSE)', result: '$' };
+  cellD4.font = { name: FONT_NAME, size: 11, bold: true, color: { argb: COLOR_NAVY } };
+  cellD4.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_SKY } };
+  cellD4.border = thinBorder;
+  cellD4.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  const cellE4 = r4.getCell(5);
+  cellE4.value = '👈 下拉切换币种：底价库与对外脱敏报价单秒级全表自适应！';
+  cellE4.font = { name: FONT_NAME, size: 9.5, italic: true, color: { argb: COLOR_MUTED } };
+  cellE4.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
+  cellE4.border = thinBorder;
+  cellE4.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+
+  addTableHeaders(5, ['外币币种 (Target Currency)', '内部锁定汇率 (Rate To RMB)', '币种符号 (Symbol)', '汇率波动预警保护基准', '适用采购区域 (采购商来源)']);
   
   const m1Data = [
-    ['USD', 7.20, '$', '★ 基准主币种 (波动±3%保护)', '北美、东南亚、全球主流外贸结算 (默认主币种)'],
+    ['USD', 7.20, '$', '★ 默认主币种 (波动±3%保护)', '北美、东南亚、全球主流外贸结算 (默认主币种)'],
     ['EUR', 7.85, '€', '基准锁定汇率 (波动±3%保护)', '欧盟及欧洲自由贸易区国家采购商'],
     ['GBP', 9.10, '£', '基准锁定汇率 (波动±3%保护)', '英国及英联邦国家采购商'],
     ['AUD', 4.80, 'A$', '基准锁定汇率 (波动±3%保护)', '澳大利亚、新西兰及大洋洲采购商'],
     ['CAD', 5.30, 'C$', '基准锁定汇率 (波动±3%保护)', '加拿大市场专属采购商']
   ];
   m1Data.forEach((d, i) => {
-    const rNum = i + 5;
+    const rNum = i + 6;
     const r = ws1.getRow(rNum);
     d.forEach((val, ci) => {
       const c = r.getCell(ci + 1);
@@ -340,7 +386,14 @@ async function buildUnifiedMasterTemplate() {
 
   prodHeaders.forEach((h, idx) => {
     const c = pHeaderRow.getCell(idx + 1);
-    c.value = h;
+    if (idx === 13) {
+      c.value = { 
+        formula: '"🎯 FOB核算单价 (" & \'⚙️ 全局核算参数 (Config)\'!$B$4 & ")"', 
+        result: '🎯 FOB核算单价 (USD)' 
+      };
+    } else {
+      c.value = h;
+    }
     c.border = thinBorder;
     c.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
 
@@ -446,8 +499,8 @@ async function buildUnifiedMasterTemplate() {
     cellM.numFmt = '0.0%';
 
     const cellN = r.getCell(14);
-    cellN.value = { formula: `ROUND(((D${rowNum} * (1 + M${rowNum}) + L${rowNum}) / '⚙️ 全局核算参数 (Config)'!$B$5), 2)` };
-    cellN.numFmt = '$#,##0.00';
+    cellN.value = { formula: `ROUND(((D${rowNum} * (1 + M${rowNum}) + L${rowNum}) / '⚙️ 全局核算参数 (Config)'!$C$4), 2)` };
+    cellN.numFmt = '#,##0.00';
 
     const cellO = r.getCell(15);
     cellO.value = { formula: `IF(AND(G${rowNum}>0, F${rowNum}>0), INT(('⚙️ 全局核算参数 (Config)'!$B$32 / G${rowNum})) * F${rowNum}, "-")` };
@@ -489,10 +542,10 @@ async function buildUnifiedMasterTemplate() {
     { width: 18 }, // B: Model No.
     { width: 48 }, // C: Description
     { width: 13 }, // D: MOQ
-    { width: 18 }, // E: FOB Price (USD)
-    { width: 16 }, // F: Packing
-    { width: 16 }, // G: 20GP Est.
-    { width: 16 }, // H: 40HQ Est.
+    { width: 18 }, // E: FOB Price
+    { width: 20 }, // F: Packing (PCS/CTN) - 扩展至 20 确保右括号完全展示不挤压
+    { width: 18 }, // G: 20GP Est. (PCS)
+    { width: 18 }, // H: 40HQ Est. (PCS)
     { width: 16 }  // I: Lead Time
   ];
 
@@ -526,7 +579,10 @@ async function buildUnifiedMasterTemplate() {
   // Row 2: Terms & Payment (Split cleanly across A2:B2 and C2:I2 to stay intact on horizontal scroll)
   ws3.mergeCells('A2:B2');
   const cellA2 = ws3.getCell('A2');
-  cellA2.value = 'Incoterms® 2020 · USD ($)';
+  cellA2.value = {
+    formula: '"Trade Term: FOB · " & \'⚙️ 全局核算参数 (Config)\'!$B$4 & " (" & \'⚙️ 全局核算参数 (Config)\'!$D$4 & ")"',
+    result: 'Trade Term: FOB · USD ($)'
+  };
   cellA2.font = { name: 'Arial', size: 9, italic: true, bold: true, color: { argb: COLOR_TEXT } };
   cellA2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
   cellA2.alignment = { vertical: 'middle', horizontal: 'center' };
@@ -565,7 +621,14 @@ async function buildUnifiedMasterTemplate() {
   qHeaderRow.height = 26;
   quoteHeaders.forEach((h, i) => {
     const c = qHeaderRow.getCell(i + 1);
-    c.value = h;
+    if (i === 4) {
+      c.value = {
+        formula: '"FOB Price (" & \'⚙️ 全局核算参数 (Config)\'!$B$4 & ")"',
+        result: 'FOB Price (USD)'
+      };
+    } else {
+      c.value = h;
+    }
     c.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
     c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_BLUE } };
     c.alignment = { vertical: 'middle', horizontal: 'center' };
@@ -599,7 +662,7 @@ async function buildUnifiedMasterTemplate() {
       c.alignment = { vertical: 'middle', horizontal: (ci === 2 ? 'left' : 'center'), indent: (ci === 2 ? 1 : 0) };
 
       if (ci === 4) {
-        c.numFmt = '$#,##0.00';
+        c.numFmt = '#,##0.00';
         c.font = { name: 'Arial', size: 10, bold: true, color: { argb: COLOR_NAVY } };
       }
       if (ci === 3 || ci === 5 || ci === 6 || ci === 7) {
