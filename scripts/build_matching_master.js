@@ -101,11 +101,11 @@ async function buildUnifiedMasterTemplate() {
   });
 
   ws1.columns = [
-    { width: 40 }, // A
+    { width: 48 }, // A (expanded from 40 to 48 so 🎯 当前全局核算与报价主币种 (Active Currency) never truncates)
     { width: 32 }, // B
     { width: 22 }, // C
     { width: 60 }, // D
-    { width: 66 }  // E (widened for practical business advice text)
+    { width: 72 }  // E (widened from 66 to 72)
   ];
 
   // Header banner
@@ -189,7 +189,7 @@ async function buildUnifiedMasterTemplate() {
   cellD4.alignment = { vertical: 'middle', horizontal: 'center' };
 
   const cellE4 = r4.getCell(5);
-  cellE4.value = '👈 下拉切换币种：底价库与对外脱敏报价单秒级全表自适应！';
+  cellE4.value = '👈 下拉切换主币种：全库底价与对外报价单秒级自适应！';
   cellE4.font = { name: FONT_NAME, size: 9.5, italic: true, color: { argb: COLOR_MUTED } };
   cellE4.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
   cellE4.border = thinBorder;
@@ -447,22 +447,25 @@ async function buildUnifiedMasterTemplate() {
     ]
   ];
 
-  rawProducts.forEach((p, idx) => {
+  const totalRows = 30; // 6 款示范爆品 + 24 行预置智能活公式行（开箱即用，录入底价即自动秒算）
+  for (let idx = 0; idx < totalRows; idx++) {
     const rowNum = idx + 2;
     const r = ws2.getRow(rowNum);
-    r.height = 24;
+    const p = rawProducts[idx] || null;
+    r.height = (p && p[2] && p[2].length > 45) ? 28 : 24;
 
     // A-K inputs
     for (let c = 0; c < 11; c++) {
       const cell = r.getCell(c + 1);
-      cell.value = p[c];
+      cell.value = p ? p[c] : null;
       cell.font = { name: FONT_NAME, size: 9.5, color: { argb: COLOR_TEXT } };
       cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: (idx % 2 === 0 ? 'FFFFFFFF' : COLOR_LIGHT_BG) } };
       cell.border = thinBorder;
       
       // Formatting
       if (c === 0) cell.alignment = { vertical: 'middle', horizontal: 'center' };
-      if (c === 1 || c === 2) cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+      if (c === 1) cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+      if (c === 2) cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1, wrapText: true };
       if (c === 3) {
         cell.alignment = { vertical: 'middle', horizontal: 'right' };
         cell.numFmt = '¥#,##0.00';
@@ -489,29 +492,29 @@ async function buildUnifiedMasterTemplate() {
       }
     }
 
-    // L-Q Live Formulas
+    // L-Q Live Formulas (带 IF(ISBLANK) 保护，底价未填时保持纯净空白，一填即秒算)
     const cellL = r.getCell(12);
-    cellL.value = { formula: `'⚙️ 全局核算参数 (Config)'!$C$21` };
+    cellL.value = { formula: `IF(ISBLANK(D${rowNum}), "", '⚙️ 全局核算参数 (Config)'!$C$21)` };
     cellL.numFmt = '¥#,##0.00';
 
     const cellM = r.getCell(13);
-    cellM.value = { formula: `IF(ISBLANK(I${rowNum}), '⚙️ 全局核算参数 (Config)'!$B$13, I${rowNum})` };
+    cellM.value = { formula: `IF(ISBLANK(D${rowNum}), "", IF(ISBLANK(I${rowNum}), '⚙️ 全局核算参数 (Config)'!$B$13, I${rowNum}))` };
     cellM.numFmt = '0.0%';
 
     const cellN = r.getCell(14);
-    cellN.value = { formula: `ROUND(((D${rowNum} * (1 + M${rowNum}) + L${rowNum}) / '⚙️ 全局核算参数 (Config)'!$C$4), 2)` };
+    cellN.value = { formula: `IF(ISBLANK(D${rowNum}), "", ROUND(((D${rowNum} * (1 + M${rowNum}) + L${rowNum}) / '⚙️ 全局核算参数 (Config)'!$C$4), 2))` };
     cellN.numFmt = '#,##0.00';
 
     const cellO = r.getCell(15);
-    cellO.value = { formula: `IF(AND(G${rowNum}>0, F${rowNum}>0), INT(('⚙️ 全局核算参数 (Config)'!$B$32 / G${rowNum})) * F${rowNum}, "-")` };
+    cellO.value = { formula: `IF(OR(ISBLANK(D${rowNum}), NOT(AND(G${rowNum}>0, F${rowNum}>0))), "", INT(('⚙️ 全局核算参数 (Config)'!$B$32 / G${rowNum})) * F${rowNum})` };
     cellO.numFmt = '#,##0';
 
     const cellP = r.getCell(16);
-    cellP.value = { formula: `IF(AND(G${rowNum}>0, F${rowNum}>0), INT(('⚙️ 全局核算参数 (Config)'!$B$34 / G${rowNum})) * F${rowNum}, "-")` };
+    cellP.value = { formula: `IF(OR(ISBLANK(D${rowNum}), NOT(AND(G${rowNum}>0, F${rowNum}>0))), "", INT(('⚙️ 全局核算参数 (Config)'!$B$34 / G${rowNum})) * F${rowNum})` };
     cellP.numFmt = '#,##0';
 
     const cellQ = r.getCell(17);
-    cellQ.value = { formula: `IF(M${rowNum}<'⚙️ 全局核算参数 (Config)'!$B$14, "🚨 穿透红线", IF(M${rowNum}>=0.25, "💎 高毛利款", "✅ 利润健康"))` };
+    cellQ.value = { formula: `IF(ISBLANK(D${rowNum}), "", IF(M${rowNum}<'⚙️ 全局核算参数 (Config)'!$B$14, "🚨 穿透红线", IF(M${rowNum}>=0.25, "💎 高毛利款", "✅ 利润健康")))` };
 
     for (let c = 12; c <= 17; c++) {
       const cell = r.getCell(c);
@@ -525,7 +528,7 @@ async function buildUnifiedMasterTemplate() {
         color: (c === 14 ? { argb: COLOR_NAVY } : { argb: COLOR_TEXT })
       };
     }
-  });
+  }
 
   // -------------------------------------------------------------
   // Sheet 3: 📄 对外纯净批量报价单 (脱敏单) - 商业专业英文报价单
@@ -540,7 +543,7 @@ async function buildUnifiedMasterTemplate() {
   ws3.columns = [
     { width: 8 },  // A: Item
     { width: 18 }, // B: Model No.
-    { width: 48 }, // C: Description
+    { width: 62 }, // C: Description (扩展至 62，确保英文规格与中文品名完整容纳)
     { width: 13 }, // D: MOQ
     { width: 18 }, // E: FOB Price
     { width: 20 }, // F: Packing (PCS/CTN) - 扩展至 20 确保右括号完全展示不挤压
@@ -589,7 +592,10 @@ async function buildUnifiedMasterTemplate() {
 
   ws3.mergeCells('C2:I2');
   const cellC2 = ws3.getCell('C2');
-  cellC2.value = 'Payment: 30% T/T Deposit, 70% Balance Before Shipment  |  Price Validity: 30 Days';
+  cellC2.value = {
+    formula: '"Payment: 30% T/T Deposit, 70% Balance Before Shipment  |  Price Validity: " & \'⚙️ 全局核算参数 (Config)\'!$B$16',
+    result: 'Payment: 30% T/T Deposit, 70% Balance Before Shipment  |  Price Validity: 30 Days'
+  };
   cellC2.font = { name: 'Arial', size: 9.5, italic: true, color: { argb: COLOR_TEXT } };
   cellC2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_LIGHT_BG } };
   cellC2.alignment = { vertical: 'middle', horizontal: 'right', indent: 1 };
@@ -635,22 +641,26 @@ async function buildUnifiedMasterTemplate() {
     c.border = thinBorder;
   });
 
-  for (let i = 0; i < rawProducts.length; i++) {
+  const totalQuoteRows = 30; // 与底价库 30 行保持 1:1 动态响应联动
+  for (let i = 0; i < totalQuoteRows; i++) {
     const srcRow = i + 2;
     const destRow = i + 4;
     const r = ws3.getRow(destRow);
-    r.height = 22;
+    const p = rawProducts[i] || null;
+    
+    // 示范围品给予 30pt 充裕行高，彻底根除双行文字被底部边框截断问题！
+    r.height = p ? 30 : 26;
 
     const rData = [
-      i + 1,
-      { formula: `'📦 商品出厂底价库 (Products)'!A${srcRow}` },
-      { formula: `'📦 商品出厂底价库 (Products)'!C${srcRow}` },
-      { formula: `'📦 商品出厂底价库 (Products)'!E${srcRow}` },
-      { formula: `'📦 商品出厂底价库 (Products)'!N${srcRow}` },
-      { formula: `'📦 商品出厂底价库 (Products)'!F${srcRow}` },
-      { formula: `'📦 商品出厂底价库 (Products)'!O${srcRow}` },
-      { formula: `'📦 商品出厂底价库 (Products)'!P${srcRow}` },
-      { formula: `'📦 商品出厂底价库 (Products)'!J${srcRow}` }
+      { formula: `IF(ISBLANK('📦 商品出厂底价库 (Products)'!A${srcRow}), "", ${i + 1})` },
+      { formula: `IF(ISBLANK('📦 商品出厂底价库 (Products)'!A${srcRow}), "", '📦 商品出厂底价库 (Products)'!A${srcRow})` },
+      { formula: `IF(ISBLANK('📦 商品出厂底价库 (Products)'!A${srcRow}), "", '📦 商品出厂底价库 (Products)'!C${srcRow})` },
+      { formula: `IF(ISBLANK('📦 商品出厂底价库 (Products)'!A${srcRow}), "", '📦 商品出厂底价库 (Products)'!E${srcRow})` },
+      { formula: `IF(ISBLANK('📦 商品出厂底价库 (Products)'!A${srcRow}), "", '📦 商品出厂底价库 (Products)'!N${srcRow})` },
+      { formula: `IF(ISBLANK('📦 商品出厂底价库 (Products)'!A${srcRow}), "", '📦 商品出厂底价库 (Products)'!F${srcRow})` },
+      { formula: `IF(ISBLANK('📦 商品出厂底价库 (Products)'!A${srcRow}), "", '📦 商品出厂底价库 (Products)'!O${srcRow})` },
+      { formula: `IF(ISBLANK('📦 商品出厂底价库 (Products)'!A${srcRow}), "", '📦 商品出厂底价库 (Products)'!P${srcRow})` },
+      { formula: `IF(ISBLANK('📦 商品出厂底价库 (Products)'!A${srcRow}), "", '📦 商品出厂底价库 (Products)'!J${srcRow})` }
     ];
 
     rData.forEach((val, ci) => {
@@ -659,7 +669,12 @@ async function buildUnifiedMasterTemplate() {
       c.font = { name: 'Arial', size: 9.5, color: { argb: COLOR_TEXT } };
       c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: (i % 2 === 0 ? 'FFFFFFFF' : COLOR_LIGHT_BG) } };
       c.border = thinBorder;
-      c.alignment = { vertical: 'middle', horizontal: (ci === 2 ? 'left' : 'center'), indent: (ci === 2 ? 1 : 0) };
+      c.alignment = { 
+        vertical: 'middle', 
+        horizontal: (ci === 2 ? 'left' : 'center'), 
+        indent: (ci === 2 ? 1 : 0),
+        wrapText: true 
+      };
 
       if (ci === 4) {
         c.numFmt = '#,##0.00';
