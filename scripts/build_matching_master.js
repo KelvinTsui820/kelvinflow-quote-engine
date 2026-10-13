@@ -447,7 +447,7 @@ async function buildUnifiedMasterTemplate() {
     ]
   ];
 
-  const totalRows = 100; // 6 款示范爆品 + 94 行预置智能活公式行（容量充沛，涵盖95%外贸中小工厂全量主推款）
+  const totalRows = 150; // 6 款示范爆品 + 144 行预置智能活公式行（容量达150款，满足全系列与多品类工贸一体工厂需求）
   for (let idx = 0; idx < totalRows; idx++) {
     const rowNum = idx + 2;
     const r = ws2.getRow(rowNum);
@@ -641,7 +641,7 @@ async function buildUnifiedMasterTemplate() {
     c.border = thinBorder;
   });
 
-  const totalQuoteRows = 100; // 与底价库 100 行保持 1:1 动态响应联动
+  const totalQuoteRows = 150; // 与底价库 150 行保持 1:1 动态响应联动
   for (let i = 0; i < totalQuoteRows; i++) {
     const srcRow = i + 2;
     const destRow = i + 4;
