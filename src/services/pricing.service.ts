@@ -28,6 +28,7 @@ export interface PricingOptions {
   priceValidity?: string;
   leadTime?: string;
   samplePolicy?: string;
+  inquiryMessageId?: string;
 }
 
 export class PricingService {
@@ -58,13 +59,18 @@ export class PricingService {
     }
 
     // 2. 查找幣種匯率
-    const targetCurrency = (poData.Currency || 'USD').toUpperCase().trim();
+    const rawCurrency = (poData.Currency || '').trim();
+    const isUnspecifiedCurrency = !rawCurrency || rawCurrency.toUpperCase() === 'N/A';
+    const targetCurrency = isUnspecifiedCurrency ? 'USD' : rawCurrency.toUpperCase();
     let rateUsed = (typeof fallbackRate === 'number' && fallbackRate > 0) ? fallbackRate : 7.2;
     const matchedRate = exchangeRates.find(r => r.currency.toUpperCase() === targetCurrency);
 
     if (matchedRate && matchedRate.rateToRMB > 0) {
       rateUsed = matchedRate.rateToRMB;
-    } else {
+    }
+    if (isUnspecifiedCurrency) {
+      warnings.push(`Currency not specified, defaulted to USD. Used fallback rate: ${rateUsed}`);
+    } else if (!matchedRate || matchedRate.rateToRMB <= 0) {
       warnings.push(`Currency [${targetCurrency}] not found in exchange rate list. Used fallback rate: ${rateUsed}`);
     }
 
@@ -560,7 +566,8 @@ export class PricingService {
       samplePolicy: options.samplePolicy,
       aiConfidenceScore: dynamicOverallConfidence || 95,
       aiModelUsed: '',
-      processedAt: new Date().toISOString()
+      processedAt: new Date().toISOString(),
+      inquiryMessageId: options.inquiryMessageId
     };
   }
 }

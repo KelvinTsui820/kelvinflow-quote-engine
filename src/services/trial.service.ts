@@ -52,6 +52,8 @@ export interface TrialRegisterResult {
   isLegacyBound?: boolean;
   isPaid?: boolean;
   plan?: string;
+  formattedExpiresAt?: string;
+  monthlyQuota?: number;
 }
 
 export class TrialService {
@@ -260,7 +262,7 @@ export class TrialService {
           success: false,
           expired: true,
           code: 'TRIAL_EXPIRED',
-          message: `该邮箱（${existing.email}）的 7 天免费全功能试用已于 ${expiryStr} 到期。您的底价表与历史报价数据将为您安全保留 30 天。☕ 少喝一杯星巴克，首月特惠仅 ¥39 即可保留整月无限次私人出单特权！试用到期后，每月仍享有 10 笔免费出单额度。如需解锁无限次极速出单与公司 Logo 上传，请升级个人专业版！`,
+          message: `该邮箱（${existing.email}）的 7 天免费全功能试用已于 ${expiryStr} 到期。底价库与历史单据已为您安全保留 30 天。☕ 少喝一杯星巴克，首月特惠仅 ¥39 即可解锁整月无限次私人出单！试用到期后，每月仍享有 10 笔免费出单额度。如需解锁无限次极速出单与企业 Logo 上传，请升级个人专业版！`,
           expiresAt: existing.expiresAt,
           founderWechat: 'kt_data'
         };
@@ -528,7 +530,7 @@ export class TrialService {
       if (existing.passwordHash !== inputHash) {
         return {
           success: false,
-          error: '登录密码错误，请重新核对后输入（如需重置密码请扫码添加创始人微信协助）'
+          error: '登录密码错误，请重新核对后输入（如忘记密码，可点击"忘记密码？"自助重置）'
         };
       }
     }
@@ -541,16 +543,44 @@ export class TrialService {
       if (existing.status !== 'converted') {
         existing.status = 'expired';
       }
+      existing.lastLoginAt = now.toISOString();
+      if (ip) existing.ip = ip;
       const all = this.getAllTrials().map(t => t.id === existing.id ? existing : t);
       this.saveTrials(all);
 
       const expiryStr = this.formatExpiryDateTime(existing.expiresAt);
+      const expiredText = `您的 7 天全功能免费试用已于 ${expiryStr} 到期。底价库与历史单据已为您安全保留 30 天。☕ 少喝一杯星巴克，首月特惠仅 ¥39 即可解锁整月无限次私人出单！试用到期后，每月仍享有 10 笔免费出单额度。如需解锁无限次极速出单与公司 Logo 上传，请升级个人专业版！`;
+
+      const user: AuthUser = {
+        id: existing.userId,
+        email: existing.email,
+        name: existing.name,
+        role: 'admin',
+        tenantId: existing.tenantId
+      };
+
+      // 允许7天到期用户正常登录工作台管理数据，Token 有效期为 30 天安全保留期
+      const token = AuthService.generateToken(user, 30 * 24 * 3600);
+      const tenant = TenantService.getTenantProfile(existing.tenantId);
+
+      console.log(`🔑 [到期用户登录成功] 工作邮箱 [${existing.email}] 租户 [${existing.tenantId}] 允许进入工作台管理底价与单据 (数据安全保留30天)`);
+
       return {
-        success: false,
+        success: true,
         expired: true,
         code: 'TRIAL_EXPIRED',
-        message: `您的 7 天全功能免费试用已于 ${expiryStr} 到期。您的底价表与历史报价数据将为您安全保留 30 天。☕ 少喝一杯星巴克，首月特惠仅 ¥39 即可保留整月无限次私人出单特权！试用到期后，每月仍享有 10 笔免费出单额度。如需解锁无限次极速出单与公司 Logo 上传，请升级个人专业版！`,
+        token,
+        tenantId: existing.tenantId,
+        remainingDays: 0,
         expiresAt: existing.expiresAt,
+        formattedExpiresAt: expiryStr,
+        user,
+        tenant,
+        isPaid: false,
+        plan: 'free',
+        message: expiredText,
+        error: expiredText,
+        monthlyQuota: 10,
         founderWechat: 'kt_data'
       };
     }

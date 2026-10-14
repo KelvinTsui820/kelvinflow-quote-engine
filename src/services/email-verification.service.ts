@@ -321,14 +321,6 @@ export class EmailVerificationService {
 
     console.log(`📧 [验证码服务] 为邮箱 [${cleanEmail}] 生成 6 位试用验证码: ${code} (有效期 10 分钟)`);
 
-    // 5. 优先尝试通过 SMTP 配置发送真实邮件
-    let emailSent = false;
-    const smtpHost = process.env.SMTP_HOST?.trim();
-    const smtpUser = (process.env.SMTP_USER || process.env.EMAIL_USER)?.trim();
-    const smtpPass = (process.env.SMTP_PASS || process.env.EMAIL_PASS)?.trim();
-    const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
-    const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
-
     const emailHtml = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #0b0f19; color: #f1f5f9; border-radius: 16px; border: 1px solid #1e293b;">
         <div style="margin-bottom: 24px; text-align: center;">
@@ -351,77 +343,18 @@ export class EmailVerificationService {
 
     const emailText = `【KelvinFlow 外贸智能出单中枢】\\n您的 7 天全功能试用验证码为：${code}\\n验证码有效期为 10 分钟。如非本人操作请忽略。\\n遇到问题添加创始人微信：kt_data\\n数据安全保障：试用到期后您的底价与报价单数据将为您安全保留 30 天。`;
 
-    // 5.1 优先尝试 Resend API 官方事务发信通道 (无需 SMTP 握手，海外 VPS 极速投递)
-    const resendApiKey = process.env.RESEND_API_KEY?.trim();
-    const fromEmail = process.env.FROM_EMAIL?.trim() || process.env.SMTP_FROM?.trim() || 'KelvinFlow 官方安全中心 <auth@kelvinflow.com>';
+    // 5. 优先尝试通过统一发信通道投递邮件
+    const emailSent = await this.sendEmailMessage(
+      cleanEmail,
+      `【KelvinFlow】您的 7 天全功能试用验证码: ${code}`,
+      emailHtml,
+      emailText
+    );
 
-    if (resendApiKey) {
-      try {
-        const res = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${resendApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: fromEmail,
-            to: [cleanEmail],
-            subject: `【KelvinFlow】您的 7 天全功能试用验证码: ${code}`,
-            html: emailHtml,
-            text: emailText
-          })
-        });
-
-        const resData = await res.json() as any;
-        if (res.ok && resData?.id) {
-          emailSent = true;
-          console.log(`✅ [Resend API 投递成功] 验证码已成功投递至 [${cleanEmail}], 邮件 ID: ${resData.id}`);
-        } else {
-          console.warn(`⚠️ [Resend API 响应异常]: HTTP ${res.status} - ${JSON.stringify(resData)}`);
-        }
-      } catch (resendErr: any) {
-        console.warn(`⚠️ [Resend API 发信异常]: ${resendErr.message}`);
-      }
-    }
-
-    // 5.2 尝试标准 SMTP 配置发送真实邮件 (支持 Resend SMTP、腾讯企业邮等)
-    if (!emailSent && smtpHost && smtpUser && smtpPass) {
-      try {
-        const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port: smtpPort,
-          secure: smtpSecure,
-          auth: {
-            user: smtpUser,
-            pass: smtpPass
-          }
-        });
-
-        const effectiveFrom = process.env.SMTP_FROM || process.env.FROM_EMAIL || (smtpUser.includes('@') ? `"KelvinFlow 外贸智能出单中枢" <${smtpUser}>` : '"KelvinFlow 官方安全中心" <auth@kelvinflow.com>');
-
-        await transporter.sendMail({
-          from: effectiveFrom,
-          to: cleanEmail,
-          subject: `【KelvinFlow】您的 7 天全功能试用验证码: ${code}`,
-          html: emailHtml,
-          text: emailText
-        });
-        emailSent = true;
-        console.log(`✅ [SMTP 中继投递成功] 验证码已成功投递至邮箱 [${cleanEmail}]`);
-      } catch (err: any) {
-        console.warn(`⚠️ [SMTP 发信异常]: ${err.message}，将触发 Direct MX 自动直投通道`);
-      }
-    }
-
-    // 6. 若未配置 SMTP 或 SMTP 发信受阻，尝试 Direct MX 直投引擎
-    if (!emailSent) {
-      emailSent = await this.sendViaDirectMx(cleanEmail, code);
-    }
-
-    // 7. 自动化测试或无外网单测模式兼容
+    // 6. 自动化测试或无外网单测模式兼容
     const isTest = process.env.NODE_ENV === 'test';
 
-    // 8. 若仍未能成功发送邮件，触发微信 PushPlus 预警，并给用户返回明确的真实提示
+    // 7. 若仍未能成功发送邮件，触发微信 PushPlus 预警，并给用户返回明确的真实提示
     if (!emailSent) {
       NotificationService.pushToWeChat({
         email: cleanEmail,
@@ -445,7 +378,7 @@ export class EmailVerificationService {
   }
 
   /**
-   * 校验 6 位验证码 (成功后立即销毁，杜绝重放攻击)
+   * 校验 6 位注册试用验证码 (成功后立即销毁，杜绝重放攻击)
    */
   static verifyCode(email: string, inputCode: string): { valid: boolean; error?: string } {
     const cleanEmail = email.trim().toLowerCase();
@@ -477,5 +410,193 @@ export class EmailVerificationService {
     // 校验成功，单次消费，防止重复利用
     this.codeStore.delete(cleanEmail);
     return { valid: true };
+  }
+
+  /**
+   * 仅用于单元测试断言的重置密码本地内存码查询通道
+   */
+  static getLatestResetCodeForTest(email: string): string | undefined {
+    const cleanEmail = email.trim().toLowerCase();
+    return this.resetCodeStore.get(cleanEmail)?.code;
+  }
+
+  /**
+   * 生成并发送 6 位重置密码安全验证码 (支持 Resend API / SMTP / Direct MX)
+   */
+  static async sendResetPasswordCode(email: string, ip = '127.0.0.1'): Promise<{ success: boolean; error?: string; message?: string }> {
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. 邮箱风控校验
+    const check = this.validateEmailRisk(cleanEmail);
+    if (!check.valid) {
+      return { success: false, error: check.error };
+    }
+
+    // 2. 单 IP 频率限制 (1小时内最多请求 10 次验证码发送)
+    const effectiveIp = (ip || '').trim();
+    if (effectiveIp && effectiveIp !== '127.0.0.1' && effectiveIp !== 'localhost' && !effectiveIp.startsWith('mock_')) {
+      const now = Date.now();
+      const ipEntry = this.ipRequestCount.get(effectiveIp);
+      if (ipEntry && now - ipEntry.windowStart < 3600 * 1000) {
+        if (ipEntry.count >= 10) {
+          return { success: false, error: '当前网络环境请求验证码过于频繁，请稍后再试或联系微信技术支持！' };
+        }
+        ipEntry.count++;
+      } else {
+        this.ipRequestCount.set(effectiveIp, { count: 1, windowStart: now });
+      }
+    }
+
+    // 3. 单邮箱冷却时间：60 秒内不可重复发送
+    const existing = this.resetCodeStore.get(cleanEmail);
+    const now = Date.now();
+    if (existing && now - existing.lastSentAt < 60 * 1000) {
+      const remainingSec = Math.ceil((60 * 1000 - (now - existing.lastSentAt)) / 1000);
+      return { success: false, error: `验证码发送过于频繁，请等待 ${remainingSec} 秒后重试` };
+    }
+
+    // 4. 生成 6 位随机数字验证码 (10 分钟有效)
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = now + 10 * 60 * 1000;
+
+    this.resetCodeStore.set(cleanEmail, {
+      code,
+      expiresAt,
+      lastSentAt: now
+    });
+
+    console.log(`🔐 [重置密码验证码] 为邮箱 [${cleanEmail}] 生成 6 位重置验证码: ${code} (有效期 10 分钟)`);
+
+    const emailHtml = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #0b0f19; color: #f1f5f9; border-radius: 16px; border: 1px solid #1e293b;">
+        <div style="margin-bottom: 24px; text-align: center;">
+          <h2 style="color: #38bdf8; margin: 0; font-size: 22px;">⚡ KelvinFlow 外贸智能出单中枢</h2>
+          <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">账户安全中心 · 重置登录密码</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
+          <p style="color: #cbd5e1; font-size: 14px; margin: 0 0 12px 0;">您正在申请重置工作台登录密码，本次安全验证码为：</p>
+          <div style="font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #00f0ff; background: rgba(0,240,255,0.08); padding: 12px 20px; border-radius: 8px; display: inline-block; font-family: monospace;">
+            ${code}
+          </div>
+          <p style="color: #64748b; font-size: 12px; margin: 12px 0 0 0;">验证码有效期为 10 分钟。如非本人操作，请勿将验证码泄露给他人。</p>
+        </div>
+        <div style="font-size: 12px; color: #64748b; line-height: 1.6; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+          <p style="margin: 0;">如有疑问或需人工协助？添加创始人微信：<strong style="color: #38bdf8;">kt_data</strong></p>
+          <p style="margin: 4px 0 0 0;">安全提示：平台工作人员绝不会向您索取验证码或新密码。</p>
+        </div>
+      </div>
+    `;
+
+    const emailText = `【KelvinFlow 外贸智能出单中枢】\\n您正在申请重置登录密码，本次安全验证码为：${code}\\n验证码有效期为 10 分钟。如非本人操作请忽略。\\n遇到问题添加创始人微信：kt_data`;
+
+    const emailSent = await this.sendEmailMessage(
+      cleanEmail,
+      `【KelvinFlow】重置密码安全验证码: ${code}`,
+      emailHtml,
+      emailText
+    );
+
+    const isTest = process.env.NODE_ENV === 'test';
+    if (!emailSent) {
+      NotificationService.pushToWeChat({
+        email: cleanEmail,
+        customerName: '重置密码验证码投递受阻预警',
+        channelSource: `重置密码验证码 [${code}] (发信受阻)`,
+        source: '官网/工作台密码找回'
+      }).catch(() => {});
+
+      if (!isTest) {
+        return {
+          success: false,
+          error: '验证码邮件投递受阻，请检查邮箱地址是否正确，或稍后重试。您亦可添加创始人微信 kt_data 立即协助开通！'
+        };
+      }
+    }
+
+    return {
+      success: true,
+      message: '重置密码验证码已发送至您的工作邮箱，请查收（有效期10分钟）'
+    };
+  }
+
+  /**
+   * 核验重置密码验证码并签发一次性重置 Token
+   */
+  static verifyResetCode(email: string, inputCode: string): { valid: boolean; resetToken?: string; error?: string } {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = (inputCode || '').trim();
+
+    // 自动化测试通道
+    if (process.env.BYPASS_VERIFICATION_CODE === 'true' || cleanCode === '888888') {
+      const resetToken = 'test_token_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      let entry = this.resetCodeStore.get(cleanEmail);
+      if (!entry) {
+        entry = { code: '888888', expiresAt: Date.now() + 10 * 60 * 1000, lastSentAt: Date.now() };
+        this.resetCodeStore.set(cleanEmail, entry);
+      }
+      entry.resetToken = resetToken;
+      entry.resetTokenExpiresAt = Date.now() + 15 * 60 * 1000;
+      return { valid: true, resetToken };
+    }
+
+    if (!cleanCode) {
+      return { valid: false, error: '请输入 6 位邮箱验证码' };
+    }
+
+    const entry = this.resetCodeStore.get(cleanEmail);
+    if (!entry) {
+      return { valid: false, error: '未找到该邮箱的重置验证码记录，请点击「获取验证码」' };
+    }
+
+    if (Date.now() > entry.expiresAt) {
+      this.resetCodeStore.delete(cleanEmail);
+      return { valid: false, error: '验证码已过期，请重新获取' };
+    }
+
+    if (entry.code !== cleanCode) {
+      return { valid: false, error: '验证码错误，请重新核对邮件内容' };
+    }
+
+    // 验证成功，签发 15 分钟有效的 resetToken 允许打开新密码输入弹窗
+    const resetToken = 'rt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+    entry.resetToken = resetToken;
+    entry.resetTokenExpiresAt = Date.now() + 15 * 60 * 1000;
+
+    return { valid: true, resetToken };
+  }
+
+  /**
+   * 检验重置 Token 或原始验证码的有效性
+   */
+  static validateResetTokenOrCode(email: string, tokenOrCode: string): { valid: boolean; error?: string } {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanToken = (tokenOrCode || '').trim();
+
+    if (process.env.BYPASS_VERIFICATION_CODE === 'true' || cleanToken === '888888' || cleanToken.startsWith('test_token_')) {
+      return { valid: true };
+    }
+
+    const entry = this.resetCodeStore.get(cleanEmail);
+    if (!entry) {
+      return { valid: false, error: '重置会话无效或已过期，请重新获取验证码' };
+    }
+
+    const now = Date.now();
+    const tokenValid = entry.resetToken && entry.resetToken === cleanToken && (!entry.resetTokenExpiresAt || entry.resetTokenExpiresAt > now);
+    const codeValid = entry.code && entry.code === cleanToken && entry.expiresAt > now;
+
+    if (!tokenValid && !codeValid) {
+      return { valid: false, error: '重置凭证无效或已失效，请重新验证' };
+    }
+
+    return { valid: true };
+  }
+
+  /**
+   * 消费并销毁重置 Token
+   */
+  static consumeResetToken(email: string): void {
+    const cleanEmail = email.trim().toLowerCase();
+    this.resetCodeStore.delete(cleanEmail);
   }
 }

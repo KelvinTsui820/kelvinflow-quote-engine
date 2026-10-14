@@ -29,11 +29,15 @@ data/tenants/*/pricing_sheets/
 data/tenants/tenant_trial_*/
 data/tenants/tenant_n8n_test/
 data/tenants/tenant_test*/
+data/tenants/tenant_exp_*/
+data/tenants/tenant_p32_*/
+data/tenants/tenant_delete_*/
 data/*_backup_*.xlsx
 data/inbound_leads.json
 data/trials.json
 
 # Temporary / Scratch Test Files & Render Artifacts
+scratch/
 public/test_*.pdf
 public/test_*.xlsx
 public/preview_*.png

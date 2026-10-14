@@ -1,9 +1,16 @@
 import fs from 'fs';
 import path from 'path';
-import { ColumnMappingRules, DEFAULT_COLUMN_RULES } from '../adapters/schema-matcher.js';
+import * as XLSX from 'xlsx';
+import { ColumnMappingRules, DEFAULT_COLUMN_RULES, scoreRowAsHeader, matchColumns } from '../adapters/schema-matcher.js';
+import { normalizeSKU } from '../utils/sku-normalizer.js';
 import { TenantProfile } from '../types/index.js';
 
 export class TenantService {
+  /**
+   * 系統基准受保護商品型號清單 (嚴禁刪除)
+   */
+  static readonly PROTECTED_CATALOG_SKUS = ['TEST-001', 'TEST-002', 'TEST-003', 'TEST-004'];
+
   private static BASE_DATA_DIR = path.resolve(process.cwd(), 'data');
   private static TENANTS_DIR = path.resolve(process.cwd(), 'data', 'tenants');
 
@@ -204,6 +211,136 @@ export class TenantService {
 
     return { activePath, backupPath };
   }
+
+  /**
+   * 刪除指定租戶底價庫中的某個商品條目 (嚴格支持受保護條目校驗)
+   */
+  static deleteCatalogItem(
+    tenantId: string,
+    sku: string
+  ): { success: boolean; error?: string; protected?: boolean; notFound?: boolean } {
+    if (!sku || typeof sku !== 'string') {
+      return { success: false, notFound: true, error: '无效的商品型号' };
+    }
+    const cleanSku = sku.trim();
+    if (!cleanSku) {
+      return { success: false, notFound: true, error: '无效的商品型号' };
+    }
+
+    // 1. 檢查是否屬於系統受保護條目 (TEST-001 ~ TEST-004 等)
+    if (this.PROTECTED_CATALOG_SKUS.some(p => p.toUpperCase() === cleanSku.toUpperCase())) {
+      return {
+        success: false,
+        protected: true,
+        error: `【系统保护】商品型号 [${cleanSku.toUpperCase()}] 为系统基准受保护商品，禁止删除！`
+      };
+    }
+
+    const cleanTenantId = this.resolveTenantId(tenantId);
+    let targetPath = this.getActivePricingPath(cleanTenantId);
+
+    // 若租戶尚無專屬文件，但存在默認底價表，複製一份以確保租戶數據獨立隔離
+    if (!fs.existsSync(targetPath)) {
+      const defaultBuffer = this.getActivePricingBuffer(cleanTenantId) || this.getActivePricingBuffer('default');
+      if (defaultBuffer && defaultBuffer.sourcePath && fs.existsSync(defaultBuffer.sourcePath)) {
+        fs.copyFileSync(defaultBuffer.sourcePath, targetPath);
+      } else {
+        return { success: false, notFound: true, error: '当前租户尚未配置出厂底价库' };
+      }
+    }
+
+    // 2. 讀取 Excel 並尋找匹配的商品行
+    const xlsxLib: any = (XLSX as any).default || XLSX;
+    let workbook: XLSX.WorkBook;
+    try {
+      workbook = xlsxLib.readFile(targetPath);
+    } catch (err: any) {
+      return { success: false, error: `底价表文件读取失败: ${err.message}` };
+    }
+
+    const rules = this.getTenantCustomRules(cleanTenantId);
+    let itemDeleted = false;
+
+    for (const sheetName of workbook.SheetNames) {
+      const sheet = workbook.Sheets[sheetName];
+      if (!sheet) continue;
+
+      const rawMatrix: any[][] = xlsxLib.utils.sheet_to_json(sheet, { header: 1 });
+      if (!rawMatrix || rawMatrix.length === 0) continue;
+
+      // 尋找表頭行
+      let bestHeaderIndex = -1;
+      let highestScore = 0;
+      const scanLimit = Math.min(10, rawMatrix.length);
+
+      for (let i = 0; i < scanLimit; i++) {
+        const rowCells = rawMatrix[i];
+        if (!rowCells || rowCells.length === 0) continue;
+        const score = scoreRowAsHeader(rowCells, rules);
+        if (score > highestScore) {
+          highestScore = score;
+          bestHeaderIndex = i;
+        }
+      }
+
+      if (bestHeaderIndex === -1 || highestScore < 5) continue;
+
+      const headerRow = rawMatrix[bestHeaderIndex];
+      const matched = matchColumns(headerRow.map(c => String(c || '').trim()), rules);
+
+      if (!matched.sku || !matched.basePrice) continue;
+
+      // 找到 SKU 所在列的索引
+      const skuColIdx = headerRow.findIndex(c => String(c || '').trim() === matched.sku);
+      if (skuColIdx === -1) continue;
+
+      // 檢查並過濾匹配行
+      const newRows: any[][] = [];
+      let sheetChanged = false;
+
+      // 保留表頭及之前的行
+      for (let r = 0; r <= bestHeaderIndex; r++) {
+        newRows.push(rawMatrix[r]);
+      }
+
+      for (let r = bestHeaderIndex + 1; r < rawMatrix.length; r++) {
+        const row = rawMatrix[r];
+        if (!row || row.length === 0) {
+          newRows.push(row);
+          continue;
+        }
+        const cellSku = String(row[skuColIdx] || '').trim();
+        // 匹配 SKU (忽略大小寫與標準化比對)
+        if (cellSku && (cellSku.toUpperCase() === cleanSku.toUpperCase() || normalizeSKU(cellSku) === normalizeSKU(cleanSku))) {
+          itemDeleted = true;
+          sheetChanged = true;
+          // 跳過此行即為刪除
+          continue;
+        }
+        newRows.push(row);
+      }
+
+      if (sheetChanged) {
+        const newSheet = xlsxLib.utils.aoa_to_sheet(newRows);
+        if (sheet['!cols']) newSheet['!cols'] = sheet['!cols'];
+        workbook.Sheets[sheetName] = newSheet;
+      }
+    }
+
+    if (!itemDeleted) {
+      return { success: false, notFound: true, error: `未在底价库中找到型号为 [${cleanSku}] 的商品` };
+    }
+
+    // 3. 寫回文件並保存備份
+    try {
+      const buffer = xlsxLib.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      this.saveActivePricing(cleanTenantId, buffer);
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: `保存底价表异常: ${err.message}` };
+    }
+  }
+
 
   /**
    * 獲取租戶自定義 Schema 表頭映射規則（如果存在）

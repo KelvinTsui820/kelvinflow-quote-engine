@@ -35,9 +35,20 @@ def deploy(password):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     try:
-        print(f"🔌 正在连接服务器 {host}:{port}...")
-        ssh.connect(host, port=port, username=username, password=password, timeout=15)
-        print("✅ SSH 连接成功！")
+        connected = False
+        for attempt in range(1, 4):
+            try:
+                print(f"🔌 正在连接服务器 {host}:{port} (尝试 {attempt}/3)...")
+                ssh.connect(host, port=port, username=username, password=password, timeout=30, banner_timeout=60, auth_timeout=60)
+                connected = True
+                print("✅ SSH 连接成功！")
+                break
+            except Exception as conn_err:
+                print(f"⚠️ 连接尝试 {attempt} 失败: {conn_err}")
+                if attempt < 3:
+                    time.sleep(2)
+        if not connected:
+            raise Exception("无法建立 SSH 连接，重试已耗尽")
 
         print("🚀 正在通过 SFTP 上传 project.tar.gz 到服务器 /root/...")
         sftp = ssh.open_sftp()
@@ -71,6 +82,10 @@ def deploy(password):
             ("data/quotes/QT-20260904-888.pdf", "/var/www/quote_app/data/quotes/QT-20260904-888.pdf"),
             ("data/tenants/default/quotes/QT-20260904-888.json", "/var/www/quote_app/data/tenants/default/quotes/QT-20260904-888.json"),
             ("data/tenants/default/quotes/QT-20260904-888.pdf", "/var/www/quote_app/data/tenants/default/quotes/QT-20260904-888.pdf"),
+            ("data/quotes/QT-388788.json", "/var/www/quote_app/data/quotes/QT-388788.json"),
+            ("data/quotes/QT-388788.pdf", "/var/www/quote_app/data/quotes/QT-388788.pdf"),
+            ("data/tenants/default/quotes/QT-388788.json", "/var/www/quote_app/data/tenants/default/quotes/QT-388788.json"),
+            ("data/tenants/default/quotes/QT-388788.pdf", "/var/www/quote_app/data/tenants/default/quotes/QT-388788.pdf"),
             ("商品底价表/出厂底价表.xlsx", "/var/www/quote_app/商品底价表/出厂底价表.xlsx"),
             ("商品底价表/出厂底价表.xlsx", "/var/www/quote_app/data/active_pricing.xlsx"),
             ("商品底价表/出厂底价表.xlsx", "/var/www/quote_app/public/templates/出厂底价表.xlsx"),
@@ -89,11 +104,13 @@ def deploy(password):
         print("✅ 部署包与核心数据同步完成！")
 
         commands = [
-            "echo '===> [1/3] 解压最新代码与预编译产物到 /var/www/quote_app...'",
+            "echo '===> [1/4] 解压最新代码与预编译产物到 /var/www/quote_app...'",
             "mkdir -p /var/www/quote_app && tar -xzf /root/project.tar.gz -C /var/www/quote_app",
-            "echo '===> [2/3] 热重载 PM2 进程 quote-core...'",
+            "echo '===> [2/4] 同步更新生产依赖 (含 pdf-parse)...'",
+            "cd /var/www/quote_app && npm install --omit=dev --no-audit --prefer-offline || true",
+            "echo '===> [3/4] 热重载 PM2 进程 quote-core...'",
             "cd /var/www/quote_app && (pm2 reload quote-core --update-env || pm2 restart quote-core --update-env)",
-            "echo '===> [3/3] 检查服务健康状态...'",
+            "echo '===> [4/4] 检查服务健康状态...'",
             "sleep 3",
             "curl -s http://127.0.0.1:3000/api/v1/health || curl -s http://localhost:3000/api/v1/health"
         ]

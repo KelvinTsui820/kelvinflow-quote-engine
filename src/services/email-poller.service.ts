@@ -193,13 +193,21 @@ export class EmailPollerService {
                 }).catch(e => console.warn('⚠️ [Email Poller] 异步通知 n8n Webhook 异常:', e.message));
               }
 
-              // 2. 调用核心询盘处理引擎 (Gemini 大模型提取 + 自动算价 + PDF 渲染 + 注入草稿箱)
+              // 2. 调用核心询盘处理引擎 (Gemini 大模型提取 + 附件深度解析 + 自动算价 + PDF 渲染 + 注入草稿箱)
+              const emailAttachments = (parsed.attachments || []).map((att: any) => ({
+                filename: att.filename || 'attachment',
+                contentType: att.contentType || 'application/octet-stream',
+                content: att.content
+              }));
+
               const processResult = await InboundProcessorService.processInboundInquiry({
                 tenantId,
                 from: fromAddress,
                 to: imapConfig.email,
                 subject,
-                text: emailText
+                text: emailText,
+                attachments: emailAttachments,
+                messageId
               });
 
               if (processResult.success) {

@@ -204,6 +204,7 @@ export interface QuotationResult {
   aiConfidenceScore: number;
   aiModelUsed: string;
   processedAt: string;
+  inquiryMessageId?: string; // 邮件唯一 Message-ID 或防重幂等标识
 }
 
 // ==========================================

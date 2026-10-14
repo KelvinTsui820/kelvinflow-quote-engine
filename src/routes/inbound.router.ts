@@ -1,8 +1,13 @@
 import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
+import { createHash } from 'crypto';
+import { simpleParser } from 'mailparser';
 
 export const inboundRouter = Router();
+
+// 内存级并发防重互斥锁 (杜绝毫秒级/秒级网络重试并发创建多个重复单据)
+const inFlightInquiries = new Map<string, Promise<any>>();
 
 // 内存级 IP 简易限流 (防刷：单 IP 60 秒内最多 5 次)
 const ipRequestHistory = new Map<string, number[]>();
@@ -120,7 +125,7 @@ function saveLeadLocally(lead: any): void {
 
 import { GeminiAIService } from '../services/gemini.service.js';
 import { PricingService } from '../services/pricing.service.js';
-import { PDFService } from '../services/pdf.service.js';
+import { PDFService, cleanExporterCompanyName } from '../services/pdf.service.js';
 import { QuoteStoreService } from '../services/quote-store.service.js';
 import { TenantService } from '../services/tenant.service.js';
 import { ExcelAdapter } from '../adapters/excel.adapter.js';
@@ -184,13 +189,58 @@ inboundRouter.post('/lead', async (req: Request, res: Response): Promise<any> =>
  */
 inboundRouter.post('/email', async (req: Request, res: Response): Promise<any> => {
   try {
-    const { to, from, subject, text, html } = req.body;
-    const emailText = text || html || subject || '';
-    if (!emailText.trim()) {
-      return res.status(400).json({ success: false, error: '缺少邮件正文内容 (text 或 html)' });
+    let { to, from, subject, text, html, attachments, messageId } = req.body;
+    let rawText = text || html || subject || '';
+    if (!rawText.trim() && (!attachments || attachments.length === 0)) {
+      return res.status(400).json({ success: false, error: '缺少邮件正文内容或附件 (text, html 或 attachments)' });
     }
 
-    // 1. 从收件人中解析专属别名 (如 rfq-13800000000@quote.kelvinflow.com -> tenantId: 'tenant_trial_13800000000')
+    // 1. 若入站文本携带原生 RFC 822 MIME 邮件流特征，自动通过 simpleParser 进行全保真解包
+    let parsedAttachments = Array.isArray(attachments) ? attachments.map((a: any) => ({
+      filename: a.filename || 'attachment',
+      contentType: a.contentType || 'application/octet-stream',
+      content: Buffer.isBuffer(a.content)
+        ? a.content
+        : (typeof a.content === 'string'
+            ? Buffer.from(a.content, a.content.startsWith('%PDF') || a.content.startsWith('PK') ? 'binary' : 'base64')
+            : Buffer.from(''))
+    })) : undefined;
+
+    const isRawMime = typeof rawText === 'string' && (
+      /^(?:Received:|MIME-Version:|Return-Path:|DKIM-Signature:|Content-Type:\s*multipart)/im.test(rawText) ||
+      rawText.includes('Content-Transfer-Encoding:')
+    );
+
+    if (isRawMime) {
+      try {
+        const parsed = await simpleParser(rawText);
+        if (!messageId && parsed.messageId) messageId = parsed.messageId;
+        if (!from && parsed.from?.value?.[0]?.address) from = parsed.from.value[0].address;
+        if (!subject && parsed.subject) subject = parsed.subject;
+        if (!to && parsed.to) {
+          const toArr = Array.isArray(parsed.to) ? parsed.to : [parsed.to];
+          const toAddr = (toArr[0] as any)?.value?.[0]?.address;
+          if (toAddr) to = toAddr;
+        }
+
+        const decodedBody = (parsed.text || parsed.html || '').trim();
+        if (decodedBody) {
+          rawText = decodedBody;
+        }
+
+        if (parsed.attachments && parsed.attachments.length > 0 && (!parsedAttachments || parsedAttachments.length === 0)) {
+          parsedAttachments = parsed.attachments.map((att: any) => ({
+            filename: att.filename || 'attachment',
+            contentType: att.contentType || 'application/octet-stream',
+            content: att.content
+          }));
+        }
+      } catch (mimeErr: any) {
+        console.warn('⚠️ [Inbound Router] simpleParser 解析 raw MIME 失败，回退原始文本:', mimeErr.message);
+      }
+    }
+
+    // 2. 从收件人中解析专属别名 (如 rfq-13800000000@quote.kelvinflow.com -> tenantId: 'tenant_trial_13800000000')
     let tenantId = req.body.tenantId;
     if (!tenantId && to && typeof to === 'string') {
       const aliasMatch = to.match(/rfq-([a-zA-Z0-9_-]+)@/i);
@@ -202,21 +252,72 @@ inboundRouter.post('/email', async (req: Request, res: Response): Promise<any> =
       tenantId = 'default';
     }
 
-    // 2. 调用核心出单中枢：支持 Gemini 提取、精准算价、PDF生成、模式2草稿写入与模式1待审出单自动兜底
-    const result = await InboundProcessorService.processInboundInquiry({
+    // 3. 构建多维幂等防重键 (优先 Message-ID，无 Message-ID 时采用 租户+发件人+主题+正文特征 Hash)
+    const cleanMsgId = (messageId || '').replace(/[<>]/g, '').trim();
+    const contentSample = rawText.replace(/\s+/g, ' ').slice(0, 300);
+    const dedupKey = cleanMsgId
+      ? `${tenantId}_${cleanMsgId}`
+      : `${tenantId}_hash_${createHash('sha256').update(`${from || ''}_${subject || ''}_${contentSample}`).digest('hex').slice(0, 24)}`;
+
+    // 4. 并发互斥锁：若同一封邮件正在出单计算中（如 4-5 秒内连续重发/Webhook 竞态），等待第一路结果直接复用
+    if (inFlightInquiries.has(dedupKey)) {
+      console.log(`⏳ [Inbound Router] 检测到询盘 [${dedupKey}] 正在出单计算中（并发请求），等待第一路处理完成直接复用...`);
+      try {
+        const sharedResult = await inFlightInquiries.get(dedupKey)!;
+        return res.status(200).json(sharedResult);
+      } catch (_) {
+        // 第一路若异常，本路继续执行
+      }
+    }
+
+    // 5. 历史幂等检测：若本邮件先前已出具正式报价单（品项完整、总额正常），直接幂等返回已生成的单据，杜绝二次出单与重复邮件轰炸
+    if (cleanMsgId) {
+      const existingQuote = QuoteStoreService.findQuoteByMessageId(tenantId, cleanMsgId);
+      if (existingQuote) {
+        const isExistingDummy = existingQuote.items.length === 1 &&
+          existingQuote.items[0].sku === 'PENDING-SKU-01' &&
+          Number(existingQuote.totalAmountForeign || 0) === 0;
+
+        if (!isExistingDummy) {
+          console.log(`🛡️ [幂等去重拦截] 询盘 Message-ID [${cleanMsgId}] 已出具正式单据 [${existingQuote.quotationNumber}] (${existingQuote.items.length} 品项, 总额 ${existingQuote.currency} ${existingQuote.totalAmountForeign})，直接幂等返回！`);
+          const baseUrl = process.env.PUBLIC_APP_URL?.replace(/\/+$/, '') || 'https://quote.kelvinflow.com';
+          return res.status(200).json({
+            success: true,
+            quotationNumber: existingQuote.quotationNumber,
+            reviewUrl: `${baseUrl}/review/${existingQuote.quotationNumber}`,
+            deliveryMode: 'mode1_review_email',
+            duplicated: true,
+            message: `[幂等去重] 该邮件已于 ${existingQuote.processedAt} 生成报价单，已直接返回`
+          });
+        } else {
+          console.log(`🔄 [占位空单自动覆盖升级] 询盘 Message-ID [${cleanMsgId}] 先前生成了占位空单 [${existingQuote.quotationNumber}]，本次请求将自动重新解析并覆盖清理旧空单！`);
+        }
+      }
+    }
+
+    // 6. 执行核心出单中枢并注册并发互斥 Promise
+    const taskPromise = InboundProcessorService.processInboundInquiry({
       tenantId,
       from: from || '',
       to: to || '',
       subject: subject || '',
-      text: text || '',
-      html: html || ''
+      text: rawText,
+      html: html || '',
+      attachments: parsedAttachments,
+      messageId: cleanMsgId || undefined
     });
 
-    if (!result.success) {
-      return res.status(400).json(result);
-    }
+    inFlightInquiries.set(dedupKey, taskPromise);
 
-    return res.json(result);
+    try {
+      const result = await taskPromise;
+      if (!result.success) {
+        return res.status(400).json(result);
+      }
+      return res.status(200).json(result);
+    } finally {
+      inFlightInquiries.delete(dedupKey);
+    }
   } catch (error: any) {
     console.error('❌ 处理入站邮件询盘失败:', error);
     return res.status(500).json({
@@ -387,12 +488,13 @@ inboundRouter.post('/quick-quote', async (req: Request, res: Response): Promise<
 
     const baseUrl = process.env.PUBLIC_APP_URL?.replace(/\/+$/, '') || 'https://quote.kelvinflow.com';
     const reviewUrl = `${baseUrl}/review/${quotation.quotationNumber}`;
-    const tenantCompany = tenantProfile.companyName || 'KelvinFlow Global Technology';
+    const tenantCompany = cleanExporterCompanyName(tenantProfile.companyName);
     const safeAmount = Number(quotation.totalAmountForeign || 0).toFixed(2);
     const safeCustomer = (quotation.customerName || quotation.buyerName || 'Customer').replace(/[^a-zA-Z0-9_-]/g, '_');
     const safeQuoteNum = quotation.quotationNumber || 'DRAFT';
 
-    const draftText = `Dear ${quotation.buyerName || 'Customer'},\n\nThank you for your inquiry. Attached is our formal quotation (${safeQuoteNum}).\n\nTotal Amount: ${quotation.currency || 'USD'} ${safeAmount}\nTrade Terms: ${quotation.incotermUsed || 'FOB'}\nPayment Terms: ${quotation.paymentTerms || '30% T/T Deposit, Balance Before Shipment'}\nDelivery Lead Time: ${quotation.leadTime || '15-20 days'}\n\nPlease review the attached official PDF quotation with technical specs.\n\nBest regards,\n${tenantProfile.managerName || 'Sales Team'}\n${tenantCompany}`;
+    const safeCurrency = (!quotation.currency || quotation.currency === 'N/A') ? 'USD' : quotation.currency;
+    const draftText = `Dear ${quotation.buyerName || 'Customer'},\n\nThank you for your inquiry. Attached is our formal quotation (${safeQuoteNum}).\n\nTotal Amount: ${safeCurrency} ${safeAmount}\nTrade Terms: ${quotation.incotermUsed || 'FOB'}\nPayment Terms: ${quotation.paymentTerms || '30% T/T Deposit, Balance Before Shipment'}\nDelivery Lead Time: ${quotation.leadTime || '15-20 days'}\n\nPlease review the attached official PDF quotation with technical specs.\n\nBest regards,\n${tenantCompany}`;
 
     return res.json({
       success: true,

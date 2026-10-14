@@ -300,6 +300,13 @@
             <span class="md:hidden text-xs">底价</span>
           </button>
 
+          <!-- 🏢 企业资料设置 (工作台可进，可编辑公司名、负责人、联系方式、公司地址等) -->
+          <button @click="openCompanyProfileModal" class="hidden min-[520px]:inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="设置企业商业抬头、负责人姓名、联系邮箱与地址（自动同步 PDF 报价单与回信）" aria-label="企业资料设置">
+            <i class="fa-solid fa-building-user text-indigo-400 text-xs"></i>
+            <span class="hidden xl:inline">企业资料</span>
+            <span class="xl:hidden text-xs">资料</span>
+          </button>
+
           <!-- 🎨 报价单企业 Logo 设置 (超窄屏幕隐藏以保核心功能，个人版专属特权) -->
           <button @click="openLogoModal" class="hidden min-[520px]:inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="上传企业商标，自动印于导出的 A4 PDF 报价单抬头（个人版专属）" aria-label="上传企业商标，自动印于导出的 A4 PDF 报价单抬头">
             <i class="fa-solid fa-crown text-amber-400 text-xs" v-if="!isPaidUser"></i>
@@ -322,7 +329,10 @@
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hidden md:inline">
               余{{ trialState.remainingDays }}天
             </span>
-            <button @click.stop="openLogoutModal" class="text-slate-400 hover:text-rose-400 transition cursor-pointer p-1 ml-0.5 flex items-center justify-center rounded hover:bg-white/10" title="退出登录或切换账号" aria-label="退出登录或切换账号">
+            <button @click.stop="openCompanyProfileModal" class="text-slate-400 hover:text-indigo-400 transition cursor-pointer p-1 ml-0.5 flex items-center justify-center rounded hover:bg-white/10" title="设置企业资料" aria-label="设置企业资料">
+              <i class="fa-solid fa-building-user text-xs pointer-events-none"></i>
+            </button>
+            <button @click.stop="openLogoutModal" class="text-slate-400 hover:text-rose-400 transition cursor-pointer p-1 flex items-center justify-center rounded hover:bg-white/10" title="退出登录或切换账号" aria-label="退出登录或切换账号">
               <i class="fa-solid fa-arrow-right-from-bracket text-xs pointer-events-none"></i>
             </button>
           </div>
@@ -462,7 +472,14 @@
                         <i :class="copiedQuoteId ? 'fa-solid fa-check text-emerald-600' : 'fa-regular fa-copy text-slate-400'"></i>
                         <span>{{ copiedQuoteId ? '已复制' : '复制' }}</span>
                       </button>
+                      <button v-if="!isDemoQuote" type="button" @click.stop="confirmDeleteCurrentQuote" 
+                              title="删除此报价单" aria-label="删除此报价单"
+                              class="inline-flex items-center space-x-1 text-[11px] font-bold px-2 py-0.5 rounded-md transition shadow-xs border bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 border-slate-200 hover:border-rose-300 active:scale-95 cursor-pointer">
+                        <i class="fa-regular fa-trash-can text-slate-400 hover:text-rose-600"></i>
+                        <span>删除</span>
+                      </button>
                     </div>
+
                   </div>
                 </div>
                 <div class="h-[28px] flex items-center text-[10px] text-slate-400 select-none overflow-hidden">
@@ -579,7 +596,7 @@
                     <div class="relative h-full flex-shrink-0">
                       <button type="button" @click.stop="currencyDropdownOpen = !currencyDropdownOpen" 
                               class="h-full px-2.5 text-xs font-black text-blue-700 bg-blue-50/80 hover:bg-blue-100/70 border-r border-slate-200 flex items-center gap-1.5 transition cursor-pointer select-none rounded-l-lg">
-                        <span>{{ currentCurrencySymbol }} {{ quotation.currency }}</span>
+                        <span>{{ currentCurrencySymbol }} {{ effectiveCurrency }}</span>
                         <i class="fa-solid fa-chevron-down text-[9px] text-blue-500 transition-transform duration-200" :class="{ 'rotate-180': currencyDropdownOpen }"></i>
                       </button>
 
@@ -593,15 +610,15 @@
                         <div v-for="c in availableCurrencies" :key="c.currency"
                              @click="onCurrencySelectChange(c.currency); currencyDropdownOpen = false"
                              class="px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer transition select-none"
-                             :class="quotation.currency === c.currency ? 'bg-blue-50 text-blue-700 font-extrabold' : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600'">
+                             :class="effectiveCurrency === c.currency ? 'bg-blue-50 text-blue-700 font-extrabold' : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600'">
                           <div class="flex items-center gap-2">
-                            <span class="w-5 text-center font-bold" :class="quotation.currency === c.currency ? 'text-blue-600' : 'text-slate-400'">{{ c.symbol || '$' }}</span>
+                            <span class="w-5 text-center font-bold" :class="effectiveCurrency === c.currency ? 'text-blue-600' : 'text-slate-400'">{{ c.symbol || '$' }}</span>
                             <span class="font-bold">{{ c.currency }}</span>
                           </div>
                           <div class="flex items-center gap-1.5">
-                            <span class="text-[11px] font-mono" :class="quotation.currency === c.currency ? 'text-blue-600 font-bold' : 'text-slate-500'">¥{{ c.rateToRMB }}</span>
+                            <span class="text-[11px] font-mono" :class="effectiveCurrency === c.currency ? 'text-blue-600 font-bold' : 'text-slate-500'">¥{{ c.rateToRMB }}</span>
                             <span v-if="liveRates?.rates && liveRates.rates[c.currency]" class="text-[9px] font-mono text-emerald-600 font-semibold" :title="`今日银行现汇买入价: ¥${liveRates.rates[c.currency].buyingRate}`">(现:{{ liveRates.rates[c.currency].buyingRate }})</span>
-                            <i v-if="quotation.currency === c.currency" class="fa-solid fa-check text-blue-600 text-[10px]"></i>
+                            <i v-if="effectiveCurrency === c.currency" class="fa-solid fa-check text-blue-600 text-[10px]"></i>
                           </div>
                         </div>
                       </div>
@@ -773,7 +790,7 @@
                   <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/30">待确认草稿</span>
                 </div>
                 <div class="text-2xl sm:text-[28px] font-black text-white tracking-tight mt-1 font-mono">
-                  {{ quotation.currency }} {{ formatNumber(computedTotalAmount) }}
+                  {{ effectiveCurrency }} {{ formatNumber(computedTotalAmount) }}
                 </div>
               </div>
 
@@ -786,7 +803,7 @@
                   </div>
                   <div>
                     <span class="text-[10px] text-slate-400 font-medium block">预估毛利润额</span>
-                    <span class="font-extrabold text-emerald-400 font-mono text-xs">+{{ quotation.currency }} {{ formatNumber(computedTotalProfitForeign) }}</span>
+                    <span class="font-extrabold text-emerald-400 font-mono text-xs">+{{ effectiveCurrency }} {{ formatNumber(computedTotalProfitForeign) }}</span>
                   </div>
                 </div>
 
@@ -941,8 +958,8 @@
                   <th class="py-3.5 px-3 w-36 text-center whitespace-nowrap">数量</th>
                   <th class="py-3.5 px-3 w-32 text-right whitespace-nowrap">出厂底价 (RMB)</th>
                   <th class="py-3.5 px-3 w-28 text-center whitespace-nowrap">毛利率 (%)</th>
-                  <th class="py-3.5 px-3 w-32 text-right whitespace-nowrap">外币单价 ({{ quotation.currency }})</th>
-                  <th class="py-3.5 px-4 w-40 text-right whitespace-nowrap">小计金额 ({{ quotation.currency }})</th>
+                  <th class="py-3.5 px-3 w-32 text-right whitespace-nowrap">外币单价 ({{ effectiveCurrency }})</th>
+                  <th class="py-3.5 px-4 w-40 text-right whitespace-nowrap">小计金额 ({{ effectiveCurrency }})</th>
                   <th class="py-3.5 px-2 w-12 text-center whitespace-nowrap">操作</th>
                 </tr>
               </thead>
@@ -1135,9 +1152,9 @@
                     </div>
                   </td>
 
-                  <!-- 7. 外币单价 (固定 112px 宽度，彻底消除数字裁剪与挤压) -->
+                  <!-- 7. 外币单价 (固定 112px 宽度，绝对定位角标保持行高完美一致) -->
                   <td class="py-3.5 px-3 text-right whitespace-nowrap">
-                    <div class="relative flex items-center justify-end group">
+                    <div class="relative inline-flex items-center justify-end group">
                       <input type="number" role="textbox" v-model.number="item.unitPriceForeign" @input="onUnitPriceChange(item)" @change="item.unitPriceForeign = round2(item.unitPriceForeign); onUnitPriceChange(item)" step="0.01" 
                              :title="getPriceCalculationFormula(item)"
                              class="table-input w-28 text-right font-black shadow-sm pr-6 cursor-help"
@@ -1145,12 +1162,20 @@
                       <button v-if="item.unitPriceForeign" type="button" @mousedown.prevent="item.unitPriceForeign = null; onUnitPriceChange(item)" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
-                    </div>
-                    <div v-if="isBelowFloorMargin(item)" class="text-[9px] font-bold text-rose-600 text-right mt-1 pr-1">
-                      ⚠️ 亏损/超低利
-                    </div>
-                    <div v-else-if="!item.basePriceRMB || item.basePriceRMB <= 0" class="text-[9px] font-bold text-amber-600 text-right mt-1 pr-1">
-                      待核底价
+
+                      <!-- 右上角悬浮角标 (0 空间占用彻底不撑破行高，与 MOQ/底线角标完全对齐) -->
+                      <div v-if="isBelowFloorMargin(item)" class="absolute -top-2.5 -right-2 z-20 pointer-events-none">
+                        <span class="px-1.5 py-0.5 bg-rose-500 hover:bg-rose-600 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-rose-500/30 flex items-center gap-0.5 tracking-tight whitespace-nowrap pointer-events-auto cursor-help" title="跌破利润底线，建议调高单价以防亏损">
+                          <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
+                          <span>亏损/超低利</span>
+                        </span>
+                      </div>
+                      <div v-else-if="!item.basePriceRMB || item.basePriceRMB <= 0" class="absolute -top-2.5 -right-2 z-20 pointer-events-none">
+                        <span class="px-1.5 py-0.5 bg-amber-500 hover:bg-amber-600 text-white text-[9px] font-extrabold rounded-full shadow-md shadow-amber-500/30 flex items-center gap-0.5 tracking-tight whitespace-nowrap pointer-events-auto cursor-help" title="暂无出厂底价，需核算后输入">
+                          <i class="fa-solid fa-circle-exclamation text-[8px]"></i>
+                          <span>待核底价</span>
+                        </span>
+                      </div>
                     </div>
                   </td>
 
@@ -1160,7 +1185,7 @@
                       {{ formatNumber(item.quantity * item.unitPriceForeign) }}
                     </div>
                     <div class="text-[10px] text-slate-400 font-sans font-medium">
-                      {{ quotation.currency }}
+                      {{ effectiveCurrency }}
                     </div>
                   </td>
 
@@ -1365,7 +1390,7 @@
           <div class="flex flex-col justify-center">
             <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium tracking-wider uppercase leading-none mb-1">最终核算总额</span>
             <div class="text-xl sm:text-2xl font-black text-white font-mono tracking-tight leading-none flex items-baseline">
-              <span class="text-xs sm:text-sm font-semibold text-blue-400 mr-1.5 font-sans">{{ quotation.currency }}</span>
+              <span class="text-xs sm:text-sm font-semibold text-blue-400 mr-1.5 font-sans">{{ effectiveCurrency }}</span>
               <span>{{ formatNumber(computedTotalAmount) }}</span>
             </div>
           </div>
@@ -1399,20 +1424,20 @@
             <span class="sm:hidden">{{ previewLoading ? '同步中...' : '预览 PDF' }}</span>
           </button>
 
-          <!-- 触发二次确认弹窗的按钮 (区分试用版下载复制 vs 付费版直达草稿箱) -->
-          <button id="tour-step-3" @click="openConfirmModal" :disabled="saving" 
-                  class="flex-2 sm:flex-none inline-flex items-center justify-center px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white shadow-lg active:scale-95 transition disabled:opacity-50 whitespace-nowrap cursor-pointer"
-                  :class="isPaidUser ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 shadow-indigo-600/30 ring-2 ring-amber-400/40' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/30'">
-            <template v-if="isPaidUser">
-              <i class="fa-solid fa-paper-plane mr-1.5 sm:mr-2 text-xs sm:text-sm text-amber-300"></i>
-              <span class="hidden sm:inline">一键直达草稿箱</span>
-              <span class="sm:hidden">直达草稿箱</span>
-            </template>
-            <template v-else>
-              <i class="fa-solid fa-bolt mr-1.5 sm:mr-2 text-xs sm:text-sm text-amber-300"></i>
-              <span class="hidden sm:inline">一键出单 (生成PDF与邮件)</span>
-              <span class="sm:hidden">一键出单</span>
-            </template>
+          <!-- 基础出单按钮 (通用：生成/下载PDF与复制邮件，全员永久可用) -->
+          <button id="tour-step-3" @click="openConfirmModal('standard')" :disabled="saving" 
+                  class="flex-2 sm:flex-none inline-flex items-center justify-center px-3.5 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30 active:scale-95 transition disabled:opacity-50 whitespace-nowrap cursor-pointer">
+            <i class="fa-solid fa-bolt mr-1.5 text-xs sm:text-sm text-amber-300"></i>
+            <span class="hidden sm:inline">一键出单 (生成PDF与邮件)</span>
+            <span class="sm:hidden">一键出单</span>
+          </button>
+
+          <!-- 个人版/企业版专属特权：一键直达日常邮箱草稿箱 (并列展示) -->
+          <button v-if="isPaidUser" @click="openConfirmModal('draft')" :disabled="saving" 
+                  class="flex-2 sm:flex-none inline-flex items-center justify-center px-3.5 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-indigo-600/30 ring-2 ring-amber-400/50 active:scale-95 transition disabled:opacity-50 whitespace-nowrap cursor-pointer">
+            <i class="fa-solid fa-paper-plane mr-1.5 text-xs sm:text-sm text-amber-300"></i>
+            <span class="hidden sm:inline">⚡ 一键直达草稿箱</span>
+            <span class="sm:hidden">直达草稿箱</span>
           </button>
         </div>
       </div>
@@ -1805,7 +1830,7 @@
     </div>
 
     <!-- 删除商品项二次确认弹窗 (Custom Delete Confirmation Modal) -->
-    <div v-if="deleteModal.show" v-cloak @click.self="deleteModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div v-if="deleteModal.show" v-cloak @click.self="deleteModal.show = false" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150" style="z-index: 110;">
       <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in fade-in zoom-in duration-200">
         <div class="flex items-center space-x-3">
           <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-lg shadow-sm">
@@ -1834,7 +1859,7 @@
           <div class="flex justify-between items-center pt-2 border-t border-slate-200">
             <span class="text-slate-500 font-bold">该项小计金额:</span>
             <span class="font-black text-red-600 text-sm font-mono">
-              {{ quotation.currency }} {{ formatNumber((deleteModal.item?.quantity || 0) * (deleteModal.item?.unitPriceForeign || 0)) }}
+              {{ effectiveCurrency }} {{ formatNumber((deleteModal.item?.quantity || 0) * (deleteModal.item?.unitPriceForeign || 0)) }}
             </span>
           </div>
         </div>
@@ -1931,11 +1956,26 @@
                   ¥{{ prod.basePrice }}
                 </div>
               </div>
-              <button type="button" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors shadow-sm shadow-blue-500/20 active:scale-95 flex items-center space-x-1 cursor-pointer">
-                <i class="fa-solid fa-check text-[11px]"></i>
-                <span>选择此款</span>
-              </button>
+              <div class="flex items-center space-x-1.5">
+                <span v-if="isProtectedCatalogSku(prod.sku)" 
+                      title="系统基准受保护商品，禁止删除" 
+                      class="px-2 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-400 text-xs font-bold flex items-center space-x-1 cursor-default select-none">
+                  <i class="fa-solid fa-lock text-[10px]"></i>
+                  <span>受保护</span>
+                </span>
+                <button v-else type="button" @click.stop="confirmDeleteCatalogItem(prod)" 
+                        title="从底价库删除此款商品" aria-label="从底价库删除此款商品"
+                        class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-300 text-slate-400 hover:text-rose-600 font-bold text-xs transition cursor-pointer flex items-center space-x-1">
+                  <i class="fa-regular fa-trash-can text-[11px]"></i>
+                  <span>删除</span>
+                </button>
+                <button type="button" @click.stop="selectCatalogModalProduct(prod)" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors shadow-sm shadow-blue-500/20 active:scale-95 flex items-center space-x-1 cursor-pointer">
+                  <i class="fa-solid fa-check text-[11px]"></i>
+                  <span>选择此款</span>
+                </button>
+              </div>
             </div>
+
           </div>
         </div>
 
@@ -2015,7 +2055,7 @@
     <!-- ========================================================================= -->
     <!-- 0. 💡 新手 3 步沉浸式聚光灯镂空蒙版引导 (Interactive Spotlight Tour)           -->
     <!-- ========================================================================= -->
-    <div v-if="tourActive" id="tour-spotlight-overlay" class="fixed inset-0 z-[100] select-none">
+    <div v-if="tourActive && !isAnyModalOpen" id="tour-spotlight-overlay" class="fixed inset-0 z-[100] select-none">
       <!-- 1. 全屏 SVG 镂空遮罩 (镂空高亮按钮，其余区域暗色半透明) -->
       <svg class="absolute inset-0 w-full h-full pointer-events-auto" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -2481,7 +2521,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
     </div>
 
     <!-- 3. 📬 个人版专属特权 · 企业邮箱全自动化出单中枢 (IMAP & Forwarding Modal) -->
-    <div v-if="imapModal.show" v-cloak @click.self="imapModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
+    <div v-if="imapModal.show" id="imap-modal-overlay" v-cloak @click.self="imapModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
       <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100/80 overflow-hidden animate-in fade-in zoom-in duration-200">
         <!-- 固定顶栏 (消除滚动破角，保持标题与Tab固定) -->
         <div class="p-5 sm:p-6 pb-3.5 border-b border-slate-100 flex-shrink-0 space-y-3 bg-white">
@@ -2658,7 +2698,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                         <span>设置过滤条件</span>
                       </div>
                       <p class="text-[11px] text-slate-600 leading-relaxed">
-                        网页版点击【设置】➔【收信规则】➔【新建收信规则】，条件设为主题包含 <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-mono font-bold">RFQ/Inquiry/Quote</code>。
+                        网页版登录后点击【设置】➔【收发信规则】➔【创建收信规则】，条件设为主题包含 <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded font-mono font-bold">RFQ/Inquiry/Quote</code> 等询盘关键词。
                       </p>
                     </div>
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
@@ -2667,7 +2707,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                         <span>自动转发并保存</span>
                       </div>
                       <p class="text-[11px] text-slate-600 leading-relaxed">
-                        动作勾选【自动转发给】，粘贴上方专属中枢地址，并勾选【在原收件箱保留备份】后保存。
+                        执行操作勾选【自动转发给】，粘贴上方专属中枢地址，并勾选【在原收件箱保留备份】后点击保存。
                       </p>
                     </div>
                   </div>
@@ -2692,7 +2732,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                         <span>添加收信规则</span>
                       </div>
                       <p class="text-[11px] text-slate-600 leading-relaxed">
-                        进入右上角【设置】➔【邮件收发】➔【收信规则】➔【添加规则】，设置主题包含触发关键词。
+                        进入右上角齿轮【邮箱设置】➔【邮件收发】➔【收信规则】➔【新建收信规则】，设置主题包含触发关键词。
                       </p>
                     </div>
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
@@ -2701,7 +2741,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                         <span>设置转发目标</span>
                       </div>
                       <p class="text-[11px] text-slate-600 leading-relaxed">
-                        动作勾选【转发至】：填入专属中枢接收地址，勾选【保留备份】保存生效。
+                        操作设置勾选【自动转发给】：填入专属中枢接收地址，勾选【保留备份】后点击保存生效。
                       </p>
                     </div>
                   </div>
@@ -2726,7 +2766,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                         <span>进入收信规则</span>
                       </div>
                       <p class="text-[11px] text-slate-600 leading-relaxed">
-                        点击顶部【设置】➔【收信规则】➔【添加收信规则】，执行条件设置为主题包含关键词。
+                        点击顶部【设置】➔【常规设置】➔【来信分类】（或【自动回复/转发】）➔【新建收信规则】，条件设为主题包含关键词。
                       </p>
                     </div>
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
@@ -2735,7 +2775,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                         <span>指定自动转发</span>
                       </div>
                       <p class="text-[11px] text-slate-600 leading-relaxed">
-                        动作勾选【自动转发到】：填入专属接收地址，勾选【同时在收件箱保留一封】并保存。
+                        操作勾选【自动转发到】：填入专属接收地址，短信验证并勾选【在收件箱保留邮件副本】后保存。
                       </p>
                     </div>
                   </div>
@@ -2760,7 +2800,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                         <span>新建邮件规则</span>
                       </div>
                       <p class="text-[11px] text-slate-600 leading-relaxed">
-                        齿轮【设置】➔【邮件】➔【规则】➔【添加新规则】，条件选择主题包含关键词。
+                        右上角齿轮【设置】➔【邮件】➔【规则】➔【添加新规则】，条件选择【主题包含】关键词。
                       </p>
                     </div>
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
@@ -2769,7 +2809,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                         <span>配置转发动作</span>
                       </div>
                       <p class="text-[11px] text-slate-600 leading-relaxed">
-                        操作选择【转发至 (Forward to)】，粘贴专属接收地址，点击保存完成。
+                        操作选择【转发至 (Forward to)】，粘贴专属接收地址，勾选【保留转发邮件的副本】后保存。
                       </p>
                     </div>
                   </div>
@@ -2794,7 +2834,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                         <span>添加转发地址</span>
                       </div>
                       <p class="text-[11px] text-slate-600 leading-relaxed">
-                        齿轮【查看所有设置】➔【转发和 POP/IMAP】➔【添加转发地址】填入专属接收地址。
+                        齿轮【查看所有设置】➔【转发和 POP/IMAP】➔【添加转发地址】填入专属接收地址完成验证。
                       </p>
                     </div>
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
@@ -2803,7 +2843,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                         <span>创建过滤规则</span>
                       </div>
                       <p class="text-[11px] text-slate-600 leading-relaxed">
-                        在【过滤器和屏蔽地址】新建规则：主题包含关键词 ➔ 转发到专属地址并保留副本。
+                        在上方搜索框点击筛选器图标 ➔ 主题输入关键词 ➔【创建过滤器】勾选【转发给】专属接收地址并勾选保留副本保存。
                       </p>
                     </div>
                   </div>
@@ -2841,9 +2881,9 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               <i class="fa-solid fa-crown text-amber-500"></i>
             </div>
             <div class="max-w-md mx-auto space-y-1.5">
-              <h4 class="text-base font-extrabold text-slate-900">👑 草稿箱直达为个人版专属特权</h4>
+              <h4 class="text-base font-extrabold text-slate-900">👑 草稿箱直达 · 个人版特权</h4>
               <p class="text-xs text-slate-600 leading-relaxed">
-                升级个人版后，配置日常外贸邮箱授权码，AI 算出的所有单据与地道英文回信将<strong class="text-amber-800">自动静默存入您的外贸常用邮箱（全面支持阿里企业邮、网易企业邮、腾讯企业邮/Foxmail、Outlook、Gmail等主流外贸企业邮箱及个人邮箱）发件草稿箱</strong>，业务员打开邮箱即可一键发送，彻底省去手动复制粘贴与下载附件的繁琐步骤！
+                出单完成后，AI 自动将正式报价单与英文回信静默写入您的发件草稿箱，开箱即发。全面支持阿里、腾讯、网易企业邮、Foxmail、Outlook 及 Gmail。
               </p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-lg mx-auto text-left pt-1">
@@ -2895,132 +2935,99 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               </div>
             </div>
 
-            <!-- 与 Tab 1 100% 统一的 6 大主流外贸邮箱服务商预设 (含个人与企业) -->
+            <!-- 与 Tab 1 100% 统一的 5 大主流外贸邮箱服务商预设 -->
             <div>
               <div class="flex items-center justify-between mb-2">
                 <label class="block text-xs font-bold text-slate-700">选择您的邮箱类型 (点击自动配置 IMAP)：</label>
                 <span class="text-[10px] text-blue-600 font-medium">支持个人邮箱与企业邮箱</span>
               </div>
-              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs font-bold">
                 <button type="button" @click="selectEmailProvider('tencent')" 
-                        class="py-2.5 px-1.5 text-center rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center gap-1.5 shadow-2xs"
-                        :class="(imapModal.provider === 'tencent' || imapModal.provider === 'qq_corp') ? 'border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-500/20' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
-                  <i class="fa-solid fa-briefcase text-sm text-blue-600"></i>
-                <span class="text-[10.5px] leading-tight">腾讯企业邮 / Foxmail</span>
-              </button>
-              <button type="button" @click="selectEmailProvider('qq')" 
-                      class="py-2.5 px-1.5 text-center rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center gap-1.5 shadow-2xs"
-                      :class="imapModal.provider === 'qq' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 ring-2 ring-indigo-500/20' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
-                <i class="fa-brands fa-qq text-sm text-indigo-600"></i>
-                <span class="text-[10.5px] leading-tight">QQ 个人邮箱 (@qq.com)</span>
-              </button>
-              <button type="button" @click="selectEmailProvider('aliyun')" 
-                      class="py-2.5 px-1.5 text-center rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center gap-1.5 shadow-2xs"
-                      :class="imapModal.provider === 'aliyun' ? 'border-orange-500 bg-orange-50 text-orange-700 ring-2 ring-orange-500/20' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
-                <i class="fa-solid fa-cloud text-sm text-orange-500"></i>
-                <span class="text-[10.5px] leading-tight">阿里企业邮 / 钉钉</span>
-              </button>
-              <button type="button" @click="selectEmailProvider('netease')" 
-                      class="py-2.5 px-1.5 text-center rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center gap-1.5 shadow-2xs"
-                      :class="(imapModal.provider === 'netease' || imapModal.provider === '163' || imapModal.provider === '163_personal') ? 'border-red-500 bg-red-50 text-red-700 ring-2 ring-red-500/20' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
-                <i class="fa-solid fa-at text-sm text-red-500"></i>
-                <span class="text-[10.5px] leading-tight">网易 163/126 (个人/企业)</span>
-              </button>
-              <button type="button" @click="selectEmailProvider('microsoft')" 
-                      class="py-2.5 px-1.5 text-center rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center gap-1.5 shadow-2xs"
-                      :class="(imapModal.provider === 'microsoft' || imapModal.provider === 'outlook') ? 'border-cyan-600 bg-cyan-50 text-cyan-700 ring-2 ring-cyan-500/20' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
-                <i class="fa-brands fa-microsoft text-sm text-cyan-600"></i>
-                <span class="text-[10.5px] leading-tight">微软 Outlook / 365</span>
-              </button>
-              <button type="button" @click="selectEmailProvider('gmail')" 
-                      class="py-2.5 px-1.5 text-center rounded-xl border text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center gap-1.5 shadow-2xs"
-                      :class="imapModal.provider === 'gmail' ? 'border-rose-600 bg-rose-50 text-rose-700 ring-2 ring-rose-500/20' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
-                <i class="fa-brands fa-google text-sm text-rose-600"></i>
-                <span class="text-[10.5px] leading-tight">谷歌 Gmail (个人/商业)</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 业务员日常邮箱地址 -->
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">外贸业务发信邮箱地址 (个人邮箱或企业邮箱)</label>
-            <input v-model="imapModal.email" @input="autoDetectEmailProvider" type="email" placeholder="例如 sales@yourcompany.com 或 yourname@qq.com" class="header-input text-xs font-medium">
-            <p class="text-[11px] text-slate-400 mt-1">系统将自动写入此邮箱对应的草稿箱 (Drafts)，输入后自动识别服务商</p>
-          </div>
-
-          <!-- 客户端授权码 -->
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="text-xs font-bold text-slate-700">客户端专用授权码 / 应用密码</label>
-              <button @click="imapModal.showHelp = !imapModal.showHelp" type="button" class="text-[11px] text-blue-600 hover:underline font-bold flex items-center space-x-1 cursor-pointer">
-                <i class="fa-regular fa-circle-question"></i>
-                <span>如何生成专用授权码？</span>
-              </button>
-            </div>
-            <input v-model="imapModal.authCode" type="password" placeholder="请输入在邮箱后台生成的 16位 客户端专用授权码" class="header-input text-xs font-mono">
-            <p class="text-[11px] text-slate-400 mt-1">⚠️ 为保障主账号安全与隐私，请填写邮箱后台生成的【专用授权码】，绝非日常登录密码。</p>
-          </div>
-
-          <!-- 极简 1 步授权码获取指引 -->
-          <div v-if="imapModal.showHelp" class="bg-blue-50/90 border border-blue-200 rounded-xl p-3 text-xs text-blue-950 space-y-1.5 shadow-2xs">
-            <div class="font-bold flex items-center space-x-1.5 text-blue-800">
-              <i class="fa-solid fa-key text-blue-600"></i>
-              <span>{{ getProviderName(imapModal.provider) }} 专用密码获取口令：</span>
-            </div>
-            <p v-if="imapModal.provider === 'tencent' || imapModal.provider === 'qq_corp'" class="text-[11px] text-slate-700 leading-relaxed">
-              登录网页版腾讯企业邮 ➔ 点击【设置】➔【微信及安全】➔ 在客户端密码栏点击【生成新密码】复制填入。
-            </p>
-            <p v-else-if="imapModal.provider === 'qq'" class="text-[11px] text-slate-700 leading-relaxed">
-              登录网页版 QQ 邮箱 (<a href="https://mail.qq.com" target="_blank" class="text-blue-600 underline">mail.qq.com</a>) ➔ 点击顶部【设置】➔【账户】➔ 往下滚动找到【POP3/IMAP/SMTP】服务 ➔ 点击【生成授权码】（发送短信验证），复制生成的 16 位大写英文授权码粘贴于此。
-            </p>
-            <p v-else-if="imapModal.provider === 'aliyun'" class="text-[11px] text-slate-700 leading-relaxed">
-              登录网页版阿里企业邮箱 ➔ 点击【设置】➔【账户与安全】➔【三方客户端安全密码】生成并复制填入。
-            </p>
-            <p v-else-if="imapModal.provider === 'netease' || imapModal.provider === '163'" class="text-[11px] text-slate-700 leading-relaxed">
-              登录网页版网易企业邮 ➔ 点击【设置】➔【客户端设置】➔ 开启 IMAP 并生成客户端专用授权密码。
-            </p>
-            <p v-else-if="imapModal.provider === '163_personal'" class="text-[11px] text-slate-700 leading-relaxed">
-              登录网页版 163 个人邮箱 (<a href="https://mail.163.com" target="_blank" class="text-blue-600 underline">mail.163.com</a>) ➔ 点击顶部【设置】➔【POP3/SMTP/IMAP】➔ 开启服务并点击【新增授权密码】，生成 16 位专用密码填入。
-            </p>
-            <p v-else-if="imapModal.provider === 'microsoft' || imapModal.provider === 'outlook'" class="text-[11px] text-slate-700 leading-relaxed">
-              登录 Microsoft 账户 ➔【安全性】➔【高级安全选项】➔【应用密码】创建并复制填入。
-            </p>
-            <p v-else-if="imapModal.provider === 'gmail'" class="text-[11px] text-slate-700 leading-relaxed">
-              登录 Google 账号 ➔ 点击【安全性】➔ 开启【两步验证】➔ 进入【应用专用密码 (App Password)】生成 16 位密码并复制填入。
-            </p>
-            <p v-else class="text-[11px] text-slate-700 leading-relaxed">
-              登录您的邮箱网页版后台 ➔ 打开【设置】➔ 开启【IMAP】服务并生成 16 位客户端专用密码复制填入。
-            </p>
-          </div>
-
-          <!-- 自动匹配状态与极客自建设置 (主流邮箱 100% 零门槛免配) -->
-          <div class="border-t border-slate-100 pt-2.5 space-y-2">
-            <div class="flex items-center justify-between text-[11px] bg-emerald-50/80 text-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-200/60">
-              <span class="flex items-center gap-1.5 font-medium">
-                <i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i>
-                <span>已自动匹配官方最佳安全服务器与 SSL 端口，<strong>普通外贸无需配置</strong></span>
-              </span>
-              <button @click="imapModal.showAdvanced = !imapModal.showAdvanced" type="button" class="text-[10px] text-slate-500 hover:text-slate-800 underline font-semibold flex items-center gap-0.5 cursor-pointer ml-2">
-                <span>{{ imapModal.showAdvanced ? '收起参数' : '企业自建服务器设置' }}</span>
-                <i :class="imapModal.showAdvanced ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'" class="text-[8px]"></i>
-              </button>
-            </div>
-
-            <!-- 仅在极少数外贸集团自建了专属私有邮件服务器时按需展开 -->
-            <div v-if="imapModal.showAdvanced" class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 animate-in fade-in duration-150">
-              <div class="text-[10px] text-slate-500 font-medium">仅供使用自定义企业私有域名服务器（非腾讯/阿里/网易/微软等主流邮箱）时调整：</div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[11px] font-medium text-slate-500 mb-1">自建 IMAP 服务器</label>
-                  <input v-model="imapModal.host" placeholder="例如 mail.mycompany.com" class="header-input text-xs font-mono">
-                </div>
-                <div>
-                  <label class="block text-[11px] font-medium text-slate-500 mb-1">IMAP 端口 (SSL)</label>
-                  <input v-model.number="imapModal.port" type="number" placeholder="993" class="header-input text-xs font-mono">
-                </div>
+                        class="p-2 sm:py-2.5 sm:px-1 rounded-xl transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center shadow-2xs"
+                        :class="(imapModal.provider === 'tencent' || imapModal.provider === 'qq_corp') ? 'bg-blue-50 text-blue-700 border-blue-600 ring-2 ring-blue-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
+                  <i class="fa-solid fa-briefcase text-xs flex-shrink-0" :class="(imapModal.provider === 'tencent' || imapModal.provider === 'qq_corp') ? 'text-blue-600' : 'text-blue-500'"></i>
+                  <span class="text-[11px] leading-tight whitespace-nowrap">腾讯 / Foxmail</span>
+                </button>
+                <button type="button" @click="selectEmailProvider('aliyun')" 
+                        class="p-2 sm:py-2.5 sm:px-1 rounded-xl transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center shadow-2xs"
+                        :class="imapModal.provider === 'aliyun' ? 'bg-orange-50 text-orange-700 border-orange-500 ring-2 ring-orange-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
+                  <i class="fa-solid fa-cloud text-xs flex-shrink-0" :class="imapModal.provider === 'aliyun' ? 'text-orange-500' : 'text-orange-500'"></i>
+                  <span class="text-[11px] leading-tight whitespace-nowrap">阿里 / 钉钉</span>
+                </button>
+                <button type="button" @click="selectEmailProvider('netease')" 
+                        class="p-2 sm:py-2.5 sm:px-1 rounded-xl transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center shadow-2xs"
+                        :class="(imapModal.provider === 'netease' || imapModal.provider === '163' || imapModal.provider === '163_personal') ? 'bg-red-50 text-red-700 border-red-500 ring-2 ring-red-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
+                  <i class="fa-solid fa-at text-xs flex-shrink-0" :class="(imapModal.provider === 'netease' || imapModal.provider === '163' || imapModal.provider === '163_personal') ? 'text-red-500' : 'text-red-500'"></i>
+                  <span class="text-[11px] leading-tight whitespace-nowrap">网易 163 / 企业</span>
+                </button>
+                <button type="button" @click="selectEmailProvider('microsoft')" 
+                        class="p-2 sm:py-2.5 sm:px-1 rounded-xl transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center shadow-2xs"
+                        :class="(imapModal.provider === 'microsoft' || imapModal.provider === 'outlook') ? 'bg-cyan-50 text-cyan-700 border-cyan-600 ring-2 ring-cyan-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
+                  <i class="fa-brands fa-microsoft text-xs flex-shrink-0" :class="(imapModal.provider === 'microsoft' || imapModal.provider === 'outlook') ? 'text-cyan-600' : 'text-cyan-600'"></i>
+                  <span class="text-[11px] leading-tight whitespace-nowrap">微软 Outlook</span>
+                </button>
+                <button type="button" @click="selectEmailProvider('gmail')" 
+                        class="col-span-2 sm:col-span-1 p-2 sm:py-2.5 sm:px-1 rounded-xl transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center shadow-2xs"
+                        :class="imapModal.provider === 'gmail' ? 'bg-rose-50 text-rose-700 border-rose-600 ring-2 ring-rose-500/20' : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:border-slate-300'">
+                  <i class="fa-brands fa-google text-xs flex-shrink-0" :class="imapModal.provider === 'gmail' ? 'text-rose-500' : 'text-rose-500'"></i>
+                  <span class="text-[11px] leading-tight whitespace-nowrap">谷歌 Gmail</span>
+                </button>
               </div>
             </div>
-          </div>
+
+            <!-- 业务员日常邮箱地址 -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">外贸业务发信邮箱地址 (个人邮箱或企业邮箱)</label>
+              <input v-model="imapModal.email" @input="autoDetectEmailProvider" type="email" placeholder="例如 sales@yourcompany.com 或 yourname@gmail.com" class="header-input text-xs font-medium">
+              <p class="text-[11px] text-slate-400 mt-1">系统将自动写入此邮箱对应的草稿箱 (Drafts)，已自动为您预填当前账号注册邮箱</p>
+            </div>
+
+            <!-- 客户端授权码 -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-xs font-bold text-slate-700">客户端专用授权码 / 应用密码</label>
+                <button @click="imapModal.showHelp = !imapModal.showHelp" type="button" class="text-[11px] text-blue-600 hover:underline font-bold flex items-center space-x-1 cursor-pointer">
+                  <i class="fa-regular fa-circle-question"></i>
+                  <span>如何生成专用授权码？</span>
+                </button>
+              </div>
+              <input v-model="imapModal.authCode" type="password" placeholder="请输入在邮箱后台生成的 16位 客户端专用授权码" class="header-input text-xs font-mono">
+              <p class="text-[11px] text-slate-400 mt-1">⚠️ 为保障主账号安全与隐私，请填写邮箱后台生成的【专用授权码】，绝非日常登录密码。</p>
+            </div>
+
+            <!-- 极简 1 步授权码获取指引 -->
+            <div v-if="imapModal.showHelp" class="bg-blue-50/90 border border-blue-200 rounded-xl p-3 text-xs text-blue-950 space-y-1.5 shadow-2xs">
+              <div class="font-bold flex items-center space-x-1.5 text-blue-800">
+                <i class="fa-solid fa-key text-blue-600"></i>
+                <span>{{ getProviderName(imapModal.provider) }} 专用密码获取指引：</span>
+              </div>
+              <p v-if="imapModal.provider === 'tencent' || imapModal.provider === 'qq_corp' || imapModal.provider === 'foxmail'" class="text-[11px] text-slate-700 leading-relaxed">
+                登录腾讯企业邮网页版 (<a href="https://exmail.qq.com" target="_blank" class="text-blue-600 underline">exmail.qq.com</a>) ➔ 点击右上角【设置】➔【微信绑定与安全】➔ 在“客户端专用密码”处点击【生成新密码】➔ 验证后复制 16 位密码填入。(注：若使用 QQ 个人邮箱绑定，在 mail.qq.com【设置】➔【账户】➔ 开启 POP3/IMAP 生成 16 位大写授权码)。
+              </p>
+              <p v-else-if="imapModal.provider === 'aliyun'" class="text-[11px] text-slate-700 leading-relaxed">
+                登录阿里企业邮箱网页版 (<a href="https://qiye.aliyun.com" target="_blank" class="text-orange-600 underline">qiye.aliyun.com</a>) ➔ 点击右上角齿轮【邮箱设置】➔ 导航至【账户与安全】➔ 开启【三方客户端安全密码】➔ 点击【生成新密码】➔ 短信验证后复制 16 位密码填入。
+              </p>
+              <p v-else-if="imapModal.provider === 'netease' || imapModal.provider === '163' || imapModal.provider === '163_personal'" class="text-[11px] text-slate-700 leading-relaxed">
+                企业邮箱：登录网页版 (<a href="https://qiye.163.com" target="_blank" class="text-red-600 underline">qiye.163.com</a>) ➔【设置】➔【客户端设置】➔ 开启【客户端授权密码】生成 16 位密码；若为 163 个人邮箱：登录 <a href="https://mail.163.com" target="_blank" class="text-red-600 underline">mail.163.com</a> ➔【设置】➔【POP3/SMTP/IMAP】➔【新增授权密码】短信验证后填入 16 位大写授权码。
+              </p>
+              <p v-else-if="imapModal.provider === 'microsoft' || imapModal.provider === 'outlook'" class="text-[11px] text-slate-700 leading-relaxed">
+                登录微软账户安全中心 (<a href="https://account.microsoft.com/security" target="_blank" class="text-cyan-700 underline">account.microsoft.com/security</a>) ➔ 确保开启【双重验证】➔ 进入【高级安全选项】➔ 在【应用密码】处点击【创建新应用密码】➔ 复制系统生成的 16 位专用密码填入。
+              </p>
+              <p v-else-if="imapModal.provider === 'gmail'" class="text-[11px] text-slate-700 leading-relaxed">
+                登录 Google 账号 ➔ 进入【安全性】开启【两步验证】➔ 访问 <a href="https://myaccount.google.com/apppasswords" target="_blank" class="text-rose-600 underline">myaccount.google.com/apppasswords</a> (应用专用密码) ➔ 名称填 KelvinFlow ➔ 点击【创建】并复制系统生成的 16 位密码填入。
+              </p>
+              <p v-else class="text-[11px] text-slate-700 leading-relaxed">
+                登录您的邮箱网页版后台 ➔ 打开【设置】➔ 开启【IMAP】服务并生成 16 位客户端专用授权密码复制填入。
+              </p>
+            </div>
+
+            <!-- 自动匹配状态 (主流外贸邮箱 100% 自动配置，免繁琐参数) -->
+            <div class="border-t border-slate-100 pt-2.5">
+              <div class="flex items-center gap-1.5 text-[11px] bg-emerald-50/80 text-emerald-800 px-3 py-2 rounded-lg border border-emerald-200/60 font-medium">
+                <i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i>
+                <span>已由系统自动匹配官方最佳安全 IMAP 服务器与 SSL 加密端口（993），无需任何技术配置。</span>
+              </div>
+            </div>
 
           <!-- 状态提示 -->
           <div v-if="imapModal.statusMessage" class="p-3.5 rounded-xl text-xs flex items-center space-x-2.5 border"
@@ -3115,20 +3122,105 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 买家: {{ (!q.customerName || q.customerName === 'N/A') ? ((q.buyerName && q.buyerName !== 'N/A') ? q.buyerName : 'Valued Buyer') : q.customerName }}
               </div>
             </div>
-            <div class="text-right">
-              <div class="font-mono font-bold text-xs text-slate-900">
-                {{ (!q.currency || q.currency === 'N/A') ? 'USD' : q.currency }} {{ formatNumber(q.totalAmountForeign || 0) }}
+            <div class="flex items-center space-x-2.5">
+              <div class="text-right">
+                <div class="font-mono font-bold text-xs text-slate-900">
+                  {{ (!q.currency || q.currency === 'N/A') ? 'USD' : q.currency }} {{ formatNumber(q.totalAmountForeign || 0) }}
+                </div>
+                <div class="text-[10px] text-slate-400">
+                  {{ q.createdAt ? new Date(q.createdAt).toLocaleDateString('zh-CN') : '' }}
+                </div>
               </div>
-              <div class="text-[10px] text-slate-400">
-                {{ q.createdAt ? new Date(q.createdAt).toLocaleDateString('zh-CN') : '' }}
-              </div>
+              <button @click.stop="confirmDeleteQuote(q.quotationNumber)" 
+                      title="彻底删除此报价单" aria-label="彻底删除此报价单"
+                      class="opacity-60 group-hover:opacity-100 hover:text-rose-600 hover:bg-rose-100/80 text-slate-400 p-1.5 rounded-lg transition cursor-pointer flex-shrink-0">
+                <i class="fa-regular fa-trash-can text-xs"></i>
+              </button>
             </div>
+
           </div>
         </div>
 
         <div class="flex justify-end pt-2 border-t border-slate-100">
           <button @click="quotesHistoryModal.show = false" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer">
             关闭
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🗑️ 报价单整单删除二次确认弹窗 (Delete Quote Modal) (P31 / muse_15 优化置顶 z-[110]) -->
+    <div v-if="deleteQuoteModal.show" v-cloak @click.self="deleteQuoteModal.show = false" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150" style="z-index: 110;">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in zoom-in-95 duration-150">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-lg shadow-sm">
+            <i class="fa-regular fa-trash-can"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">确认删除整份报价单？</h3>
+            <p class="text-xs text-slate-500">此操作不可撤销，请谨慎核对</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-100 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500 font-medium">待删除报价单号:</span>
+            <span class="font-mono font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200 select-all">{{ deleteQuoteModal.quotationNumber }}</span>
+          </div>
+          <div class="text-[11px] text-slate-500 pt-1 border-t border-slate-200/60 leading-relaxed">
+            删除后，该单据将从租户历史列表中彻底移除，生成的 PDF 文件与草稿将同步销毁。
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 pt-2">
+          <button type="button" @click="deleteQuoteModal.show = false" :disabled="deleteQuoteModal.loading" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">
+            取消保留
+          </button>
+          <button type="button" @click="executeDeleteQuote" :disabled="deleteQuoteModal.loading" class="px-5 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-md shadow-rose-500/20 transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50">
+            <i v-if="deleteQuoteModal.loading" class="fa-solid fa-spinner fa-spin"></i>
+            <i v-else class="fa-regular fa-trash-can"></i>
+            <span>{{ deleteQuoteModal.loading ? '正在删除...' : '确认彻底删除' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🗑️ 底价库条目删除二次确认弹窗 (Delete Catalog Item Modal) (P31 / muse_15 优化置顶 z-[110]) -->
+    <div v-if="deleteCatalogModal.show" v-cloak @click.self="deleteCatalogModal.show = false" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150" style="z-index: 110;">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in zoom-in-95 duration-150">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-lg shadow-sm">
+            <i class="fa-regular fa-trash-can"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">确认删除底价库商品？</h3>
+            <p class="text-xs text-slate-500">将从当前租户出厂底价库中移除该条目</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl space-y-2.5 border border-slate-100 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500 font-medium">商品型号 SKU:</span>
+            <span class="font-mono font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200 select-all">{{ deleteCatalogModal.sku }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500 font-medium">商品品名:</span>
+            <span class="font-bold text-slate-800 truncate max-w-[240px]">{{ deleteCatalogModal.name }}</span>
+          </div>
+          <div class="text-[11px] text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-200/80 leading-relaxed">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+            提示：删除后该商品将不再出现在选型中心；已生成的历史报价单数据不会受损。
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 pt-2">
+          <button type="button" @click="deleteCatalogModal.show = false" :disabled="deleteCatalogModal.loading" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">
+            取消保留
+          </button>
+          <button type="button" @click="executeDeleteCatalogItem" :disabled="deleteCatalogModal.loading" class="px-5 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-md shadow-rose-500/20 transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50">
+            <i v-if="deleteCatalogModal.loading" class="fa-solid fa-spinner fa-spin"></i>
+            <i v-else class="fa-regular fa-trash-can"></i>
+            <span>{{ deleteCatalogModal.loading ? '正在删除...' : '确认移除条目' }}</span>
           </button>
         </div>
       </div>
@@ -3165,7 +3257,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <div>
               <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">当前报价单使用汇率</div>
               <div class="flex items-baseline space-x-1.5 mt-1">
-                <span class="text-xs text-slate-400 font-mono">1 {{ quotation.currency }} =</span>
+                <span class="text-xs text-slate-400 font-mono">1 {{ effectiveCurrency }} =</span>
                 <span class="text-2xl font-black text-slate-900 font-mono tracking-tight">¥{{ quotation.rateUsed || '-' }}</span>
               </div>
             </div>
@@ -3189,7 +3281,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 </button>
               </div>
               <div class="flex items-baseline space-x-1.5 mt-1">
-                <span class="text-xs text-blue-500 font-mono">1 {{ quotation.currency }} =</span>
+                <span class="text-xs text-blue-500 font-mono">1 {{ effectiveCurrency }} =</span>
                 <span class="text-2xl font-black text-blue-700 font-mono tracking-tight">¥{{ currentLiveRate?.buyingRate || '-' }}</span>
               </div>
             </div>
@@ -3261,12 +3353,12 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in fade-in zoom-in duration-200">
         <div class="flex items-center space-x-3">
           <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm"
-               :class="isPaidUser ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-600'">
-            <i :class="isPaidUser ? 'fa-solid fa-crown' : 'fa-solid fa-clipboard-check'"></i>
+               :class="confirmModalMode === 'draft' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-600'">
+            <i :class="confirmModalMode === 'draft' ? 'fa-solid fa-crown' : 'fa-solid fa-clipboard-check'"></i>
           </div>
           <div>
             <h3 class="text-base font-bold text-slate-900">
-              {{ isPaidUser ? '👑 个人版出单 · 确认存入邮箱草稿箱？' : '⚡ 试用出单 · 确认生成并下载报价单？' }}
+              {{ confirmModalMode === 'draft' ? '👑 个人版出单 · 确认存入邮箱草稿箱？' : '⚡ 确认出单 · 生成并下载报价单？' }}
             </h3>
             <p class="text-xs text-slate-500">请核对以下调整后的单据关键摘要与出单指引</p>
           </div>
@@ -3287,51 +3379,41 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </div>
           <div class="flex justify-between items-center pt-2 border-t border-slate-200">
             <span class="text-slate-500 font-bold">最终核算总额:</span>
-            <span class="font-black text-blue-700 text-base font-mono">{{ quotation.currency }} {{ formatNumber(computedTotalAmount) }}</span>
+            <span class="font-black text-blue-700 text-base font-mono">{{ effectiveCurrency }} {{ formatNumber(computedTotalAmount) }}</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-slate-500 font-medium">预计综合毛利率:</span>
-            <span class="font-black text-emerald-600">{{ computedAvgMargin }}% (+{{ quotation.currency }} {{ formatNumber(computedTotalProfitForeign) }})</span>
+            <span class="font-black text-emerald-600">{{ computedAvgMargin }}% (+{{ effectiveCurrency }} {{ formatNumber(computedTotalProfitForeign) }})</span>
           </div>
         </div>
 
-        <!-- 试用出单指引 -->
-        <div v-if="!isPaidUser" class="p-3 bg-blue-50/80 rounded-xl border border-blue-200/80 text-[11px] text-blue-900 leading-relaxed flex items-start space-x-2">
-          <i class="fa-solid fa-circle-info text-blue-600 mt-0.5 flex-shrink-0"></i>
-          <div>
-            <strong>试用出单指引：</strong>确认后，系统将即时渲染并<strong>自动下载最新正式 PDF 报价单</strong>，同时将地道英文回复复制到剪贴板。您只需在自己的 Foxmail/日常邮箱中回复买家并附上 PDF 即可发出。
-          </div>
-        </div>
-
-        <!-- 付费极客直达草稿箱指引 (已配授权码) -->
-        <div v-else-if="hasImapConfigured" class="p-3 bg-emerald-50/80 rounded-xl border border-emerald-200/80 text-[11px] text-emerald-900 leading-relaxed flex items-start space-x-2">
+        <!-- 草稿箱直达模式指引 -->
+        <div v-if="confirmModalMode === 'draft'" class="p-3 bg-emerald-50/80 rounded-xl border border-emerald-200/80 text-[11px] text-emerald-900 leading-relaxed flex items-start space-x-2">
           <i class="fa-solid fa-crown text-emerald-600 mt-0.5 flex-shrink-0"></i>
           <div>
-            <strong>个人版直达特权：</strong>系统将生成最新正式 PDF 报价单，并将买家收件地址、英文回信与 PDF 附件<strong>静默存入您的 Foxmail/企业邮【发件草稿箱】</strong>！打开邮箱点击发送即可秒速出单。
+            <strong>个人版直达特权：</strong>系统将生成最新正式 PDF 报价单，并将买家收件地址、英文回信与 PDF 附件<strong>静默存入您的日常邮箱【发件草稿箱】</strong>！打开邮箱点击发送即可秒速出单。
           </div>
         </div>
 
-        <!-- 付费极客未配置授权码指引 -->
-        <div v-else class="p-3 bg-amber-50/80 rounded-xl border border-amber-200/80 text-[11px] text-amber-900 leading-relaxed flex items-start space-x-2">
-          <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 flex-shrink-0"></i>
+        <!-- 基础出单模式指引 (全员可用：下载PDF并复制英文邮件) -->
+        <div v-else class="p-3 bg-blue-50/80 rounded-xl border border-blue-200/80 text-[11px] text-blue-900 leading-relaxed flex items-start space-x-2">
+          <i class="fa-solid fa-circle-info text-blue-600 mt-0.5 flex-shrink-0"></i>
           <div>
-            <strong>您享有个人版草稿箱直达特权：</strong>检测到您尚未绑定企业邮箱授权码。点击下方按钮将为您唤起极速配置窗口（2分钟即可完成），绑定后即可享受全自动静默直达草稿箱！
+            <strong>出单指引：</strong>确认后，系统将即时渲染并<strong>自动下载最新正式 PDF 报价单</strong>，同时将地道英文回复复制到剪贴板。您只需在自己的日常邮箱中回复买家并附上 PDF 即可发出。
           </div>
         </div>
 
         <div class="flex items-center justify-end space-x-3 pt-2">
-          <button @click="showConfirmModal = false" :disabled="saving" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+          <button @click="showConfirmModal = false" :disabled="saving" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">
             取消返回
           </button>
           <button @click="executeSaveAndRegenerate" :disabled="saving" class="px-5 py-2.5 text-xs font-bold text-white rounded-xl shadow-md transition flex items-center space-x-2 disabled:opacity-50 cursor-pointer"
-                  :class="isPaidUser ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-indigo-500/25' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/25'">
+                  :class="confirmModalMode === 'draft' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-indigo-500/25' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/25'">
             <i v-if="saving" class="fa-solid fa-spinner animate-spin"></i>
-            <i v-else-if="isPaidUser && !hasImapConfigured" class="fa-solid fa-key text-amber-300"></i>
-            <i v-else-if="isPaidUser" class="fa-solid fa-paper-plane text-amber-300"></i>
+            <i v-else-if="confirmModalMode === 'draft'" class="fa-solid fa-paper-plane text-amber-300"></i>
             <i v-else class="fa-solid fa-download text-blue-200"></i>
-            <span v-if="!isPaidUser">{{ saving ? '正在生成并下载...' : '确认并立即下载 PDF 与复制邮件 ➔' }}</span>
-            <span v-else-if="!hasImapConfigured">前往绑定企业邮箱草稿箱 ➔</span>
-            <span v-else>{{ saving ? '正在同步写入草稿箱...' : '确认并直接存入邮箱草稿箱 ➔' }}</span>
+            <span v-if="confirmModalMode === 'draft'">{{ saving ? '正在同步写入草稿箱...' : '确认并直接存入邮箱草稿箱 ➔' }}</span>
+            <span v-else>{{ saving ? '正在生成并下载...' : '确认并立即下载 PDF 与复制邮件 ➔' }}</span>
           </button>
         </div>
       </div>
@@ -3357,7 +3439,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             已成功直达您的常用邮箱/企业邮【{{ draftInjectionStatus.mailbox || '草稿箱' }}】！
           </div>
           <p class="text-[11px] text-emerald-700 leading-relaxed">
-            单号: <span class="font-mono font-bold">{{ quotation.quotationNumber }}</span> · 总额: <span class="font-mono font-bold">{{ quotation.currency }} {{ formatNumber(computedTotalAmount) }}</span><br>
+            单号: <span class="font-mono font-bold">{{ quotation.quotationNumber }}</span> · 总额: <span class="font-mono font-bold">{{ effectiveCurrency }} {{ formatNumber(computedTotalAmount) }}</span><br>
             海外买家收件地址已预填，正式 PDF 报价单已挂载在附件，英文正文已排版完毕。<strong>您只需打开电脑常用邮箱客户端或手机邮箱的草稿箱，点击“发送”即可！</strong>
           </p>
         </div>
@@ -3369,7 +3451,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             正式 PDF 报价单已生成完毕！
           </div>
           <p class="text-[11px] text-slate-600 leading-relaxed">
-            单号: <span class="font-mono font-bold text-slate-900">{{ quotation.quotationNumber }}</span> · 总额: <span class="font-mono font-bold text-blue-700">{{ quotation.currency }} {{ formatNumber(computedTotalAmount) }}</span><br>
+            单号: <span class="font-mono font-bold text-slate-900">{{ quotation.quotationNumber }}</span> · 总额: <span class="font-mono font-bold text-blue-700">{{ effectiveCurrency }} {{ formatNumber(computedTotalAmount) }}</span><br>
             最新 PDF 已自动触发下载，地道英文回信内容已同步复制到剪贴板！
           </p>
         </div>
@@ -3592,8 +3674,8 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
-    <!-- 7天免费全功能试用开通 / 登录弹窗 (与官网 100% 统一的双通道弹窗) -->
-    <div v-if="trialModal.show" v-cloak @click.self="trialModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
+    <!-- 7天免费全功能试用开通 / 登录弹窗 (仅允许点击右上角叉叉关闭，禁止点击空白遮罩关闭) -->
+    <div v-if="trialModal.show" v-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
       <div class="relative max-w-md w-full bg-[#060B1A] border border-blue-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl text-left my-auto text-white animate-in fade-in zoom-in duration-200">
         
         <!-- 内部微光氛围 (独立圆角裁剪，避免截断外部下拉菜单) -->
@@ -3602,7 +3684,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl"></div>
         </div>
 
-        <!-- 关闭按钮 -->
+        <!-- 关闭按钮 (唯一关闭入口) -->
         <button @click="trialModal.show = false" aria-label="关闭账号弹窗" class="absolute top-5 right-5 z-10 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs transition-all active:scale-95 border border-white/15 cursor-pointer">
           <i class="fa-solid fa-xmark"></i>
         </button>
@@ -3617,7 +3699,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             {{ trialModal.isExpired ? '试用期满 · 升级个人版' : (trialModal.mode === 'login' ? '欢迎登录工作台' : '开启外贸智能出单体验') }}
           </h4>
           <p class="text-xs text-slate-400">
-            {{ trialModal.mode === 'login' ? '密码加密保护 · 安全管理私有底价与报价草稿' : '开箱自带演示底价库 · 两种方式任选开启' }}
+            {{ trialModal.isExpired ? '感谢体验 KelvinFlow！为您安全保留数据并持续提供基础额度' : (trialModal.mode === 'login' ? '密码加密保护 · 安全管理私有底价与报价草稿' : '开箱自带演示底价库 · 两种方式任选开启') }}
           </p>
           <!-- 同行邀请专属横幅 -->
           <div v-if="trialModal.ref && !trialModal.isExpired" class="mt-2.5 p-2 rounded-xl bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-blue-500/20 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between shadow-lg shadow-emerald-950/20">
@@ -3629,26 +3711,47 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </div>
         </div>
 
-        <!-- 试用已到期展示 (防薅羊毛拦截状态) -->
-        <div v-if="trialModal.isExpired" class="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs space-y-3 mt-4">
-          <div class="flex items-start space-x-2.5">
-            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg flex-shrink-0 mt-0.5"></i>
-            <div>
-              <strong class="font-bold text-amber-300">【防薅羊毛提醒】免费试用已过期：</strong>
-              <p class="mt-1 leading-relaxed text-slate-200 text-[11px]">{{ trialModal.expiredMessage }}</p>
+        <!-- 试用已到期展示 (结构化清晰卡片呈现，杜绝信息过载与负面措辞) -->
+        <div v-if="trialModal.isExpired" class="space-y-3 mt-4">
+          <div class="space-y-2 text-xs">
+            <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/80 border border-white/10">
+              <i class="fa-solid fa-shield-halved text-emerald-400 text-xs mt-0.5 shrink-0"></i>
+              <div class="leading-relaxed text-[11.5px] text-slate-300">
+                <span class="text-white font-bold">30 天数据安全保留</span>：底价库与历史单据已为您安全保留 30 天，可随时查阅。
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/80 border border-white/10">
+              <i class="fa-solid fa-gift text-cyan-400 text-xs mt-0.5 shrink-0"></i>
+              <div class="leading-relaxed text-[11.5px] text-slate-300">
+                <span class="text-white font-bold">永久每月免费额度</span>：试用到期后，每月仍享有 10 笔免费出单额度。
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 to-transparent border border-amber-500/30">
+              <i class="fa-solid fa-crown text-amber-400 text-xs mt-0.5 shrink-0"></i>
+              <div class="leading-relaxed text-[11.5px] text-amber-100">
+                <span class="text-amber-300 font-bold">首月特惠 ¥39</span>：☕ 少喝一杯星巴克，首月特惠仅 ¥39 即可解锁整月无限次出单与企业 Logo 定制！
+              </div>
             </div>
           </div>
-          <div class="flex items-center justify-center gap-4 pt-1">
-            <img src="/contact_wechat.png" onerror="this.onerror=null; this.src='/kelvinflow_emblem.png';" alt="创始人微信" class="w-24 h-24 rounded-xl border border-white/20 bg-white p-1" />
-            <div class="text-left space-y-1.5">
-              <div class="text-[11px] text-slate-300 font-medium">扫码添加创始人 Kelvin 微信：</div>
-              <div class="text-xs font-mono font-bold text-cyan-300 bg-black/40 px-2 py-1 rounded border border-cyan-500/30 select-all">
-                升级个人版 + {{ maskedPhone || '外贸同行' }}
+
+          <!-- 创始人微信与查看特惠定价 (内嵌按钮一键直达，杜绝闪退失效) -->
+          <div class="p-3 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-between gap-3 pt-2.5">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <img src="/contact_wechat.png" onerror="this.onerror=null; this.src='/kelvinflow_emblem.png';" alt="创始人微信" class="w-14 h-14 rounded-xl border border-white/20 bg-white p-0.5 shrink-0 shadow-md" />
+              <div class="text-left space-y-0.5 min-w-0">
+                <div class="text-[10.5px] text-slate-400">扫码或添加微信：</div>
+                <div class="text-xs font-mono font-bold text-cyan-300 bg-slate-900 px-1.5 py-0.5 rounded border border-cyan-500/30 inline-block select-all">
+                  kt_data
+                </div>
               </div>
-              <a href="/?landing=1#pricing" class="inline-block px-3 py-1 bg-amber-400 text-slate-950 font-bold rounded-lg text-xs hover:bg-amber-300 transition">
-                查看个人版特惠定价 ➔
-              </a>
             </div>
+            <button type="button" @click="trialModal.show = false; openUpgradeModal('monthly')"
+                    class="shrink-0 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs shadow-md active:scale-95 transition flex items-center gap-1 cursor-pointer">
+              <span>查看个人版特惠定价</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
           </div>
         </div>
 
@@ -3803,7 +3906,11 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                   <label class="text-xs font-bold text-slate-300">
                     登录密码 <span class="text-blue-400">*</span>
                   </label>
-                  <span class="text-[10px] text-slate-400">加密保护</span>
+                  <div class="flex items-center gap-2">
+                    <button type="button" @click="openForgotPasswordModal" class="text-[11px] text-cyan-400 hover:text-cyan-300 hover:underline transition cursor-pointer">忘记密码？</button>
+                    <span class="text-slate-600 text-xs">·</span>
+                    <span class="text-[10px] text-slate-400">加密保护</span>
+                  </div>
                 </div>
                 <div class="relative">
                   <input id="trial-login-password" name="password" autocomplete="current-password" :type="trialModal.showPassword ? 'text' : 'password'" v-model.trim="trialModal.password"
@@ -3847,7 +3954,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
           <!-- 底部返回官网 -->
           <div class="pt-3 mt-4 text-center border-t border-white/10">
-            <a href="/?landing=1" class="text-xs text-slate-400 hover:text-white transition flex items-center justify-center gap-1">
+            <a :href="portalLandingUrl" @click.prevent="navigateToPortal" class="text-xs text-slate-400 hover:text-white transition flex items-center justify-center gap-1 cursor-pointer">
               <i class="fa-solid fa-arrow-left text-[10px]"></i>
               <span>返回 KelvinFlow 官方门户</span>
             </a>
@@ -3855,6 +3962,149 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
         </div>
       </div>
+
+    <!-- 密码重置弹窗 (Forgot Password Modal) -->
+    <div v-if="forgotModal.show" v-cloak @click.self="closeForgotPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
+      <div class="relative max-w-md w-full bg-[#060B1A] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl text-left my-auto text-white animate-in fade-in zoom-in duration-200">
+        
+        <!-- 关闭按钮 -->
+        <button @click="closeForgotPasswordModal" aria-label="关闭找回密码窗口" class="absolute top-5 right-5 z-10 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs transition-all active:scale-95 border border-white/15 cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <!-- 顶部 Badge -->
+        <div class="mb-4">
+          <span class="px-2.5 py-1 rounded-full text-[11px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+            <span>账号安全中心 · 找回密码</span>
+          </span>
+        </div>
+
+        <!-- 阶段 1：核验工作邮箱验证码 -->
+        <div v-if="forgotModal.step === 1">
+          <h3 class="text-2xl font-extrabold text-white mb-1.5">重置登录密码</h3>
+          <p class="text-xs text-slate-400 mb-6">输入注册工作邮箱获取验证码，核验通过后即可设置新密码</p>
+
+          <form @submit.prevent="verifyForgotCode" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1.5">
+                注册工作邮箱 <span class="text-cyan-400">*</span>
+              </label>
+              <div class="flex gap-2">
+                <input type="email" v-model.trim="forgotModal.email" placeholder="请输入注册时的工作邮箱" required
+                  class="flex-1 px-3.5 sm:px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-400 transition" />
+                <button type="button" @click="sendForgotPasswordCode" :disabled="forgotModal.sendingCode || forgotModal.cooldown > 0"
+                  class="px-3.5 py-2.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 font-bold text-xs whitespace-nowrap transition cursor-pointer flex items-center justify-center min-w-[96px] disabled:opacity-50">
+                  <span v-if="forgotModal.sendingCode"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                  <span v-else-if="forgotModal.cooldown > 0">{{ forgotModal.cooldown }}s可重发</span>
+                  <span v-else>获取验证码</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-bold text-slate-300">
+                  邮箱验证码 <span class="text-cyan-400">*</span>
+                </label>
+                <span v-if="forgotModal.codeSent" class="text-[10px] text-cyan-400">已发送至工作邮箱</span>
+              </div>
+              <input type="text" v-model.trim="forgotModal.code" maxlength="6" placeholder="请输入 6 位邮箱验证码" required
+                class="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white font-mono tracking-widest text-sm focus:outline-none focus:border-cyan-400 placeholder:font-sans placeholder:tracking-normal placeholder:text-slate-500 transition" />
+            </div>
+
+            <div v-if="forgotModal.errorMessage" class="p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-200 text-xs flex items-center space-x-2 animate-shake">
+              <i class="fa-solid fa-circle-exclamation text-rose-400 flex-shrink-0"></i>
+              <div class="flex-1">{{ forgotModal.errorMessage }}</div>
+            </div>
+
+            <div v-if="forgotModal.successMessage" class="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs flex items-center space-x-2">
+              <i class="fa-solid fa-circle-check text-emerald-400 flex-shrink-0"></i>
+              <div class="flex-1">{{ forgotModal.successMessage }}</div>
+            </div>
+
+            <button type="submit" :disabled="forgotModal.verifying"
+              class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50">
+              <i v-if="forgotModal.verifying" class="fa-solid fa-spinner fa-spin"></i>
+              <span v-else>下一步：设置新密码 ➔</span>
+            </button>
+
+            <div class="text-center pt-2">
+              <button type="button" @click="cancelForgotPasswordAndReturnLogin" class="text-xs text-slate-400 hover:text-white transition cursor-pointer inline-flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                <span>返回密码登录</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- 阶段 2：输入新密码弹窗 (根据用户要求：两个输入框，第一个是重置新密码，第二个是再次输入新密码，密码要相同) -->
+        <div v-else-if="forgotModal.step === 2">
+          <h3 class="text-2xl font-extrabold text-white mb-1.5">输入新密码</h3>
+          <p class="text-xs text-slate-400 mb-6">验证码已核验通过，请设置并确认您的新登录密码</p>
+
+          <form @submit.prevent="submitResetPassword" class="space-y-4">
+            <!-- 第一个输入框：重置新密码 -->
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1.5">
+                重置新密码 <span class="text-cyan-400">*</span>
+              </label>
+              <div class="relative">
+                <input :type="forgotModal.showNewPassword ? 'text' : 'password'" v-model.trim="forgotModal.newPassword"
+                  minlength="6" maxlength="20" placeholder="请输入新密码 (6-20位字符)" required
+                  class="w-full px-4 py-2.5 pr-10 rounded-xl bg-white/[0.05] border border-white/15 text-white text-sm focus:outline-none focus:border-cyan-400 placeholder:text-slate-500 transition" />
+                <button type="button" @click="forgotModal.showNewPassword = !forgotModal.showNewPassword" aria-label="切换新密码显示" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
+                  <i :class="forgotModal.showNewPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- 第二个输入框：再次输入新密码 -->
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1.5">
+                再次输入新密码 <span class="text-cyan-400">*</span>
+              </label>
+              <div class="relative">
+                <input :type="forgotModal.showConfirmPassword ? 'text' : 'password'" v-model.trim="forgotModal.confirmPassword"
+                  minlength="6" maxlength="20" placeholder="请再次输入新密码 (须与上方一致)" required
+                  class="w-full px-4 py-2.5 pr-10 rounded-xl bg-white/[0.05] border border-white/15 text-white text-sm focus:outline-none focus:border-cyan-400 placeholder:text-slate-500 transition" />
+                <button type="button" @click="forgotModal.showConfirmPassword = !forgotModal.showConfirmPassword" aria-label="切换确认密码显示" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer text-xs">
+                  <i :class="forgotModal.showConfirmPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                </button>
+              </div>
+            </div>
+
+            <div v-if="forgotModal.errorMessage" class="p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-200 text-xs flex items-center space-x-2 animate-shake">
+              <i class="fa-solid fa-circle-exclamation text-rose-400 flex-shrink-0"></i>
+              <div class="flex-1">{{ forgotModal.errorMessage }}</div>
+            </div>
+
+            <div v-if="forgotModal.successMessage" class="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs flex items-center space-x-2">
+              <i class="fa-solid fa-circle-check text-emerald-400 flex-shrink-0"></i>
+              <div class="flex-1">{{ forgotModal.successMessage }}</div>
+            </div>
+
+            <!-- 确认更改按钮 -->
+            <button type="submit" :disabled="forgotModal.submitting"
+              class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 shadow-xl shadow-cyan-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50">
+              <i v-if="forgotModal.submitting" class="fa-solid fa-spinner fa-spin"></i>
+              <template v-else>
+                <i class="fa-solid fa-check text-white text-xs"></i>
+                <span>确认更改</span>
+              </template>
+            </button>
+
+            <div class="text-center pt-2">
+              <button type="button" @click="forgotModal.step = 1" class="text-xs text-slate-400 hover:text-white transition cursor-pointer inline-flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                <span>返回上一步</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
 
     <!-- 同行专属推荐分享弹窗 (与官网 100% 保持一致) -->
     <div v-if="referralModal.show" v-cloak @click.self="closeReferralShareModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
@@ -3978,6 +4228,115 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
+    <!-- 🏢 企业商业资料设置弹窗 (Company Profile Settings Modal) -->
+    <div v-if="companyProfileModal.show" id="company-profile-modal-overlay" v-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+      <div class="relative max-w-[560px] w-full bg-[#0B132B] border border-indigo-500/30 rounded-3xl p-6 sm:p-7 shadow-2xl text-left text-white animate-in fade-in zoom-in duration-200 space-y-5 max-h-[90vh] overflow-y-auto compact-scroll">
+        
+        <!-- 弹窗标题栏 -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-lg flex-shrink-0">
+              <i class="fa-solid fa-building-user"></i>
+            </div>
+            <div class="min-w-0">
+              <h3 class="text-base font-extrabold text-white">企业商业资料设置</h3>
+              <p class="text-xs text-slate-400 mt-0.5">维护企业英文抬头与业务信息，自动同步 PDF 报价单与英文回信</p>
+            </div>
+          </div>
+          <button @click="companyProfileModal.show = false" aria-label="关闭企业资料设置" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer flex-shrink-0">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- 表单区域 -->
+        <div class="space-y-4">
+          <!-- 1. 企业英文商业抬头 -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-bold text-slate-200">企业英文抬头 / 公司英文全称 <span class="text-rose-400">*</span></label>
+              <span class="text-[10px] text-indigo-300">印于 PDF 抬头及回信签名</span>
+            </div>
+            <input v-model="companyProfileModal.form.companyName" 
+                   type="text" 
+                   placeholder="如 KelvinFlow Global Technology Co., Ltd." 
+                   class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-400 focus:outline-none text-white text-xs placeholder:text-slate-500 transition">
+            <p class="text-[11px] text-slate-400 mt-1">杜绝占位符；建议填写标准国际商号（英文或拼音），直接影响正式商业出单信誉。</p>
+          </div>
+
+          <!-- 2. 出口业务经理 / 负责人 -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-bold text-slate-200">出口业务负责人 / 经理英文名</label>
+              <span class="text-[10px] text-slate-400">PDF 签核人</span>
+            </div>
+            <input v-model="companyProfileModal.form.managerName" 
+                   type="text" 
+                   placeholder="如 Kelvin Tsui / Marcus Weber (标准英文姓名)" 
+                   class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-400 focus:outline-none text-white text-xs placeholder:text-slate-500 transition">
+            <p class="text-[11px] text-slate-400 mt-1">展示于 PDF Header [Export Manager] 与底部 [Export Director] 授权签字行（仅支持标准英文字符，空值将自动隐去避免乱码）。</p>
+          </div>
+
+          <!-- 3. 联系邮箱与电话 (并排) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-200 mb-1">企业联络邮箱</label>
+              <input v-model="companyProfileModal.form.contactEmail" 
+                     type="email" 
+                     placeholder="sales@yourcompany.com" 
+                     class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-400 focus:outline-none text-white text-xs placeholder:text-slate-500 transition">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-200 mb-1">国际联系电话</label>
+              <input v-model="companyProfileModal.form.contactPhone" 
+                     type="text" 
+                     placeholder="+86 757 8888 8888" 
+                     class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-400 focus:outline-none text-white text-xs placeholder:text-slate-500 transition">
+            </div>
+          </div>
+
+          <!-- 4. 企业经营/生产地址 -->
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-1">企业英文注册/经营地址</label>
+            <input v-model="companyProfileModal.form.companyAddress" 
+                   type="text" 
+                   placeholder="如 International High-Tech Center, Foshan, Guangdong, China" 
+                   class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-400 focus:outline-none text-white text-xs placeholder:text-slate-500 transition">
+          </div>
+
+          <!-- 5. 企业业务标语 / 副标 (可选) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-1">企业副标 / 主营 Slogan (可选)</label>
+            <input v-model="companyProfileModal.form.companySubtitle" 
+                   type="text" 
+                   placeholder="如 Manufacturer & Exporter of Precision Ergonomic Hardware" 
+                   class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-400 focus:outline-none text-white text-xs placeholder:text-slate-500 transition">
+          </div>
+
+          <!-- 6. 官方网站 (可选) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-1">官方企业网站 (可选)</label>
+            <input v-model="companyProfileModal.form.website" 
+                   type="text" 
+                   placeholder="https://www.yourcompany.com" 
+                   class="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-400 focus:outline-none text-white text-xs placeholder:text-slate-500 transition">
+          </div>
+        </div>
+
+        <!-- 底部操作按钮 (参考二次确认交互风格) -->
+        <div class="flex items-center justify-end space-x-3 pt-3 border-t border-white/10">
+          <button type="button" @click="companyProfileModal.show = false" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer">
+            取消
+          </button>
+          <button type="button" @click="saveCompanyProfile" :disabled="companyProfileModal.saving" class="inline-flex items-center space-x-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 active:scale-95 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-spinner fa-spin" v-if="companyProfileModal.saving"></i>
+            <i class="fa-solid fa-check" v-else></i>
+            <span>{{ companyProfileModal.saving ? '保存中...' : '保存并即时生效' }}</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
     <!-- 全局独立悬浮 Toast 提示 (z-[9999] 居中高亮浮动药丸卡片，紧凑超轻单行无折行) -->
     <div class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none w-auto max-w-[95vw] px-2 flex justify-center" style="z-index: 9999;">
       <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="-translate-y-4 opacity-0 scale-95" enter-to-class="translate-y-0 opacity-100 scale-100" leave-active-class="transform ease-in duration-200 transition" leave-from-class="opacity-100 scale-100" leave-to-class="-translate-y-2 opacity-0 scale-95">
@@ -4007,6 +4366,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         const saving = ref(false);
         const previewLoading = ref(false);
         const showConfirmModal = ref(false);
+        const confirmModalMode = ref('standard');
         const quotesHistoryModal = ref({ show: false });
         const quoteHistorySearchKeyword = ref('');
         const rateDiagnosticModalVisible = ref(false);
@@ -4269,6 +4629,118 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           }
         };
 
+        // =========================================================================
+        // 🏢 企业商业资料设置响应式状态与交互 (Company Profile Settings)
+        // =========================================================================
+        const companyProfileModal = ref({
+          show: false,
+          saving: false,
+          form: {
+            companyName: '',
+            managerName: '',
+            contactEmail: '',
+            contactPhone: '',
+            companyAddress: '',
+            companySubtitle: '',
+            website: ''
+          }
+        });
+
+        const openCompanyProfileModal = () => {
+          const token = getTokenFromUrl() || authToken.value || localStorage.getItem('saas_auth_token') || '';
+          if (!token && !currentUser.value) {
+            showToast('💡 请先登录所属企业账号后再设置企业资料～', 'info');
+            openTrialModal('login');
+            return;
+          }
+
+          // 1. 优先从内存缓存瞬时填充，保证 0ms 秒开无延迟
+          const cached = currentTenant.value || {};
+          companyProfileModal.value.form = {
+            companyName: cached.companyName || '',
+            managerName: cached.managerName || '',
+            contactEmail: cached.contactEmail || currentUser.value?.email || '',
+            contactPhone: cached.contactPhone || '',
+            companyAddress: cached.companyAddress || '',
+            companySubtitle: cached.companySubtitle || '',
+            website: cached.website || ''
+          };
+
+          // 2. 立即唤起弹窗 (0延迟瞬间弹出，消除原本 2 秒网络请求卡顿)
+          companyProfileModal.value.show = true;
+
+          // 3. 静默后台异步核对最新配置，不阻塞弹窗弹出
+          if (token) {
+            const headers = { 'Authorization': `Bearer ${token}` };
+            fetch('/api/v1/tenant/profile', { headers })
+              .then(res => res.json())
+              .then(data => {
+                if (data.success && data.profile && companyProfileModal.value.show) {
+                  currentTenant.value = data.profile;
+                  const p = data.profile;
+                  if (!companyProfileModal.value.form.companyName && p.companyName) {
+                    companyProfileModal.value.form.companyName = p.companyName;
+                  }
+                  if (!companyProfileModal.value.form.managerName && p.managerName) {
+                    companyProfileModal.value.form.managerName = p.managerName;
+                  }
+                  if (!companyProfileModal.value.form.contactEmail && p.contactEmail) {
+                    companyProfileModal.value.form.contactEmail = p.contactEmail;
+                  }
+                  if (!companyProfileModal.value.form.contactPhone && p.contactPhone) {
+                    companyProfileModal.value.form.contactPhone = p.contactPhone;
+                  }
+                  if (!companyProfileModal.value.form.companyAddress && p.companyAddress) {
+                    companyProfileModal.value.form.companyAddress = p.companyAddress;
+                  }
+                  if (!companyProfileModal.value.form.companySubtitle && p.companySubtitle) {
+                    companyProfileModal.value.form.companySubtitle = p.companySubtitle;
+                  }
+                  if (!companyProfileModal.value.form.website && p.website) {
+                    companyProfileModal.value.form.website = p.website;
+                  }
+                }
+              })
+              .catch(err => console.warn('后台拉取企业资料失败:', err));
+          }
+        };
+
+        const saveCompanyProfile = async () => {
+          if (!companyProfileModal.value.form.companyName || !companyProfileModal.value.form.companyName.trim()) {
+            showToast('请输入企业名称/英文商业抬头', 'warning');
+            return;
+          }
+
+          companyProfileModal.value.saving = true;
+          try {
+            const token = getTokenFromUrl() || authToken.value || localStorage.getItem('saas_auth_token') || '';
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const res = await fetch('/api/v1/tenant/profile', {
+              method: 'PUT',
+              headers,
+              body: JSON.stringify(companyProfileModal.value.form)
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast('企业资料已成功更新并即时生效！', 'success');
+              if (data.profile) {
+                currentTenant.value = data.profile;
+                if (data.profile.companyName) tenantCompanyName.value = data.profile.companyName;
+                if (data.profile.companySubtitle) tenantCompanySubtitle.value = data.profile.companySubtitle;
+              }
+              companyProfileModal.value.show = false;
+            } else {
+              showToast(data.error || '保存企业资料失败', 'error');
+            }
+          } catch (err) {
+            showToast('保存失败: ' + err.message, 'error');
+          } finally {
+            companyProfileModal.value.saving = false;
+          }
+        };
+
         const isPaidUser = computed(() => {
           if (trialState.value?.isPaid) return true;
           if (trialState.value?.isTrial && !trialState.value?.isPaid) return false;
@@ -4439,6 +4911,10 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         let tourTrackTimer = null;
 
         const startTour = (initialStep = 1) => {
+          // 试用到期或到期弹窗激活时，不自动启动新手引导
+          if (trialState.value.expired || (trialModal.value.show && trialModal.value.isExpired)) {
+            return;
+          }
           const stepNum = typeof initialStep === 'number' ? initialStep : 1;
           tourStep.value = stepNum;
           tourActive.value = true;
@@ -4524,8 +5000,13 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
               ];
         });
 
+        const effectiveCurrency = computed(() => {
+          const c = quotation.value?.currency;
+          return (!c || c === 'N/A') ? 'USD' : c;
+        });
+
         const currentCurrencyObj = computed(() => {
-          const cur = quotation.value?.currency || 'USD';
+          const cur = effectiveCurrency.value;
           return availableCurrencies.value.find(c => c.currency === cur) || { currency: cur, rateToRMB: 7.20, symbol: '$' };
         });
 
@@ -4576,7 +5057,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         };
 
         const currentLiveRate = computed(() => {
-          const cur = (quotation.value?.currency || 'USD').toUpperCase();
+          const cur = effectiveCurrency.value.toUpperCase();
           if (!liveRates.value?.rates) return null;
           return liveRates.value.rates[cur] || null;
         });
@@ -4854,6 +5335,29 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           item: null,
           index: -1
         });
+
+        // 🗑️ 报价单整单删除弹窗状态
+        const deleteQuoteModal = ref({
+          show: false,
+          quotationNumber: '',
+          loading: false
+        });
+
+        // 🗑️ 底价库商品条目删除弹窗状态
+        const deleteCatalogModal = ref({
+          show: false,
+          sku: '',
+          name: '',
+          loading: false
+        });
+
+        // 受保护的系统底价库商品型号白名单 (TEST-001 ~ TEST-004)
+        const PROTECTED_CATALOG_SKUS = ['TEST-001', 'TEST-002', 'TEST-003', 'TEST-004'];
+        const isProtectedCatalogSku = (sku) => {
+          if (!sku) return false;
+          return PROTECTED_CATALOG_SKUS.includes(String(sku).trim().toUpperCase());
+        };
+
 
         // 🏢 底价库选型中心大弹窗状态
         const catalogModal = ref({
@@ -5285,20 +5789,21 @@ Acme Global Sourcing GmbH, Munich, Germany`;
 
         const selectEmailProvider = (provider) => {
           imapModal.value.provider = provider;
-          if (provider === 'tencent' || provider === 'qq_corp') {
-            imapModal.value.host = 'imap.exmail.qq.com';
-            imapModal.value.port = 993;
-          } else if (provider === 'qq' || provider === 'foxmail') {
-            imapModal.value.host = 'imap.qq.com';
+          const email = (imapModal.value.email || '').trim().toLowerCase();
+          if (provider === 'tencent' || provider === 'qq_corp' || provider === 'foxmail') {
+            imapModal.value.host = email.endsWith('@qq.com') ? 'imap.qq.com' : 'imap.exmail.qq.com';
             imapModal.value.port = 993;
           } else if (provider === 'aliyun') {
             imapModal.value.host = 'imap.qiye.aliyun.com';
             imapModal.value.port = 993;
-          } else if (provider === 'netease' || provider === '163') {
-            imapModal.value.host = 'imap.qiye.163.com';
-            imapModal.value.port = 993;
-          } else if (provider === '163_personal') {
-            imapModal.value.host = 'imap.163.com';
+          } else if (provider === 'netease' || provider === '163' || provider === '163_personal') {
+            if (email.endsWith('@163.com')) {
+              imapModal.value.host = 'imap.163.com';
+            } else if (email.endsWith('@126.com')) {
+              imapModal.value.host = 'imap.126.com';
+            } else {
+              imapModal.value.host = 'imap.qiye.163.com';
+            }
             imapModal.value.port = 993;
           } else if (provider === 'microsoft' || provider === 'outlook') {
             imapModal.value.host = 'outlook.office365.com';
@@ -5312,16 +5817,12 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         const autoDetectEmailProvider = () => {
           const email = (imapModal.value.email || '').trim().toLowerCase();
           if (!email.includes('@')) return;
-          if (email.endsWith('@exmail.qq.com') || email.endsWith('@foxmail.com')) {
+          if (email.endsWith('@exmail.qq.com') || email.endsWith('@foxmail.com') || email.endsWith('@qq.com')) {
             selectEmailProvider('tencent');
-          } else if (email.endsWith('@qq.com')) {
-            selectEmailProvider('qq');
           } else if (email.endsWith('@aliyun.com') || email.endsWith('@dingtalk.com')) {
             selectEmailProvider('aliyun');
-          } else if (email.endsWith('@qiye.163.com')) {
+          } else if (email.endsWith('@qiye.163.com') || email.endsWith('@163.com') || email.endsWith('@126.com') || email.endsWith('@yeah.net')) {
             selectEmailProvider('netease');
-          } else if (email.endsWith('@163.com') || email.endsWith('@126.com') || email.endsWith('@yeah.net')) {
-            selectEmailProvider('163_personal');
           } else if (email.endsWith('@outlook.com') || email.endsWith('@hotmail.com') || email.endsWith('@live.com') || email.endsWith('@office365.com')) {
             selectEmailProvider('microsoft');
           } else if (email.endsWith('@gmail.com') || email.endsWith('@googlemail.com')) {
@@ -5342,6 +5843,13 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             if (currentTenant.value.imapConfig.port) {
               imapModal.value.port = currentTenant.value.imapConfig.port;
             }
+          }
+          // 自动填充登录注册邮箱 (无需手动重复输入)
+          if (!imapModal.value.email) {
+            imapModal.value.email = currentUser.value?.email || trialState.value?.email || localStorage.getItem('kelvinflow_user_email') || '';
+          }
+          if (imapModal.value.email) {
+            autoDetectEmailProvider();
           }
         };
 
@@ -5531,7 +6039,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           }
         };
 
-        // 7天免费试用与防薅羊毛状态管理 (已在 setup 顶部统一声明)
+        // 7天免费试用与到期状态管理 (已在 setup 顶部统一声明)
 
         const trialModal = ref({
           show: false,
@@ -5628,11 +6136,13 @@ Acme Global Sourcing GmbH, Munich, Germany`;
 
         const portalLandingUrl = computed(() => {
           const token = authToken.value || getTokenFromUrl() || localStorage.getItem('saas_auth_token') || '';
-          const base = window.location.hostname.includes('kelvinflow.com')
-            ? 'https://kelvinflow.com/?landing=1'
-            : '/?landing=1';
-          return token ? `${base}&token=${encodeURIComponent(token)}` : base;
+          const base = '/index.html';
+          return token ? `${base}?token=${encodeURIComponent(token)}` : base;
         });
+
+        const navigateToPortal = () => {
+          window.location.href = portalLandingUrl.value;
+        };
 
         const emailFullscreenModal = ref(false);
         const openEmailFullscreen = () => { emailFullscreenModal.value = true; };
@@ -5978,11 +6488,178 @@ Acme Global Sourcing GmbH, Munich, Germany`;
             }
 
             await applyTrialAuthSuccess(data, trialModal.value.email);
+            if (data.expired) {
+              openTrialExpiredModal();
+            }
           } catch (err) {
             console.error('登录异常:', err);
             trialModal.value.errorMessage = '网络连接异常，请稍后重试';
           } finally {
             trialModal.value.loading = false;
+          }
+        };
+
+        const forgotModal = ref({
+          show: false,
+          step: 1, // 1: verify email & code, 2: input new passwords
+          email: '',
+          code: '',
+          resetToken: '',
+          newPassword: '',
+          confirmPassword: '',
+          showNewPassword: false,
+          showConfirmPassword: false,
+          sendingCode: false,
+          codeSent: false,
+          cooldown: 0,
+          verifying: false,
+          submitting: false,
+          errorMessage: '',
+          successMessage: ''
+        });
+
+        let forgotCooldownTimer = null;
+
+        const openForgotPasswordModal = () => {
+          trialModal.value.show = false;
+          forgotModal.value.show = true;
+          forgotModal.value.step = 1;
+          forgotModal.value.email = trialModal.value.email || localStorage.getItem('kelvinflow_user_email') || '';
+          forgotModal.value.code = '';
+          forgotModal.value.resetToken = '';
+          forgotModal.value.newPassword = '';
+          forgotModal.value.confirmPassword = '';
+          forgotModal.value.showNewPassword = false;
+          forgotModal.value.showConfirmPassword = false;
+          forgotModal.value.errorMessage = '';
+          forgotModal.value.successMessage = '';
+          forgotModal.value.codeSent = false;
+        };
+
+        const closeForgotPasswordModal = () => {
+          forgotModal.value.show = false;
+        };
+
+        const cancelForgotPasswordAndReturnLogin = () => {
+          forgotModal.value.show = false;
+          openTrialModal('login');
+        };
+
+        const sendForgotPasswordCode = async () => {
+          const email = forgotModal.value.email.trim();
+          if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            forgotModal.value.errorMessage = '请输入合法的注册工作邮箱地址';
+            return;
+          }
+          forgotModal.value.sendingCode = true;
+          forgotModal.value.errorMessage = '';
+          try {
+            const res = await fetch('/api/v1/auth/forgot-password/send-code', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if (!data.success) {
+              forgotModal.value.errorMessage = data.error || '验证码发送受阻，请稍后再试';
+              return;
+            }
+            forgotModal.value.codeSent = true;
+            forgotModal.value.successMessage = '验证码已发送至工作邮箱，请查收（有效期10分钟）';
+            forgotModal.value.cooldown = 60;
+            if (forgotCooldownTimer) clearInterval(forgotCooldownTimer);
+            forgotCooldownTimer = setInterval(() => {
+              forgotModal.value.cooldown--;
+              if (forgotModal.value.cooldown <= 0) {
+                clearInterval(forgotCooldownTimer);
+                forgotCooldownTimer = null;
+              }
+            }, 1000);
+          } catch (err) {
+            forgotModal.value.errorMessage = '网络连接异常，请重试';
+          } finally {
+            forgotModal.value.sendingCode = false;
+          }
+        };
+
+        const verifyForgotCode = async () => {
+          const email = forgotModal.value.email.trim();
+          const code = forgotModal.value.code.trim();
+          if (!email || !code || code.length !== 6) {
+            forgotModal.value.errorMessage = '请输入 6 位邮箱验证码';
+            return;
+          }
+          forgotModal.value.verifying = true;
+          forgotModal.value.errorMessage = '';
+          try {
+            const res = await fetch('/api/v1/auth/forgot-password/verify-code', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, code })
+            });
+            const data = await res.json();
+            if (!data.success) {
+              forgotModal.value.errorMessage = data.error || '验证码错误或已失效';
+              return;
+            }
+            forgotModal.value.resetToken = data.resetToken || '';
+            forgotModal.value.errorMessage = '';
+            forgotModal.value.successMessage = '';
+            forgotModal.value.step = 2; // 进入输入新密码弹窗
+          } catch (err) {
+            forgotModal.value.errorMessage = '网络连接异常，请重试';
+          } finally {
+            forgotModal.value.verifying = false;
+          }
+        };
+
+        const submitResetPassword = async () => {
+          const email = forgotModal.value.email.trim();
+          const newPassword = forgotModal.value.newPassword.trim();
+          const confirmPassword = forgotModal.value.confirmPassword.trim();
+
+          if (!newPassword || newPassword.length < 6) {
+            forgotModal.value.errorMessage = '新密码长度至少须为 6 位字符';
+            return;
+          }
+          if (newPassword !== confirmPassword) {
+            forgotModal.value.errorMessage = '两次输入的密码不一致，请重新输入';
+            return;
+          }
+
+          forgotModal.value.submitting = true;
+          forgotModal.value.errorMessage = '';
+          try {
+            const res = await fetch('/api/v1/auth/forgot-password/reset', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email,
+                resetToken: forgotModal.value.resetToken,
+                code: forgotModal.value.code,
+                newPassword,
+                confirmPassword
+              })
+            });
+            const data = await res.json();
+            if (!data.success) {
+              forgotModal.value.errorMessage = data.error || '密码更改失败，请稍后重试';
+              return;
+            }
+
+            forgotModal.value.successMessage = '🎉 更改成功！正在返回登录窗口...';
+            showToast('🎉 密码更改成功！请使用新密码登录', 'success');
+
+            setTimeout(() => {
+              forgotModal.value.show = false;
+              openTrialModal('login');
+              trialModal.value.email = email;
+              trialModal.value.password = '';
+            }, 1200);
+          } catch (err) {
+            forgotModal.value.errorMessage = '网络连接异常，请重试';
+          } finally {
+            forgotModal.value.submitting = false;
           }
         };
 
@@ -6178,7 +6855,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
 Thank you for your inquiry. Based on your requested items and specifications, please find attached our official quotation (${quotation.value.quotationNumber}).
 
 Quotation Summary:
-- Total Amount: ${quotation.value.currency} ${formatNumber(computedTotalAmount.value)}
+- Total Amount: ${effectiveCurrency.value} ${formatNumber(computedTotalAmount.value)}
 - Terms: ${quotation.value.incotermUsed || 'FOB Shenzhen'}
 - Payment: ${terms.value.payment}
 - Price Validity: ${terms.value.validity}
@@ -6262,6 +6939,12 @@ Sales Team | KelvinFlow Global Technology`;
                   }
                 });
               }
+              if (quotation.value && Array.isArray(quotation.value.warnings)) {
+                quotation.value.warnings = quotation.value.warnings.map(w =>
+                  w.replace(/Currency \[(?:N\/A|undefined|)\] not found in exchange rate list\./gi, 'Currency not specified, defaulted to USD.')
+                   .replace(/Currency \[N\/A\] not found in exchange rate list/gi, 'Currency not specified, defaulted to USD')
+                );
+              }
               fetchUserQuotes();
               if (data.quotation.paymentTerms) {
                 terms.value.payment = data.quotation.paymentTerms;
@@ -6298,6 +6981,9 @@ Sales Team | KelvinFlow Global Technology`;
               }
               editableEmailSubject.value = data.quotation.customEmailSubject || `Quotation ${quotation.value.quotationNumber} for PO - ${data.tenant?.companyName || 'FoShan Kelvin'}`;
               editableEmailBody.value = data.quotation.customEmailBody || generateStandardEmailText();
+              if (editableEmailBody.value && (!quotation.value.currency || quotation.value.currency === 'N/A')) {
+                editableEmailBody.value = editableEmailBody.value.replace(/Total Amount:\s*N\/A\s*/gi, `Total Amount: ${effectiveCurrency.value} `);
+              }
             } else {
               error.value = data.error || '未找到该报价单记录，可能已被清理或 ID 有误。';
               const token = getTokenFromUrl() || authToken.value || localStorage.getItem('saas_auth_token') || '';
@@ -6362,10 +7048,12 @@ Sales Team | KelvinFlow Global Technology`;
             editableEmailBody.value = generateStandardEmailText();
           } finally {
             loading.value = false;
-            // 自动唤醒新手聚光灯引导 (沉浸式镂空蒙版)
+            // 自动唤醒新手聚光灯引导 (沉浸式镂空蒙版，试用到期时自动压制)
             const urlParams = new URLSearchParams(window.location.search);
             const tourParam = urlParams.get('tour');
-            if (tourParam) {
+            if (trialState.value.expired || (trialModal.value.show && trialModal.value.isExpired)) {
+              // 试用到期不触发向导
+            } else if (tourParam) {
               setTimeout(() => {
                 startTour(parseInt(tourParam, 10) || 1);
               }, 400);
@@ -6497,6 +7185,109 @@ Sales Team | KelvinFlow Global Technology`;
           }
           deleteModal.value.show = false;
         };
+
+        // -----------------------------------------------------------------
+        // 🗑️ 报价单整单删除交互逻辑 (muse_14 新增)
+        // -----------------------------------------------------------------
+        const confirmDeleteQuote = (qNum) => {
+          if (!qNum) return;
+          deleteQuoteModal.value = {
+            show: true,
+            quotationNumber: qNum,
+            loading: false
+          };
+        };
+
+        const confirmDeleteCurrentQuote = () => {
+          if (quotation.value?.quotationNumber) {
+            confirmDeleteQuote(quotation.value.quotationNumber);
+          }
+        };
+
+        const executeDeleteQuote = async () => {
+          const qNum = deleteQuoteModal.value.quotationNumber;
+          if (!qNum) return;
+          deleteQuoteModal.value.loading = true;
+          try {
+            const token = getTokenFromUrl() || authToken.value || localStorage.getItem('saas_auth_token') || '';
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const res = await fetch(`/api/v1/quotes/${encodeURIComponent(qNum)}${token ? `?token=${encodeURIComponent(token)}` : ''}`, {
+              method: 'DELETE',
+              headers
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              showToast(`报价单 [${qNum}] 已彻底删除`, 'success');
+              // 1. 从当前历史单据列表中移除
+              userQuotesList.value = userQuotesList.value.filter(q => q.quotationNumber !== qNum);
+              deleteQuoteModal.value.show = false;
+
+              // 2. 如果删除的是当前正处于打开查看状态的单据
+              if (quotation.value?.quotationNumber === qNum) {
+                if (userQuotesList.value.length > 0) {
+                  const nextQ = userQuotesList.value[0];
+                  switchQuotation(nextQ.quotationNumber);
+                } else {
+                  const redirectToken = token ? `?token=${encodeURIComponent(token)}` : '';
+                  window.location.href = `/review/latest${redirectToken}`;
+                }
+              }
+            } else {
+              showToast(data.error || '删除失败，请稍后重试', 'error');
+            }
+          } catch (err) {
+            showToast('网络请求异常，删除失败', 'error');
+          } finally {
+            deleteQuoteModal.value.loading = false;
+          }
+        };
+
+        // -----------------------------------------------------------------
+        // 🗑️ 底价库条目删除交互逻辑 (muse_14 新增)
+        // -----------------------------------------------------------------
+        const confirmDeleteCatalogItem = (prod) => {
+          if (!prod || !prod.sku) return;
+          if (isProtectedCatalogSku(prod.sku)) {
+            showToast(`商品型号 [${prod.sku}] 为系统受保护基准商品，禁止删除！`, 'warning');
+            return;
+          }
+          deleteCatalogModal.value = {
+            show: true,
+            sku: prod.sku,
+            name: prod.name || getCatalogItemShortName(prod.sku) || prod.sku,
+            loading: false
+          };
+        };
+
+        const executeDeleteCatalogItem = async () => {
+          const sku = deleteCatalogModal.value.sku;
+          if (!sku) return;
+          deleteCatalogModal.value.loading = true;
+          try {
+            const token = getTokenFromUrl() || authToken.value || localStorage.getItem('saas_auth_token') || '';
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const res = await fetch(`/api/v1/catalog/${encodeURIComponent(sku)}${token ? `?token=${encodeURIComponent(token)}` : ''}`, {
+              method: 'DELETE',
+              headers
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              showToast(`商品型号 [${sku}] 已从出厂底价库中移除`, 'success');
+              // 从前端内存中的底价商品列表移除
+              catalogItems.value = catalogItems.value.filter(c => c.sku !== sku && c.sku.toUpperCase() !== sku.toUpperCase());
+              deleteCatalogModal.value.show = false;
+            } else {
+              showToast(data.error || '删除底价库条目失败', 'error');
+            }
+          } catch (err) {
+            showToast('网络请求异常，删除失败', 'error');
+          } finally {
+            deleteCatalogModal.value.loading = false;
+          }
+        };
+
 
         const computedTotalAmount = computed(() => {
           if (!quotation.value?.items) return 0;
@@ -7072,11 +7863,19 @@ Sales Team | KelvinFlow Global Technology`;
 
         const copyDraftAndOpenGmail = executeCopyAndSendEmail;
 
-        const openConfirmModal = () => {
+        const openConfirmModal = (mode = 'standard') => {
           if (hasZeroPriceItems.value) {
             showToast('⚠️ 检测到部分商品单价为 0，请先在表格中补充底价或单价，防止漏报价！', 'error');
             return;
           }
+          if (mode === 'draft') {
+            if (!hasImapConfigured.value) {
+              showToast('请先配置外贸发信邮箱客户端专用授权码，即可开启草稿箱直达！', 'info');
+              openImapModal();
+              return;
+            }
+          }
+          confirmModalMode.value = mode;
           showConfirmModal.value = true;
         };
 
@@ -7099,6 +7898,8 @@ Sales Team | KelvinFlow Global Technology`;
             terms.value.remarks
           ].filter(Boolean).join('\n');
 
+          const isDraftMode = confirmModalMode.value === 'draft' && isPaidUser.value && hasImapConfigured.value;
+
           try {
             const res = await fetch(`/api/v1/quotes/${id}${token ? `?token=${token}` : ''}`, {
               method: 'POST',
@@ -7108,14 +7909,14 @@ Sales Team | KelvinFlow Global Technology`;
                 terms: terms.value,
                 customEmailSubject: editableEmailSubject.value,
                 customEmailBody: editableEmailBody.value,
-                injectDraft: isPaidUser.value && hasImapConfigured.value
+                injectDraft: isDraftMode
               })
             });
             const data = await res.json();
             if (data.success) {
               showConfirmModal.value = false;
 
-              if (isPaidUser.value && hasImapConfigured.value) {
+              if (isDraftMode) {
                 // 付费个人版模式：草稿箱直达
                 if (data.draftInjection?.success) {
                   draftInjectionStatus.value = {
@@ -7123,7 +7924,7 @@ Sales Team | KelvinFlow Global Technology`;
                     mailbox: data.draftInjection.mailbox || '草稿箱',
                     error: ''
                   };
-                  showToast(`🎉 成功存入您的 Foxmail/企业邮【${data.draftInjection.mailbox || '草稿箱'}】！打开邮箱即可一键直发！`, 'success');
+                  showToast(`🎉 成功存入您的邮箱【${data.draftInjection.mailbox || '草稿箱'}】！打开邮箱即可一键直发！`, 'success');
                 } else {
                   draftInjectionStatus.value = {
                     injected: false,
@@ -7133,7 +7934,7 @@ Sales Team | KelvinFlow Global Technology`;
                   showToast(`⚠️ 草稿箱自动写入提示: ${data.draftInjection?.error || '连接超时'}，已为您保留 PDF 与邮件供手动发送`, 'warning');
                 }
               } else {
-                // 试用模式：自动触发下载最新 PDF，并复制英文邮件至剪贴板
+                // 基础出单模式：自动触发下载最新 PDF，并复制英文邮件至剪贴板
                 draftInjectionStatus.value = { injected: false, mailbox: '', error: '' };
                 copyDraftEmail();
                 downloadPdfFile(id, data.draftEmail?.pdfFileName);
@@ -7168,17 +7969,23 @@ Sales Team | KelvinFlow Global Technology`;
             successModal.value?.show ||
             warningModal.value?.show ||
             deleteModal.value?.show ||
+            deleteQuoteModal.value?.show ||
+            deleteCatalogModal.value?.show ||
             catalogModal.value?.show ||
             wechatQrModal.value?.show ||
             inquiryFullscreenModal.value ||
             descModal.value?.show ||
-            termsModal.value?.show
+            termsModal.value?.show ||
+            companyProfileModal.value?.show
           );
         });
 
         watch(isAnyModalOpen, (isOpen) => {
           if (isOpen) {
             document.body.classList.add('overflow-hidden');
+            if (tourActive.value) {
+              finishTour();
+            }
           } else {
             document.body.classList.remove('overflow-hidden');
           }
@@ -7227,28 +8034,32 @@ Sales Team | KelvinFlow Global Technology`;
           if (refCode && !isLoggedIn.value) {
             trialModal.value.channel = 'form';
             openTrialModal();
-          } else if (!isLoggedIn.value && !localStorage.getItem('kelvinflow_tour_dismissed')) {
+          } else if (!isLoggedIn.value && !localStorage.getItem('kelvinflow_tour_dismissed') && !trialState.value.expired) {
             // 首次到访访客若未开通，延迟启动新手向导
             setTimeout(() => {
-              if (!trialModal.value.show) {
+              if (!trialModal.value.show && !trialState.value.expired) {
                 startTour(1);
               }
             }, 800);
           }
-          // 4. 监听全局 Escape 快捷键关闭当前所有弹窗
+          // 4. 监听全局 Escape 快捷键关闭当前所有弹窗 (优先关闭最上层二次确认弹窗)
           window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+              if (companyProfileModal.value.show) { companyProfileModal.value.show = false; return; }
+              if (deleteQuoteModal.value.show) { deleteQuoteModal.value.show = false; return; }
+              if (deleteCatalogModal.value.show) { deleteCatalogModal.value.show = false; return; }
+              if (deleteModal.value.show) { deleteModal.value.show = false; return; }
               if (referralModal.value.show) referralModal.value.show = false;
               if (imapModal.value.show) imapModal.value.show = false;
               if (upgradeModal.value.show) upgradeModal.value.show = false;
               if (pricingModal.value.show) pricingModal.value.show = false;
               if (newPoModal.value.show) newPoModal.value.show = false;
               if (trialModal.value.show) trialModal.value.show = false;
+              if (forgotModal.value.show) forgotModal.value.show = false;
               if (logoutModal.value.show) logoutModal.value.show = false;
               if (emailFullscreenModal.value) emailFullscreenModal.value = false;
               if (successModal.value.show) successModal.value.show = false;
               if (warningModal.value.show) warningModal.value.show = false;
-              if (deleteModal.value.show) deleteModal.value.show = false;
               if (channelDropdownOpen.value) channelDropdownOpen.value = false;
               if (activeSkuPickerIdx.value !== null) activeSkuPickerIdx.value = null;
               if (catalogModal.value.show) catalogModal.value.show = false;
@@ -7291,6 +8102,7 @@ Sales Team | KelvinFlow Global Technology`;
           saving,
           previewLoading,
           showConfirmModal,
+          confirmModalMode,
           tourActive,
           tourStep,
           tourSteps,
@@ -7378,6 +8190,7 @@ Sales Team | KelvinFlow Global Technology`;
           openWebMailDirect,
           insertLogisticsAdviceToEmail,
           portalLandingUrl,
+          navigateToPortal,
           isGuestMode,
           isLoggedIn,
           maskedPhone,
@@ -7403,6 +8216,13 @@ Sales Team | KelvinFlow Global Technology`;
           submitTrialForm,
           setTrialMode,
           submitLoginForm,
+          forgotModal,
+          openForgotPasswordModal,
+          closeForgotPasswordModal,
+          cancelForgotPasswordAndReturnLogin,
+          sendForgotPasswordCode,
+          verifyForgotCode,
+          submitResetPassword,
           terms,
           copiedWechatRemark,
           copyWechatRemarkWithRef,
@@ -7453,6 +8273,7 @@ Sales Team | KelvinFlow Global Technology`;
           // 📊 底价表全局动态配置属性与联动方法
           pricingConfig,
           availableCurrencies,
+          effectiveCurrency,
           currentCurrencyObj,
           currentCurrencySymbol,
           baseCurrencyRate,
@@ -7498,6 +8319,9 @@ Sales Team | KelvinFlow Global Technology`;
           onLogoFileSelected,
           resetDefaultLogo,
           setNoLogo,
+          companyProfileModal,
+          openCompanyProfileModal,
+          saveCompanyProfile,
           authToken,
           currentUser,
           onSkuInputMatch,
@@ -7512,6 +8336,14 @@ Sales Team | KelvinFlow Global Technology`;
           userQuotesList,
           fetchUserQuotes,
           switchQuotation,
+          deleteQuoteModal,
+          confirmDeleteQuote,
+          confirmDeleteCurrentQuote,
+          executeDeleteQuote,
+          deleteCatalogModal,
+          confirmDeleteCatalogItem,
+          executeDeleteCatalogItem,
+          isProtectedCatalogSku,
           round2,
           round4,
           gmailComposeUrl,

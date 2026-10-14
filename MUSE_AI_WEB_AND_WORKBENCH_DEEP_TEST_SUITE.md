@@ -421,10 +421,12 @@ localStorage.setItem('kelvinflow_tour_dismissed', 'true');
   - `[Assert Math Sync]` 修改商品数量或单价，右侧总额、总利润额、综合毛利率必须在 50ms 内响应联动，无卡顿。
 - **快照标准**：`snap_wb_kpi_summary_card.png`。
 
-#### TC-WB-KPI-03: 集装箱智能配柜测算仪与超载超体积警示
+#### TC-WB-KPI-03: 集装箱智能配柜测算仪与超载超体积警示 (P30 权威断言)
 - **测试步骤**：
-  1. 增加商品数量使总体积超过 68 CBM（40HQ 安全立方）。
+  1. 检查右侧 40HQ 配载测算标尺文本。
+  2. 增加商品数量使总体积超过 68 CBM（40HQ 安全立方）。
 - **断言检查**：
+  - `[Assert Scale]` 标尺文本严格显示为 `标尺: 68 CBM / 限重 26.0T`（对齐基准底价表 26,000 KG 防超重费与公路限重红线，绝非 26.8T）；
   - `[Assert Gauge]` 进度条超出 100%，变为警示金黄色；
   - `[Assert Warning Tag]` 准确显示 `当前预估总体积 XX CBM 超出 XX CBM (XX%)`，提示业务员分柜或调整装箱方案。
 - **快照标准**：`snap_wb_container_gauge_overflow.png`。

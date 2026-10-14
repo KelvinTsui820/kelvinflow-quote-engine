@@ -235,17 +235,18 @@ describe('Plan C: Work Email Authentication & Risk Control Tests', () => {
 
       expect(reRegister.success).toBe(false);
       expect(reRegister.expired).toBe(true);
-      expect(reRegister.message).toContain('您的底价表与历史报价数据将为您安全保留 30 天');
+      expect(reRegister.message).toContain('底价库与历史单据已为您安全保留 30 天');
 
-      // 2. 登录过期账号，提示中亦需包含 30 天安全保留
+      // 2. 登录过期账号：允许成功登入工作台查阅底价与历史单据 (success: true, expired: true, 签发 30 天保留 Token)
       const loginRes = await TrialService.loginTrial({
         account: email,
         password: 'MyPassword123'
       });
 
-      expect(loginRes.success).toBe(false);
+      expect(loginRes.success).toBe(true);
       expect(loginRes.expired).toBe(true);
-      expect(loginRes.message).toContain('您的底价表与历史报价数据将为您安全保留 30 天');
+      expect(loginRes.token).toBeDefined();
+      expect(loginRes.message).toContain('底价库与历史单据已为您安全保留 30 天');
     });
   });
 

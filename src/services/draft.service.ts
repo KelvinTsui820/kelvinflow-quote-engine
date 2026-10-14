@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { QuoteStoreService } from './quote-store.service.js';
 
 let cachedImapFlow: any = null;
 async function getImapFlowClass(): Promise<any> {
@@ -23,6 +24,22 @@ export interface DraftOptions {
   subject: string;
   text?: string;
   html?: string;
+  quotationNumber?: string;
+  tenantId?: string;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer;
+    contentType?: string;
+  }>;
+}
+
+export interface ReviewEmailOptions {
+  to: string;
+  subject: string;
+  text: string;
+  html?: string;
+  quotationNumber?: string;
+  tenantId?: string;
   attachments?: Array<{
     filename: string;
     content: Buffer;
@@ -143,6 +160,19 @@ export class DraftService {
    * 采用 12 秒严格超时防挂起机制
    */
   static async appendDraft(options: DraftOptions): Promise<AppendDraftResult> {
+    // 🛡️ 防御性门禁拦截：若指定了单号，严格核验单据在存储中存在且有效，杜绝幽灵草稿
+    if (options.quotationNumber) {
+      const verifyQuote = QuoteStoreService.getQuote(options.quotationNumber, options.tenantId);
+      if (!verifyQuote) {
+        const errorMsg = `🚨 [幽灵草稿防范阻断] 待注入草稿关联的单据 [${options.quotationNumber}] 在存储中未找到或无法解析，已紧急阻断草稿注入！`;
+        console.error(errorMsg);
+        return {
+          success: false,
+          error: errorMsg
+        };
+      }
+    }
+
     const host = this.resolveImapHost(options.userEmail, options.imapHost);
     const port = options.imapPort || 993;
     const secure = options.secure !== false;
@@ -244,17 +274,20 @@ export class DraftService {
    * 模式 1：将生成的待审报价与 PDF 附件发送至业务员工作邮箱 (收件箱)
    * 零配置兜底交付，业务员在收件箱查阅后一键转发买家
    */
-  static async sendReviewEmail(options: {
-    to: string;
-    subject: string;
-    text: string;
-    html?: string;
-    attachments?: Array<{
-      filename: string;
-      content: Buffer;
-      contentType?: string;
-    }>;
-  }): Promise<{ sent: boolean; method: 'smtp' | 'resend' | 'workbench_store'; messageId?: string; error?: string }> {
+  static async sendReviewEmail(options: ReviewEmailOptions): Promise<{ sent: boolean; method: 'smtp' | 'resend' | 'workbench_store' | 'blocked_ghost_quote'; messageId?: string; error?: string }> {
+    // 🛡️ 防御性门禁拦截：若指定了单号，严格核验单据在存储中存在且有效，杜绝幽灵邮件外发
+    if (options.quotationNumber) {
+      const verifyQuote = QuoteStoreService.getQuote(options.quotationNumber, options.tenantId);
+      if (!verifyQuote) {
+        const errorMsg = `🚨 [幽灵邮件防范阻断] 待发审单邮件关联的单据 [${options.quotationNumber}] 在存储中未找到或已删除，已紧急阻断邮件投递！`;
+        console.error(errorMsg);
+        return {
+          sent: false,
+          method: 'blocked_ghost_quote',
+          error: errorMsg
+        };
+      }
+    }
     // 1. 优先尝试 Resend API 官方事务发信通道 (无需 SMTP 握手，海外 VPS 极速投递，已绑定 kelvinflow.com)
     const resendApiKey = process.env.RESEND_API_KEY?.trim();
     if (resendApiKey) {

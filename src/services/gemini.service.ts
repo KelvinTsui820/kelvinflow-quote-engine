@@ -49,6 +49,18 @@ ABSOLUTE INSTRUCTIONS:
      * Below 70: Non-standard OEM molds, custom thickness/dimensions, unknown model numbers, or missing critical parameters.
    - Set "MatchStatus": "EXACT" (standard part number), "FUZZY" (generic product description without exact code), or "UNMATCHED" (unknown/custom OEM code).
    - Set "ConfidenceRemark": Brief reason if confidence < 80 (e.g. "Custom thickness 4.5mm requested", "Unknown model code", "Non-standard plating").
+7. MULTI-ROW & LONG RFQ EXTRACTION (CRITICAL):
+   - Extract EVERY SINGLE line item present in the inquiry or RFQ without exception.
+   - Do NOT truncate, limit, or stop extraction at 5 or 10 items.
+   - If there are 15, 20, 50 or more items, output ALL of them sequentially into the "Items" array.
+   - If identical SKUs appear multiple times (different lines, different specifications, different packaging, or separate delivery batches), you MUST preserve each occurrence as a separate line item in the "Items" array.
+8. MULTILINGUAL & SIGN-OFF BUYER DETAILS EXTRACTION:
+   - Inquiries may be in Spanish, Portuguese, French, German, Italian, or other languages. Extract all details faithfully into English JSON schema.
+   - For "BuyerContact.Name" and "CustomerName": ALWAYS prioritize the actual human name and company name from the email signature or closing lines at the end of the inquiry (e.g. "Atentamente, Carlos Méndez / Importadora Andina", "Saludos cordiales, Carlos Méndez", "Cordialement, Pierre Dupont / SAS Acier").
+   - Extract the signer's personal name (e.g. "Carlos Méndez") as "BuyerContact.Name".
+   - Extract the signer's company name (e.g. "Importadora Andina") as "CustomerName".
+   - Do NOT default "BuyerContact.Name" to the sender email address or generic display name if a specific human name is present in the sign-off.
+   - For quantities in non-English inquiries: accurately parse numbers paired with multilingual units (e.g. Spanish "500 piezas", "800 unidades"; French "400 pièces"; German "300 Stück"; Portuguese "600 peças") or hyphenated patterns (e.g. "TEST-005 - 500 piezas" -> Quantity: 500).
 
 EXPECTED JSON SCHEMA:
 {
@@ -115,20 +127,20 @@ EXPECTED JSON SCHEMA:
       const topModel = this.defaultModelName || process.env.DEFAULT_AI_MODEL || 'gemini-3.8-flash';
       const secondModel = this.fallbackModelName || process.env.FALLBACK_AI_MODEL || 'gemini-3.7-flash';
 
-      // Tier 1: 最新一代模型 (如 gemini-3.8-flash，6.5 秒快速熔斷)
+      // Tier 1: 最新一代模型 (如 gemini-3.8-flash，12 秒充足熔断窗口)
       candidateModels.push({
         tier: 'Tier 1 (最新一代模型)',
         model: topModel,
-        timeoutMs: 6500,
+        timeoutMs: 12000,
         retries: 1
       });
 
-      // Tier 2: 旗艦深度推理模型 (如 gemini-3.7-flash，8 秒超時)
+      // Tier 2: 旗艦深度推理模型 (如 gemini-3.7-flash，15 秒超時)
       if (secondModel !== topModel) {
         candidateModels.push({
           tier: 'Tier 2 (旗艦推理模型)',
           model: secondModel,
-          timeoutMs: 8000,
+          timeoutMs: 15000,
           retries: 1
         });
       }
@@ -138,7 +150,7 @@ EXPECTED JSON SCHEMA:
         candidateModels.push({
           tier: 'Tier 3 (高可用穩健生產基石)',
           model: 'gemini-3.5-flash',
-          timeoutMs: 10000,
+          timeoutMs: 15000,
           retries: 2
         });
       }
@@ -209,6 +221,7 @@ EXPECTED JSON SCHEMA:
     const generationConfig: any = {
       responseMimeType: "application/json",
       temperature: 0.1,
+      maxOutputTokens: 8192,
     };
 
     if (options.enableThinking) {
@@ -334,28 +347,118 @@ EXPECTED JSON SCHEMA:
       }
     }
 
-    // 1. 提取买家/公司名
+    // 防御性解码 Quoted-Printable 字符编码 (如 =C3=A9 -> é, =20 -> ' ', =3D -> '=')
+    if (rawText.includes('=C3=') || rawText.includes('=20') || rawText.includes('=3D') || /=[0-9A-Fa-f]{2}/.test(rawText)) {
+      try {
+        const unsoft = rawText.replace(/=\r?\n/g, '');
+        const decodedBytes = unsoft.replace(/=([0-9A-Fa-f]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+        const decodedUtf8 = Buffer.from(decodedBytes, 'binary').toString('utf8');
+        if (decodedUtf8 && decodedUtf8.length > 0) {
+          rawText = decodedUtf8;
+        }
+      } catch (_) {}
+    }
+
+    // 1. 优先从邮件结尾签名/落款提取真实的买家姓名与公司名 (支持多语言: 西语/葡语/法语/德语/意语/英语)
     let customerName = '';
-    const companyLines = rawText.split(/\r?\n/);
-    for (const line of companyLines) {
-      if (line.includes('@')) continue;
-      const match = line.match(/\b([A-Z][A-Za-z0-9&.,'-]+(?:\s+[A-Za-z0-9&.,'-]+)*\s+(?:Ltd|Inc|LLC|GmbH|Corp|Corporation|Co\.|Company))\b/);
-      if (match && match[1].trim().length > 3) {
-        let candidate = match[1].replace(/^.*?from\s+/i, '').trim();
-        if (candidate.length > 3) {
-          customerName = candidate;
-          if (line.includes('from ') || line.includes('Ltd') || line.includes('GmbH')) {
+    let buyerName = '';
+    let buyerEmail = '';
+
+    // 提取邮箱地址
+    const emailMatch = rawText.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    if (emailMatch) {
+      buyerEmail = emailMatch[1].trim();
+    }
+
+    // 扫描落款标志词 (Sign-offs / Closings)
+    // 包含: Atentamente, Saludos cordiales, Saludos, Cordialmente, Un cordial saludo,
+    // Atenciosamente, Com os melhores cumprimentos, Cordialement, Bien cordialement, Mit freundlichen Grüßen,
+    // Cordiali saluti, Best regards, Kind regards, Warm regards, Regards, Sincerely, Yours truly, etc.
+    const signOffRegex = /(?:Atentamente|Saludos\s+cordiales|Saludos|Cordialmente|Un\s+cordial\s+saludo|Atenciosamente|Com\s+os\s+melhores\s+cumprimentos|Cordialement|Bien\s+cordialement|Mit\s+freundlichen\s+Gr[uü][sß]en|Cordiali\s+saluti|Best\s+regards|Kind\s+regards|Warm\s+regards|Regards|Sincerely|Yours\s+truly)\s*[,:：\n\r]+([\s\S]{1,350})/i;
+    const signOffMatch = rawText.match(signOffRegex);
+
+    if (signOffMatch && signOffMatch[1]) {
+      const signOffLines = signOffMatch[1]
+        .split(/\r?\n/)
+        .map(l => l.trim())
+        .filter(l => l.length > 0 && !l.includes('@') && !l.startsWith('http') && !l.startsWith('Tel') && !l.startsWith('Phone'));
+
+      for (let sIdx = 0; sIdx < signOffLines.length && sIdx < 4; sIdx++) {
+        const sLine = signOffLines[sIdx];
+        // 模式 A: "Carlos Méndez / Importadora Andina" 或 "Carlos Méndez | Importadora Andina"
+        const combinedMatch = sLine.match(/^([A-Za-z\u00C0-\u024F\s.'-]+?)\s*[\/|–—]\s*([A-Za-z0-9\u00C0-\u024F\s&.'-]+)$/);
+        if (combinedMatch && combinedMatch[1].trim().length >= 2 && combinedMatch[2].trim().length >= 2) {
+          buyerName = combinedMatch[1].trim();
+          customerName = combinedMatch[2].trim();
+          break;
+        }
+
+        // 模式 B: 第一行是姓名，第二行是公司名
+        if (!buyerName && /^[A-Za-z\u00C0-\u024F\s.'-]+$/.test(sLine) && sLine.split(/\s+/).length <= 5) {
+          buyerName = sLine;
+          if (signOffLines[sIdx + 1]) {
+            const nextLine = signOffLines[sIdx + 1];
+            if (nextLine.length > 2 && !nextLine.includes('@') && !nextLine.startsWith('Tel')) {
+              customerName = nextLine;
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    // 若未通过落款标志词提取到，在全文末尾 10 行中扫描 "姓名 / 公司" 结构
+    if (!buyerName || !customerName) {
+      const rawLines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const tailLines = rawLines.slice(-10);
+      for (const tLine of tailLines) {
+        if (tLine.includes('@') || tLine.startsWith('http') || tLine.startsWith('>')) continue;
+        const slashMatch = tLine.match(/^([A-Za-z\u00C0-\u024F\s.'-]+?)\s*[\/|–—]\s*([A-Za-z0-9\u00C0-\u024F\s&.'-]+)$/);
+        if (slashMatch && slashMatch[1].trim().length >= 2 && slashMatch[2].trim().length >= 2) {
+          if (!buyerName) buyerName = slashMatch[1].trim();
+          if (!customerName) customerName = slashMatch[2].trim();
+          break;
+        }
+      }
+    }
+
+    // 若尚未提取到公司名，检查显式标识与常见企业后缀
+    if (!customerName) {
+      const companyLines = rawText.split(/\r?\n/);
+      for (const line of companyLines) {
+        if (line.includes('@')) continue;
+        const match = line.match(/\b([A-Z\u00C0-\u024F][A-Za-z0-9\u00C0-\u024F&.,'-]+(?:\s+[A-Za-z0-9\u00C0-\u024F&.,'-]+)*\s+(?:Ltd|Inc|LLC|GmbH|Corp|Corporation|Co\.|Company|S\.A\.|S\.L\.|S\.R\.L\.|S\.A\.S\.|SARL|SAS|BV|NV|Sp\.\s*z\s*o\.o\.))\b/i);
+        if (match && match[1].trim().length > 3) {
+          let candidate = match[1].replace(/^.*?from\s+/i, '').trim();
+          if (candidate.length > 3) {
+            customerName = candidate;
             break;
           }
         }
       }
     }
     if (!customerName) {
-      const companyMatch = rawText.match(/(?:Company|Customer|Buyer|Client)\s*[:：]?\s*([A-Za-z0-9\s&.,'-]+?)(?:\r?\n|$)/i);
+      const companyMatch = rawText.match(/(?:Company|Customer|Buyer|Client|Empresa|Compañía|Société)\s*[:：]?\s*([A-Za-z0-9\u00C0-\u024F\s&.,'-]+?)(?:\r?\n|$)/i);
       if (companyMatch && companyMatch[1].trim().length > 3) {
         customerName = companyMatch[1].trim();
       } else {
         customerName = 'Valued Global Buyer';
+      }
+    }
+
+    // 若尚未提取到买家姓名，检查显式标识与 From 行
+    if (!buyerName) {
+      const nameMatch = rawText.match(/(?:Contact|Name|Attention|Attn|Buyer|Contacto|Nombre)\s*[:：]?\s*([A-Za-z\u00C0-\u024F\s.'-]+?)(?:\r?\n|,|$)/i);
+      if (nameMatch && nameMatch[1].trim().length > 2) {
+        buyerName = nameMatch[1].trim();
+      } else {
+        const fromLineMatch = rawText.match(/From\s*[:：]?\s*(?:(?:(?:"([^"]+)")|([A-Za-z\u00C0-\u024F\s.'-]+?))\s*)?<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/i);
+        if (fromLineMatch) {
+          buyerName = (fromLineMatch[1] || fromLineMatch[2] || '').trim();
+          if (!buyerEmail) buyerEmail = fromLineMatch[3].trim();
+        } else {
+          buyerName = 'Valued Purchasing Manager';
+        }
       }
     }
 
@@ -378,25 +481,7 @@ EXPECTED JSON SCHEMA:
       currency = currMatch[1].toUpperCase();
     }
 
-    // 4. 提取买家联系人 BuyerContact
-    let buyerName = 'Valued Purchasing Manager';
-    let buyerEmail = '';
-    const fromLineMatch = rawText.match(/From\s*[:：]?\s*([A-Za-z\s.'-]+?)\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/i);
-    if (fromLineMatch) {
-      buyerName = fromLineMatch[1].trim();
-      buyerEmail = fromLineMatch[2].trim();
-    } else {
-      const emailMatch = rawText.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-      if (emailMatch) {
-        buyerEmail = emailMatch[1].trim();
-      }
-      const nameMatch = rawText.match(/(?:Contact|Name|Attention|Attn|Buyer)\s*[:：]?\s*([A-Za-z\s.'-]+?)(?:\r?\n|,|$)/i);
-      if (nameMatch && nameMatch[1].trim().length > 2) {
-        buyerName = nameMatch[1].trim();
-      }
-    }
-
-    // 5. 提取条款 SpecialRemarks / DeliveryDetails / Payment Terms
+    // 4. 提取条款 SpecialRemarks / DeliveryDetails / Payment Terms
     let specialRemarks = '';
     const incotermMatch = rawText.match(/\b(FOB\s+[A-Za-z\s]+|EXW|CIF\s+[A-Za-z\s]+|DDP|DAP)\b/i);
     if (incotermMatch) {
@@ -412,7 +497,7 @@ EXPECTED JSON SCHEMA:
     }
     specialRemarks = specialRemarks.trim().replace(/;\s*$/, '');
 
-    // 6. 提取商品明细 Items (根据 SKU 与 数量特征，支持多行区块扫描与工艺说明捕获)
+    // 5. 提取商品明细 Items (根据 SKU 与 数量特征，支持多行区块扫描与工艺说明捕获)
     const items: POItem[] = [];
     const lines = rawText.split(/\r?\n/);
     for (let i = 0; i < lines.length; i++) {
@@ -452,21 +537,34 @@ EXPECTED JSON SCHEMA:
         if (/^(?:Item|\d+[\.\)]|Trade Terms|Terms|Payment|Currency|Regards|Sincerely|Best regards|From|To|Date|Subject)\b/i.test(nextTrimmed) || /\bSKU\s*[:：]/i.test(nextTrimmed)) {
           break;
         }
-        if (nextTrimmed.match(/\b([A-Z0-9]{2,}(?:[-_][A-Z0-9]+)+)\b/) && !nextTrimmed.toLowerCase().includes('quantity')) {
+        if (nextTrimmed.match(/\b([A-Z0-9]{2,}(?:[-_][A-Z0-9]+)+)\b/) && !nextTrimmed.toLowerCase().includes('quantity') && !nextTrimmed.toLowerCase().includes('piezas')) {
           break;
         }
         itemBlockText += ' ' + nextTrimmed;
       }
 
-      // 提取该 item 块中的数量 (优先匹配带 Qty: 或 pcs 的数字)
+      // 提取该 item 块中的数量 (多语言与分隔符支持)
       let foundQty = 0;
-      const explicitQtyMatch = itemBlockText.match(/(?:Qty|Quantity|数量|PCS|Sets)\s*[:：]?\s*([0-9,]{1,8})/i);
+      // 1. 显式前缀词 (多语言支持: English / Spanish / Portuguese / French / German / Italian / Chinese)
+      const explicitQtyMatch = itemBlockText.match(
+        /(?:Qty|Quantity|Cantidad|Cant|Quantidade|Qtd|Quantit[eé]|Qt[eé]|Menge|Anzahl|Quantit[aà]|数量|件数|套数)\s*[:：=-]?\s*([0-9,]{1,8})\b/i
+      );
       if (explicitQtyMatch) {
         foundQty = parseInt(explicitQtyMatch[1].replace(/,/g, ''), 10);
       } else {
-        const unitSuffixMatch = itemBlockText.match(/([0-9,]{1,8})\s*(?:pcs|pieces|sets|units|件|个|支)\b/i);
+        // 2. 数量 + 多语言单位后缀词 (piezas, pzas, unidades, uds, pièces, pièces, Stück, stueck, stk, peças, pecas, pçs, pezzi, pcs, sets, units, 件, 个, 支, 只, 套)
+        const unitSuffixMatch = itemBlockText.match(
+          /([0-9,]{1,8})\s*(?:pcs|pieces|piezas|pzas|unidades|uds|pi[eè]ces|unit[eé]s|st[uü]ck|stueck|stk|pe[cç]as|p[cç]s|pezzi|unit[aà]|sets|units|件|个|支|只|套)\b/i
+        );
         if (unitSuffixMatch) {
           foundQty = parseInt(unitSuffixMatch[1].replace(/,/g, ''), 10);
+        } else {
+          // 3. 通用连接符模式 (紧跟在 SKU 后的数字，支持短横线、冒号、星号、x、斜杠、竖线、逗号、制表符等，如 "TEST-005 - 500", "TEST-005,300", "TEST-005: 800", "TEST-005 x 500")
+          const skuEscaped = foundSku.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+          const afterSkuMatch = itemBlockText.match(new RegExp(`${skuEscaped}\\s*[-:：*xX×/|,\\t]\\s*([0-9,]{1,8})\\b`, 'i'));
+          if (afterSkuMatch) {
+            foundQty = parseInt(afterSkuMatch[1].replace(/,/g, ''), 10);
+          }
         }
       }
 
@@ -474,8 +572,10 @@ EXPECTED JSON SCHEMA:
       let description = itemBlockText
         .replace(new RegExp(foundSku, 'gi'), '')
         .replace(/^(?:\d+[\.\)]|\s*[-*•])?\s*(?:Item\s*\d*|Part\s*\d*|SKU)\s*[:：]?\s*/i, '')
-        .replace(/(?:Qty|Quantity|数量|PCS|Sets)\s*[:：]?\s*[0-9,]{1,8}\s*(?:pcs|pieces|sets|units)?/gi, '')
+        .replace(/[-:：*xX×/|,\\t]\s*[0-9,]{1,8}\s*(?:pcs|pieces|piezas|pzas|unidades|uds|pi[eè]ces|unit[eé]s|st[uü]ck|stueck|stk|pe[cç]as|p[cç]s|pezzi|unit[aà]|sets|units|件|个|支|只|套)?/gi, '')
+        .replace(/(?:Qty|Quantity|Cantidad|Cant|Quantidade|Qtd|Quantit[eé]|Qt[eé]|Menge|Anzahl|Quantit[aà]|数量|件数|套数)\s*[:：=-]?\s*[0-9,]{1,8}/gi, '')
         .replace(/[()]/g, ' ')
+        .replace(/^[-–—:,\t\s]+|[-–—:,\t\s]+$/g, '')
         .replace(/\s+/g, ' ')
         .trim();
 
@@ -484,7 +584,8 @@ EXPECTED JSON SCHEMA:
         description = `${foundSku} Export Specification`;
       }
 
-      if (foundSku && !items.some(it => it.SKU.toUpperCase() === foundSku.toUpperCase())) {
+      // 允许同 SKU 多行分别保留 (支持 TC-R2 超长询盘 15 行完整解析)
+      if (foundSku) {
         items.push({
           SKU: foundSku,
           Description: description,
@@ -496,21 +597,23 @@ EXPECTED JSON SCHEMA:
       }
     }
 
-    // 若行遍历未完全覆盖，检查常见商品库特征
-    const commonSkus = ['ERG-PRO-V2', 'ST-2026-A', 'ST-2026-B', 'AL-BASE-99', 'HD-ARM-08', 'ACME-991'];
-    for (const knownSku of commonSkus) {
-      if (rawText.toUpperCase().includes(knownSku) && !items.some(it => it.SKU.toUpperCase() === knownSku.toUpperCase())) {
-        const regex = new RegExp(knownSku + '[^\\n\\r0-9]*?(?:Qty|Quantity|[:：]|\\s)\\s*(\\d{1,6})\\s*(?:pcs|pieces|sets|units)?', 'i');
-        const m = rawText.match(regex);
-        const qty = m ? parseInt(m[1], 10) : 500;
-        items.push({
-          SKU: knownSku,
-          Description: `${knownSku} Export Specification`,
-          Quantity: qty > 0 ? qty : 500,
-          ConfidenceScore: 90,
-          MatchStatus: 'EXACT',
-          ConfidenceRemark: ''
-        });
+    // 若行遍历完全未识别到商品，检查常见商品库特征兜底
+    if (items.length === 0) {
+      const commonSkus = ['ERG-PRO-V2', 'ST-2026-A', 'ST-2026-B', 'AL-BASE-99', 'HD-ARM-08', 'ACME-991'];
+      for (const knownSku of commonSkus) {
+        if (rawText.toUpperCase().includes(knownSku)) {
+          const regex = new RegExp(knownSku + '[^\\n\\r0-9]*?(?:Qty|Quantity|[:：]|\\s)\\s*(\\d{1,6})\\s*(?:pcs|pieces|sets|units)?', 'i');
+          const m = rawText.match(regex);
+          const qty = m ? parseInt(m[1], 10) : 500;
+          items.push({
+            SKU: knownSku,
+            Description: `${knownSku} Export Specification`,
+            Quantity: qty > 0 ? qty : 500,
+            ConfidenceScore: 90,
+            MatchStatus: 'EXACT',
+            ConfidenceRemark: ''
+          });
+        }
       }
     }
 

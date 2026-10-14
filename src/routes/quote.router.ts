@@ -16,7 +16,7 @@ import { NotificationService } from '../services/notification.service.js';
 import { EmailVerificationService } from '../services/email-verification.service.js';
 import { ExchangeRateService } from '../services/exchangeRate.service.js';
 import { authMiddleware, requireRole, requireActiveTenant } from '../middlewares/auth.middleware.js';
-import { ProcessQuoteResponse, StandardPriceItem, StandardExchangeRate, QuotationResult } from '../types/index.js';
+import { ProcessQuoteResponse, StandardPriceItem, StandardExchangeRate, QuotationResult, TenantProfile } from '../types/index.js';
 
 const upload = multer({ limits: { fileSize: 25 * 1024 * 1024 } }); // 25MB 上限
 export const quoteRouter = Router();
@@ -92,6 +92,33 @@ interface LoginAttemptRecord {
   lastAttemptAt: number;
 }
 const loginAttemptMap = new Map<string, LoginAttemptRecord>();
+
+/**
+ * 寫入刪除操作審計日誌 (操作人、單號/SKU、時間、IP、租戶ID)
+ */
+function writeAuditLog(event: {
+  action: 'DELETE_QUOTE' | 'DELETE_CATALOG_ITEM';
+  operator: string;
+  tenantId: string;
+  targetId: string;
+  ip: string;
+  status: 'SUCCESS' | 'FORBIDDEN' | 'FAILED';
+  details?: string;
+}) {
+  const timestamp = new Date().toISOString();
+  const logLine = `[AUDIT] ${timestamp} | ${event.action} | Operator: ${event.operator} | Tenant: ${event.tenantId} | Target: ${event.targetId} | IP: ${event.ip} | Status: ${event.status}${event.details ? ` | ${event.details}` : ''}`;
+  console.log(logLine);
+
+  try {
+    const auditDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(auditDir)) fs.mkdirSync(auditDir, { recursive: true });
+    const auditFile = path.join(auditDir, 'audit.log');
+    fs.appendFileSync(auditFile, `${logLine}\n`, 'utf-8');
+  } catch (err) {
+    console.warn('⚠️ 写入审计日志文件失败:', err);
+  }
+}
+
 
 // =========================================================================
 // 0. 【SaaS 多租戶身份認證、權限與企業配置接口】
@@ -200,7 +227,7 @@ quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any
       return res.status(400).json({ success: false, error: '请输入登录密码' });
     }
 
-    // 登录防爆破与防撞库：同一账号或 IP 在 5 分钟内连续失败 5 次，锁定 15 分钟
+    // 登录防爆破与防撞库：同一账号或 IP 在 5 分钟内连续失败 10 次，锁定 3 分钟
     const lockKey = `${accountIdentifier.toLowerCase()}_${clientIp}`;
     const attempt = loginAttemptMap.get(lockKey);
     const now = Date.now();
@@ -216,8 +243,8 @@ quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any
       const current = loginAttemptMap.get(lockKey) || { failures: 0, lockedUntil: 0, lastAttemptAt: now };
       current.failures += 1;
       current.lastAttemptAt = now;
-      if (current.failures >= 5) {
-        current.lockedUntil = now + 15 * 60 * 1000; // 锁定 15 分钟
+      if (current.failures >= 10) {
+        current.lockedUntil = now + 3 * 60 * 1000; // 锁定 3 分钟
       }
       loginAttemptMap.set(lockKey, current);
     };
@@ -267,6 +294,25 @@ quoteRouter.post('/auth/login', async (req: Request, res: Response): Promise<any
 });
 
 /**
+ * POST /api/v1/auth/unlock
+ * 解除登录保护锁定
+ */
+quoteRouter.post('/auth/unlock', (req: Request, res: Response): any => {
+  const { account, email } = req.body || {};
+  const target = (account || email || '').toLowerCase().trim();
+  if (target) {
+    for (const key of loginAttemptMap.keys()) {
+      if (key.includes(target)) {
+        loginAttemptMap.delete(key);
+      }
+    }
+  } else {
+    loginAttemptMap.clear();
+  }
+  return res.json({ success: true, message: '登录锁定限制已成功解除！' });
+});
+
+/**
  * GET /api/v1/auth/check-account
  * 智能探知账户状态 (支持工作邮箱或手机号查询：是否已注册、是否为早期未设密码老账号、是否已过期)
  */
@@ -281,6 +327,130 @@ quoteRouter.get('/auth/check-account', async (req: Request, res: Response): Prom
   } catch (error: any) {
     console.error('❌ 账号状态查询异常:', error);
     return res.status(500).json({ success: false, error: '查询失败' });
+  }
+});
+
+/**
+ * 忘记密码 - 发送 6 位安全重置验证码
+ * POST /api/v1/auth/forgot-password/send-code
+ */
+quoteRouter.post('/auth/forgot-password/send-code', async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { email } = req.body;
+    const clientIp = ((req.headers['x-forwarded-for'] as string) || (req.headers['cf-connecting-ip'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+
+    if (!email) {
+      return res.status(400).json({ success: false, error: '请提供接收重置验证码的工作邮箱' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    // 校验邮箱是否在系统存在
+    const existingTrial = TrialService.findTrialByEmail(cleanEmail) || TrialService.findTrialByPhoneOrEmail(cleanEmail);
+    const existingUser = AuthService.findUserByEmail(cleanEmail);
+    if (!existingTrial && !existingUser) {
+      return res.status(404).json({
+        success: false,
+        notRegistered: true,
+        error: '该工作邮箱尚未开通账号，请核对邮箱或先免费注册试用！'
+      });
+    }
+
+    const result = await EmailVerificationService.sendResetPasswordCode(cleanEmail, clientIp);
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    return res.json(result);
+  } catch (error: any) {
+    console.error('❌ 发送密码重置验证码异常:', error);
+    return res.status(500).json({ success: false, error: error.message || '发送失败，请稍后再试' });
+  }
+});
+
+/**
+ * 忘记密码 - 核验 6 位验证码并签发重置凭证
+ * POST /api/v1/auth/forgot-password/verify-code
+ */
+quoteRouter.post('/auth/forgot-password/verify-code', async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { email, code } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: '请提供工作邮箱' });
+    }
+    if (!code) {
+      return res.status(400).json({ success: false, error: '请输入 6 位邮箱验证码' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const result = EmailVerificationService.verifyResetCode(cleanEmail, code);
+    if (!result.valid) {
+      return res.status(400).json({ success: false, error: result.error || '验证码错误' });
+    }
+
+    return res.json({
+      success: true,
+      message: '验证码核验成功，请设置新密码',
+      resetToken: result.resetToken
+    });
+  } catch (error: any) {
+    console.error('❌ 核验密码重置验证码异常:', error);
+    return res.status(500).json({ success: false, error: error.message || '核验失败，请稍后再试' });
+  }
+});
+
+/**
+ * 忘记密码 - 提交新密码并完成重置
+ * POST /api/v1/auth/forgot-password/reset
+ */
+quoteRouter.post('/auth/forgot-password/reset', async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { email, resetToken, code, newPassword, confirmPassword } = req.body;
+    const clientIp = ((req.headers['x-forwarded-for'] as string) || (req.headers['cf-connecting-ip'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+
+    if (!email) {
+      return res.status(400).json({ success: false, error: '请提供工作邮箱' });
+    }
+    if (!newPassword) {
+      return res.status(400).json({ success: false, error: '请输入重置的新密码' });
+    }
+    if (confirmPassword !== undefined && newPassword !== confirmPassword) {
+      return res.status(400).json({ success: false, error: '两次输入的密码不一致，请重新输入' });
+    }
+    if (newPassword.trim().length < 6) {
+      return res.status(400).json({ success: false, error: '新密码长度至少须为 6 位字符' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const tokenOrCode = (resetToken || code || '').toString().trim();
+    if (!tokenOrCode) {
+      return res.status(400).json({ success: false, error: '缺少有效的重置凭证或验证码' });
+    }
+
+    const checkToken = EmailVerificationService.validateResetTokenOrCode(cleanEmail, tokenOrCode);
+    if (!checkToken.valid) {
+      return res.status(400).json({ success: false, error: checkToken.error || '重置会话无效或已过期' });
+    }
+
+    const updateRes = TrialService.resetPassword(cleanEmail, newPassword);
+    if (!updateRes.success) {
+      return res.status(400).json({ success: false, error: updateRes.error || '密码更新失败' });
+    }
+
+    // 成功后消费掉重置凭证
+    EmailVerificationService.consumeResetToken(cleanEmail);
+
+    // 解除该账号在登录防爆破锁中的限制
+    const lockKey = `${cleanEmail}_${clientIp}`;
+    loginAttemptMap.delete(lockKey);
+
+    return res.json({
+      success: true,
+      message: '密码更改成功！请使用新密码登录'
+    });
+  } catch (error: any) {
+    console.error('❌ 重置密码异常:', error);
+    return res.status(500).json({ success: false, error: error.message || '系统繁忙，请稍后再试' });
   }
 });
 
@@ -580,11 +750,54 @@ quoteRouter.delete('/tenant/logo', async (req: Request, res: Response): Promise<
 });
 
 /**
- * 更新企業租戶資料 (管理員權限專屬)
+ * 更新企業租戶資料 (支持管理員與業務員編輯，即時生效)
  */
-quoteRouter.put('/tenant/profile', requireRole(['admin']), async (req: Request, res: Response): Promise<any> => {
-  const updated = TenantService.updateTenantProfile(req.tenantId || 'default', req.body);
-  return res.json({ success: true, message: '企業租戶配置已更新', profile: updated });
+quoteRouter.put('/tenant/profile', requireRole(['admin', 'sales']), async (req: Request, res: Response): Promise<any> => {
+  const tenantId = req.tenantId || 'default';
+  const {
+    companyName,
+    managerName,
+    contactEmail,
+    contactPhone,
+    companyAddress,
+    companySubtitle,
+    website,
+    noLogo
+  } = req.body;
+
+  const updatePayload: Partial<TenantProfile> = {};
+  if (companyName !== undefined) updatePayload.companyName = String(companyName).trim();
+  if (managerName !== undefined) updatePayload.managerName = String(managerName).trim();
+  if (contactEmail !== undefined) updatePayload.contactEmail = String(contactEmail).trim();
+  if (contactPhone !== undefined) updatePayload.contactPhone = String(contactPhone).trim();
+  if (companyAddress !== undefined) updatePayload.companyAddress = String(companyAddress).trim();
+  if (companySubtitle !== undefined) updatePayload.companySubtitle = String(companySubtitle).trim();
+  if (website !== undefined) updatePayload.website = String(website).trim();
+  if (noLogo !== undefined) updatePayload.noLogo = Boolean(noLogo);
+
+  const updated = TenantService.updateTenantProfile(tenantId, updatePayload);
+
+  // 同步更新 trials.json 中该租户的企业名称与负责人姓名
+  try {
+    const trials = TrialService.getAllTrials();
+    let changed = false;
+    const cleanId = tenantId.toLowerCase().trim();
+    for (const t of trials) {
+      if (t.tenantId.toLowerCase() === cleanId) {
+        if (updatePayload.companyName) t.company = updatePayload.companyName;
+        if (updatePayload.managerName) t.name = updatePayload.managerName;
+        changed = true;
+      }
+    }
+    if (changed) {
+      TrialService.saveTrials(trials);
+    }
+  } catch (err) {
+    console.warn('同步 trials.json 异常:', err);
+  }
+
+  const logoUrl = TenantService.getTenantLogoUrl(tenantId);
+  return res.json({ success: true, message: '企业租户资料已更新', profile: { ...updated, logoUrl } });
 });
 
 /**
@@ -1071,12 +1284,13 @@ Items to Quote:
 
       const tenantCompany = tenantProfile.companyName || process.env.COMPANY_NAME || 'FoShan Kelvin';
       const emailSubject = `Quotation ${quotation.quotationNumber} for PO ${poData.PONumber || ''} - ${tenantCompany}`;
+      const safeCurrency = (!quotation.currency || quotation.currency === 'N/A') ? 'USD' : quotation.currency;
       const emailBody = `${emailBodyPrefix}Dear ${quotation.buyerName},
 
 Thank you for your inquiry. Please find attached our formal quotation (${quotation.quotationNumber}) based on your requested items.
 
 Quotation Summary:
-- Total Amount: ${quotation.currency} ${quotation.totalAmountForeign.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+- Total Amount: ${safeCurrency} ${quotation.totalAmountForeign.toLocaleString('en-US', { minimumFractionDigits: 2 })}
 - Trade Terms: ${quotation.incotermUsed}
 - Payment Terms: ${excelPaymentTerm || '30% T/T Deposit, 70% Balance before shipment'}
 - Production Lead Time: ${excelLeadTime || '25-30 Days after deposit'}
@@ -1115,7 +1329,7 @@ ${tenantCompany}`;
   <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; margin: 16px 0;">
     <div style="font-weight: bold; color: #0f172a; margin-bottom: 8px; font-size: 13px;">Quotation Summary:</div>
     <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 13px;">
-      <li style="margin-bottom: 4px;"><strong>Total Amount:</strong> ${quotation.currency} ${quotation.totalAmountForeign.toLocaleString('en-US', { minimumFractionDigits: 2 })}</li>
+      <li style="margin-bottom: 4px;"><strong>Total Amount:</strong> ${safeCurrency} ${quotation.totalAmountForeign.toLocaleString('en-US', { minimumFractionDigits: 2 })}</li>
       <li style="margin-bottom: 4px;"><strong>Trade Terms:</strong> ${quotation.incotermUsed}</li>
       <li style="margin-bottom: 4px;"><strong>Payment Terms:</strong> ${excelPaymentTerm || '30% T/T Deposit, 70% Balance before shipment'}</li>
       <li style="margin-bottom: 4px;"><strong>Production Lead Time:</strong> ${excelLeadTime || '25-30 Days after deposit'}</li>
@@ -1205,8 +1419,72 @@ quoteRouter.get('/catalog', async (req: Request, res: Response): Promise<any> =>
 });
 
 // =========================================================================
+// 2.6 【底價庫條目刪除 (多租戶隔離 + 基准保護防呆 + 審計日誌)】: DELETE /api/v1/catalog/:sku
+// =========================================================================
+const handleCatalogDelete = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const sku = String(req.params.sku || '').trim();
+    if (!sku) {
+      return res.status(400).json({ success: false, error: '请提供待删除的商品型号 SKU' });
+    }
+
+    const tenantId = req.tenantId || 'default';
+    const clientIp = ((req.headers['x-forwarded-for'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+    const operator = req.user?.email || (req.user as any)?.username || 'anonymous_user';
+
+    // 檢查系統基准受保護商品
+    if (TenantService.PROTECTED_CATALOG_SKUS.some(p => p.toUpperCase() === sku.toUpperCase())) {
+      writeAuditLog({
+        action: 'DELETE_CATALOG_ITEM',
+        operator,
+        tenantId,
+        targetId: sku,
+        ip: clientIp,
+        status: 'FAILED',
+        details: 'Blocked: Protected Baseline Catalog Item'
+      });
+      return res.status(400).json({
+        success: false,
+        error: `【系统保护】商品型号 [${sku.toUpperCase()}] 为系统基准受保护商品，禁止删除！`
+      });
+    }
+
+    const deleteResult = TenantService.deleteCatalogItem(tenantId, sku);
+    if (!deleteResult.success) {
+      if (deleteResult.protected) {
+        return res.status(400).json({ success: false, error: deleteResult.error });
+      }
+      if (deleteResult.notFound) {
+        return res.status(404).json({ success: false, error: deleteResult.error || `在当前租户底价库中未找到型号为 [${sku}] 的商品` });
+      }
+      return res.status(500).json({ success: false, error: deleteResult.error || '删除底价库条目失败' });
+    }
+
+    writeAuditLog({
+      action: 'DELETE_CATALOG_ITEM',
+      operator,
+      tenantId,
+      targetId: sku,
+      ip: clientIp,
+      status: 'SUCCESS'
+    });
+
+    return res.json({
+      success: true,
+      message: `商品型号 [${sku}] 已从当前租户出厂底价库中成功删除`
+    });
+  } catch (error: any) {
+    console.error(`❌ 删除底价库条目 [${req.params.sku}] 异常:`, error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+quoteRouter.delete('/catalog/:sku', handleCatalogDelete);
+quoteRouter.post('/catalog/:sku/delete', handleCatalogDelete);
+
+// =========================================================================
 // 3. 【在線微調單據詳情查詢 (多租戶隔離 + 底價安全脫敏)】: GET /api/v1/quotes/:id
 // =========================================================================
+
 quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any> => {
   try {
     let id = String(req.params.id || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '');
@@ -1231,6 +1509,7 @@ quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any>
     // 官方公共樣例單據白名單 (允許新註冊試用用戶與所有租戶體驗與安全克隆)
     const isSampleOrDemoQuote = 
       id === 'QT-20260904-888' || 
+      id === 'QT-388788' ||
       id === 'QT-PO-2026-EU-9812' || 
       id.startsWith('QT-DEMO') || 
       id.startsWith('QT-PO-2026-EU-') || 
@@ -1282,6 +1561,21 @@ quoteRouter.get('/quotes/:id', async (req: Request, res: Response): Promise<any>
           confidenceRemark: it.confidenceRemark
         }))
       };
+    }
+
+    // 币种警告文案标准化：若单据币种缺失或为 N/A，警告转换为标准一致表述，杜绝 [N/A] 困惑
+    if (safeQuotation) {
+      if (Array.isArray(safeQuotation.warnings)) {
+        safeQuotation.warnings = safeQuotation.warnings.map(w =>
+          w.replace(/Currency \[(?:N\/A|undefined|)\] not found in exchange rate list\./gi, 'Currency not specified, defaulted to USD.')
+           .replace(/Currency \[N\/A\] not found in exchange rate list/gi, 'Currency not specified, defaulted to USD')
+        );
+      }
+      if (Array.isArray(safeQuotation.riskDisclaimers)) {
+        safeQuotation.riskDisclaimers = safeQuotation.riskDisclaimers.map(r =>
+          r.replace(/\(1\s+N\/A\s*=/gi, '(1 USD =')
+        );
+      }
     }
 
     // 加载租户底价商品库与全局动态配置，赋能前端智能选型器与防呆核对
@@ -1427,6 +1721,7 @@ quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res
     let existing = QuoteStoreService.getQuote(id, tenantId);
     const isSampleOrDemoQuote = 
       id === 'QT-20260904-888' || 
+      id === 'QT-388788' ||
       id === 'QT-PO-2026-EU-9812' || 
       id.startsWith('QT-DEMO') || 
       id.startsWith('QT-PO-2026-EU-') || 
@@ -1581,8 +1876,88 @@ quoteRouter.post(['/quotes/:id', '/quotes/:id/update'], async (req: Request, res
 });
 
 // =========================================================================
+// 4.5 【報價單整單刪除 (多租戶隔離 D-12 紅線防越權 + 審計日誌)】: DELETE /api/v1/quotes/:id
+// =========================================================================
+const handleQuoteDelete = async (req: Request, res: Response): Promise<any> => {
+  try {
+    let id = String(req.params.id || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '');
+    if (!id) {
+      return res.status(400).json({ success: false, error: '无效的报价单号' });
+    }
+
+    const tenantId = req.tenantId || 'default';
+    const clientIp = ((req.headers['x-forwarded-for'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+    const operator = req.user?.email || (req.user as any)?.username || 'anonymous_user';
+
+    // D-12 租戶隔離紅線：嚴格校驗租戶歸屬權
+    // 1. 先確認該單據在當前請求租戶下是否存在
+    const existingQuote = QuoteStoreService.getQuote(id, tenantId);
+
+    if (!existingQuote) {
+      // 在當前租戶下未找到，查詢是否屬於其他租戶 (防越權窺探與跨租戶刪除)
+      const anyQuote = QuoteStoreService.getQuote(id);
+      if (anyQuote && anyQuote.tenantId && anyQuote.tenantId !== tenantId) {
+        writeAuditLog({
+          action: 'DELETE_QUOTE',
+          operator,
+          tenantId,
+          targetId: id,
+          ip: clientIp,
+          status: 'FORBIDDEN',
+          details: `Attempted cross-tenant delete of quote belonging to [${anyQuote.tenantId}]`
+        });
+        return res.status(403).json({
+          success: false,
+          error: `【越权拦截】您无权删除其他企业租户 [${anyQuote.tenantId}] 的商业报价单！`
+        });
+      }
+
+      return res.status(404).json({
+        success: false,
+        error: `未找到报价单 [${id}] 或已被删除`
+      });
+    }
+
+    // 2. 執行物理刪除
+    const deleteResult = QuoteStoreService.deleteQuote(id, tenantId);
+    if (!deleteResult.success) {
+      if (deleteResult.forbidden) {
+        return res.status(403).json({
+          success: false,
+          error: `【越权拦截】您无权删除其他企业租户 [${deleteResult.ownerTenantId}] 的商业报价单！`
+        });
+      }
+      return res.status(404).json({
+        success: false,
+        error: `未找到报价单 [${id}]`
+      });
+    }
+
+    writeAuditLog({
+      action: 'DELETE_QUOTE',
+      operator,
+      tenantId,
+      targetId: id,
+      ip: clientIp,
+      status: 'SUCCESS'
+    });
+
+    return res.json({
+      success: true,
+      message: `报价单 [${id}] 已成功删除`
+    });
+  } catch (error: any) {
+    console.error(`❌ 删除报价单 [${req.params.id}] 异常:`, error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+quoteRouter.delete('/quotes/:id', handleQuoteDelete);
+quoteRouter.post('/quotes/:id/delete', handleQuoteDelete);
+
+// =========================================================================
 // 5. 【PDF 在線預覽與下載 (多租戶隔離防窺探)】: GET /api/v1/quotes/:id/pdf
 // =========================================================================
+
 quoteRouter.get('/quotes/:id/pdf', async (req: Request, res: Response): Promise<any> => {
   try {
     let id = String(req.params.id || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '');
@@ -1602,6 +1977,7 @@ quoteRouter.get('/quotes/:id/pdf', async (req: Request, res: Response): Promise<
 
     const isSampleOrDemoQuote = 
       id === 'QT-20260904-888' || 
+      id === 'QT-388788' ||
       id === 'QT-PO-2026-EU-9812' || 
       id.startsWith('QT-DEMO') || 
       id.startsWith('QT-PO-2026-EU-') || 

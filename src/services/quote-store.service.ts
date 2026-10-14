@@ -257,4 +257,94 @@ export class QuoteStoreService {
       return timeB - timeA;
     });
   }
+
+  /**
+   * 根據詢盤 Message-ID 或冪等鍵檢索已存在的報價單 (支持精確防重)
+   */
+  static findQuoteByMessageId(tenantId: string, messageId: string): QuotationResult | null {
+    if (!messageId || typeof messageId !== 'string') return null;
+    const cleanTenantId = TenantService.resolveTenantId(tenantId || 'default');
+    const targetMsgId = messageId.replace(/[<>]/g, '').trim().toLowerCase();
+    if (!targetMsgId) return null;
+
+    const quotes = this.listQuotes(cleanTenantId);
+    return quotes.find(q => {
+      const qMsgId = (q.inquiryMessageId || '').replace(/[<>]/g, '').trim().toLowerCase();
+      return qMsgId === targetMsgId;
+    }) || null;
+  }
+
+  /**
+   * 刪除指定的報價單數據 (嚴格校驗租戶隔離權限)
+   * 返回:
+   *   - { success: true } 刪除成功
+   *   - { success: false, notFound: true } 該單據不存在
+   *   - { success: false, forbidden: true, ownerTenantId: string } 屬於其他租戶 (越權攔截)
+   */
+  static deleteQuote(
+    id: string,
+    requestTenantId?: string
+  ): { success: boolean; forbidden?: boolean; notFound?: boolean; ownerTenantId?: string } {
+    if (!id || typeof id !== 'string') return { success: false, notFound: true };
+    const cleanId = id.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!cleanId) return { success: false, notFound: true };
+
+    const tenantId = TenantService.resolveTenantId(requestTenantId || 'default');
+    const tenantQuotesDir = this.getTenantQuotesDir(tenantId);
+    const jsonPath = path.join(tenantQuotesDir, `${cleanId}.json`);
+    const pdfPath = path.join(tenantQuotesDir, `${cleanId}.pdf`);
+
+    let existsInTenant = fs.existsSync(jsonPath);
+    let existsInLegacy = false;
+    if (tenantId === 'default') {
+      const legacyJson = path.join(this.legacyStorageDir, `${cleanId}.json`);
+      if (fs.existsSync(legacyJson)) {
+        existsInLegacy = true;
+      }
+    }
+
+    if (!existsInTenant && !existsInLegacy) {
+      // 本租戶名下不存在，檢查是否屬於其他租戶 (嚴防越權橫向滲透)
+      const anyQuote = this.getQuote(cleanId);
+      if (anyQuote && anyQuote.tenantId && anyQuote.tenantId !== tenantId) {
+        return { success: false, forbidden: true, ownerTenantId: anyQuote.tenantId };
+      }
+      return { success: false, notFound: true };
+    }
+
+    // 執行物理刪除本租戶下的文件
+    if (fs.existsSync(jsonPath)) {
+      try {
+        fs.unlinkSync(jsonPath);
+      } catch (e) {
+        console.warn(`刪除租戶 [${tenantId}] 報價單 JSON 異常:`, e);
+      }
+    }
+    if (fs.existsSync(pdfPath)) {
+      try {
+        fs.unlinkSync(pdfPath);
+      } catch (e) {
+        console.warn(`刪除租戶 [${tenantId}] 報價單 PDF 異常:`, e);
+      }
+    }
+
+    // 若為默認租戶，同步清理 legacy
+    if (tenantId === 'default') {
+      const legacyJson = path.join(this.legacyStorageDir, `${cleanId}.json`);
+      if (fs.existsSync(legacyJson)) {
+        try {
+          fs.unlinkSync(legacyJson);
+        } catch {}
+      }
+      const legacyPdf = path.join(this.legacyStorageDir, `${cleanId}.pdf`);
+      if (fs.existsSync(legacyPdf)) {
+        try {
+          fs.unlinkSync(legacyPdf);
+        } catch {}
+      }
+    }
+
+    return { success: true };
+  }
 }
+

@@ -19,6 +19,7 @@ export default {
     const from = message.from || 'unknown_buyer@domain.com';
     const to = message.to || 'sales@kelvinflow.com';
     const subject = message.headers.get('subject') || '(无主题买家询盘)';
+    const messageId = message.headers.get('message-id') || message.id || '';
 
     // 读取邮件原始流数据 (支持完整 MIME 与附件)
     const rawEmail = await new Response(message.raw).text();
@@ -26,12 +27,13 @@ export default {
     // 核心报价引擎直通地址
     const targetUrl = env.KELVINFLOW_INBOUND_URL || 'https://quote.kelvinflow.com/api/inbound/email';
 
-    // 构造请求载荷
+    // 构造请求载荷 (支持 Message-ID 精准幂等去重)
     const payload = {
       from,
       to,
       subject,
-      text: rawEmail
+      text: rawEmail,
+      messageId
     };
 
     try {

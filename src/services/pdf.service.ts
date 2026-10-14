@@ -72,9 +72,11 @@ function containsChinese(str?: string): boolean {
 /**
  * 规范化国际外贸出口商企业抬头名称（杜绝中英文混杂与 UTF-8 字节被 PDFKit 渲染为乱码）
  */
-function cleanExporterCompanyName(rawName?: string): string {
+export function cleanExporterCompanyName(rawName?: string): string {
   if (!rawName) return 'KelvinFlow Global Technology Co., Ltd.';
   let name = rawName
+    .replace(/外贸同行/g, '')
+    .replace(/外贸业务员/g, '')
     .replace(/外贸工作室/g, 'Global Technology Co., Ltd.')
     .replace(/个人工作室/g, 'Export Co., Ltd.')
     .replace(/工作室/g, 'Studio')
@@ -87,7 +89,7 @@ function cleanExporterCompanyName(rawName?: string): string {
 
   // 如果依然包含中文字符，将中文部分剔除或转换为安全英文字符
   if (/[\u4e00-\u9fa5]/.test(name)) {
-    const latinPart = name.replace(/[\u4e00-\u9fa5]+/g, ' ').replace(/\s+/g, ' ').trim();
+    const latinPart = name.replace(/[\u4e00-\u9fa5]+/g, ' ').replace(/[^\x20-\x7E]/g, ' ').replace(/\s+/g, ' ').trim();
     if (latinPart.length >= 3) {
       name = latinPart.endsWith('Co., Ltd.') ? latinPart : `${latinPart} Co., Ltd.`;
     } else {
@@ -118,18 +120,25 @@ function formatInternationalPhone(raw?: string): string {
 }
 
 /**
- * 清洗外贸业务员/出口总监姓名，杜绝系统占位符 (DEFAULT Admin, Compat 等) 暴露给海外客户
+ * 清洗外贸业务员/出口总监姓名，杜绝系统占位符与中文乱码 (Helvetica 字体无 CJK 字形)
  */
-function cleanSalesRepName(raw?: string): string {
-  if (!raw) return 'Kelvin Tsui';
-  const cleaned = raw
+export function cleanSalesRepName(raw?: string): string {
+  if (!raw) return '';
+  let cleaned = raw
     .replace(/\(Compat\)/gi, '')
-    .replace(/DEFAULT\s*Admin/gi, 'Kelvin Tsui')
-    .replace(/DEFAULT/gi, 'Kelvin Tsui')
-    .replace(/Admin/gi, 'Export Specialist')
-    .replace(/\s+/g, ' ')
-    .trim();
-  return cleaned || 'Kelvin Tsui';
+    .replace(/DEFAULT\s*Admin/gi, '')
+    .replace(/DEFAULT/gi, '')
+    .replace(/Admin/gi, '')
+    .replace(/外贸同行/g, '')
+    .replace(/外贸业务员/g, '');
+
+  // 过滤中文等非 ASCII 字符，避免在标准 Helvetica 字体中乱码
+  cleaned = cleaned.replace(/[\u4e00-\u9fa5]+/g, ' ').replace(/[^\x20-\x7E]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  if (cleaned.length < 2) {
+    return '';
+  }
+  return cleaned;
 }
 
 export class PDFService {
@@ -148,7 +157,7 @@ export class PDFService {
       const company = cleanExporterCompanyName(rawCompany);
       const companySubtitle = tenantProfile.companySubtitle || 'Manufacturer & Exporter of Precision Ergonomic Hardware & Seating Solutions';
       const companyAddress = tenantProfile.companyAddress || 'International High-Tech Innovation Center, Foshan, Guangdong, China (528000)';
-      const salesRep = cleanSalesRepName(quotation.salesRepName || options.salesRepName || process.env.DEFAULT_MANAGER_NAME || 'Kelvin Tsui');
+      const salesRep = cleanSalesRepName(quotation.salesRepName || options.salesRepName || tenantProfile.managerName || '');
       const salesEmail = options.salesRepEmail || tenantProfile.contactEmail || process.env.DEFAULT_MANAGER_EMAIL || 'sales@kelvinflow.com';
       const rawPhone = tenantProfile.contactPhone || process.env.DEFAULT_MANAGER_PHONE || '';
       const salesPhone = rawPhone ? formatInternationalPhone(rawPhone) : '';
@@ -316,12 +325,14 @@ export class PDFService {
         .text(validityDisplay, rightStartX, rightY, { width: rightWidth, align: 'right' });
       rightY += 11;
 
-      doc
-        .fontSize(7.5)
-        .font(getFont(false))
-        .fillColor('#475569')
-        .text('Export Manager: ' + salesRep, rightStartX, rightY, { width: rightWidth, align: 'right' });
-      rightY += 11;
+      if (salesRep) {
+        doc
+          .fontSize(7.5)
+          .font(getFont(false))
+          .fillColor('#475569')
+          .text('Export Manager: ' + salesRep, rightStartX, rightY, { width: rightWidth, align: 'right' });
+        rightY += 11;
+      }
 
       // 贯穿高质感装饰分割线 (自适应沉降到所有 Header 元素最底端之下，留足 6pt 安全呼吸边距)
       const headerBottomY = Math.max(leftY, rightY, logoBottomY, 82);
@@ -442,7 +453,8 @@ export class PDFService {
         .text('Trade Terms (Incoterm): ', rightBoxX + 12, currentY + 21, { continued: true })
         .font(getFont(true)).fillColor('#2563eb').text(displayIncoterm);
 
-      const currFullName = quotation.currency === 'USD' ? 'USD (US Dollars)' : (quotation.currency === 'EUR' ? 'EUR (Euro)' : (quotation.currency === 'GBP' ? 'GBP (British Pounds)' : quotation.currency));
+      const effectiveCurr = (!quotation.currency || quotation.currency === 'N/A') ? 'USD' : quotation.currency;
+      const currFullName = effectiveCurr === 'USD' ? 'USD (US Dollars)' : (effectiveCurr === 'EUR' ? 'EUR (Euro)' : (effectiveCurr === 'GBP' ? 'GBP (British Pounds)' : effectiveCurr));
       doc.font(getFont(false)).fontSize(8).fillColor('#475569')
         .text('Settlement Currency: ', rightBoxX + 12, currentY + 21 + rightStep, { continued: true })
         .font(getFont(true)).fillColor('#0f2942').text(currFullName);
@@ -497,7 +509,7 @@ export class PDFService {
         doc.text('DESCRIPTION & SPECIFICATIONS', colX.desc, y + 6, { width: 178 });
         doc.text('QTY (PCS)', colX.qty, y + 6, { width: 52, align: 'right' });
         doc.text('UNIT PRICE', colX.unitPrice, y + 6, { width: 70, align: 'right' });
-        doc.text('TOTAL (' + quotation.currency + ')', colX.subtotal, y + 6, { width: 71, align: 'right' });
+        doc.text('TOTAL (' + effectiveCurr + ')', colX.subtotal, y + 6, { width: 71, align: 'right' });
         return y + tableHeaderHeight;
       }
 
@@ -623,7 +635,7 @@ export class PDFService {
 
       // 下层：纯白超大号金额 (通栏展开，右对齐，去除重复 $ 符号)
       const totalAmountSafe = Number(quotation.totalAmountForeign) || 0;
-      const formattedTotal = (quotation.currency || 'USD') + ' ' + totalAmountSafe.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const formattedTotal = effectiveCurr + ' ' + totalAmountSafe.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       doc.font(getFont(true)).fontSize(16).fillColor('#ffffff').text(
         formattedTotal,
         totalBoxX + 14,
@@ -709,7 +721,7 @@ export class PDFService {
       }
 
       // 2. 动态生成报价有效期与汇率保护条款
-      const currCode = (quotation.currency || 'USD').toUpperCase();
+      const currCode = effectiveCurr.toUpperCase();
       const rateVal = quotation.rateUsed ? Number(quotation.rateUsed).toFixed(4).replace(/\.?0+$/, '') : '';
       const fxBenchClause = rateVal && currCode !== 'CNY'
         ? ` based on benchmark exchange rate (${currCode}/CNY = ${rateVal}) and`
@@ -861,7 +873,7 @@ export class PDFService {
 
       doc.strokeColor('#94a3b8').lineWidth(0.8).dash(3, { space: 2 }).moveTo(startX, signLineY).lineTo(startX + signColWidth, signLineY).stroke().undash();
       doc.font(getFont(false)).fontSize(7.5).fillColor('#64748b').text('Authorized Signature & Corporate Stamp', startX, signLineY + 5);
-      doc.font(getFont(true)).fontSize(8).fillColor('#1e293b').text('Export Director: ' + salesRep, startX, signLineY + 16);
+      doc.font(getFont(true)).fontSize(8).fillColor('#1e293b').text(salesRep ? 'Export Director: ' + salesRep : 'Export Director', startX, signLineY + 16);
 
       // 右侧：买家签回确认
       const buyerSignX = startX + pageWidth - signColWidth;
