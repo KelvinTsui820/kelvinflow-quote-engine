@@ -27,8 +27,20 @@ const headInsert = `
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+  </style>
 `;
 codeHtml = codeHtml.replace('</head>', `${headInsert}\n</head>`);
+
+// Update Header container for mobile responsive padding
+codeHtml = codeHtml.replace(
+  '<div class="h-16 max-w-[1440px] mx-auto px-margin-desktop flex items-center justify-between">',
+  '<div class="h-16 max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex items-center justify-between">'
+);
 
 // Update Header nav links and action buttons
 const oldNav = `<nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-on-surface font-semibold"><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="features" href="#">功能特性</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="workflow" href="#">工作流程</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="excel-template" href="#">底价表规范</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="faq" href="#">常见问题</a></nav>`;
@@ -36,18 +48,20 @@ const newNav = `<nav class="hidden md:flex items-center gap-space-lg" data-activ
 codeHtml = codeHtml.replace(oldNav, newNav);
 
 const oldActions = `<div class="flex items-center gap-space-md"><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="login" href="#">登录</a><a class="inline-flex items-center justify-center px-space-md py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-150" data-path="signup" href="#">免费试用</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div>`;
-const newActions = `<div class="flex items-center gap-space-md">
-      <a id="nav-login-btn" onclick="openInboundModal('login')" class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer" data-path="login" href="javascript:void(0)">登录</a>
-      <a id="nav-trial-btn" onclick="openInboundModal('starter')" class="inline-flex items-center justify-center px-space-md py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-150 cursor-pointer" data-path="signup" href="javascript:void(0)">免费试用</a>
-      <a id="nav-workbench-btn" style="display: none;" class="items-center justify-center px-4 py-1.5 rounded-full bg-primary-container text-on-primary font-body-md text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 transition-all cursor-pointer" href="/review/QT-20260904-888">进入审单台</a>
+const newActions = `<div class="flex items-center gap-2 sm:gap-space-md">
+      <a id="nav-login-btn" onclick="openInboundModal('login')" class="hidden md:inline-flex font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer" data-path="login" href="javascript:void(0)">登录</a>
+      <a id="nav-trial-btn" onclick="openInboundModal('starter')" class="inline-flex items-center justify-center px-3 py-1.5 sm:px-space-md sm:py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-150 cursor-pointer" data-path="signup" href="javascript:void(0)">免费试用</a>
+      <a id="nav-workbench-btn" style="display: none;" class="items-center justify-center px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 transition-all cursor-pointer" href="/review/QT-20260904-888">进入审单台</a>
       <div id="nav-user-chip" style="display: none;" class="items-center gap-2 pl-3 pr-2 py-1 bg-surface-container rounded-full text-xs font-medium text-on-surface border border-outline-variant/30">
         <span id="nav-user-phone" class="font-numeric-data text-xs text-on-surface"></span>
         <button onclick="logoutUser()" title="退出当前账号" class="w-6 h-6 rounded-full bg-surface-container-high hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center transition cursor-pointer text-slate-500">
           <i class="fa-solid fa-arrow-right-from-bracket text-[10px]"></i>
         </button>
       </div>
-      <button id="mobile-menu-btn" onclick="toggleMobileNav()" class="md:hidden text-on-surface-variant hover:text-on-surface p-2 text-base transition-colors cursor-pointer flex items-center justify-center rounded-lg hover:bg-surface-container" aria-label="切换移动端导航">
-        <i id="mobile-menu-icon" class="fa-solid fa-bars"></i>
+      <button id="mobile-menu-btn" onclick="toggleMobileNav()" class="md:hidden text-[#1B2A4A] p-1.5 transition-colors cursor-pointer flex items-center justify-center rounded-lg hover:bg-surface-container" aria-label="切换移动端导航">
+        <svg id="mobile-menu-icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
       </button>
     </div>`;
 codeHtml = codeHtml.replace(oldActions, newActions);
@@ -89,6 +103,24 @@ codeHtml = codeHtml.replace(
 codeHtml = codeHtml.replace(
   '<a class="w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150" href="#">',
   '<a class="w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 cursor-pointer" onclick="openInboundModal(\'starter\')" href="javascript:void(0)">'
+);
+
+// M2: 底部 CTA 区三个勾选卖点在移动端改为垂直排列，每行一个卖点、勾选图标左对齐；桌面端保持横向三列
+codeHtml = codeHtml.replace(
+  '<div class="mt-8 flex items-center gap-6 text-on-surface-variant text-body-sm font-body-sm">',
+  '<div class="mt-8 flex flex-col md:flex-row items-start md:items-center justify-center gap-3 md:gap-6 text-on-surface-variant text-body-sm font-body-sm">'
+);
+
+// M3: 页脚"© 2026 KelvinFlow. All rights reserved."重复出现两次，删除右侧重复项
+codeHtml = codeHtml.replace(
+  '<span class="font-body-sm text-body-sm text-outline-variant hidden md:inline">|</span><p class="font-body-sm text-body-sm text-on-surface-variant">© 2026 KelvinFlow. All rights reserved.</p>',
+  ''
+);
+
+// 优化页脚在移动端的内边距并增加 id="footer"
+codeHtml = codeHtml.replace(
+  '<footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl"><div class="max-w-[1440px] mx-auto px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg">',
+  '<footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl" id="footer"><div class="max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg">'
 );
 
 // Append the Reskinned Modals & JavaScript Logic right before </body>
@@ -401,10 +433,10 @@ const modalsAndScripts = `
       const isHidden = drawer.classList.contains('hidden');
       if (isHidden) {
         drawer.classList.remove('hidden');
-        if (icon) { icon.classList.remove('fa-bars'); icon.classList.add('fa-xmark'); }
+        if (icon) icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
       } else {
         drawer.classList.add('hidden');
-        if (icon) { icon.classList.remove('fa-xmark'); icon.classList.add('fa-bars'); }
+        if (icon) icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
       }
     }
 
@@ -412,7 +444,7 @@ const modalsAndScripts = `
       const drawer = document.getElementById('mobile-nav-drawer');
       const icon = document.getElementById('mobile-menu-icon');
       if (drawer) drawer.classList.add('hidden');
-      if (icon) { icon.classList.remove('fa-xmark'); icon.classList.add('fa-bars'); }
+      if (icon) icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
     }
 
     // 登录与试用状态自适应
@@ -450,8 +482,8 @@ const modalsAndScripts = `
           })
           .catch(() => {});
       } else {
-        if (trialBtn) trialBtn.style.display = 'inline-flex';
-        if (loginBtn) loginBtn.style.display = 'inline-flex';
+        if (trialBtn) trialBtn.style.display = '';
+        if (loginBtn) loginBtn.style.display = '';
         if (wbBtn) wbBtn.style.display = 'none';
         if (userChip) userChip.style.display = 'none';
       }
