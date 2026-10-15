@@ -32,6 +32,24 @@ const headInsert = `
       overflow-x: hidden;
       max-width: 100vw;
     }
+    /* Scroll Reveal (淡入上浮动画) */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .scroll-reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+    }
   </style>
 `;
 codeHtml = codeHtml.replace('</head>', `${headInsert}\n</head>`);
@@ -117,10 +135,89 @@ codeHtml = codeHtml.replace(
   ''
 );
 
-// 优化页脚在移动端的内边距并增加 id="footer"
+// 优化页脚在移动端的内边距并增加 id="footer" 与 scroll-reveal
 codeHtml = codeHtml.replace(
   '<footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl"><div class="max-w-[1440px] mx-auto px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg">',
-  '<footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl" id="footer"><div class="max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg">'
+  '<footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl" id="footer"><div class="scroll-reveal max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg" data-reveal-delay="0">'
+);
+
+// ==================== SCROLL REVEAL INJECTIONS ====================
+// Section 2: 3 Metric Cards (依次错开 100ms)
+codeHtml = codeHtml.replace(
+  '<!-- Metric Card 1 -->\n<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Metric Card 1 -->\n<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="0">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- Metric Card 2 -->\n<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Metric Card 2 -->\n<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="100">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- Metric Card 3 -->\n<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Metric Card 3 -->\n<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="200">'
+);
+
+// Section 3: Workflow Header & 3 Step Cards (依次错开 100ms)
+codeHtml = codeHtml.replace(
+  '<div class="text-center max-w-3xl mx-auto mb-16">',
+  '<div class="scroll-reveal text-center max-w-3xl mx-auto mb-16" data-reveal-delay="0">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- Step 1 -->\n<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1">',
+  '<!-- Step 1 -->\n<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1" data-reveal-delay="0">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- Step 2 -->\n<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1">',
+  '<!-- Step 2 -->\n<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1" data-reveal-delay="100">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- Step 3 -->\n<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1">',
+  '<!-- Step 3 -->\n<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1" data-reveal-delay="200">'
+);
+
+// Section 4: Features Header & 3 Feature Cards (依次错开 100ms)
+codeHtml = codeHtml.replace(
+  '<div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">',
+  '<div class="scroll-reveal flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6" data-reveal-delay="0">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- Feature 1 -->\n<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Feature 1 -->\n<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="0">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- Feature 2 -->\n<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Feature 2 -->\n<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="100">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- Feature 3 -->\n<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Feature 3 -->\n<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="200">'
+);
+
+// Section 5: FAQ Header & 4 FAQ Items (依次错开 80-100ms)
+codeHtml = codeHtml.replace(
+  '<!-- Section Header -->\n<div class="text-center mb-16">',
+  '<!-- Section Header -->\n<div class="scroll-reveal text-center mb-16" data-reveal-delay="0">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- FAQ Item 1 -->\n<div class="bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all">',
+  '<!-- FAQ Item 1 -->\n<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="0">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- FAQ Item 2 -->\n<div class="bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all">',
+  '<!-- FAQ Item 2 -->\n<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="100">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- FAQ Item 3 -->\n<div class="bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all">',
+  '<!-- FAQ Item 3 -->\n<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="200">'
+);
+codeHtml = codeHtml.replace(
+  '<!-- FAQ Item 4 -->\n<div class="bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all">',
+  '<!-- FAQ Item 4 -->\n<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="300">'
+);
+
+// Section 6: Pre-footer Trial CTA
+codeHtml = codeHtml.replace(
+  '<div class="bg-surface-container-lowest rounded-3xl p-10 md:p-16 shadow-lg text-center flex flex-col items-center">',
+  '<div class="scroll-reveal bg-surface-container-lowest rounded-3xl p-10 md:p-16 shadow-lg text-center flex flex-col items-center" data-reveal-delay="0">'
 );
 
 // Append the Reskinned Modals & JavaScript Logic right before </body>
@@ -1293,9 +1390,71 @@ const modalsAndScripts = `
       }
     });
 
+    // =========================================================================
+    // 滚动渐入动画 (Scroll Reveal via IntersectionObserver)
+    // =========================================================================
+    function initScrollReveal() {
+      // 3. prefers-reduced-motion 时禁用动画，内容直接显示
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+          el.classList.remove('scroll-reveal');
+        });
+        return;
+      }
+
+      // 检查浏览器是否支持 IntersectionObserver
+      if (!('IntersectionObserver' in window)) {
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+          el.classList.remove('scroll-reveal');
+        });
+        return;
+      }
+
+      const revealElements = document.querySelectorAll('.scroll-reveal');
+      if (!revealElements.length) return;
+
+      const observer = new IntersectionObserver((entries, obs) => {
+        const intersecting = entries.filter(e => e.isIntersecting);
+        intersecting.forEach((entry, idx) => {
+          const el = entry.target;
+          // 2. 进入视口触发一次，立即取消监听（不重复触发）
+          obs.unobserve(el);
+
+          // 1. 依次错开约 80–120ms (默认取 100ms 错开)
+          const customDelay = el.dataset.revealDelay;
+          const delay = customDelay !== undefined ? parseInt(customDelay, 10) : (idx * 100);
+
+          setTimeout(() => {
+            el.classList.add('revealed');
+
+            // 4. 动画完成后清理类名，确保原有 hover / transition 100% 不受影响
+            const cleanup = () => {
+              el.classList.remove('scroll-reveal', 'revealed');
+              el.removeEventListener('transitionend', onEnd);
+            };
+            const onEnd = (e) => {
+              if (e.propertyName === 'transform') cleanup();
+            };
+            el.addEventListener('transitionend', onEnd);
+            setTimeout(cleanup, 750); // 兜底清理
+          }, delay);
+        });
+      }, {
+        root: null,
+        rootMargin: '0px 0px -40px 0px',
+        threshold: 0.1
+      });
+
+      revealElements.forEach(el => observer.observe(el));
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       updateNavForLoggedInUser();
+      initScrollReveal();
     });
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      initScrollReveal();
+    }
   </script>
 `;
 

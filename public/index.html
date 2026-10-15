@@ -11,6 +11,24 @@
       overflow-x: hidden;
       max-width: 100vw;
     }
+    /* Scroll Reveal (淡入上浮动画) */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .scroll-reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+    }
   </style>
 
 </head><body class="bg-surface-container-lowest text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_0_0_#f1f5f9]"><div class="h-16 max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex items-center justify-between"><div class="flex items-center gap-space-md"><a class="flex items-center gap-1.5" data-path="landing-page" href="#"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" style="width: 56px; height: 56px; margin: -10px -18px -10px -6px;"><span class="font-headline-sm text-headline-sm font-bold tracking-tight text-[#1B2A4A] flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></a></div><nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-on-surface font-semibold"><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="features" href="#features">功能特性</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="workflow" href="#workflow">工作流程</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="excel-template" href="#features">底价表规范</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="faq" href="#faq">常见问题</a></nav><div class="flex items-center gap-2 sm:gap-space-md">
@@ -91,7 +109,7 @@
 <div class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop">
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <!-- Metric Card 1 -->
-<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">
+<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="0">
 <div class="flex items-center justify-between mb-4">
 <span class="font-display-lg text-display-lg font-bold text-primary-container tracking-tight">逐行解析</span>
 <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[20px]">psychology</span></div>
@@ -104,7 +122,7 @@
 </div>
 </div>
 <!-- Metric Card 2 -->
-<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">
+<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="100">
 <div class="flex items-center justify-between mb-4">
 <span class="font-display-lg text-display-lg font-bold text-primary-container tracking-tight">10 秒</span>
 <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container">
@@ -117,7 +135,7 @@
 </div>
 </div>
 <!-- Metric Card 3 -->
-<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">
+<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="200">
 <div class="flex items-center justify-between mb-4">
 <span class="font-display-lg text-display-lg font-bold text-primary-container tracking-tight">零密码</span>
 <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container">
@@ -136,7 +154,7 @@
 <section class="w-full py-24 bg-surface-container-lowest" id="workflow">
 <div class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop">
 <!-- Section Header -->
-<div class="text-center max-w-3xl mx-auto mb-16">
+<div class="scroll-reveal text-center max-w-3xl mx-auto mb-16" data-reveal-delay="0">
 <span class="font-label-md text-label-md uppercase tracking-wider text-primary-container font-semibold block mb-3">极速流转</span>
 <h2 class="font-headline-xl text-headline-xl text-on-surface font-bold tracking-tight mb-4">
           告别繁琐复杂的 Excel 与计算器，三步完成报价闭环
@@ -148,7 +166,7 @@
 <!-- Step Cards Grid -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 <!-- Step 1 -->
-<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1">
+<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1" data-reveal-delay="0">
 <div class="flex items-center justify-between mb-6">
 <span class="font-headline-lg text-headline-lg font-bold text-primary-container font-numeric-data">01</span>
 <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[20px]">psychology</span></div>
@@ -161,9 +179,9 @@
 </div>
 </div>
 <!-- Step 2 -->
-<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1"><div class="flex items-center justify-between mb-6"><span class="font-headline-lg text-headline-lg font-bold text-primary-container font-numeric-data">02</span><div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[20px]">psychology</span></div></div><div class="w-full h-44 mb-6 rounded-xl bg-surface-container-low/50 border border-outline-variant/30 flex items-center justify-center p-4 overflow-hidden"><svg class="w-full h-full" viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="36" width="90" height="112" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"></rect><line x1="44" y1="54" x2="96" y2="54" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"></line><line x1="44" y1="68" x2="106" y2="68" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><line x1="44" y1="80" x2="90" y2="80" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><line x1="44" y1="92" x2="100" y2="92" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><rect x="42" y="108" width="66" height="24" rx="4" fill="#eaedff" stroke="#1d4ed8" stroke-width="1"></rect><line x1="48" y1="120" x2="86" y2="120" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"></line><rect x="198" y="36" width="96" height="112" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"></rect><rect x="198" y="36" width="96" height="24" rx="8" fill="#eaedff"></rect><line x1="198" y1="60" x2="294" y2="60" stroke="#1d4ed8" stroke-width="1.5"></line><line x1="246" y1="36" x2="246" y2="148" stroke="#1d4ed8" stroke-width="1.5"></line><line x1="198" y1="88" x2="294" y2="88" stroke="#dae2fd" stroke-width="1"></line><line x1="198" y1="116" x2="294" y2="116" stroke="#dae2fd" stroke-width="1"></line><circle cx="160" cy="82" r="28" fill="#f2f3ff" stroke="#1d4ed8" stroke-width="2.5"></circle><circle cx="160" cy="82" r="20" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="3 3"></circle><line x1="180" y1="102" x2="200" y2="122" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"></line><path d="M154 82H166M160 76V88" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"></path><path d="M124 38L126 30L128 38L136 40L128 42L126 50L124 42L116 40Z" fill="#F59E0B"></path><path d="M190 28L191.5 22L193 28L199 29.5L193 31L191.5 37L190 31L184 29.5Z" fill="#F59E0B"></path><path d="M164 140L165.5 134L167 140L173 141.5L167 143L165.5 149L164 143L158 141.5Z" fill="#F59E0B"></path></svg></div><h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3">AI 解析 ＋ 匹配底价</h3><p class="font-body-md text-body-md text-on-surface-variant leading-relaxed flex-grow">大模型深度抽取品名、数量与 FOB/CIF 条款，智能联动内部 Excel 底价表，锁定阶梯价与你设定的结算汇率。</p><div class="mt-6 pt-4 bg-surface-container-low p-4 rounded-xl"><span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">核心匹配技术</span><span class="font-body-sm text-body-sm text-on-surface font-medium">智能模糊匹配、阶梯起订量换算、汇率手动设定</span></div></div>
+<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1" data-reveal-delay="100"><div class="flex items-center justify-between mb-6"><span class="font-headline-lg text-headline-lg font-bold text-primary-container font-numeric-data">02</span><div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[20px]">psychology</span></div></div><div class="w-full h-44 mb-6 rounded-xl bg-surface-container-low/50 border border-outline-variant/30 flex items-center justify-center p-4 overflow-hidden"><svg class="w-full h-full" viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="36" width="90" height="112" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"></rect><line x1="44" y1="54" x2="96" y2="54" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"></line><line x1="44" y1="68" x2="106" y2="68" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><line x1="44" y1="80" x2="90" y2="80" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><line x1="44" y1="92" x2="100" y2="92" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><rect x="42" y="108" width="66" height="24" rx="4" fill="#eaedff" stroke="#1d4ed8" stroke-width="1"></rect><line x1="48" y1="120" x2="86" y2="120" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"></line><rect x="198" y="36" width="96" height="112" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"></rect><rect x="198" y="36" width="96" height="24" rx="8" fill="#eaedff"></rect><line x1="198" y1="60" x2="294" y2="60" stroke="#1d4ed8" stroke-width="1.5"></line><line x1="246" y1="36" x2="246" y2="148" stroke="#1d4ed8" stroke-width="1.5"></line><line x1="198" y1="88" x2="294" y2="88" stroke="#dae2fd" stroke-width="1"></line><line x1="198" y1="116" x2="294" y2="116" stroke="#dae2fd" stroke-width="1"></line><circle cx="160" cy="82" r="28" fill="#f2f3ff" stroke="#1d4ed8" stroke-width="2.5"></circle><circle cx="160" cy="82" r="20" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="3 3"></circle><line x1="180" y1="102" x2="200" y2="122" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"></line><path d="M154 82H166M160 76V88" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"></path><path d="M124 38L126 30L128 38L136 40L128 42L126 50L124 42L116 40Z" fill="#F59E0B"></path><path d="M190 28L191.5 22L193 28L199 29.5L193 31L191.5 37L190 31L184 29.5Z" fill="#F59E0B"></path><path d="M164 140L165.5 134L167 140L173 141.5L167 143L165.5 149L164 143L158 141.5Z" fill="#F59E0B"></path></svg></div><h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3">AI 解析 ＋ 匹配底价</h3><p class="font-body-md text-body-md text-on-surface-variant leading-relaxed flex-grow">大模型深度抽取品名、数量与 FOB/CIF 条款，智能联动内部 Excel 底价表，锁定阶梯价与你设定的结算汇率。</p><div class="mt-6 pt-4 bg-surface-container-low p-4 rounded-xl"><span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">核心匹配技术</span><span class="font-body-sm text-body-sm text-on-surface font-medium">智能模糊匹配、阶梯起订量换算、汇率手动设定</span></div></div>
 <!-- Step 3 -->
-<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1">
+<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1" data-reveal-delay="200">
 <div class="flex items-center justify-between mb-6">
 <span class="font-headline-lg text-headline-lg font-bold text-primary-container font-numeric-data">03</span>
 <div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container">
@@ -184,7 +202,7 @@
 <section class="w-full py-24 bg-surface-container-low" id="features">
 <div class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop">
 <!-- Section Header -->
-<div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+<div class="scroll-reveal flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6" data-reveal-delay="0">
 <div class="max-w-2xl">
 <span class="font-label-md text-label-md uppercase tracking-wider text-primary-container font-semibold block mb-3">底价表规则引擎</span>
 <h2 class="font-headline-xl text-headline-xl text-on-surface font-bold tracking-tight mb-4">
@@ -204,7 +222,7 @@
 <!-- Features Grid -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 <!-- Feature 1 -->
-<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">
+<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="0">
 <div>
 <div class="w-12 h-12 rounded-xl bg-surface-container-low text-primary-container flex items-center justify-center mb-6">
 <span class="material-symbols-outlined text-[24px]">layers</span>
@@ -228,7 +246,7 @@
 </div>
 </div>
 <!-- Feature 2 -->
-<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">
+<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="100">
 <div>
 <div class="w-12 h-12 rounded-xl bg-surface-container-low text-primary-container flex items-center justify-center mb-6">
 <span class="material-symbols-outlined text-[24px]">currency_exchange</span>
@@ -247,7 +265,7 @@
 </div>
 </div>
 <!-- Feature 3 -->
-<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">
+<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="200">
 <div>
 <div class="w-12 h-12 rounded-xl bg-surface-container-low text-primary-container flex items-center justify-center mb-6">
 <span class="material-symbols-outlined text-[24px]">security</span>
@@ -271,7 +289,7 @@
 <section class="w-full py-24 bg-surface-container-lowest" id="faq">
 <div class="max-w-[960px] mx-auto px-margin-mobile md:px-margin-desktop">
 <!-- Section Header -->
-<div class="text-center mb-16">
+<div class="scroll-reveal text-center mb-16" data-reveal-delay="0">
 <span class="font-label-md text-label-md uppercase tracking-wider text-primary-container font-semibold block mb-3">答疑解惑</span>
 <h2 class="font-headline-xl text-headline-xl text-on-surface font-bold tracking-tight mb-4">
           常见问题解答
@@ -283,7 +301,7 @@
 <!-- FAQ Accordion List -->
 <div class="flex flex-col gap-4">
 <!-- FAQ Item 1 -->
-<div class="bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all">
+<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="0">
 <div class="flex items-start justify-between gap-4 cursor-pointer" onclick="toggleFaq(this)">
 <h3 class="font-headline-md text-headline-md font-semibold text-on-surface">
               我的出厂底价与客户数据安全吗？存储在哪里？
@@ -293,7 +311,7 @@
 <div class="mt-4 pt-4 border-t border-outline-variant/30 text-on-surface-variant font-body-md text-body-md leading-relaxed">您的底价表与客户数据保存在私有工作区并加密存储，模型仅在单次报价时读取比对，不会用于公共模型训练。</div>
 </div>
 <!-- FAQ Item 2 -->
-<div class="bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all">
+<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="100">
 <div class="flex items-start justify-between gap-4 cursor-pointer" onclick="toggleFaq(this)">
 <h3 class="font-headline-md text-headline-md font-semibold text-on-surface">
               使用 KelvinFlow 需要绑定我的私人或企业邮箱吗？
@@ -303,7 +321,7 @@
 <div class="mt-4 pt-4 border-t border-outline-variant/30 text-on-surface-variant font-body-md text-body-md leading-relaxed">不需要提供邮箱登录密码。注册后你会得到一个专属助理邮箱，把询盘邮件转发过去即可，也支持 Gmail / Outlook 自动转发规则，设置一次之后零操作。进阶用户可在设置中自愿开启 IMAP 授权（使用应用专用密码，可随时撤销），让报价草稿直接写入你的邮箱草稿箱。</div>
 </div>
 <!-- FAQ Item 3 -->
-<div class="bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all">
+<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="200">
 <div class="flex items-start justify-between gap-4 cursor-pointer" onclick="toggleFaq(this)">
 <h3 class="font-headline-md text-headline-md font-semibold text-on-surface">
               免费试用期间需要绑定信用卡或预付款吗？
@@ -315,7 +333,7 @@
           </div>
 </div>
 <!-- FAQ Item 4 -->
-<div class="bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all">
+<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="300">
 <div class="flex items-start justify-between gap-4 cursor-pointer" onclick="toggleFaq(this)">
 <h3 class="font-headline-md text-headline-md font-semibold text-on-surface">
               支持非标准产品或定制化询盘吗？
@@ -332,7 +350,7 @@
 <!-- ==================== PRE-FOOTER CONVERSION CALLOUT ==================== -->
 <section class="w-full py-20 bg-surface-container-low" id="trial">
 <div class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop">
-<div class="bg-surface-container-lowest rounded-3xl p-10 md:p-16 shadow-lg text-center flex flex-col items-center">
+<div class="scroll-reveal bg-surface-container-lowest rounded-3xl p-10 md:p-16 shadow-lg text-center flex flex-col items-center" data-reveal-delay="0">
 <div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center text-primary-container mb-6 shadow-sm">
 <span class="material-symbols-outlined text-[32px]">outgoing_mail</span>
 </div>
@@ -375,7 +393,7 @@
       icon.style.transform = 'rotate(0deg)';
     }
   }
-</script></main><footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl" id="footer"><div class="max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg"><div class="flex flex-col items-center md:items-start gap-space-xs"><div class="flex items-center gap-1.5"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" style="width: 48px; height: 48px; margin: -8px -15px -8px -4px;"><span class="font-headline-sm text-headline-sm text-[#1B2A4A] flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></div><p class="font-body-sm text-body-sm text-on-surface-variant">© 2026 KelvinFlow. All rights reserved.</p></div><div class="flex flex-col md:flex-row items-center gap-space-lg"><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a></div></div></footer>
+</script></main><footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl" id="footer"><div class="scroll-reveal max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg" data-reveal-delay="0"><div class="flex flex-col items-center md:items-start gap-space-xs"><div class="flex items-center gap-1.5"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" style="width: 48px; height: 48px; margin: -8px -15px -8px -4px;"><span class="font-headline-sm text-headline-sm text-[#1B2A4A] flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></div><p class="font-body-sm text-body-sm text-on-surface-variant">© 2026 KelvinFlow. All rights reserved.</p></div><div class="flex flex-col md:flex-row items-center gap-space-lg"><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a></div></div></footer>
 
   <!-- ========================================================================= -->
   <!-- 弹窗交互组件群 (Reskinned Precision Trade Minimal Modals)                   -->
@@ -1545,9 +1563,71 @@
       }
     });
 
+    // =========================================================================
+    // 滚动渐入动画 (Scroll Reveal via IntersectionObserver)
+    // =========================================================================
+    function initScrollReveal() {
+      // 3. prefers-reduced-motion 时禁用动画，内容直接显示
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+          el.classList.remove('scroll-reveal');
+        });
+        return;
+      }
+
+      // 检查浏览器是否支持 IntersectionObserver
+      if (!('IntersectionObserver' in window)) {
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+          el.classList.remove('scroll-reveal');
+        });
+        return;
+      }
+
+      const revealElements = document.querySelectorAll('.scroll-reveal');
+      if (!revealElements.length) return;
+
+      const observer = new IntersectionObserver((entries, obs) => {
+        const intersecting = entries.filter(e => e.isIntersecting);
+        intersecting.forEach((entry, idx) => {
+          const el = entry.target;
+          // 2. 进入视口触发一次，立即取消监听（不重复触发）
+          obs.unobserve(el);
+
+          // 1. 依次错开约 80–120ms (默认取 100ms 错开)
+          const customDelay = el.dataset.revealDelay;
+          const delay = customDelay !== undefined ? parseInt(customDelay, 10) : (idx * 100);
+
+          setTimeout(() => {
+            el.classList.add('revealed');
+
+            // 4. 动画完成后清理类名，确保原有 hover / transition 100% 不受影响
+            const cleanup = () => {
+              el.classList.remove('scroll-reveal', 'revealed');
+              el.removeEventListener('transitionend', onEnd);
+            };
+            const onEnd = (e) => {
+              if (e.propertyName === 'transform') cleanup();
+            };
+            el.addEventListener('transitionend', onEnd);
+            setTimeout(cleanup, 750); // 兜底清理
+          }, delay);
+        });
+      }, {
+        root: null,
+        rootMargin: '0px 0px -40px 0px',
+        threshold: 0.1
+      });
+
+      revealElements.forEach(el => observer.observe(el));
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       updateNavForLoggedInUser();
+      initScrollReveal();
     });
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      initScrollReveal();
+    }
   </script>
 
 </body></html>
