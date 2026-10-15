@@ -663,10 +663,22 @@ const modalsAndScripts = `
         return;
       }
 
-      if (btn) {
-        btn.disabled = true;
-        btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i>';
-      }
+      // 立即进入禁用＋60s 倒计时（不依赖 API 返回）
+      if (btn) btn.disabled = true;
+      let secondsLeft = 60;
+      if (btnText) btnText.textContent = secondsLeft + 's可重发';
+      if (verificationCooldownTimer) clearInterval(verificationCooldownTimer);
+      verificationCooldownTimer = setInterval(() => {
+        secondsLeft--;
+        if (secondsLeft <= 0) {
+          clearInterval(verificationCooldownTimer);
+          verificationCooldownTimer = null;
+          if (btn) btn.disabled = false;
+          if (btnText) btnText.textContent = '获取验证码';
+        } else {
+          if (btnText) btnText.textContent = secondsLeft + 's可重发';
+        }
+      }, 1000);
 
       try {
         const res = await fetch('/api/v1/auth/trial-register/send-code', {
@@ -681,10 +693,6 @@ const modalsAndScripts = `
             riskErr.textContent = data.error || '验证码发送受阻，请稍后再试';
             riskErr.classList.remove('hidden');
           }
-          if (btn) {
-            btn.disabled = false;
-            btnText.textContent = '获取验证码';
-          }
           return;
         }
 
@@ -695,30 +703,11 @@ const modalsAndScripts = `
 
         document.getElementById('inbound-code')?.focus();
 
-        let secondsLeft = 60;
-        btnText.textContent = secondsLeft + 's可重发';
-        if (verificationCooldownTimer) clearInterval(verificationCooldownTimer);
-        verificationCooldownTimer = setInterval(() => {
-          secondsLeft--;
-          if (secondsLeft <= 0) {
-            clearInterval(verificationCooldownTimer);
-            verificationCooldownTimer = null;
-            if (btn) btn.disabled = false;
-            if (btnText) btnText.textContent = '获取验证码';
-          } else {
-            if (btnText) btnText.textContent = secondsLeft + 's可重发';
-          }
-        }, 1000);
-
       } catch (err) {
         console.error('发送验证码网络异常:', err);
         if (riskErr) {
           riskErr.textContent = '网络连接异常，请重试';
           riskErr.classList.remove('hidden');
-        }
-        if (btn) {
-          btn.disabled = false;
-          btnText.textContent = '获取验证码';
         }
       }
     }
@@ -952,10 +941,22 @@ const modalsAndScripts = `
         return;
       }
 
-      if (btn) {
-        btn.disabled = true;
-        btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i>';
-      }
+      // 立即进入禁用＋60s 倒计时（不依赖 API 返回）
+      if (btn) btn.disabled = true;
+      let secondsLeft = 60;
+      if (btnText) btnText.textContent = secondsLeft + 's可重发';
+      if (forgotPasswordCooldownTimer) clearInterval(forgotPasswordCooldownTimer);
+      forgotPasswordCooldownTimer = setInterval(() => {
+        secondsLeft--;
+        if (secondsLeft <= 0) {
+          clearInterval(forgotPasswordCooldownTimer);
+          forgotPasswordCooldownTimer = null;
+          if (btn) btn.disabled = false;
+          btnText.textContent = '获取验证码';
+        } else {
+          btnText.textContent = secondsLeft + 's可重发';
+        }
+      }, 1000);
 
       try {
         const res = await fetch('/api/v1/auth/forgot-password/send-code', {
@@ -970,10 +971,6 @@ const modalsAndScripts = `
             errFeedback.textContent = data.error || '验证码发送受阻，请稍后再试';
             errFeedback.classList.remove('hidden');
           }
-          if (btn) {
-            btn.disabled = false;
-            btnText.textContent = '获取验证码';
-          }
           return;
         }
 
@@ -984,30 +981,11 @@ const modalsAndScripts = `
 
         document.getElementById('forgot-code')?.focus();
 
-        let secondsLeft = 60;
-        btnText.textContent = secondsLeft + 's可重发';
-        if (forgotPasswordCooldownTimer) clearInterval(forgotPasswordCooldownTimer);
-        forgotPasswordCooldownTimer = setInterval(() => {
-          secondsLeft--;
-          if (secondsLeft <= 0) {
-            clearInterval(forgotPasswordCooldownTimer);
-            forgotPasswordCooldownTimer = null;
-            if (btn) btn.disabled = false;
-            btnText.textContent = '获取验证码';
-          } else {
-            btnText.textContent = secondsLeft + 's可重发';
-          }
-        }, 1000);
-
       } catch (err) {
         console.error('发送密码重置码网络异常:', err);
         if (errFeedback) {
           errFeedback.textContent = '网络连接异常，请重试';
           errFeedback.classList.remove('hidden');
-        }
-        if (btn) {
-          btn.disabled = false;
-          btnText.textContent = '获取验证码';
         }
       }
     }
@@ -1260,6 +1238,28 @@ const modalsAndScripts = `
       updateNavForLoggedInUser();
       window.location.href = '/?logged_out=1';
     }
+
+    // 监听全局 Escape 快捷键关闭当前最上层弹窗 (D1)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const forgotModal = document.getElementById('forgot-password-modal');
+        const logoutModal = document.getElementById('logout-confirm-modal');
+        const inboundModal = document.getElementById('inbound-modal');
+
+        if (forgotModal && !forgotModal.classList.contains('hidden')) {
+          closeForgotPasswordModal();
+          return;
+        }
+        if (logoutModal && !logoutModal.classList.contains('hidden')) {
+          closeLogoutModal();
+          return;
+        }
+        if (inboundModal && !inboundModal.classList.contains('hidden')) {
+          closeInboundModal();
+          return;
+        }
+      }
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
       updateNavForLoggedInUser();
