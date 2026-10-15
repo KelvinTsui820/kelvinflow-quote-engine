@@ -206,10 +206,8 @@ export class PDFService {
       let currentY = 24;
 
       // =========================================================================
-      // 1. 公司 Header 栏与文档大标题 (高阶自适应外贸版式，左右分栏，动态行高防碰撞)
+      // 1. 公司 Header 栏与文档大标题 (统一纯文字公司抬头版式，左右分栏，动态行高防碰撞)
       // =========================================================================
-      const customLogoPath = (options.logoPath !== undefined) ? options.logoPath : TenantService.getTenantLogoPath(tenantId);
-      const hasLogo = Boolean(customLogoPath && fs.existsSync(customLogoPath));
 
       // 智能清洗联系方式行 (过滤测试租户假域名，确保单行优雅展示)
       const cleanWebsite = (website && !website.includes('tenant_trial_') && !website.includes('tenant_') && website !== 'www.kelvinflow.com' && website.includes('.'))
@@ -226,20 +224,7 @@ export class PDFService {
       const rightStartX = startX + pageWidth - rightWidth;
       const maxLeftTextX = rightStartX - 16;
       
-      let textStartX = startX;
-      let logoBottomY = 20;
-
-      if (hasLogo && customLogoPath) {
-        try {
-          doc.image(customLogoPath, startX, 20, { fit: [54, 46] });
-          textStartX = startX + 62;
-          logoBottomY = 20 + 46;
-        } catch (imgErr) {
-          console.warn('PDF custom logo embed warning:', imgErr);
-          textStartX = startX;
-        }
-      }
-
+      const textStartX = startX;
       const leftMaxWidth = Math.max(180, maxLeftTextX - textStartX);
 
       // 左侧企业信息动态流水排版 (严格根据每段文字实际折行与高度累加 Y 坐标，彻底杜绝任何重叠碰撞)
@@ -335,7 +320,7 @@ export class PDFService {
       }
 
       // 贯穿高质感装饰分割线 (自适应沉降到所有 Header 元素最底端之下，留足 6pt 安全呼吸边距)
-      const headerBottomY = Math.max(leftY, rightY, logoBottomY, 82);
+      const headerBottomY = Math.max(leftY, rightY, 82);
       const dividerY = headerBottomY + 6;
 
       doc

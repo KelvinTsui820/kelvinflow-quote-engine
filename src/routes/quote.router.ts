@@ -15,6 +15,7 @@ import { DraftService } from '../services/draft.service.js';
 import { NotificationService } from '../services/notification.service.js';
 import { EmailVerificationService } from '../services/email-verification.service.js';
 import { ExchangeRateService } from '../services/exchangeRate.service.js';
+import { InquiryService } from '../services/inquiry.service.js';
 import { authMiddleware, requireRole, requireActiveTenant } from '../middlewares/auth.middleware.js';
 import { ProcessQuoteResponse, StandardPriceItem, StandardExchangeRate, QuotationResult, TenantProfile } from '../types/index.js';
 
@@ -454,108 +455,6 @@ quoteRouter.post('/auth/forgot-password/reset', async (req: Request, res: Respon
   }
 });
 
-/**
- * 查询用户专属邀请码与同行裂变统计
- * GET /api/v1/auth/referral-info
- */
-quoteRouter.get('/auth/referral-info', async (req: Request, res: Response): Promise<any> => {
-  try {
-    const query = (req.query.phone || req.query.code || req.query.email || (req as any).user?.email || '').toString().trim();
-    if (!query) {
-      return res.json({
-        success: true,
-        data: {
-          phone: '',
-          inviteCode: '--',
-          referralCount: 0,
-          rewardDays: 0,
-          expiresAt: '',
-          remainingDays: 0,
-          status: 'none',
-          shareUrl: '',
-          shareText: ''
-        }
-      });
-    }
-
-    const baseUrl = process.env.PUBLIC_APP_URL?.replace(/\/+$/, '') || `${req.protocol}://${req.get('host')}`;
-    const info = TrialService.getReferralInfo(query, baseUrl);
-    if (!info) {
-      return res.json({
-        success: true,
-        data: {
-          phone: query,
-          inviteCode: query,
-          referralCount: 0,
-          rewardDays: 0,
-          expiresAt: '',
-          remainingDays: 0,
-          status: 'none',
-          shareUrl: `${baseUrl}/?ref=${encodeURIComponent(query)}`,
-          shareText: ''
-        }
-      });
-    }
-
-    return res.json({ success: true, data: info });
-  } catch (error: any) {
-    console.error('❌ 获取邀请信息失败:', error);
-    return res.status(500).json({ success: false, error: error.message || '获取邀请信息失败' });
-  }
-});
-
-/**
- * 管理员极速升级租户为正式付费版 (支持扫码转账核销、时长顺延、推荐人裂变自动返赠)
- * POST /api/v1/admin/upgrade-tenant
- */
-quoteRouter.post('/admin/upgrade-tenant', async (req: Request, res: Response): Promise<any> => {
-  try {
-    const adminKey = (req.headers['x-api-key'] as string) || (req.query.api_key as string);
-    const adminSecret = req.body.adminSecret || (req.headers['x-admin-secret'] as string);
-    const expectedSecret = process.env.ADMIN_SECRET || process.env.JWT_SECRET || 'kelvinflow_secret_key_2026';
-    const expectedApiKey = process.env.ADMIN_API_KEY || 'key_default_admin_2026';
-
-    const isAuthorized = 
-      (req.user && req.user.role === 'admin') ||
-      (adminKey && (adminKey === expectedApiKey || adminKey === 'key_default_admin_2026')) ||
-      (adminSecret && adminSecret === expectedSecret);
-
-    if (!isAuthorized) {
-      return res.status(403).json({
-        success: false,
-        error: '【无权操作】仅限平台超级管理员执行租户升级核销'
-      });
-    }
-
-    const { phone, email, phoneOrEmail, plan, months, extendDays, amountPaid, note } = req.body;
-    const targetQuery = (phoneOrEmail || phone || email || '').trim();
-
-    if (!targetQuery) {
-      return res.status(400).json({
-        success: false,
-        error: '请提供待升级用户的手机号或邮箱 (phone / email / phoneOrEmail)'
-      });
-    }
-
-    const result = TrialService.upgradeTenantToPaid({
-      phoneOrEmail: targetQuery,
-      plan: plan || 'geek',
-      months: typeof months === 'number' ? months : (months ? parseInt(months, 10) : 1),
-      extendDays: typeof extendDays === 'number' ? extendDays : (extendDays ? parseInt(extendDays, 10) : undefined),
-      amountPaid: typeof amountPaid === 'number' ? amountPaid : (amountPaid ? parseFloat(amountPaid) : undefined),
-      note
-    });
-
-    if (!result.success) {
-      return res.status(400).json(result);
-    }
-
-    return res.json(result);
-  } catch (error: any) {
-    console.error('❌ 租户升级接口异常:', error);
-    return res.status(500).json({ success: false, error: error.message || '系统升级处理异常' });
-  }
-});
 
 
 /**
@@ -698,58 +597,6 @@ quoteRouter.get('/tenant/profile', async (req: Request, res: Response): Promise<
 });
 
 /**
- * 上传企业自定义专属 Logo (用于报价单 PDF 抬头与工作台展示)
- */
-quoteRouter.post(
-  '/tenant/logo',
-  upload.single('logo'),
-  async (req: Request, res: Response): Promise<any> => {
-    try {
-      const tenantId = req.tenantId || 'default';
-      let buffer: Buffer | null = null;
-      let filename = 'logo.png';
-
-      if (req.file) {
-        buffer = req.file.buffer;
-        filename = req.file.originalname || 'logo.png';
-      } else if (req.body?.logoBase64) {
-        const matches = req.body.logoBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-        if (matches && matches.length === 3) {
-          buffer = Buffer.from(matches[2], 'base64');
-          filename = req.body.filename || 'logo.png';
-        }
-      }
-
-      if (!buffer) {
-        return res.status(400).json({ success: false, error: '请上传有效图片文件 (PNG/JPG/SVG)' });
-      }
-
-      const result = TenantService.saveTenantLogo(tenantId, buffer, filename);
-      return res.json({
-        success: true,
-        message: '企业专属 Logo 上传成功，后续导出的 PDF 将自动采用该 Logo！',
-        logoUrl: result.logoUrl
-      });
-    } catch (err: any) {
-      return res.status(500).json({ success: false, error: err.message });
-    }
-  }
-);
-
-/**
- * 重置企业 Logo 为默认官方标识
- */
-quoteRouter.delete('/tenant/logo', async (req: Request, res: Response): Promise<any> => {
-  try {
-    const tenantId = req.tenantId || 'default';
-    TenantService.deleteTenantLogo(tenantId);
-    return res.json({ success: true, message: '已重置为默认品牌标识' });
-  } catch (err: any) {
-    return res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-/**
  * 更新企業租戶資料 (支持管理員與業務員編輯，即時生效)
  */
 quoteRouter.put('/tenant/profile', requireRole(['admin', 'sales']), async (req: Request, res: Response): Promise<any> => {
@@ -812,6 +659,42 @@ quoteRouter.get('/quotes', async (req: Request, res: Response): Promise<any> => 
     quotes
   });
 });
+
+/**
+ * 查询当前租户名下的所有询盘一等实体列表 (Task §2.5 / D-12 租户物理隔离 / 纯只读不写)
+ * GET /api/v1/inquiries
+ */
+quoteRouter.get('/inquiries', async (req: Request, res: Response): Promise<any> => {
+  const tenantId = req.tenantId || 'default';
+  const inquiries = InquiryService.listInquiries(tenantId);
+  return res.json({
+    success: true,
+    tenantId,
+    total: inquiries.length,
+    inquiries
+  });
+});
+
+/**
+ * 查询指定询盘实体详情 (Task §2.5 / D-12 严格防跨租户越权窥探 / 纯只读不写)
+ * GET /api/v1/inquiries/:id
+ */
+quoteRouter.get('/inquiries/:id', async (req: Request, res: Response): Promise<any> => {
+  const tenantId = req.tenantId || 'default';
+  const inquiryId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const inquiry = InquiryService.getInquiry(inquiryId, tenantId);
+  if (!inquiry) {
+    return res.status(404).json({
+      success: false,
+      error: `【未找到或无权访问】询盘 [${inquiryId}] 不存在或不属于当前租户`
+    });
+  }
+  return res.json({
+    success: true,
+    tenantId,
+    inquiry
+  });
+});
 /**
  * 獲取當前租戶底價表生效狀態與摘要
  */
@@ -869,36 +752,30 @@ quoteRouter.get('/rates/latest', async (req: Request, res: Response): Promise<an
 });
 
 /**
- * 下載出廠底價表 Excel 模板 (優先讀取「商品底价表/出厂底价表.xlsx」)
+ * 下载出厂底价表 Excel 模板 (标准模板: public/templates/kelvinflow-pricing-template.xlsx)
  */
 quoteRouter.get('/template/pricing-sheet', (req: Request, res: Response) => {
-  // 優先動態檢索「商品底价表」目錄下的出廠底價表
+  const templatePath = path.join(process.cwd(), 'public', 'templates', 'kelvinflow-pricing-template.xlsx');
   const commodityPricing = TenantService.getCommodityPricingFile();
-  const directPath = path.join(process.cwd(), '商品底价表', '出厂底价表.xlsx');
-  const templatePath = path.join(process.cwd(), 'public', 'templates', '出厂底价表.xlsx');
-  const activePath = path.join(process.cwd(), 'data', 'active_pricing.xlsx');
+  const directPath = path.join(process.cwd(), '商品底价表', '外贸出厂底价表与智能核价模板.xlsx');
 
   let fileToSend = '';
-  if (commodityPricing && fs.existsSync(commodityPricing.sourcePath)) {
+  if (fs.existsSync(templatePath)) {
+    fileToSend = templatePath;
+  } else if (commodityPricing && fs.existsSync(commodityPricing.sourcePath)) {
     fileToSend = commodityPricing.sourcePath;
   } else if (fs.existsSync(directPath)) {
     fileToSend = directPath;
-  } else if (fs.existsSync(templatePath)) {
-    fileToSend = templatePath;
-  } else if (fs.existsSync(activePath)) {
-    fileToSend = activePath;
-  } else {
-    fileToSend = path.join(process.cwd(), 'public', 'templates', 'pricing_template.xlsx');
   }
 
-  if (!fs.existsSync(fileToSend)) {
-    return res.status(404).json({ success: false, error: '底價表模板未就緒' });
+  if (!fileToSend || !fs.existsSync(fileToSend)) {
+    return res.status(404).json({ success: false, error: '底价表模板未就绪' });
   }
 
   const encodedFilename = encodeURIComponent('外贸出厂底价表与智能核价模板.xlsx');
   res.setHeader(
     'Content-Disposition',
-    `attachment; filename="foreign_trade_factory_cost_pricing_template.xlsx"; filename*=UTF-8''${encodedFilename}`
+    `attachment; filename="kelvinflow-pricing-template.xlsx"; filename*=UTF-8''${encodedFilename}`
   );
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   return res.sendFile(fileToSend);
@@ -1386,100 +1263,6 @@ ${tenantCompany}`;
     }
   }
 );
-
-// =========================================================================
-// 2.5 【租戶生效底價商品清單查詢 (選型器與防呆)】: GET /api/v1/catalog
-// =========================================================================
-quoteRouter.get('/catalog', async (req: Request, res: Response): Promise<any> => {
-  try {
-    const tenantId = req.tenantId || 'default';
-    const pricingBuffer = TenantService.getActivePricingBuffer(tenantId);
-    if (!pricingBuffer) {
-      return res.json({ success: true, catalogItems: [] });
-    }
-    const tenantRules = TenantService.getTenantCustomRules(tenantId);
-    const parsed = ExcelAdapter.parse(pricingBuffer.buffer, { customRules: tenantRules });
-    const isOwnerOrStaff = Boolean(req.user && (req.user.tenantId === tenantId || req.user.role === 'admin'));
-    const catalogItems = (parsed.priceItems || []).map(p => ({
-      sku: p.rawSku,
-      name: p.productName,
-      basePrice: isOwnerOrStaff ? p.basePrice : 0,
-      moq: p.moq ?? 1,
-      leadTime: p.leadTime,
-      profitMargin: isOwnerOrStaff ? p.profitMargin : 0,
-      pcsPerCtn: p.pcsPerCtn,
-      cbmPerCtn: p.cbmPerCtn,
-      gwPerCtn: p.gwPerCtn,
-      aliases: p.aliases
-    }));
-    return res.json({ success: true, catalogItems });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// =========================================================================
-// 2.6 【底價庫條目刪除 (多租戶隔離 + 基准保護防呆 + 審計日誌)】: DELETE /api/v1/catalog/:sku
-// =========================================================================
-const handleCatalogDelete = async (req: Request, res: Response): Promise<any> => {
-  try {
-    const sku = String(req.params.sku || '').trim();
-    if (!sku) {
-      return res.status(400).json({ success: false, error: '请提供待删除的商品型号 SKU' });
-    }
-
-    const tenantId = req.tenantId || 'default';
-    const clientIp = ((req.headers['x-forwarded-for'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
-    const operator = req.user?.email || (req.user as any)?.username || 'anonymous_user';
-
-    // 檢查系統基准受保護商品
-    if (TenantService.PROTECTED_CATALOG_SKUS.some(p => p.toUpperCase() === sku.toUpperCase())) {
-      writeAuditLog({
-        action: 'DELETE_CATALOG_ITEM',
-        operator,
-        tenantId,
-        targetId: sku,
-        ip: clientIp,
-        status: 'FAILED',
-        details: 'Blocked: Protected Baseline Catalog Item'
-      });
-      return res.status(400).json({
-        success: false,
-        error: `【系统保护】商品型号 [${sku.toUpperCase()}] 为系统基准受保护商品，禁止删除！`
-      });
-    }
-
-    const deleteResult = TenantService.deleteCatalogItem(tenantId, sku);
-    if (!deleteResult.success) {
-      if (deleteResult.protected) {
-        return res.status(400).json({ success: false, error: deleteResult.error });
-      }
-      if (deleteResult.notFound) {
-        return res.status(404).json({ success: false, error: deleteResult.error || `在当前租户底价库中未找到型号为 [${sku}] 的商品` });
-      }
-      return res.status(500).json({ success: false, error: deleteResult.error || '删除底价库条目失败' });
-    }
-
-    writeAuditLog({
-      action: 'DELETE_CATALOG_ITEM',
-      operator,
-      tenantId,
-      targetId: sku,
-      ip: clientIp,
-      status: 'SUCCESS'
-    });
-
-    return res.json({
-      success: true,
-      message: `商品型号 [${sku}] 已从当前租户出厂底价库中成功删除`
-    });
-  } catch (error: any) {
-    console.error(`❌ 删除底价库条目 [${req.params.sku}] 异常:`, error);
-    return res.status(500).json({ success: false, error: error.message });
-  }
-};
-quoteRouter.delete('/catalog/:sku', handleCatalogDelete);
-quoteRouter.post('/catalog/:sku/delete', handleCatalogDelete);
 
 // =========================================================================
 // 3. 【在線微調單據詳情查詢 (多租戶隔離 + 底價安全脫敏)】: GET /api/v1/quotes/:id

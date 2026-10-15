@@ -308,60 +308,11 @@ export class TrialService {
     const tenantId = `tenant_trial_${emailPrefix}_${domainPrefix}`;
     const userId = `usr_trial_${emailPrefix}`;
 
-    // 7.1 检索推荐人信息与同行裂变激励
-    let referrerUser: TrialRecord | null = null;
-    let cleanRef = rawRef.trim();
-    if (cleanRef) {
-      if (cleanRef.toLowerCase() === cleanEmail.toLowerCase() || (cleanPhone && cleanRef.toLowerCase() === cleanPhone.toLowerCase())) {
-        return {
-          success: false,
-          error: '同行邀请码不能填写本人正在注册的邮箱！如无邀请码可留空直接开通。'
-        };
-      }
-      referrerUser = this.findTrialByPhoneOrEmail(cleanRef, cleanRef);
-      if (!referrerUser) {
-        referrerUser = this.getTrialByTenantId(cleanRef);
-      }
-      if (!referrerUser) {
-        const digits = cleanRef.replace(/\D/g, '');
-        if (digits.length === 11) {
-          referrerUser = this.findTrialByPhoneOrEmail(digits);
-        } else if (digits.length > 11 && digits.startsWith('86')) {
-          referrerUser = this.findTrialByPhoneOrEmail(digits.slice(2));
-        }
-      }
-      if (!referrerUser) {
-        return {
-          success: false,
-          error: `未找到同行邀请码 [${cleanRef}] 对应的有效外贸同行账号，请核对后重试（可留空直接开通）！`
-        };
-      }
-    }
-
-    // 新注册用户标准免费试用期为 7 天；成功填写有效同行邀请码，推荐人获得 +7 天额外时长奖励！
+    // 新注册用户标准免费试用期为 7 天
     const trialDays = 7;
-    const newRewardDays = 0;
-
-    if (referrerUser) {
-      // 推荐人获得邀请奖励：+7 天时长！
-      const refCurrentExp = new Date(referrerUser.expiresAt);
-      const refBase = refCurrentExp.getTime() > Date.now() ? refCurrentExp.getTime() : Date.now();
-      const refNewExp = new Date(refBase + 7 * 24 * 3600 * 1000);
-      referrerUser.expiresAt = refNewExp.toISOString();
-      if (referrerUser.status === 'expired') {
-        referrerUser.status = 'active'; // 重新唤醒
-      }
-      referrerUser.referralCount = (referrerUser.referralCount || 0) + 1;
-      referrerUser.rewardDays = (referrerUser.rewardDays || 0) + 7;
-      TenantService.updateTenantProfile(referrerUser.tenantId, {
-        expiresAt: referrerUser.expiresAt,
-        status: 'active'
-      });
-      console.log(`🎁 [同行推荐奖励] 推荐人 [${referrerUser.name || referrerUser.email}] 获得+7天奖励，延长至 ${refNewExp.toLocaleDateString('zh-CN')}！新用户享受标准 7 天免费试用`);
-    }
-
     const expiresAtDate = new Date(Date.now() + trialDays * 24 * 3600 * 1000);
     const expiresAt = expiresAtDate.toISOString();
+
 
     // 7.2 初始化租户目录并同步种子底价表
     const tenantDir = TenantService.getTenantDir(tenantId);
@@ -408,21 +359,13 @@ export class TrialService {
       createdAt: now.toISOString(),
       expiresAt,
       status: 'active',
-      lastLoginAt: now.toISOString(),
-      ip,
-      referredBy: referrerUser ? (referrerUser.phone || referrerUser.email) : undefined,
-      referralCount: 0,
-      rewardDays: newRewardDays
+      ip
     };
 
-    const allTrials = this.getAllTrials().map(t => {
-      if (referrerUser && t.id === referrerUser.id) {
-        return referrerUser;
-      }
-      return t;
-    });
+    const allTrials = this.getAllTrials();
     allTrials.unshift(newRecord);
     this.saveTrials(allTrials);
+
 
     // 7.5 签发安全 Token
     const user: AuthUser = {
@@ -444,10 +387,7 @@ export class TrialService {
       wechat,
       channelSource,
       productCategory: category,
-      ref: referrerUser ? `${referrerUser.name || referrerUser.email}` : (cleanRef || ''),
-      source: referrerUser 
-        ? `同行好友推荐 [${referrerUser.name || referrerUser.email}] 开通试用 (共${trialDays}天)` 
-        : `官网/工作台开通${trialDays}天全功能试用 (邮箱真验证)`,
+      source: `官网/工作台开通${trialDays}天全功能试用 (邮箱真验证)`,
       expiresAt,
       ip
     };
@@ -456,9 +396,7 @@ export class TrialService {
 
     console.log(`🎉 [试用开通成功] 邮箱 [${cleanEmail}], 手机 [${cleanPhone || '未填'}], 渠道 [${channelSource}], 租户 [${tenantId}], 试用期 [${trialDays}天]`);
 
-    const welcomeMsg = referrerUser 
-      ? `🎉 7 天全功能免费试用开通成功！已成功绑定同行好友推荐（好友已获赠 +7 天时长奖励）。底价表与历史单据将为您安全保留 30 天。正在进入工作台...`
-      : `🎉 7 天全功能免费试用开通成功！已为您的专属私有底价库加密保护，底价表与历史单据将安全保留 30 天。正在为您跳转至外贸智能审单工作台...`;
+    const welcomeMsg = `🎉 7 天全功能免费试用开通成功！已为您的专属私有底价库加密保护，底价表与历史单据将安全保留 30 天。正在为您跳转至外贸智能审单工作台...`;
 
     return {
       success: true,
@@ -834,44 +772,13 @@ export class TrialService {
       dataRetentionUntil: new Date(Date.now() + 3 * 365 * 24 * 3600 * 1000).toISOString()
     });
 
-    // 裂变奖励核算：若此人是通过他人推荐注册，给推荐人奖励 +30 天 (1个月)
-    let referrerReward: any = undefined;
-    let referrer: TrialRecord | null = null;
-    if (trial.referredBy) {
-      referrer = this.findTrialByPhoneOrEmail(trial.referredBy);
-      if (referrer) {
-        const refCurExp = new Date(referrer.expiresAt).getTime();
-        const refBaseTime = refCurExp > now ? refCurExp : now;
-        const bonusDays = 30;
-        const refNewExp = new Date(refBaseTime + bonusDays * 24 * 3600 * 1000).toISOString();
-
-        referrer.expiresAt = refNewExp;
-        referrer.status = 'converted';
-        referrer.rewardDays = (referrer.rewardDays || 0) + bonusDays;
-
-        TenantService.updateTenantProfile(referrer.tenantId, {
-          expiresAt: refNewExp,
-          status: 'active'
-        });
-
-        referrerReward = {
-          phone: referrer.phone,
-          name: referrer.name,
-          addedDays: bonusDays,
-          newExpiresAt: refNewExp
-        };
-
-        console.log(`🎁 [好友付费转正奖励] 推荐人 [${referrer.name} (${referrer.phone})] 获得 +${bonusDays} 天服务时长！`);
-      }
-    }
-
-    // 保存主账本 (同时持久化当前租户与推荐人奖励)
+    // 保存主账本
     const all = this.getAllTrials().map(t => {
       if (t.id === trial.id) return trial;
-      if (referrer && t.id === referrer.id) return referrer;
       return t;
     });
     this.saveTrials(all);
+
 
     // 签发正式付费 Token
     const user: AuthUser = {
@@ -904,69 +811,12 @@ export class TrialService {
       message: `🎉 租户 [${trial.phone}] 成功升级为 [${plan}]！已顺延 ${addDays} 天，有效期至 ${this.formatExpiryDateTime(newExpiresAt)}`,
       trial,
       tenant,
-      referrerReward,
       token,
       isNewAccount,
       initialPassword: initialPasswordUsed || undefined
     };
   }
 
-  /**
-   * 获取用户专属同行邀请码与裂变统计
-   */
-  static getReferralInfo(phoneOrEmailOrTenant: string, baseUrl: string = 'https://quote.kelvinflow.com'): {
-    phone: string;
-    inviteCode: string;
-    referralCount: number;
-    rewardDays: number;
-    expiresAt: string;
-    remainingDays: number;
-    status: string;
-    shareUrl: string;
-    shareText: string;
-  } | null {
-    this.init();
-    const query = (phoneOrEmailOrTenant || '').trim();
-    if (!query) return null;
-
-    let trial = this.findTrialByPhoneOrEmail(query, query);
-    if (!trial) {
-      trial = this.getTrialByTenantId(query);
-    }
-    if (!trial) {
-      const digits = query.replace(/\D/g, '');
-      if (digits.length === 11) {
-        trial = this.findTrialByPhoneOrEmail(digits);
-      } else if (digits.length > 11 && digits.startsWith('86')) {
-        trial = this.findTrialByPhoneOrEmail(digits.slice(2));
-      }
-    }
-
-    if (!trial) return null;
-
-    const remainingDays = this.calculateRemainingDays(trial.expiresAt);
-    const inviteCode = trial.email || trial.phone;
-    let cleanBaseUrl = baseUrl.replace(/\/+$/, '');
-    if (cleanBaseUrl.includes('quote.kelvinflow.com')) {
-      cleanBaseUrl = cleanBaseUrl.replace('quote.kelvinflow.com', 'kelvinflow.com');
-    }
-    const shareUrl = `${cleanBaseUrl}/?ref=${encodeURIComponent(inviteCode)}`;
-    const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，立享 7 天完整全功能试用：\n${shareUrl}\n同行邀请码：${inviteCode}`;
-
-    const bonusDays = (trial.referralCount || 0) * 7;
-
-    return {
-      phone: trial.phone,
-      inviteCode,
-      referralCount: trial.referralCount || 0,
-      rewardDays: bonusDays,
-      expiresAt: trial.expiresAt,
-      remainingDays,
-      status: trial.status,
-      shareUrl,
-      shareText
-    };
-  }
 
   /**
    * 创始人 1 秒一键极速激活/升级付费会员 (支持 CLI 脚本与微信转账人工开通)

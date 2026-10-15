@@ -221,117 +221,23 @@ describe('TDD Suite: Quote & Catalog Item Deletion APIs (D-12 Security & Audit)'
   });
 
   // -------------------------------------------------------------------------
-  // 2. 底價庫條目刪除測試
+  // 2. 底價庫條目刪除路由防復活回歸斷言 (MVP 瘦身已徹底移除 DELETE /catalog/:sku)
   // -------------------------------------------------------------------------
-  describe('Catalog Item Deletion (DELETE /api/v1/catalog/:sku)', () => {
-    const testTenantId = 'tenant_delete_test';
-    const xlsxLib: any = (XLSX as any).default || XLSX;
-
-    beforeEach(() => {
-      // 爲 testTenantId 準備一個包含受保護條目和待刪除條目的 Excel 底價表
-      const wb = xlsxLib.utils.book_new();
-      const productRows = [
-        ['产品型号 / SKU (必填)', '产品英文品名与规格描述 (必填)', '出厂底价 (RMB Cost·必填安全底价)'],
-        ['TEST-001', 'Protected Product 1', 100],
-        ['TEST-002', 'Protected Product 2', 200],
-        ['TEST-003', 'Protected Product 3', 300],
-        ['TEST-004', 'Protected Product 4', 400],
-        ['TEST-005', 'Test Item To Delete 5', 50],
-        ['TEST-006', 'Test Item To Delete 6', 60],
-        ['CUSTOM-SKU-99', 'Custom Regular Item', 88]
-      ];
-      const sheet = xlsxLib.utils.aoa_to_sheet(productRows);
-      xlsxLib.utils.book_append_sheet(wb, sheet, '📦 商品出厂底价库 (Products)');
-
-      const buffer = xlsxLib.write(wb, { type: 'buffer', bookType: 'xlsx' });
-      TenantService.saveActivePricing(testTenantId, buffer);
-    });
-
-
-    it('strictly blocks deletion of protected SKUs (TEST-001 ~ TEST-004) with 400 Bad Request', async () => {
+  describe('Catalog Item Deletion Endpoint Deprecation (DELETE /api/v1/catalog/:sku)', () => {
+    it('returns 404 route not found when calling deleted DELETE /api/v1/catalog/:sku', async () => {
       const token = AuthService.generateToken({
         id: 'test_user_del',
         name: 'Del User',
         email: 'del@test.com',
         role: 'sales',
-        tenantId: testTenantId
+        tenantId: 'tenant_delete_test'
       });
 
-      for (const protectedSku of ['TEST-001', 'TEST-002', 'TEST-003', 'TEST-004']) {
-        const res = await fetch(`${baseUrl}/catalog/${protectedSku}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const data: any = await res.json();
-
-        expect(res.status).toBe(400);
-        expect(data.success).toBe(false);
-        expect(data.error).toContain('系统保护');
-      }
-    });
-
-    it('successfully deletes unprotected items (TEST-005, TEST-006) with 200 OK', async () => {
-      const token = AuthService.generateToken({
-        id: 'test_user_del',
-        name: 'Del User',
-        email: 'del@test.com',
-        role: 'sales',
-        tenantId: testTenantId
-      });
-
-      // 1. 刪除 TEST-005
-      const res5 = await fetch(`${baseUrl}/catalog/TEST-005`, {
+      const res = await fetch(`${baseUrl}/catalog/TEST-005`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const data5: any = await res5.json();
-      expect(res5.status).toBe(200);
-      expect(data5.success).toBe(true);
-
-      // 2. 刪除 TEST-006
-      const res6 = await fetch(`${baseUrl}/catalog/TEST-006`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data6: any = await res6.json();
-      expect(res6.status).toBe(200);
-      expect(data6.success).toBe(true);
-
-      // 驗證 Excel 文件中 TEST-005 和 TEST-006 已被移除，而 TEST-001~004 與 CUSTOM-SKU-99 完好
-      const pricingPath = TenantService.getActivePricingPath(testTenantId);
-      const updatedWb = xlsxLib.read(fs.readFileSync(pricingPath), { type: 'buffer' });
-      const sheet = updatedWb.Sheets['📦 商品出厂底价库 (Products)'];
-      const rows: any[][] = xlsxLib.utils.sheet_to_json(sheet, { header: 1 });
-      const remainingSkus = rows.slice(1).map(r => r[0]);
-
-
-      expect(remainingSkus).not.toContain('TEST-005');
-      expect(remainingSkus).not.toContain('TEST-006');
-      expect(remainingSkus).toContain('TEST-001');
-      expect(remainingSkus).toContain('TEST-002');
-      expect(remainingSkus).toContain('TEST-003');
-      expect(remainingSkus).toContain('TEST-004');
-      expect(remainingSkus).toContain('CUSTOM-SKU-99');
-    });
-
-    it('returns 404 when deleting a non-existent SKU', async () => {
-      const token = AuthService.generateToken({
-        id: 'test_user_del',
-        name: 'Del User',
-        email: 'del@test.com',
-        role: 'sales',
-        tenantId: testTenantId
-      });
-
-      const res = await fetch(`${baseUrl}/catalog/NON-EXISTENT-SKU-XYZ`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data: any = await res.json();
       expect(res.status).toBe(404);
-      expect(data.success).toBe(false);
     });
   });
 

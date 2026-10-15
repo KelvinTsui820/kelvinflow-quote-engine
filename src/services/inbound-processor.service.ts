@@ -7,6 +7,7 @@ import { TenantService } from './tenant.service.js';
 import { DraftService } from './draft.service.js';
 import { TrialService } from './trial.service.js';
 import { AttachmentExtractorService } from './attachment-extractor.service.js';
+import { InquiryService } from './inquiry.service.js';
 
 export interface InboundEmailPayload {
   tenantId: string;
@@ -26,6 +27,7 @@ export interface InboundEmailPayload {
 export interface InboundProcessResult {
   success: boolean;
   quotationNumber?: string;
+  inquiryId?: string;
   reviewUrl?: string;
   deliveryMode?: 'mode2_draft' | 'mode1_review_email';
   draftInjected?: boolean;
@@ -175,6 +177,40 @@ export class InboundProcessorService {
         error: persistErr,
         quotationNumber: quotation.quotationNumber
       };
+    }
+
+    // 4.0 询盘一等实体落盘 (Task §2.5 data/tenants/<tenantId>/inquiries/INQ-*.json)
+    let persistedInquiryId: string | undefined = undefined;
+    try {
+      const itemsSummary = (quotation.items || []).map(it => ({
+        sku: it.sku,
+        description: it.description,
+        quantity: it.quantity,
+        unit: 'pcs'
+      }));
+      const attachmentsMeta = (attachments || []).map(att => ({
+        filename: att.filename,
+        contentType: att.contentType,
+        size: att.content?.length
+      }));
+      const inquiryEntity = InquiryService.createInquiryFromInbound({
+        tenantId,
+        from: from || '',
+        to: to || '',
+        subject: subject || 'RFQ Inquiry',
+        content: emailContent,
+        quotationNumber: quotation.quotationNumber,
+        inquiryMessageId: payload.messageId ? payload.messageId.replace(/[<>]/g, '').trim() : undefined,
+        parseStatus: 'parsed',
+        buyerName: quotation.buyerName || quotation.customerName,
+        itemsSummary,
+        attachments: attachmentsMeta.length > 0 ? attachmentsMeta : undefined
+      });
+      persistedInquiryId = inquiryEntity.inquiryId;
+      quotation.inquiryId = persistedInquiryId;
+      console.log(`📥 [询盘箱实体落盘] 租户 [${tenantId}] 询盘已成功落盘: [${persistedInquiryId}] -> 报价单 [${quotation.quotationNumber}]`);
+    } catch (inqErr: any) {
+      console.warn('⚠️ [询盘箱实体落盘异常，不阻断主出单流]:', inqErr.message);
     }
 
     // 4.0 占位空单自适应自动清理：若本单成功提取出有效商品，而同 Message-ID 先前存在占位空单，静默清理旧空单杜绝工作台污染
@@ -384,6 +420,7 @@ export class InboundProcessorService {
     return {
       success: true,
       quotationNumber: quotation.quotationNumber,
+      inquiryId: persistedInquiryId,
       reviewUrl,
       deliveryMode,
       draftInjected: draftInjectionResult?.success || false,

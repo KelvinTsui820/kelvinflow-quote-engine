@@ -7,86 +7,12 @@ import path from 'path';
 
 describe('一人公司商业闭环 E2E 端到端工作流测试', () => {
 
-  describe('1. 官网获客留资与微信即时推送链路 (Inbound Lead Webhook)', () => {
-    it('成功接收高意向外贸客户留资并持久化落盘至 data/inbound_leads.json', async () => {
-      const mockReq: any = {
-        headers: { 'x-forwarded-for': '127.0.0.1' },
-        socket: { remoteAddress: '127.0.0.1' },
-        body: {
-          customerName: '王总',
-          companyName: '义乌市新光照明实业有限公司',
-          contact: '13888889999',
-          dailyRfqs: '15~20 封',
-          productCategory: 'LED商业照明',
-          memoCode: 'KF-2026-TEST',
-          source: '官网转化弹窗 · 年度尊享版'
-        }
-      };
-
-      let responseStatusCode = 200;
-      let responseBody: any = null;
-
-      const mockRes: any = {
-        status: (code: number) => {
-          responseStatusCode = code;
-          return mockRes;
-        },
-        json: (data: any) => {
-          responseBody = data;
-          return mockRes;
-        }
-      };
-
-      // 找到 inboundRouter 里的 POST /lead 处理函数
+  describe('1. 官网获客留资链路 (已按 MVP 瘦身改版规范下架)', () => {
+    it('POST /lead 已从 inboundRouter 中物理剔除，符合 MVP 瘦身规范', () => {
       const postLayer = (inboundRouter.stack || []).find(
         (layer: any) => layer.route && layer.route.path === '/lead' && layer.route.methods.post
       );
-
-      expect(postLayer).toBeDefined();
-      await (postLayer as any).route.stack[0].handle(mockReq, mockRes, () => {});
-
-      expect(responseStatusCode).toBe(200);
-      expect(responseBody).not.toBeNull();
-      expect(responseBody.success).toBe(true);
-      expect(responseBody.message).toContain('线索已成功接收');
-
-      // 验证是否已写入 data/inbound_leads.json
-      const leadsPath = path.join(process.cwd(), 'data', 'inbound_leads.json');
-      expect(fs.existsSync(leadsPath)).toBe(true);
-      const leads = JSON.parse(fs.readFileSync(leadsPath, 'utf-8'));
-      const found = leads.find((l: any) => l.memoCode === 'KF-2026-TEST');
-      expect(found).toBeDefined();
-      expect(found.companyName).toBe('义乌市新光照明实业有限公司');
-    });
-
-    it('单 IP 频繁刷接口应被防刷限流机制拦截 (429 Too Many Requests)', async () => {
-      const spamIp = '192.168.100.200';
-      const mockReq: any = {
-        headers: { 'x-forwarded-for': spamIp },
-        socket: { remoteAddress: spamIp },
-        body: { contact: '13900000000', companyName: 'Spam Co' }
-      };
-
-      let lastStatusCode = 200;
-      const mockRes: any = {
-        status: (code: number) => {
-          lastStatusCode = code;
-          return mockRes;
-        },
-        json: () => mockRes
-      };
-
-      const postLayer = (inboundRouter.stack || []).find(
-        (layer: any) => layer.route && layer.route.path === '/lead' && layer.route.methods.post
-      );
-
-      // 发起 6 次连续请求
-      for (let i = 0; i < 6; i++) {
-        await (postLayer as any).route.stack[0].handle(mockReq, mockRes, () => {});
-      }
-
-      // 第 6 次应当被限流拦截
-      expect(lastStatusCode).toBe(429);
+      expect(postLayer).toBeUndefined();
     });
   });
 

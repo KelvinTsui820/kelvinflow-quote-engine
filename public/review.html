@@ -258,80 +258,53 @@
             <img src="/kelvinflow_emblem.png" alt="KelvinFlow" class="h-6 sm:h-7 w-auto object-contain block select-none flex-shrink-0" />
             <span class="text-base sm:text-lg font-black tracking-tight text-white font-sans select-none">KelvinFlow</span>
           </a>
-          <!-- 2. 中枢系统标题与版本标识 (根据用户实际套餐动态显示：个人版 / 免费试用版 / 演示体验版) -->
+          <!-- 2. 中枢系统标题与版本标识 (极简静态文字“内测中”) -->
           <div class="items-center space-x-2 hidden lg:flex min-w-0">
             <span class="text-slate-600 font-light select-none">|</span>
             <h1 class="text-xs sm:text-sm font-semibold text-slate-200 tracking-tight truncate">
               AI 外贸智能出单中枢
             </h1>
-            <span v-if="isPaidUser" class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30 flex-shrink-0 shadow-xs">
-              <i class="fa-solid fa-crown text-amber-400 text-[9px]"></i> 个人版
-            </span>
-            <span v-else-if="trialState.isTrial && !trialState.expired" class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/30 flex-shrink-0 shadow-xs">
-              <i class="fa-solid fa-bolt text-amber-400 text-[9px]"></i> 免费试用版
-            </span>
-            <span v-else-if="trialState.expired" class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-400/30 flex-shrink-0 shadow-xs">
-              <i class="fa-solid fa-clock text-rose-400 text-[9px]"></i> 试用到期
-            </span>
-            <span v-else class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-slate-500/15 text-slate-300 border border-slate-400/30 flex-shrink-0 shadow-xs">
-              <i class="fa-solid fa-sparkles text-amber-400 text-[9px]"></i> 演示体验版
+            <span class="inline-flex items-center gap-1 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/30 flex-shrink-0 shadow-xs">
+              内测中
             </span>
           </div>
         </div>
 
         <div class="flex items-center space-x-1 sm:space-x-1.5 text-xs flex-shrink-0">
-          <!-- 💡 新手使用指引 (桌面端沉浸式引导，移动端收起防挤压) -->
-          <button @click="startTour(1)" class="hidden xl:inline-flex items-center space-x-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg font-semibold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition cursor-pointer text-xs flex-shrink-0" title="查看使用流程与建单步骤" aria-label="查看使用流程与建单步骤">
-            <i class="fa-solid fa-lightbulb text-amber-400 text-xs"></i>
-            <span class="hidden sm:inline">新手指引</span>
-          </button>
-
-          <!-- ⚡ 上传新询盘建单 (第 2 步引导目标 · 核心主行动) -->
-          <button id="tour-step-2" @click="openNewPoModal" class="inline-flex items-center space-x-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-600/25 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs">
+          <!-- 1. ⚡ 新建询盘 (核心主行动) -->
+          <button @click="openNewPoModal" class="inline-flex items-center space-x-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-600/25 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs">
             <i class="fa-solid fa-bolt text-xs text-blue-200"></i>
-            <span class="hidden lg:inline">上传新询盘建单</span>
-            <span class="lg:hidden text-xs">建单</span>
+            <span class="hidden sm:inline">新建询盘</span>
+            <span class="sm:hidden text-xs">建单</span>
           </button>
 
-          <!-- 📊 底价库与标准模板 (第 1 步引导目标 · 超窄屏自适应隐藏防溢出) -->
-          <button id="tour-step-1" @click="openPricingModal" class="hidden min-[400px]:inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs">
+          <!-- 2. 📊 底价库 -->
+          <button @click="openPricingModal" class="inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs">
             <i class="fa-solid fa-table-cells text-blue-400 text-xs"></i>
-            <span class="hidden md:inline">底价库</span>
-            <span class="md:hidden text-xs">底价</span>
+            <span>底价库</span>
           </button>
 
-          <!-- 🏢 企业资料设置 (工作台可进，可编辑公司名、负责人、联系方式、公司地址等) -->
-          <button @click="openCompanyProfileModal" class="hidden min-[520px]:inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="设置企业商业抬头、负责人姓名、联系邮箱与地址（自动同步 PDF 报价单与回信）" aria-label="企业资料设置">
+          <!-- 3. 📬 自动出单 -->
+          <button v-if="isLoggedIn" @click="openImapModal" class="inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/40 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="设置专属自动转发收信与邮箱草稿箱直达" aria-label="设置专属自动转发收信与邮箱草稿箱直达">
+            <i class="fa-solid fa-paper-plane text-emerald-400 text-xs"></i>
+            <span class="hidden sm:inline">自动出单</span>
+            <span class="sm:hidden text-xs">出单</span>
+          </button>
+
+          <!-- 4. 🏢 企业资料 (合并唯一入口，移除账号区重复按钮) -->
+          <button @click="openCompanyProfileModal" class="inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="设置企业商业抬头、负责人姓名、联系邮箱与地址" aria-label="企业资料设置">
             <i class="fa-solid fa-building-user text-indigo-400 text-xs"></i>
-            <span class="hidden xl:inline">企业资料</span>
-            <span class="xl:hidden text-xs">资料</span>
+            <span class="hidden sm:inline">企业资料</span>
+            <span class="sm:hidden text-xs">资料</span>
           </button>
 
-          <!-- 🎨 报价单企业 Logo 设置 (超窄屏幕隐藏以保核心功能，个人版专属特权) -->
-          <button @click="openLogoModal" class="hidden min-[520px]:inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/50 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="上传企业商标，自动印于导出的 A4 PDF 报价单抬头（个人版专属）" aria-label="上传企业商标，自动印于导出的 A4 PDF 报价单抬头">
-            <i class="fa-solid fa-crown text-amber-400 text-xs" v-if="!isPaidUser"></i>
-            <i class="fa-solid fa-image text-cyan-400 text-xs" v-else></i>
-            <span class="hidden xl:inline">报价单Logo</span>
-            <span class="xl:hidden text-xs">Logo</span>
-          </button>
-
-          <!-- 📬 邮箱自动出单 -->
-          <button v-if="isLoggedIn" @click="openImapModal" class="hidden min-[480px]:inline-flex items-center space-x-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/40 active:scale-95 transition cursor-pointer whitespace-nowrap flex-shrink-0 text-xs" title="设置专属自动转发收信与邮箱草稿箱直达" aria-label="设置专属自动转发收信与邮箱草稿箱直达">
-            <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
-            <span class="hidden xl:inline">邮箱自动出单</span>
-            <span class="xl:hidden text-xs">自动出单</span>
-          </button>
-
-          <!-- 👤 用户登录身份栏 / 切换 / 开通按钮 -->
+          <!-- 👤 用户登录身份栏 / 退出登录 -->
           <div v-if="isLoggedIn" class="inline-flex items-center space-x-1 sm:space-x-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg bg-blue-950/90 border border-blue-500/40 text-xs flex-shrink-0 shadow-inner">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span class="font-mono text-cyan-300 font-bold text-[11px] sm:text-xs hidden min-[440px]:inline">{{ maskedPhone }}</span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hidden md:inline">
               余{{ trialState.remainingDays }}天
             </span>
-            <button @click.stop="openCompanyProfileModal" class="text-slate-400 hover:text-indigo-400 transition cursor-pointer p-1 ml-0.5 flex items-center justify-center rounded hover:bg-white/10" title="设置企业资料" aria-label="设置企业资料">
-              <i class="fa-solid fa-building-user text-xs pointer-events-none"></i>
-            </button>
             <button @click.stop="openLogoutModal" class="text-slate-400 hover:text-rose-400 transition cursor-pointer p-1 flex items-center justify-center rounded hover:bg-white/10" title="退出登录或切换账号" aria-label="退出登录或切换账号">
               <i class="fa-solid fa-arrow-right-from-bracket text-xs pointer-events-none"></i>
             </button>
@@ -345,70 +318,49 @@
       </div>
     </header>
 
-    <!-- 7天免费全功能试用状态条 (试用用户显示，移除句首多余标签) -->
-    <div v-if="trialState.isTrial && !trialState.expired && !isPaidUser" class="bg-gradient-to-r from-blue-950 via-slate-900 to-blue-950 border-b border-blue-500/30 shadow-inner">
-      <div class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-2 text-xs text-slate-200 flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center space-x-2 text-xs text-slate-200">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
-          <span class="text-slate-300">
-            您的全功能免费试用尚在有效期内（当前剩余 <strong class="text-emerald-400 font-mono font-bold">{{ trialState.remainingDays }} 天</strong>），支持上传底价表、自动核价出单与日常邮箱联动！
-          </span>
-        </div>
-        <div class="flex items-center space-x-2.5">
-          <button @click="openReferralShareModal" class="px-3 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 font-bold text-xs transition flex items-center space-x-1.5 cursor-pointer">
-            <i class="fa-solid fa-gift text-emerald-400 text-xs"></i>
-            <span>邀请同行 (+7天/人)</span>
-          </button>
-          <button type="button" @click="openUpgradeModal('monthly')" class="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-xs transition flex items-center space-x-1 shadow-md shadow-amber-500/25 cursor-pointer active:scale-95">
-            <i class="fa-solid fa-crown text-slate-950 text-xs mr-0.5"></i>
-            <span>升级个人版 ➔</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 个人版已开通会员状态条 (已付费用户显示) -->
-    <div v-if="isPaidUser" class="bg-gradient-to-r from-emerald-950 via-slate-900 to-blue-950 border-b border-emerald-500/30 shadow-inner">
-      <div class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-2 text-xs text-slate-200 flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center space-x-2 text-xs text-emerald-300 font-medium">
-          <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
-          <span>您已开通个人尊享版（有效期剩余 <strong class="text-amber-300 font-mono font-bold">{{ trialState.remainingDays }} 天</strong>）· 邮箱全自动出单与草稿箱直达已激活！</span>
-        </div>
-        <div class="flex items-center space-x-2.5">
-          <button @click="openReferralShareModal" class="px-3 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 font-bold text-xs transition flex items-center space-x-1.5 cursor-pointer">
-            <i class="fa-solid fa-gift text-emerald-400 text-xs"></i>
-            <span>邀请同行 (+7天/人)</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 试用到期锁定警告条 -->
-    <div v-if="trialState.expired" class="bg-gradient-to-r from-red-950 via-rose-950 to-red-950 border-b border-rose-500/40 shadow-inner">
-      <div class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 text-xs text-rose-100 flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center space-x-2.5">
-          <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-bold font-mono">
-            🔒 试用已到期
-          </span>
-          <span class="text-rose-200">
-            您的 7 天全功能试用已到期，底价表与历史单据将安全保留 30 天。如需继续使用请升级个人版或扫码联系创始人微信恢复自动出单！
-          </span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <button @click="openReferralShareModal" class="px-3 py-1 rounded-lg bg-emerald-700/80 hover:bg-emerald-600 text-white font-bold text-xs transition flex items-center space-x-1.5 cursor-pointer shadow-md shadow-emerald-900/30">
-            <i class="fa-solid fa-user-plus text-emerald-200 text-xs"></i>
-            <span>邀请好友免费复活 (+7天)</span>
-          </button>
-          <button @click="openUpgradeModal('monthly')" class="px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition flex items-center space-x-1 cursor-pointer">
-            <i class="fa-solid fa-crown mr-1"></i>
-            <span>升级个人版 / 联系客服 ➔</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Main Container (D-08: pb-32 为底部固定黑曜石操作条预留充分安全裕量，杜绝任何滚动位置遮挡) -->
     <main class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-32 sm:pb-36 space-y-6">
+      
+      <!-- 💡 首次使用极简静态 3 步指引卡片 (单张卡片，首次登录展示，可一键关闭) -->
+      <div v-if="showOnboardingCard" class="bg-[#0B132B]/90 border border-blue-500/30 rounded-2xl p-4 sm:p-5 text-xs text-slate-200 flex items-start justify-between gap-4 shadow-xl backdrop-blur-md animate-in fade-in duration-200">
+        <div class="flex items-start space-x-3.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/40 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-inner">
+            <i class="fa-solid fa-lightbulb text-sm"></i>
+          </div>
+          <div class="space-y-2 min-w-0 flex-1">
+            <div class="font-bold text-white text-sm flex items-center gap-2">
+              <span>KelvinFlow 极速出单三步法</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">内测指南</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-slate-300 text-[11px] pt-1">
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center space-x-1.5 font-bold text-white">
+                  <span class="w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center">1</span>
+                  <span>配置底价库</span>
+                </div>
+                <p class="text-slate-400 leading-relaxed">在「底价库」上传出厂底价表，设定保底毛利与结算币种汇率。</p>
+              </div>
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center space-x-1.5 font-bold text-white">
+                  <span class="w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center">2</span>
+                  <span>新建或自动收信</span>
+                </div>
+                <p class="text-slate-400 leading-relaxed">点击「新建询盘」粘贴买家正文，或通过「自动出单」对接企业邮箱。</p>
+              </div>
+              <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center space-x-1.5 font-bold text-white">
+                  <span class="w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center">3</span>
+                  <span>核对并直达草稿箱</span>
+                </div>
+                <p class="text-slate-400 leading-relaxed">在线核对毛利与条款，一键存入日常企业邮箱草稿箱或直接下载 PDF。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button @click="dismissOnboardingCard" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer flex-shrink-0" title="关闭新手引导" aria-label="关闭新手引导">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
       
       <!-- Loading & Error States -->
       <div v-if="loading" class="text-center py-20">
@@ -583,13 +535,10 @@
                 <div>
                   <div class="flex items-center justify-between mb-1.5 min-h-[22px]">
                     <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">结算币种与汇率</label>
-                    <button type="button" @click.stop="rateDiagnosticModalVisible = true" 
-                            :class="rateDiagnostic.badgeClass" 
-                            class="text-[9px] font-extrabold border px-1.5 py-0.5 rounded cursor-pointer flex items-center gap-1 transition select-none shadow-2xs hover:opacity-90 active:scale-95" 
-                            title="点击查看外贸汇率核算与结汇安全垫深度分析">
+                    <span :class="rateDiagnostic.badgeClass" 
+                          class="text-[9px] font-extrabold border px-1.5 py-0.5 rounded flex items-center gap-1 select-none shadow-2xs">
                       <span>{{ rateDiagnostic.text }}</span>
-                      <i class="fa-solid fa-circle-info text-[8px] opacity-75"></i>
-                    </button>
+                    </span>
                   </div>
                   <div class="relative flex items-center h-[34px] bg-white border border-slate-200 hover:border-slate-300 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-600/20 rounded-lg transition shadow-xs group currency-dropdown-container">
                     <!-- 自定义高质感外币下拉组件 (底价表动态驱动，支持 USD / EUR / GBP / AUD / CAD 等) -->
@@ -663,11 +612,6 @@
                             title="一键将今日银行现汇买入参考价填入当前报价">
                       <i class="fa-solid fa-wand-magic-sparkles text-[9px] text-blue-500"></i>
                       <span>一键填入</span>
-                    </button>
-                    <button type="button" @click.stop="rateDiagnosticModalVisible = true"
-                            class="text-slate-400 hover:text-blue-600 cursor-pointer p-0.5 flex items-center transition"
-                            title="点击打开外贸汇率核算与结汇安全垫分析弹窗">
-                      <i class="fa-solid fa-circle-question text-[11px]"></i>
                     </button>
                   </div>
                 </div>
@@ -807,64 +751,37 @@
                   </div>
                 </div>
 
-                <!-- 杀手级指标：集装箱装载容积速查标尺 (对齐底价表 20GP/40GP/40HQ 标尺与限重预警) -->
+                <!-- 杀手级指标：集装箱装载容积速查标尺 (默认折叠收起，仅显示单行核心摘要) -->
                 <div v-if="computedContainerEstimate" class="bg-slate-900/90 rounded-xl p-2.5 border border-slate-800 space-y-2 text-xs">
-                  <div class="flex items-center justify-between text-slate-300">
+                  <div class="flex items-center justify-between text-slate-300 cursor-pointer select-none" @click="containerCollapsed = !containerCollapsed">
                     <span class="font-bold text-white flex items-center text-[11px]">
                       <i class="fa-solid fa-ship text-indigo-400 mr-1.5"></i>{{ computedContainerEstimate.containerLabel }} 配载智能测算
+                      <span class="ml-2 font-normal text-[10px] text-slate-400">
+                        (总额: {{ effectiveCurrency }} {{ formatNumber(computedTotalAmount) }} · 总体积: {{ computedContainerEstimate.totalCBM }} CBM · 预估柜量: {{ computedContainerEstimate.containerCountEstimate || '1x40HQ' }})
+                      </span>
                     </span>
-                    <span class="font-mono font-bold" :class="computedContainerEstimate.isOver ? 'text-amber-400' : 'text-blue-300'">
-                      {{ computedContainerEstimate.totalCBM }} CBM ({{ computedContainerEstimate.totalCartons }}箱)
-                    </span>
+                    <div class="flex items-center space-x-1.5">
+                      <span class="font-mono font-bold text-[11px]" :class="computedContainerEstimate.isOver ? 'text-amber-400' : 'text-blue-300'">
+                        {{ computedContainerEstimate.totalCBM }} CBM
+                      </span>
+                      <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': !containerCollapsed }"></i>
+                    </div>
                   </div>
 
-                  <!-- 配载进度条 -->
-                  <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden flex">
-                    <div class="h-full bg-blue-500 transition-all duration-500" :style="{ width: Math.min(100, computedContainerEstimate.percentage) + '%' }"></div>
-                    <div v-if="computedContainerEstimate.isOver" class="h-full bg-amber-400 animate-pulse transition-all duration-500" :style="{ width: Math.min(30, (computedContainerEstimate.overCBM / computedContainerEstimate.capacityCBM) * 100) + '%' }"></div>
-                  </div>
-                  <div class="flex justify-between text-[10px] text-slate-400 font-mono">
-                    <span :class="computedContainerEstimate.isOverWeight ? 'text-rose-400 font-bold' : ''">
-                      标尺: {{ computedContainerEstimate.capacityCBM }} CBM / 限重 {{ (computedContainerEstimate.maxKG / 1000).toFixed(1) }}T
-                    </span>
-                    <span :class="computedContainerEstimate.isOver ? 'text-amber-400 font-bold' : 'text-slate-400'">
-                      {{ computedContainerEstimate.isOver ? `超出 ${computedContainerEstimate.overCBM} CBM (${computedContainerEstimate.percentage}%)` : `装载率 ${computedContainerEstimate.percentage}%` }}
-                    </span>
-                  </div>
-
-                  <!-- AI 促单建议提示框 (深色极客风悬浮毛玻璃提示框，对齐控制台视觉体系) -->
-                  <div class="p-2 rounded-lg text-[11px] flex items-start sm:items-center justify-between gap-2 relative group/aitip"
-                       :class="computedContainerEstimate.isOverWeight ? 'bg-rose-500/15 border border-rose-500/30 text-rose-200' : 'bg-amber-500/10 border border-amber-500/25 text-amber-200'">
-                    <div class="flex items-start space-x-1.5 min-w-0 flex-1 cursor-help">
-                      <i :class="computedContainerEstimate.isOverWeight ? 'fa-solid fa-weight-hanging text-rose-400' : 'fa-solid fa-lightbulb text-amber-400'" class="flex-shrink-0 text-[10px] mt-0.5"></i>
-                      <span class="text-[10px] leading-snug break-words font-medium" :class="computedContainerEstimate.isOverWeight ? 'text-rose-300' : 'text-amber-300'">
-                        {{ computedContainerEstimate.aiRecommendation }}
+                  <!-- 折叠展开的配载详情与进度条 -->
+                  <div v-if="!containerCollapsed" class="space-y-2 pt-1 border-t border-slate-800 animate-in fade-in duration-150">
+                    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden flex">
+                      <div class="h-full bg-blue-500 transition-all duration-500" :style="{ width: Math.min(100, computedContainerEstimate.percentage) + '%' }"></div>
+                      <div v-if="computedContainerEstimate.isOver" class="h-full bg-amber-400 animate-pulse transition-all duration-500" :style="{ width: Math.min(30, (computedContainerEstimate.overCBM / computedContainerEstimate.capacityCBM) * 100) + '%' }"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                      <span :class="computedContainerEstimate.isOverWeight ? 'text-rose-400 font-bold' : ''">
+                        标尺: {{ computedContainerEstimate.capacityCBM }} CBM / 限重 {{ (computedContainerEstimate.maxKG / 1000).toFixed(1) }}T
+                      </span>
+                      <span :class="computedContainerEstimate.isOver ? 'text-amber-400 font-bold' : 'text-slate-400'">
+                        {{ computedContainerEstimate.isOver ? `超出 ${computedContainerEstimate.overCBM} CBM (${computedContainerEstimate.percentage}%)` : `装载率 ${computedContainerEstimate.percentage}%` }}
                       </span>
                     </div>
-                    <!-- 极客风悬浮毛玻璃提示框 -->
-                    <div class="absolute bottom-full right-0 mb-2 w-72 max-w-[calc(100vw-32px)] p-3 bg-[#060B1A]/95 text-slate-200 text-xs rounded-xl shadow-2xl border backdrop-blur-xl opacity-0 group-hover/aitip:opacity-100 transition-all duration-200 pointer-events-none z-50 transform -translate-y-1 group-hover/aitip:translate-y-0"
-                         :class="computedContainerEstimate.isOverWeight ? 'border-rose-500/40' : 'border-amber-500/40'">
-                      <div class="flex items-center space-x-1.5 mb-1.5 font-bold text-xs" :class="computedContainerEstimate.isOverWeight ? 'text-rose-300' : 'text-amber-300'">
-                        <i :class="computedContainerEstimate.isOverWeight ? 'fa-solid fa-triangle-exclamation text-rose-400' : 'fa-solid fa-sparkles text-amber-400'"></i>
-                        <span>{{ computedContainerEstimate.isOverWeight ? '⚠️ 货柜超重风险提示' : 'AI 货柜配载与跟进建议 (底价表标尺)' }}</span>
-                      </div>
-                      <p class="text-[11px] text-slate-300 leading-relaxed font-normal">
-                        {{ computedContainerEstimate.aiRecommendation }}
-                      </p>
-                      <div class="text-[10px] text-slate-400 mt-1.5 font-mono">
-                        预估毛重: {{ computedContainerEstimate.totalWeightKG.toLocaleString() }} KG (限重 {{ computedContainerEstimate.maxKG.toLocaleString() }} KG)
-                      </div>
-                      <div class="text-[10px] text-cyan-300/80 mt-2 pt-1.5 border-t border-slate-800/80 flex items-center justify-between">
-                        <span>💡 点击右侧「+追加」插入邮件正文</span>
-                        <i class="fa-solid fa-arrow-turn-down text-[9px]"></i>
-                      </div>
-                    </div>
-                    <button type="button" @click="insertLogisticsAdviceToEmail" class="text-[9px] font-bold px-1.5 py-0.5 rounded border transition cursor-pointer flex-shrink-0 flex items-center gap-0.5 whitespace-nowrap mt-0.5 sm:mt-0"
-                            :class="computedContainerEstimate.isOverWeight ? 'text-rose-300 hover:text-white bg-rose-500/25 hover:bg-rose-500/40 border-rose-500/40' : 'text-amber-300 hover:text-white bg-amber-500/25 hover:bg-amber-500/40 border-amber-500/40'"
-                            title="将此条凑柜建议追加至英文邮件草稿" aria-label="将此条凑柜建议追加至英文邮件草稿">
-                      <i class="fa-solid fa-pen-to-square text-[8px]"></i>
-                      <span>+追加</span>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -997,15 +914,12 @@
                       <i class="fa-solid fa-plus text-[9px]"></i>
                       <span>自建商品</span>
                     </span>
-                    <!-- 正常精准匹配状态 (点击亦可查看证据链与官方规格) -->
-                    <button v-else 
-                            @click="openWarningModal(item, idx)"
-                            type="button"
-                            title="点击查看 AI 匹配证据链与官方规格" aria-label="点击查看 AI 匹配证据链与官方规格"
-                            class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 transition shadow-xs cursor-pointer active:scale-95 whitespace-nowrap">
+                    <!-- 正常精准匹配状态 (纯状态展示，移除证据链弹窗) -->
+                    <span v-else 
+                          class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 whitespace-nowrap">
                       <i class="fa-solid fa-circle-check text-emerald-500 text-[9px]"></i>
                       <span>精准匹配</span>
-                    </button>
+                    </span>
                   </td>
 
                   <!-- 2. 买家要求 SKU -->
@@ -1021,24 +935,17 @@
                     </div>
                   </td>
 
-                  <!-- 3. 匹配内部底价 SKU (带底价库选型器弹窗与官方中文品名透视) -->
+                  <!-- 3. 匹配内部底价 SKU -->
                   <td class="py-3 px-3 whitespace-nowrap border-r border-slate-200/80">
                     <div class="relative w-44 sm:w-48">
                       <div class="relative flex items-center group w-full" :title="getCatalogItemName(item.matchedSku) || '内部 SKU'">
                         <input v-model="item.matchedSku" @change="onSkuInputMatch(item)" 
                                placeholder="内部 SKU" 
-                               class="table-input font-mono font-bold text-slate-800 w-full pl-2.5 pr-14"
+                               class="table-input font-mono font-bold text-slate-800 w-full pl-2.5 pr-8"
                                :class="item.warning ? 'border-amber-300 focus:border-amber-500' : ''">
                         <!-- 一键清空按钮 -->
-                        <button v-if="item.matchedSku" type="button" @mousedown.prevent="item.matchedSku = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-8 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                        <button v-if="item.matchedSku" type="button" @mousedown.prevent="item.matchedSku = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                           <i class="fa-solid fa-xmark"></i>
-                        </button>
-                        <!-- 打开选型弹窗按钮 (内嵌于输入框尾部，杜绝位置跑偏) -->
-                        <button type="button" 
-                                @click="openCatalogModal(item, idx)"
-                                title="打开出厂底价库选型中心" aria-label="打开出厂底价库选型中心"
-                                class="absolute right-1.5 w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition cursor-pointer">
-                          <i class="fa-solid fa-boxes-stacked text-xs"></i>
                         </button>
                       </div>
                     </div>
@@ -1341,12 +1248,9 @@
                 <div class="flex-1 flex flex-col min-h-0">
                   <label class="block text-[11px] text-slate-500 font-bold mb-1">邮件正文 (可直接修改、个性化定制):</label>
                   <div class="relative group flex-1 flex flex-col min-h-0">
-                    <textarea v-model="editableEmailBody" rows="18" placeholder="英文报价回复邮件正文..." class="w-full flex-1 min-h-[380px] sm:min-h-[430px] bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-xl p-3.5 pr-14 text-xs text-slate-800 font-mono leading-relaxed transition resize-y shadow-inner outline-none"></textarea>
+                    <textarea v-model="editableEmailBody" rows="18" placeholder="英文报价回复邮件正文..." class="w-full flex-1 min-h-[380px] sm:min-h-[430px] bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-xl p-3.5 pr-9 text-xs text-slate-800 font-mono leading-relaxed transition resize-y shadow-inner outline-none"></textarea>
                     <!-- 右上角悬浮操作组 (对齐样品政策轻量极简交互：鼠标移入/聚焦时显现) -->
                     <div class="absolute right-2.5 top-2.5 flex items-center space-x-1">
-                      <button type="button" @click="openEmailFullscreen" title="全屏沉浸式编辑与排版" aria-label="全屏沉浸式编辑与排版" class="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer">
-                        <i class="fa-solid fa-up-right-and-down-left-from-center text-[11px]"></i>
-                      </button>
                       <button v-if="editableEmailBody" type="button" @mousedown.prevent="editableEmailBody = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
@@ -1424,17 +1328,16 @@
             <span class="sm:hidden">{{ previewLoading ? '同步中...' : '预览 PDF' }}</span>
           </button>
 
-          <!-- 基础出单按钮 (通用：生成/下载PDF与复制邮件，全员永久可用) -->
-          <button id="tour-step-3" @click="openConfirmModal('standard')" :disabled="saving" 
-                  class="flex-2 sm:flex-none inline-flex items-center justify-center px-3.5 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30 active:scale-95 transition disabled:opacity-50 whitespace-nowrap cursor-pointer">
-            <i class="fa-solid fa-bolt mr-1.5 text-xs sm:text-sm text-amber-300"></i>
-            <span class="hidden sm:inline">一键出单 (生成PDF与邮件)</span>
-            <span class="sm:hidden">一键出单</span>
+          <!-- 下载 PDF 报价单 -->
+          <button @click="downloadPdfFile(quotation.quotationNumber)" class="flex-1 sm:flex-none inline-flex items-center justify-center px-3.5 sm:px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 transition shadow-sm whitespace-nowrap cursor-pointer">
+            <i class="fa-solid fa-download mr-1.5 text-blue-400 text-xs"></i>
+            <span class="hidden sm:inline">下载 PDF</span>
+            <span class="sm:hidden">下载</span>
           </button>
 
-          <!-- 个人版/企业版专属特权：一键直达日常邮箱草稿箱 (并列展示) -->
-          <button v-if="isPaidUser" @click="openConfirmModal('draft')" :disabled="saving" 
-                  class="flex-2 sm:flex-none inline-flex items-center justify-center px-3.5 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-indigo-600/30 ring-2 ring-amber-400/50 active:scale-95 transition disabled:opacity-50 whitespace-nowrap cursor-pointer">
+          <!-- 一键直达日常邮箱草稿箱 (保留发信兜底链路) -->
+          <button @click="openConfirmModal('draft')" :disabled="saving" 
+                  class="flex-2 sm:flex-none inline-flex items-center justify-center px-3.5 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-indigo-600/30 ring-2 ring-blue-400/50 active:scale-95 transition disabled:opacity-50 whitespace-nowrap cursor-pointer">
             <i class="fa-solid fa-paper-plane mr-1.5 text-xs sm:text-sm text-amber-300"></i>
             <span class="hidden sm:inline">⚡ 一键直达草稿箱</span>
             <span class="sm:hidden">直达草稿箱</span>
@@ -1443,128 +1346,6 @@
       </div>
     </div>
 
-    <!-- 邮件正文全屏沉浸式编辑弹窗 (Email Fullscreen Modal) -->
-    <div v-if="emailFullscreenModal" v-cloak class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md">
-      <div class="bg-white rounded-3xl w-full max-w-4xl h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in duration-200">
-        <!-- 弹窗顶部栏 -->
-        <div class="p-4 sm:px-6 border-b border-slate-200 flex items-center justify-between gap-3 bg-slate-50">
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base border border-blue-200/80">
-              <i class="fa-solid fa-envelope-open-text"></i>
-            </div>
-            <div>
-              <h3 class="text-sm sm:text-base font-bold text-slate-900">回复买家英文邮件草稿 · 全屏沉浸式编辑</h3>
-              <p class="text-xs text-slate-400">实时双向同步，可直接个性化定制条款、集装箱信息与问候语</p>
-            </div>
-          </div>
-          <div class="flex items-center space-x-2">
-            <button @click="resetEmailToTemplate" class="text-xs font-semibold text-slate-600 hover:text-blue-700 bg-white hover:bg-blue-50 px-3 py-1.5 rounded-xl border border-slate-200 transition flex items-center space-x-1 cursor-pointer">
-              <i class="fa-solid fa-rotate text-xs"></i>
-              <span class="hidden sm:inline">按最新价格重置</span>
-            </button>
-            <button @click="copyDraftEmail" class="text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-3.5 py-1.5 rounded-xl border border-blue-200 transition flex items-center space-x-1 cursor-pointer">
-              <i class="fa-regular fa-copy"></i>
-              <span>复制全文</span>
-            </button>
-            <button @click="closeEmailFullscreen" class="text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1">
-              <i class="fa-solid fa-check text-xs"></i>
-              <span>完成</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 主体编辑区 -->
-        <div class="p-4 sm:p-6 flex-1 flex flex-col space-y-4 overflow-y-auto">
-          <div>
-            <label class="block text-xs font-bold text-slate-500 mb-1.5">邮件主题 (Subject):</label>
-            <div class="relative flex items-center group">
-              <input v-model="editableEmailSubject" class="w-full bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-xl pl-4 pr-10 py-2.5 text-xs sm:text-sm font-bold text-slate-900 font-mono transition outline-none">
-              <button v-if="editableEmailSubject" type="button" @mousedown.prevent="editableEmailSubject = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-          </div>
-          <div class="flex-1 flex flex-col">
-            <div class="flex items-center justify-between mb-1.5">
-              <label class="text-xs font-bold text-slate-500">邮件正文 (Body Content):</label>
-              <span class="text-[11px] font-mono text-slate-400">{{ editableEmailBody ? editableEmailBody.length : 0 }} 字符</span>
-            </div>
-            <textarea v-model="editableEmailBody" class="w-full flex-1 min-h-[360px] bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-2xl p-4 text-xs sm:text-sm text-slate-800 font-mono leading-relaxed transition resize-none shadow-inner outline-none"></textarea>
-          </div>
-        </div>
-
-        <!-- 弹窗底部提示条 -->
-        <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-between text-xs text-slate-400">
-          <div class="flex items-center space-x-2 text-emerald-600 font-medium">
-            <i class="fa-solid fa-circle-check text-sm"></i>
-            <span>编辑内容已实时自动保存在工作台中，关闭或出单时自动写入正式草稿。</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 📥 买家询盘邮件原文全屏沉浸式编辑弹窗 (Inquiry Fullscreen Modal) -->
-    <div v-if="inquiryFullscreenModal" v-cloak @click.self="closeInquiryFullscreen" class="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md">
-      <div class="bg-white rounded-3xl w-full max-w-4xl h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in duration-200">
-        <!-- 弹窗顶部栏 -->
-        <div class="p-4 sm:px-6 border-b border-slate-200 flex items-center justify-between gap-3 bg-slate-50">
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base border border-blue-200/80">
-              <i class="fa-solid fa-file-lines"></i>
-            </div>
-            <div>
-              <h3 class="text-sm sm:text-base font-bold text-slate-900">买家询盘邮件原文 · 全屏沉浸式工作台</h3>
-              <p class="text-xs text-slate-400">大文本自由输入与格式清洗，支持直接粘贴完整客户历史邮件或复杂 RFQ 明细</p>
-            </div>
-          </div>
-          <div class="flex items-center space-x-2">
-            <button v-if="newPoModal.rawText" @click="newPoModal.rawText = ''" class="text-xs font-semibold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-200 transition flex items-center space-x-1 cursor-pointer">
-              <i class="fa-solid fa-eraser text-xs"></i>
-              <span>清空</span>
-            </button>
-            <button @click="closeInquiryFullscreen" class="text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1">
-              <i class="fa-solid fa-check text-xs"></i>
-              <span>完成</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 主体编辑区 -->
-        <div class="p-4 sm:p-6 flex-1 flex flex-col space-y-3 overflow-hidden">
-          <div class="flex items-center justify-between text-xs text-slate-500">
-            <span class="font-medium">询盘正文内容 (支持中英文多行自由编辑与修剪):</span>
-            <div class="flex items-center space-x-3 text-[11px] font-mono text-slate-400">
-              <span>行数: <b class="text-slate-600">{{ (newPoModal.rawText || '').split('\n').length }}</b></span>
-              <span>字符数: <b class="text-slate-600">{{ (newPoModal.rawText || '').length }}</b></span>
-            </div>
-          </div>
-          <textarea v-model="newPoModal.rawText" 
-                    @input="newPoModal.rawText = $event.target.value"
-                    @change="newPoModal.rawText = $event.target.value"
-                    placeholder="在此自由粘贴客户询盘正文、往来邮件历史或采购明细清单..." 
-                    class="w-full flex-1 min-h-[360px] bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-2xl p-4 text-xs sm:text-sm text-slate-800 font-mono leading-relaxed transition resize-none shadow-inner outline-none"></textarea>
-        </div>
-
-        <!-- 弹窗底部操作条 -->
-        <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <div class="flex items-center space-x-2 text-blue-600 font-medium">
-            <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
-            <span>Gemini 3.8 Flash 将自动解析买家姓名、公司、目标型号、数量及港口贸易术语</span>
-          </div>
-          <div class="flex items-center space-x-2 w-full sm:w-auto">
-            <button @click="closeInquiryFullscreen" class="flex-1 sm:flex-none px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold transition cursor-pointer">
-              返回建单窗
-            </button>
-            <button @click="closeInquiryFullscreen(); submitQuickQuoteText()" 
-                    :disabled="!newPoModal.rawText.trim() || newPoModal.uploading"
-                    class="flex-1 sm:flex-none px-5 py-2 rounded-xl text-white font-bold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 shadow-md shadow-blue-600/20 transition flex items-center justify-center space-x-1.5 cursor-pointer">
-              <i class="fa-solid fa-bolt"></i>
-              <span>立即由 AI 核价出单</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- 📝 品名与规格描述全景放大编辑弹窗 (Description Detail Modal) -->
     <div v-if="descModal.show" v-cloak @click.self="closeDescModal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -1880,142 +1661,7 @@
       </div>
     </div>
 
-    <!-- 🏢 出厂底价库商品快捷选型中心大弹窗 (Catalog Selector Modal) -->
-    <div v-if="catalogModal.show" v-cloak @click.self="closeCatalogModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm">
-      <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-200 overflow-hidden">
-        <!-- 头部 -->
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm shadow-md shadow-blue-500/20">
-              <i class="fa-solid fa-boxes-stacked"></i>
-            </div>
-            <div>
-              <h3 class="text-base font-bold text-slate-900">我司出厂底价库选型中心</h3>
-              <p class="text-xs text-slate-500">
-                当前在册商品共 <span class="font-bold text-blue-600 font-mono">{{ catalogItems.length }}</span> 款 ｜ 点击任意商品一键对齐内部型号与出厂底价
-              </p>
-            </div>
-          </div>
-          <button @click="closeCatalogModal" aria-label="关闭底价库选型窗口" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 flex items-center justify-center transition cursor-pointer">
-            <i class="fa-solid fa-xmark text-sm"></i>
-          </button>
-        </div>
 
-        <!-- 搜索过滤条 -->
-        <div class="p-4 border-b border-slate-100 bg-white">
-          <div class="relative flex items-center group">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-slate-400 text-xs"></i>
-            <input v-model="catalogModal.search" 
-                   type="text" 
-                   placeholder="快速搜索型号、中英文品名、工艺关键词或买家别名..." 
-                   class="w-full pl-9 pr-9 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-xl text-xs sm:text-sm font-medium transition outline-none">
-            <button v-if="catalogModal.search" @mousedown.prevent="catalogModal.search = ''" aria-label="清空搜索内容" class="input-clear-btn absolute right-3 opacity-0 group-focus-within:opacity-100 pointer-events-none group-focus-within:pointer-events-auto">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- 商品数据列表 -->
-        <div class="flex-1 overflow-y-auto modal-scroll p-4 sm:p-6 space-y-2">
-          <div v-if="filteredCatalogList.length === 0" class="py-12 text-center text-slate-400 space-y-2">
-            <i class="fa-regular fa-folder-open text-3xl text-slate-300"></i>
-            <p class="text-xs">未搜索到符合条件的底价商品，可清空关键词重新查找</p>
-          </div>
-
-          <div v-for="prod in paginatedCatalogList" :key="prod.sku"
-               @click="selectCatalogModalProduct(prod)"
-               class="p-3.5 rounded-xl border border-slate-200/80 hover:border-blue-400 hover:bg-blue-50/40 bg-white transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 group hover:shadow-md">
-            <div class="flex-1 min-w-0 space-y-1">
-              <div class="flex items-center space-x-2">
-                <span class="font-mono font-bold text-xs sm:text-sm text-blue-700 bg-blue-50 group-hover:bg-blue-100/80 px-2 py-0.5 rounded border border-blue-200/70">
-                  {{ prod.sku }}
-                </span>
-                <span class="text-xs font-bold text-slate-800">
-                  {{ getCatalogItemShortName(prod.sku) }}
-                </span>
-                <span v-if="prod.aliases && prod.aliases.length > 0" class="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
-                  别名: {{ prod.aliases.slice(0, 2).join(', ') }}
-                </span>
-              </div>
-              <div class="text-xs text-slate-600 line-clamp-2">
-                {{ prod.name }}
-              </div>
-              <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 pt-0.5">
-                <span>最低起订量: <b class="text-slate-600 font-mono">{{ prod.moq || 1 }}</b> pcs</span>
-                <span>•</span>
-                <span>生产交期: <b class="text-slate-600">{{ prod.leadTime || '标准交期' }}</b></span>
-                <span v-if="prod.cbmPerCtn">•</span>
-                <span v-if="prod.cbmPerCtn">外箱: <b class="text-slate-600 font-mono">{{ prod.cbmPerCtn }}</b> CBM / <b class="text-slate-600 font-mono">{{ prod.pcsPerCtn || 1 }}</b> pcs</span>
-              </div>
-            </div>
-
-            <div class="flex items-center sm:flex-col sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 flex-shrink-0 gap-2">
-              <div class="text-right">
-                <div class="text-[10px] text-slate-400 uppercase font-medium">出厂安全底价</div>
-                <div class="font-mono font-black text-sm sm:text-base text-emerald-600">
-                  ¥{{ prod.basePrice }}
-                </div>
-              </div>
-              <div class="flex items-center space-x-1.5">
-                <span v-if="isProtectedCatalogSku(prod.sku)" 
-                      title="系统基准受保护商品，禁止删除" 
-                      class="px-2 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-400 text-xs font-bold flex items-center space-x-1 cursor-default select-none">
-                  <i class="fa-solid fa-lock text-[10px]"></i>
-                  <span>受保护</span>
-                </span>
-                <button v-else type="button" @click.stop="confirmDeleteCatalogItem(prod)" 
-                        title="从底价库删除此款商品" aria-label="从底价库删除此款商品"
-                        class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-300 text-slate-400 hover:text-rose-600 font-bold text-xs transition cursor-pointer flex items-center space-x-1">
-                  <i class="fa-regular fa-trash-can text-[11px]"></i>
-                  <span>删除</span>
-                </button>
-                <button type="button" @click.stop="selectCatalogModalProduct(prod)" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors shadow-sm shadow-blue-500/20 active:scale-95 flex items-center space-x-1 cursor-pointer">
-                  <i class="fa-solid fa-check text-[11px]"></i>
-                  <span>选择此款</span>
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- 底部工具栏与分页控件 (支持海量底价商品极速翻页) -->
-        <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/80 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-slate-500">
-          <div class="flex items-center space-x-2">
-            <span>共找到 <b class="text-blue-600 font-mono">{{ filteredCatalogList.length }}</b> 款商品</span>
-            <span v-if="totalCatalogPages > 1" class="text-slate-400">｜ 第 <b class="font-mono text-slate-700">{{ catalogPage }}</b> / {{ totalCatalogPages }} 页</span>
-          </div>
-
-          <!-- 翻页控制按钮组 -->
-          <div v-if="totalCatalogPages > 1" class="flex items-center space-x-1.5">
-            <button type="button" 
-                    @click="catalogPage--" 
-                    :disabled="catalogPage <= 1" 
-                    class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer text-xs font-medium">
-              <i class="fa-solid fa-chevron-left text-[10px] mr-1"></i>上一页
-            </button>
-            <div class="flex items-center space-x-1">
-              <button v-for="p in totalCatalogPages" :key="p"
-                      @click="catalogPage = p"
-                      class="w-7 h-7 rounded-lg text-xs font-bold transition flex items-center justify-center cursor-pointer"
-                      :class="p === catalogPage ? 'bg-blue-600 text-white shadow-xs' : 'bg-white hover:bg-slate-100 border border-slate-200 text-slate-700'">
-                {{ p }}
-              </button>
-            </div>
-            <button type="button" 
-                    @click="catalogPage++" 
-                    :disabled="catalogPage >= totalCatalogPages" 
-                    class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition cursor-pointer text-xs font-medium">
-              下一页<i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
-            </button>
-          </div>
-
-          <button @click="closeCatalogModal" class="px-4 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 font-bold transition cursor-pointer">
-            取消返回
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- 💬 专属微信二维码人工协助弹窗 (WeChat QR Code Assistance Modal) -->
     <div v-if="wechatQrModal.show" v-cloak @click.self="wechatQrModal.show = false" class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -2052,182 +1698,7 @@
 
     <!-- 1. ⚡ 上传新询盘 / 快速建单弹窗 (New PO Upload Modal - 极简直觉重构) -->
     
-    <!-- ========================================================================= -->
-    <!-- 0. 💡 新手 3 步沉浸式聚光灯镂空蒙版引导 (Interactive Spotlight Tour)           -->
-    <!-- ========================================================================= -->
-    <div v-if="tourActive && !isAnyModalOpen" id="tour-spotlight-overlay" class="fixed inset-0 z-[100] select-none">
-      <!-- 1. 全屏 SVG 镂空遮罩 (镂空高亮按钮，其余区域暗色半透明) -->
-      <svg class="absolute inset-0 w-full h-full pointer-events-auto" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <mask id="tour-spotlight-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
-            <!-- 白色填充：遮罩生效区 (展示深色背景) -->
-            <rect x="0" y="0" width="100%" height="100%" fill="#ffffff" />
-            <!-- 黑色填充：镂空透光区 (完全透明透出高亮目标按钮) -->
-            <rect
-              :x="spotlightPos.x"
-              :y="spotlightPos.y"
-              :width="spotlightPos.width"
-              :height="spotlightPos.height"
-              rx="12"
-              ry="12"
-              fill="#000000"
-              style="transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);"
-            />
-          </mask>
-        </defs>
-        <!-- 半透明深黑蓝遮罩 -->
-        <rect
-          x="0"
-          y="0"
-          width="100%"
-          height="100%"
-          fill="rgba(11, 19, 43, 0.82)"
-          mask="url(#tour-spotlight-mask)"
-        />
-      </svg>
 
-      <!-- 2. 聚光灯高亮光晕边框与步骤指示角标 (带平滑流动过渡) -->
-      <div
-        class="fixed pointer-events-none rounded-xl border-2 border-blue-400 shadow-[0_0_30px_rgba(59,130,246,0.9),0_0_12px_rgba(96,165,250,0.7)] z-[101]"
-        :style="{
-          left: spotlightPos.x + 'px',
-          top: spotlightPos.y + 'px',
-          width: spotlightPos.width + 'px',
-          height: spotlightPos.height + 'px',
-          transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
-        }"
-      >
-        <!-- 步骤数字脉冲徽标 -->
-        <span class="absolute -top-3 -right-3 flex h-6 w-6">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-6 w-6 bg-gradient-to-tr from-blue-600 to-indigo-600 text-[11px] font-black text-white items-center justify-center shadow-lg border-2 border-white">
-            {{ tourStep }}
-          </span>
-        </span>
-      </div>
-
-      <!-- 3. 伴随式浮动气泡引导卡 (Floating Tour Popover - 纯白高质感微阴影浮窗) -->
-      <div
-        class="fixed z-[102] bg-white rounded-2xl p-3.5 sm:p-4 shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_0_1px_rgba(0,0,0,0.06)] border border-slate-100 animate-in fade-in zoom-in-95 duration-200 box-border"
-        :style="{
-          top: popoverPos.top,
-          bottom: popoverPos.bottom,
-          left: popoverPos.left,
-          width: popoverPos.width,
-          maxWidth: 'calc(100vw - 24px)',
-          transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
-        }"
-      >
-        <!-- 真 SVG 独立小三角箭头 (纯白无缝咬合，彻底杜绝菱形) -->
-        <div
-          v-if="popoverPos.arrowPosition === 'top'"
-          class="absolute -top-[7px] w-4 h-2 pointer-events-none drop-shadow-[0_-1px_1px_rgba(0,0,0,0.06)]"
-          :style="{ left: popoverPos.arrowLeft, transform: 'translateX(-50%)' }"
-        >
-          <svg viewBox="0 0 16 8" class="w-full h-full block">
-            <polygon points="0,8 8,0 16,8" fill="#ffffff" />
-            <path d="M0,8 L8,0 L16,8" stroke="#e2e8f0" stroke-width="1" fill="none" />
-          </svg>
-        </div>
-        <div
-          v-if="popoverPos.arrowPosition === 'bottom'"
-          class="absolute -bottom-[7px] w-4 h-2 pointer-events-none drop-shadow-[0_1px_1px_rgba(0,0,0,0.06)]"
-          :style="{ left: popoverPos.arrowLeft, transform: 'translateX(-50%)' }"
-        >
-          <svg viewBox="0 0 16 8" class="w-full h-full block">
-            <polygon points="0,0 8,8 16,0" fill="#ffffff" />
-            <path d="M0,0 L8,8 L16,0" stroke="#e2e8f0" stroke-width="1" fill="none" />
-          </svg>
-        </div>
-
-        <!-- 卡片内容区域 (紧凑精致) -->
-        <div class="space-y-2.5 text-left">
-          <!-- 顶部：步骤进度与关闭按钮 -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50/90 text-blue-700 border border-blue-200/70">
-                {{ currentStepInfo?.badge || '' }}
-              </span>
-              <!-- 3 个步骤进度条 -->
-              <div class="flex items-center space-x-1 ml-0.5">
-                <span
-                  v-for="s in 3"
-                  :key="s"
-                  class="h-1.5 rounded-full transition-all duration-300"
-                  :class="s === tourStep ? 'bg-blue-600 w-4' : 'bg-slate-200/80 w-1.5'"
-                ></span>
-              </div>
-            </div>
-
-            <button
-              @click="skipTour"
-              class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100/80 transition cursor-pointer"
-              title="关闭引导" aria-label="关闭引导"
-            >
-              <i class="fa-solid fa-xmark text-sm"></i>
-            </button>
-          </div>
-
-          <!-- 标题 -->
-          <div>
-            <h4 class="text-sm sm:text-base font-black text-slate-900 tracking-tight">
-              {{ currentStepInfo?.title || '' }}
-            </h4>
-          </div>
-
-          <!-- 详细解说文案 (去除臃肿嵌套灰框，自然流式排版，紧凑清晰) -->
-          <p class="text-xs text-slate-700 leading-relaxed font-normal">
-            {{ currentStepInfo?.description || '' }}
-          </p>
-
-          <!-- 贴心小贴士 (紧凑胶囊) -->
-          <div class="text-[11px] text-emerald-800 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200/80 font-medium flex items-center gap-1.5 leading-snug">
-            <span>{{ currentStepInfo?.tip || '' }}</span>
-          </div>
-
-          <!-- 底部操作按钮栏 -->
-          <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between gap-2 flex-wrap">
-            <button
-              @click="skipTour"
-              class="text-xs text-slate-400 hover:text-slate-600 font-medium px-1 py-1.5 transition cursor-pointer whitespace-nowrap"
-            >
-              跳过引导
-            </button>
-
-            <div class="flex items-center space-x-2 flex-shrink-0">
-              <!-- 上一步 -->
-              <button
-                v-if="tourStep > 1"
-                @click="prevTourStep"
-                class="px-3 py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-800 text-xs font-bold transition cursor-pointer whitespace-nowrap"
-              >
-                上一步
-              </button>
-
-              <!-- 下一步 -->
-              <button
-                v-if="tourStep < 3"
-                @click="nextTourStep"
-                class="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-extrabold shadow-md shadow-blue-500/20 transition cursor-pointer flex items-center space-x-1 whitespace-nowrap"
-              >
-                <span>下一步</span>
-                <i class="fa-solid fa-arrow-right text-[10px]"></i>
-              </button>
-
-              <!-- 完成引导 -->
-              <button
-                v-else
-                @click="finishTour"
-                class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-95 text-white text-xs font-bold shadow-md shadow-blue-600/25 transition cursor-pointer flex items-center space-x-1.5 whitespace-nowrap"
-              >
-                <i class="fa-solid fa-circle-check text-xs"></i>
-                <span>完成引导</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div v-if="newPoModal.show" id="new-po-modal-overlay" v-cloak @click.self="newPoModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
       <div class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-2xl border border-slate-100 space-y-5 animate-in fade-in zoom-in duration-200">
@@ -2246,6 +1717,12 @@
           <button @click="newPoModal.show = false" aria-label="关闭询盘导入窗口" :disabled="newPoModal.uploading" class="text-slate-400 hover:text-slate-600 p-1.5 sm:p-2 rounded-xl hover:bg-slate-100 transition cursor-pointer flex-shrink-0">
             <i class="fa-solid fa-xmark text-lg"></i>
           </button>
+        </div>
+
+        <!-- 附件解析为二期功能明确提示 (Task §2.4) -->
+        <div class="px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl flex items-center space-x-2 text-amber-800 text-xs">
+          <i class="fa-solid fa-circle-info text-amber-500 flex-shrink-0"></i>
+          <span>请粘贴邮件正文（附件解析为二期功能，当前仅解析正文）</span>
         </div>
 
         <!-- 模式切换 Tab -->
@@ -2330,9 +1807,6 @@ Terms: FOB Shenzhen Port.
 Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr-14 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition resize-none"></textarea>
               <!-- 右上角悬浮操作组 (对齐样品政策极简交互：移入/聚焦显现) -->
               <div class="absolute right-2.5 top-2.5 flex items-center space-x-1">
-                <button type="button" @click="openInquiryFullscreen" title="全屏放大沉浸编辑" aria-label="全屏放大沉浸编辑" class="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer">
-                  <i class="fa-solid fa-up-right-and-down-left-from-center text-[11px]"></i>
-                </button>
                 <button v-if="newPoModal.rawText" type="button" @mousedown.prevent="newPoModal.rawText = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -3185,168 +2659,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
-    <!-- 🗑️ 底价库条目删除二次确认弹窗 (Delete Catalog Item Modal) (P31 / muse_15 优化置顶 z-[110]) -->
-    <div v-if="deleteCatalogModal.show" v-cloak @click.self="deleteCatalogModal.show = false" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150" style="z-index: 110;">
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in zoom-in-95 duration-150">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-lg shadow-sm">
-            <i class="fa-regular fa-trash-can"></i>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-slate-900">确认删除底价库商品？</h3>
-            <p class="text-xs text-slate-500">将从当前租户出厂底价库中移除该条目</p>
-          </div>
-        </div>
 
-        <div class="bg-slate-50 p-4 rounded-xl space-y-2.5 border border-slate-100 text-xs">
-          <div class="flex justify-between items-center">
-            <span class="text-slate-500 font-medium">商品型号 SKU:</span>
-            <span class="font-mono font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200 select-all">{{ deleteCatalogModal.sku }}</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-slate-500 font-medium">商品品名:</span>
-            <span class="font-bold text-slate-800 truncate max-w-[240px]">{{ deleteCatalogModal.name }}</span>
-          </div>
-          <div class="text-[11px] text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-200/80 leading-relaxed">
-            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
-            提示：删除后该商品将不再出现在选型中心；已生成的历史报价单数据不会受损。
-          </div>
-        </div>
-
-        <div class="flex items-center justify-end space-x-3 pt-2">
-          <button type="button" @click="deleteCatalogModal.show = false" :disabled="deleteCatalogModal.loading" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">
-            取消保留
-          </button>
-          <button type="button" @click="executeDeleteCatalogItem" :disabled="deleteCatalogModal.loading" class="px-5 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-md shadow-rose-500/20 transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50">
-            <i v-if="deleteCatalogModal.loading" class="fa-solid fa-spinner fa-spin"></i>
-            <i v-else class="fa-regular fa-trash-can"></i>
-            <span>{{ deleteCatalogModal.loading ? '正在删除...' : '确认移除条目' }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 🌍 外贸汇率核算与结汇安全垫深度诊断弹窗 (Exchange Rate Diagnostic Modal) (Issue 3) -->
-    <div v-if="rateDiagnosticModalVisible" v-cloak @click.self="rateDiagnosticModalVisible = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
-      <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in zoom-in-95 duration-150">
-        <!-- 弹窗头部 -->
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div class="flex items-center space-x-2.5">
-            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base">
-              <i class="fa-solid fa-shield-halved"></i>
-            </div>
-            <div>
-              <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <span>外贸汇率核算与结汇安全垫分析</span>
-                <span :class="rateDiagnostic.badgeClass" class="text-[10px] font-bold px-2 py-0.5 rounded border">
-                  {{ rateDiagnostic.text }}
-                </span>
-              </h3>
-              <p class="text-[11px] text-slate-400">实时直连中国银行现汇买入牌价 · 防范人民币升值与汇兑损失</p>
-            </div>
-          </div>
-          <button @click="rateDiagnosticModalVisible = false" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition">
-            <i class="fa-solid fa-xmark text-sm"></i>
-          </button>
-        </div>
-
-        <!-- 核心汇率对比卡片 (两列对比) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <!-- 卡片 1: 当前报价采用汇率 -->
-          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between space-y-2">
-            <div>
-              <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">当前报价单使用汇率</div>
-              <div class="flex items-baseline space-x-1.5 mt-1">
-                <span class="text-xs text-slate-400 font-mono">1 {{ effectiveCurrency }} =</span>
-                <span class="text-2xl font-black text-slate-900 font-mono tracking-tight">¥{{ quotation.rateUsed || '-' }}</span>
-              </div>
-            </div>
-            <div class="text-[10px] text-slate-500 flex items-center">
-              <i class="fa-regular fa-calendar-check text-blue-500 mr-1 text-[10px]"></i>
-              <span>用于当前全单各品类外币单价折算</span>
-            </div>
-          </div>
-
-          <!-- 卡片 2: 今日银行现汇买入参考价 -->
-          <div class="p-3.5 rounded-xl bg-blue-50/50 border border-blue-200/80 flex flex-col justify-between space-y-2">
-            <div>
-              <div class="flex items-center justify-between">
-                <div class="text-[11px] font-bold text-blue-900 uppercase tracking-wide flex items-center gap-1.5">
-                  <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>今日银行现汇买入牌价</span>
-                </div>
-                <button type="button" @click="fetchLiveRates(true)" class="text-blue-600 hover:text-blue-800 text-[10px] font-semibold flex items-center gap-1 cursor-pointer" title="点击立即刷新最新行情">
-                  <i class="fa-solid fa-arrows-rotate text-[9px]" :class="{ 'animate-spin': loadingLiveRates }"></i>
-                  <span>刷新</span>
-                </button>
-              </div>
-              <div class="flex items-baseline space-x-1.5 mt-1">
-                <span class="text-xs text-blue-500 font-mono">1 {{ effectiveCurrency }} =</span>
-                <span class="text-2xl font-black text-blue-700 font-mono tracking-tight">¥{{ currentLiveRate?.buyingRate || '-' }}</span>
-              </div>
-            </div>
-            <div class="text-[10px] text-slate-500 flex items-center justify-between">
-              <span v-if="currentLiveRate?.time">北京时间: {{ currentLiveRate.date ? currentLiveRate.date + ' ' : '' }}{{ currentLiveRate.time }} (5分钟自动刷新)</span>
-              <span v-else>基准 {{ baseCurrencyRate }}</span>
-              <button v-if="currentLiveRate && quotation.rateUsed !== currentLiveRate.buyingRate" 
-                      type="button" 
-                      @click="applyLiveRate(); rateDiagnosticModalVisible = false;" 
-                      class="text-blue-700 font-bold hover:underline cursor-pointer text-[10px]">
-                一键采纳牌价 &rarr;
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 诊断结论框 -->
-        <div class="p-3 rounded-xl border flex items-start space-x-2.5 text-xs leading-relaxed"
-             :class="rateDiagnostic.type === 'risk' ? 'bg-amber-50 border-amber-200 text-amber-900' : (rateDiagnostic.type === 'cushion' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-blue-50/60 border-blue-200 text-blue-900')">
-          <i :class="rateDiagnostic.type === 'risk' ? 'fa-solid fa-triangle-exclamation text-amber-600' : (rateDiagnostic.type === 'cushion' ? 'fa-solid fa-shield-halved text-emerald-600' : 'fa-solid fa-scale-balanced text-blue-600')" class="mt-0.5 flex-shrink-0 text-sm"></i>
-          <div>
-            <div class="font-bold mb-0.5">{{ rateDiagnostic.text }}</div>
-            <div class="text-[11px] opacity-90">{{ rateDiagnostic.tooltip }}</div>
-          </div>
-        </div>
-
-        <!-- 三大业务逻辑指引 -->
-        <div class="space-y-2 text-xs text-slate-600 bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/60 leading-relaxed">
-          <div class="flex items-start space-x-2">
-            <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-            <div>
-              <strong class="text-slate-800">实时行情参考 (每 5 分钟自动更新)</strong>：系统实时直连中国银行现汇买入牌价。外贸出口企业在收到海外买家外汇电汇 (T/T) 并在银行结汇换成人民币时，银行以此牌价办理结汇。
-            </div>
-          </div>
-          <div class="flex items-start space-x-2">
-            <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-            <div>
-              <strong class="text-slate-800">汇率安全垫机制 (外贸实战风控)</strong>：建议报价汇率略微低于当前市场牌价（例如市场为 7.24，报价按 7.18 核算），为生产到交付周期的汇率波动预留安全缓冲；反之若报价汇率高于市场牌价，未来买家结汇时将直接造成汇兑亏损。
-            </div>
-          </div>
-          <div class="flex items-start space-x-2">
-            <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-            <div>
-              <strong class="text-slate-800">底价基准保护 (±3%)</strong>：底价表预设基准汇率为 <strong class="font-mono text-slate-900">{{ baseCurrencyRate }}</strong>，当实际报价汇率波动超出 <strong class="font-mono text-slate-900">{{ rateSafeRange.min }} ~ {{ rateSafeRange.max }}</strong> 区间时，系统将自动触发风控警示。
-            </div>
-          </div>
-        </div>
-
-        <!-- 弹窗底部操作按钮 -->
-        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-          <div>
-            <button v-if="currentLiveRate && quotation.rateUsed !== currentLiveRate.buyingRate"
-                    type="button"
-                    @click="applyLiveRate(); rateDiagnosticModalVisible = false;"
-                    class="px-3.5 py-2 rounded-xl text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition flex items-center gap-1.5 cursor-pointer">
-              <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i>
-              <span>采纳今日现汇买入价 (¥{{ currentLiveRate.buyingRate }})</span>
-            </button>
-          </div>
-          <button @click="rateDiagnosticModalVisible = false" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition cursor-pointer">
-            我知道了
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- 二次确认弹窗 (Secondary Confirmation Modal) -->
     <div v-if="showConfirmModal" id="confirm-modal-overlay" v-cloak @click.self="showConfirmModal = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -3693,13 +3006,13 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         <div class="text-center space-y-1.5 pb-3.5 border-b border-white/10">
           <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-xs font-semibold">
             <i class="fa-solid fa-sparkles text-cyan-300"></i>
-            <span>{{ trialModal.isExpired ? '试用到期服务续订' : (trialModal.mode === 'login' ? '已有账号安全登录' : '登录 / 免费开通 7 天试用') }}</span>
+            <span>{{ trialModal.isExpired ? '系统内测提示' : (trialModal.mode === 'login' ? '已有账号安全登录' : '登录 / 免费开通 7 天试用') }}</span>
           </div>
           <h4 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-            {{ trialModal.isExpired ? '试用期满 · 升级个人版' : (trialModal.mode === 'login' ? '欢迎登录工作台' : '开启外贸智能出单体验') }}
+            {{ trialModal.isExpired ? '内测期间功能全开' : (trialModal.mode === 'login' ? '欢迎登录工作台' : '开启外贸智能出单体验') }}
           </h4>
           <p class="text-xs text-slate-400">
-            {{ trialModal.isExpired ? '感谢体验 KelvinFlow！为您安全保留数据并持续提供基础额度' : (trialModal.mode === 'login' ? '密码加密保护 · 安全管理私有底价与报价草稿' : '开箱自带演示底价库 · 两种方式任选开启') }}
+            {{ trialModal.isExpired ? '系统处于公测体验期，所有功能正常可用，不限制出单与底价管理' : (trialModal.mode === 'login' ? '密码加密保护 · 安全管理私有底价与报价草稿' : '开箱自带演示底价库 · 两种方式任选开启') }}
           </p>
           <!-- 同行邀请专属横幅 -->
           <div v-if="trialModal.ref && !trialModal.isExpired" class="mt-2.5 p-2 rounded-xl bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-blue-500/20 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between shadow-lg shadow-emerald-950/20">
@@ -3711,48 +3024,20 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </div>
         </div>
 
-        <!-- 试用已到期展示 (结构化清晰卡片呈现，杜绝信息过载与负面措辞) -->
-        <div v-if="trialModal.isExpired" class="space-y-3 mt-4">
-          <div class="space-y-2 text-xs">
-            <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/80 border border-white/10">
-              <i class="fa-solid fa-shield-halved text-emerald-400 text-xs mt-0.5 shrink-0"></i>
-              <div class="leading-relaxed text-[11.5px] text-slate-300">
-                <span class="text-white font-bold">30 天数据安全保留</span>：底价库与历史单据已为您安全保留 30 天，可随时查阅。
-              </div>
+        <!-- 试用到期简化展示 (Task §2.7: 内测期间功能全开，不锁功能) -->
+        <div v-if="trialModal.isExpired" class="space-y-4 mt-4 text-center">
+          <div class="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-center space-y-2.5">
+            <div class="w-12 h-12 rounded-full bg-blue-500/20 text-cyan-300 flex items-center justify-center mx-auto text-xl">
+              <i class="fa-solid fa-gift"></i>
             </div>
-
-            <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/80 border border-white/10">
-              <i class="fa-solid fa-gift text-cyan-400 text-xs mt-0.5 shrink-0"></i>
-              <div class="leading-relaxed text-[11.5px] text-slate-300">
-                <span class="text-white font-bold">永久每月免费额度</span>：试用到期后，每月仍享有 10 笔免费出单额度。
-              </div>
-            </div>
-
-            <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 to-transparent border border-amber-500/30">
-              <i class="fa-solid fa-crown text-amber-400 text-xs mt-0.5 shrink-0"></i>
-              <div class="leading-relaxed text-[11.5px] text-amber-100">
-                <span class="text-amber-300 font-bold">首月特惠 ¥39</span>：☕ 少喝一杯星巴克，首月特惠仅 ¥39 即可解锁整月无限次出单与企业 Logo 定制！
-              </div>
-            </div>
+            <h5 class="text-base font-bold text-white">内测期间功能全开</h5>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              内测期间功能全开，您的账号享有全功能权限，所有出单与底价管理功能均正常使用。
+            </p>
           </div>
-
-          <!-- 创始人微信与查看特惠定价 (内嵌按钮一键直达，杜绝闪退失效) -->
-          <div class="p-3 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-between gap-3 pt-2.5">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <img src="/contact_wechat.png" onerror="this.onerror=null; this.src='/kelvinflow_emblem.png';" alt="创始人微信" class="w-14 h-14 rounded-xl border border-white/20 bg-white p-0.5 shrink-0 shadow-md" />
-              <div class="text-left space-y-0.5 min-w-0">
-                <div class="text-[10.5px] text-slate-400">扫码或添加微信：</div>
-                <div class="text-xs font-mono font-bold text-cyan-300 bg-slate-900 px-1.5 py-0.5 rounded border border-cyan-500/30 inline-block select-all">
-                  kt_data
-                </div>
-              </div>
-            </div>
-            <button type="button" @click="trialModal.show = false; openUpgradeModal('monthly')"
-                    class="shrink-0 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs shadow-md active:scale-95 transition flex items-center gap-1 cursor-pointer">
-              <span>查看个人版特惠定价</span>
-              <i class="fa-solid fa-arrow-right text-[10px]"></i>
-            </button>
-          </div>
+          <button type="button" @click="trialModal.show = false" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition cursor-pointer">
+            我知道了，继续使用
+          </button>
         </div>
 
         <!-- 正常自主注册 / 登录模式 (零客服负担，全自动化) -->
@@ -4106,127 +3391,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
       </div>
     </div>
 
-    <!-- 同行专属推荐分享弹窗 (与官网 100% 保持一致) -->
-    <div v-if="referralModal.show" v-cloak @click.self="closeReferralShareModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-      <div class="bg-[#090a12] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl relative cursor-default text-left text-white animate-in fade-in zoom-in duration-200">
-        <button @click="closeReferralShareModal" aria-label="关闭同行推荐分享窗口" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
 
-        <div class="flex items-center space-x-2 text-emerald-400 text-sm font-bold mb-2">
-          <i class="fa-solid fa-gift"></i>
-          <span>同行推荐特惠计划</span>
-        </div>
-        <h3 class="text-xl font-extrabold text-white mb-2">邀请同行，双方各送 7 天</h3>
-        <p class="text-xs text-slate-400 mb-6">
-          每成功邀请 1 位外贸同行注册体验，您的账户（免费试用或个人版）均直接累加 7 天全功能使用时长（天数自动累加，上不封顶）！
-        </p>
-
-        <div class="grid grid-cols-2 gap-3 mb-6 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-center">
-          <div>
-            <div class="text-[11px] text-slate-400">已成功邀请</div>
-            <div class="text-2xl font-black text-cyan-300 font-mono mt-0.5">{{ referralModal.referralCount || 0 }}</div>
-          </div>
-          <div>
-            <div class="text-[11px] text-slate-400">累计获赠天数</div>
-            <div class="text-2xl font-black text-emerald-400 font-mono mt-0.5">{{ referralModal.rewardDays || 0 }}</div>
-          </div>
-        </div>
-
-        <div class="space-y-4">
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">您的专属邀请码</label>
-            <div class="flex items-center space-x-2">
-              <div class="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-cyan-300 font-mono font-bold text-sm">{{ referralModal.inviteCode || '--' }}</div>
-              <button @click="copyShareCode" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition cursor-pointer">
-                <span>{{ referralModal.copiedCode ? '✅ 已复制' : '复制邀请码' }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">专属邀请链接</label>
-            <div class="flex items-center space-x-2">
-              <input type="text" :value="referralModal.shareUrl" readonly class="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-slate-300 font-mono text-xs focus:outline-none">
-              <button @click="copyShareLink" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center space-x-1.5 flex-shrink-0">
-                <i class="fa-regular fa-copy text-xs"></i>
-                <span>{{ referralModal.copiedLink ? '✅ 已复制' : '复制链接' }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 🏢 企业专属 Logo 管理弹窗 (Logo Modal) -->
-    <div v-if="logoModal.show" id="logo-modal-overlay" v-cloak @click.self="logoModal.show = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-      <!-- 弹窗容器 (加大至 max-w-[480px]，给标题与副标题更充裕的单行排版空间) -->
-      <div class="relative max-w-[480px] w-full bg-[#0B132B] border border-cyan-500/30 rounded-3xl p-6 sm:p-7 shadow-2xl text-left text-white animate-in fade-in zoom-in duration-200 space-y-5">
-        
-        <!-- 弹窗标题 -->
-        <div class="flex items-center justify-between border-b border-white/10 pb-4">
-          <div class="flex items-center space-x-3 min-w-0">
-            <div class="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center text-lg flex-shrink-0">
-              <i class="fa-solid fa-palette"></i>
-            </div>
-            <div class="min-w-0">
-              <h3 class="text-base font-extrabold text-white">报价单企业 Logo 设置</h3>
-              <p class="text-xs text-slate-400 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">上传企业专属商标，自动印于导出的 PDF 报价单抬头</p>
-            </div>
-          </div>
-          <button @click="logoModal.show = false" aria-label="关闭企业Logo配置窗口" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition cursor-pointer flex-shrink-0">
-            <i class="fa-solid fa-xmark text-lg"></i>
-          </button>
-        </div>
-
-        <!-- 当前 Logo 预览区 -->
-        <div class="p-5 rounded-2xl bg-white/[0.04] border border-white/10 text-center space-y-3">
-          <div class="text-xs text-slate-400 font-medium">当前生效 Logo 预览 (导出 PDF 抬头)：</div>
-          <div class="h-20 flex items-center justify-center p-3 bg-slate-900/80 rounded-xl border border-white/10">
-            <img :src="tenantLogoUrl || '/kelvinflow_emblem.png'" alt="Company Logo" class="max-h-16 max-w-full object-contain" />
-          </div>
-          <p class="text-[11px] text-slate-400">
-            {{ tenantLogoUrl ? '✨ 已启用企业自定义专属 Logo' : '当前使用官方标准默认徽标' }}
-          </p>
-        </div>
-
-        <!-- 上传控件 (严谨限制为 PDFKit 兼容的 PNG/JPG 格式) -->
-        <input type="file" ref="logoFileInput" class="hidden" accept=".png,.jpg,.jpeg" @change="onLogoFileSelected">
-        
-        <!-- 仅保留上传新 Logo 与纯文字抬头两大核心按钮，移除恢复官方徽标 -->
-        <div class="space-y-2.5">
-          <button type="button" @click="$refs.logoFileInput.click()" :disabled="logoModal.uploading" class="w-full py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition flex items-center justify-center space-x-2 shadow-lg shadow-cyan-600/20 cursor-pointer disabled:opacity-50">
-            <i v-if="logoModal.uploading" class="fa-solid fa-spinner animate-spin"></i>
-            <i v-else class="fa-solid fa-cloud-arrow-up"></i>
-            <span>{{ logoModal.uploading ? '正在上传保存...' : '上传新 Logo (PNG 透明底最佳)' }}</span>
-          </button>
-
-          <button type="button" @click="setNoLogo" :disabled="logoModal.uploading" class="w-full py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-xs transition flex items-center justify-center space-x-2 cursor-pointer border border-white/10 hover:border-cyan-500/30" title="PDF抬头将仅显示纯文字公司英文名，不显示任何Logo" aria-label="PDF抬头将仅显示纯文字公司英文名，不显示任何Logo">
-            <i class="fa-solid fa-font text-cyan-400"></i>
-            <span>纯文字抬头 (无Logo)</span>
-          </button>
-        </div>
-
-        <!-- 格式要求小提示 (仅展示明确的格式要求，去除零遮挡与零混乱等技术术语) -->
-        <div class="p-3.5 rounded-xl bg-blue-950/40 border border-blue-500/20 text-xs text-slate-300 flex items-start space-x-2.5">
-          <i class="fa-solid fa-circle-info text-cyan-400 mt-0.5 flex-shrink-0"></i>
-          <div class="leading-relaxed text-slate-400 text-[11px]">
-            <span class="text-slate-300 font-medium">格式要求：</span>支持透明底 PNG 及 JPG/JPEG 图片文件，建议长宽比为 2:1 至 4:1，系统将自动等比缩放适配于 PDF 报价单抬头。
-          </div>
-        </div>
-
-        <!-- 个人专业版特权说明条 -->
-        <div v-if="!isPaidUser" class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-300 flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-crown text-amber-400"></i>
-            <span>企业 Logo 高清嵌入为个人专业版专属特权</span>
-          </div>
-          <button type="button" @click="logoModal.show = false; openUpgradeModal('monthly')" class="font-bold underline hover:text-amber-200 cursor-pointer">
-            立即升级 ➔
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- 🏢 企业商业资料设置弹窗 (Company Profile Settings Modal) -->
     <div v-if="companyProfileModal.show" id="company-profile-modal-overlay" v-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
@@ -4369,7 +3534,6 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         const confirmModalMode = ref('standard');
         const quotesHistoryModal = ref({ show: false });
         const quoteHistorySearchKeyword = ref('');
-        const rateDiagnosticModalVisible = ref(false);
         const userQuotesList = ref([]);
 
         // D-05: 统一高精度两倍小数工具函数 (确保底层值与显示值均为干净小数，避免浮点尾数)
@@ -4506,128 +3670,10 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
         }
 
         // =========================================================================
-        // 🏢 租户品牌与企业专属 Logo 响应式状态 (Custom Company Logo)
+        // 🏢 租户品牌名称与企业副标响应式状态 (Company Profile)
         // =========================================================================
-        const tenantLogoUrl = ref(null);
         const tenantCompanyName = ref('');
         const tenantCompanySubtitle = ref('');
-        const logoModal = ref({
-          show: false,
-          uploading: false
-        });
-
-        const logoResetConfirmModal = ref({
-          show: false
-        });
-
-        const openLogoModal = () => {
-          if (!isPaidUser.value) {
-            showToast('💡 自定义企业 Logo 为个人版专属特权，请升级后使用～', 'info');
-            openUpgradeModal('monthly');
-            return;
-          }
-          logoModal.value.show = true;
-        };
-
-        const openResetLogoConfirm = () => {
-          logoResetConfirmModal.value.show = true;
-        };
-
-        const closeResetLogoConfirm = () => {
-          logoResetConfirmModal.value.show = false;
-        };
-
-        const onLogoFileSelected = async (event) => {
-          const file = event.target.files?.[0];
-          if (!file) return;
-
-          logoModal.value.uploading = true;
-          try {
-            const formData = new FormData();
-            formData.append('logo', file);
-
-            const token = getTokenFromUrl();
-            const headers = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const res = await fetch('/api/v1/tenant/logo', {
-              method: 'POST',
-              headers,
-              body: formData
-            });
-            const data = await res.json();
-            if (data.success) {
-              tenantLogoUrl.value = data.logoUrl + '?t=' + Date.now();
-              showToast(data.message || '企业专属 Logo 已成功保存！', 'success');
-              logoModal.value.show = false;
-            } else {
-              showToast(data.error || '上传 Logo 失败', 'error');
-            }
-          } catch (err) {
-            showToast('上传失败: ' + err.message, 'error');
-          } finally {
-            logoModal.value.uploading = false;
-            if (event.target) event.target.value = '';
-          }
-        };
-
-        const executeResetDefaultLogo = async () => {
-          logoResetConfirmModal.value.show = false;
-          logoModal.value.uploading = true;
-          try {
-            const token = getTokenFromUrl();
-            const headers = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            await fetch('/api/v1/tenant/logo', {
-              method: 'DELETE',
-              headers
-            });
-            await fetch('/api/v1/tenant/profile', {
-              method: 'PUT',
-              headers,
-              body: JSON.stringify({ noLogo: false })
-            });
-            tenantLogoUrl.value = '/kelvinflow_emblem.png';
-            showToast('已成功恢复为默认官方品牌徽标', 'success');
-            logoModal.value.show = false;
-          } catch (err) {
-            showToast('重置失败: ' + err.message, 'error');
-          } finally {
-            logoModal.value.uploading = false;
-          }
-        };
-
-        const resetDefaultLogo = () => {
-          openResetLogoConfirm();
-        };
-
-        const setNoLogo = async () => {
-          logoModal.value.uploading = true;
-          try {
-            const token = getTokenFromUrl();
-            const headers = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const res = await fetch('/api/v1/tenant/profile', {
-              method: 'PUT',
-              headers,
-              body: JSON.stringify({ noLogo: true })
-            });
-            const data = await res.json();
-            if (data.success) {
-              tenantLogoUrl.value = null;
-              showToast('已成功切换为纯文字商务抬头 (无Logo)', 'success');
-              logoModal.value.show = false;
-            } else {
-              showToast(data.error || '切换失败', 'error');
-            }
-          } catch (err) {
-            showToast('设置失败: ' + err.message, 'error');
-          } finally {
-            logoModal.value.uploading = false;
-          }
-        };
 
         // =========================================================================
         // 🏢 企业商业资料设置响应式状态与交互 (Company Profile Settings)
@@ -4754,202 +3800,11 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           return Boolean((isPaidPlan || currentTenant.value.isPaid) && p !== 'trial');
         });
 
-        // =========================================================================
-        // 💡 新手 3 步沉浸式聚光灯镂空蒙版新手引导 (Interactive Spotlight Tour)
-        // =========================================================================
-        const tourActive = ref(false);
-        const tourStep = ref(1);
-        const spotlightPos = ref({ x: 0, y: 0, width: 0, height: 0 });
-        const popoverPos = ref({
-          top: '64px',
-          bottom: 'auto',
-          left: '16px',
-          width: '310px',
-          arrowLeft: '155px',
-          arrowPosition: 'top'
-        });
-
-        const tourSteps = computed(() => [
-          {
-            step: 1,
-            targetId: 'tour-step-1',
-            badge: '步骤 1/3 · 基础配置',
-            title: '配置产品底价库',
-            description: '上传你的 Excel 底价表。底价加密保存在你的专属私有空间，自动联动算价防错保提成，安全不外泄。',
-            tip: '💡 系统已内置演示底价，无需配置即可直接体验。',
-            placement: 'bottom'
-          },
-          {
-            step: 2,
-            targetId: 'tour-step-2',
-            badge: '步骤 2/3 · 智能建单',
-            title: '上传客户询盘建单',
-            description: '拖入买家真实 PDF、Excel 或询盘正文，AI 秒级智能识别型号与数量，自动联动底价库精准核算。当前工作台展示的是系统内置的海外买家询盘演示样例，您可以随时点击上方「上传新询盘」测试您自家的真实单据！',
-            tip: '💡 当前页面为预置的免配置演示单据，支持随意修改单价与利润体验。',
-            placement: 'bottom'
-          },
-          {
-            step: 3,
-            targetId: 'tour-step-3',
-            badge: '步骤 3/3 · 一键出单',
-            title: isPaidUser.value ? '确认毛利，直达草稿箱' : '确认毛利，一键出单',
-            description: isPaidUser.value
-              ? '确认目标利润率与汇率后，一键生成正式商业 PDF 报价单（含企业专属 Logo 抬头），并全自动静默直达常用邮箱/企业邮箱【发件草稿箱】，点开直接发送！'
-              : '确认目标利润率与汇率后，一键生成外贸标准商业 PDF 报价单并自动下载，地道英文回信已一键复制到剪贴板，直接在常用邮箱中粘贴发送，零门槛出单。升级个人专业版后更可解锁专属企业 Logo 上传与草稿箱全自动托管！',
-            tip: isPaidUser.value
-              ? '👑 个人专业版特权已就绪！点击按钮即可将报价单与英文回复存入草稿箱。'
-              : '🎉 引导完成！点击按钮即可立即下载最新 PDF 报价单并复制英文回信。',
-            placement: 'top'
-          }
-        ]);
-
-        const currentStepInfo = computed(() => {
-          const steps = tourSteps.value || [];
-          return steps[tourStep.value - 1] || steps[0] || {
-            step: 1,
-            targetId: 'tour-step-1',
-            badge: '步骤 1/3 · 基础配置',
-            title: '配置产品底价库',
-            description: '上传你的 Excel 底价表。',
-            tip: '💡 系统已内置演示底价，无需配置即可直接体验。',
-            placement: 'bottom'
-          };
-        });
-
-        const updateTourPosition = () => {
-          if (!tourActive.value) return;
-          const current = currentStepInfo.value;
-          if (!current || !current.targetId) return;
-          const el = document.getElementById(current.targetId);
-          if (!el) {
-            // 移动端或目标节点尚未渲染完成时的自适应保底
-            const winW = window.innerWidth || 375;
-            const popWidth = Math.min(310, Math.max(250, winW - 24));
-            const popLeft = Math.max(12, Math.floor((winW - popWidth) / 2));
-            popoverPos.value = {
-              top: '70px',
-              bottom: 'auto',
-              left: `${popLeft}px`,
-              width: `${popWidth}px`,
-              arrowLeft: `${Math.floor(popWidth / 2)}px`,
-              arrowPosition: 'top'
-            };
-            spotlightPos.value = { x: 0, y: 0, width: 0, height: 0 };
-            return;
-          }
-
-          const rect = el.getBoundingClientRect();
-          const pad = 6;
-
-          // Spotlight position
-          spotlightPos.value = {
-            x: Math.max(0, rect.left - pad),
-            y: Math.max(0, rect.top - pad),
-            width: rect.width + pad * 2,
-            height: rect.height + pad * 2
-          };
-
-          // Popover position calculation
-          const winW = window.innerWidth || 375;
-          const winH = window.innerHeight || 667;
-          const popWidth = Math.min(310, Math.max(250, winW - 24));
-          const targetCenterX = rect.left + rect.width / 2;
-
-          let popLeft = targetCenterX - popWidth / 2;
-          popLeft = Math.max(12, Math.min(winW - popWidth - 12, popLeft));
-
-          let arrowLeft = targetCenterX - popLeft;
-          arrowLeft = Math.max(20, Math.min(popWidth - 20, arrowLeft));
-
-          if (current.placement === 'top') {
-            const popBottom = Math.max(70, (winH - rect.top) + 14);
-            popoverPos.value = {
-              top: 'auto',
-              bottom: `${popBottom}px`,
-              left: `${popLeft}px`,
-              width: `${popWidth}px`,
-              arrowLeft: `${arrowLeft}px`,
-              arrowPosition: 'bottom'
-            };
-          } else {
-            const popTop = Math.max(10, rect.bottom + 14);
-            popoverPos.value = {
-              top: `${popTop}px`,
-              bottom: 'auto',
-              left: `${popLeft}px`,
-              width: `${popWidth}px`,
-              arrowLeft: `${arrowLeft}px`,
-              arrowPosition: 'top'
-            };
-          }
-        };
-
-        const goToTourStep = (step) => {
-          tourStep.value = step;
-          // Step 1 and 2 are in the top sticky header, Step 3 is in the bottom fixed action bar
-          // All 3 targets are always in viewport, so no scrollIntoView jitter needed.
-          updateTourPosition();
-          setTimeout(() => {
-            updateTourPosition();
-          }, 50);
-        };
-
-        const nextTourStep = () => {
-          if (tourStep.value < 3) {
-            goToTourStep(tourStep.value + 1);
-          } else {
-            finishTour();
-          }
-        };
-
-        const prevTourStep = () => {
-          if (tourStep.value > 1) {
-            goToTourStep(tourStep.value - 1);
-          }
-        };
-
-        let tourTrackTimer = null;
-
-        const startTour = (initialStep = 1) => {
-          // 试用到期或到期弹窗激活时，不自动启动新手引导
-          if (trialState.value.expired || (trialModal.value.show && trialModal.value.isExpired)) {
-            return;
-          }
-          const stepNum = typeof initialStep === 'number' ? initialStep : 1;
-          tourStep.value = stepNum;
-          tourActive.value = true;
-          window.addEventListener('resize', updateTourPosition);
-          window.addEventListener('scroll', updateTourPosition, { passive: true });
-          updateTourPosition();
-
-          if (tourTrackTimer) clearInterval(tourTrackTimer);
-          tourTrackTimer = setInterval(() => {
-            if (!tourActive.value) {
-              clearInterval(tourTrackTimer);
-              tourTrackTimer = null;
-              return;
-            }
-            updateTourPosition();
-          }, 80);
-
-          setTimeout(() => {
-            goToTourStep(stepNum);
-          }, 40);
-        };
-
-        const finishTour = () => {
-          tourActive.value = false;
-          if (tourTrackTimer) {
-            clearInterval(tourTrackTimer);
-            tourTrackTimer = null;
-          }
-          localStorage.setItem('kelvinflow_tour_dismissed', 'true');
-          window.removeEventListener('resize', updateTourPosition);
-          window.removeEventListener('scroll', updateTourPosition);
-        };
-
-        const skipTour = () => {
-          finishTour();
+        // 💡 简洁静态新手引导卡片（可手动关闭并持久化至 localStorage）
+        const showOnboardingCard = ref(!localStorage.getItem('kelvinflow_onboarding_dismissed'));
+        const dismissOnboardingCard = () => {
+          showOnboardingCard.value = false;
+          localStorage.setItem('kelvinflow_onboarding_dismissed', 'true');
         };
         const copiedQuoteId = ref(false);
 
@@ -5343,29 +4198,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           loading: false
         });
 
-        // 🗑️ 底价库商品条目删除弹窗状态
-        const deleteCatalogModal = ref({
-          show: false,
-          sku: '',
-          name: '',
-          loading: false
-        });
 
-        // 受保护的系统底价库商品型号白名单 (TEST-001 ~ TEST-004)
-        const PROTECTED_CATALOG_SKUS = ['TEST-001', 'TEST-002', 'TEST-003', 'TEST-004'];
-        const isProtectedCatalogSku = (sku) => {
-          if (!sku) return false;
-          return PROTECTED_CATALOG_SKUS.includes(String(sku).trim().toUpperCase());
-        };
-
-
-        // 🏢 底价库选型中心大弹窗状态
-        const catalogModal = ref({
-          show: false,
-          item: null,
-          index: -1,
-          search: ''
-        });
 
         // 💬 专属微信二维码人工协助弹窗
         const wechatQrModal = ref({
@@ -6027,17 +4860,8 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           };
         });
 
-        const insertLogisticsAdviceToEmail = () => {
-          if (!computedContainerEstimate.value) return;
-          const est = computedContainerEstimate.value;
-          const adviceSnippet = `\n\n[Logistics & Container Loading Optimization]:\nBased on your current order breakdown, the estimated total volume is ${est.totalCBM} CBM (${est.totalCartons} cartons), matching optimal container type: ${est.containerType} (Capacity: ${est.capacityCBM} CBM). Loading utilization is ${est.percentage}%. ${est.remainingCBM > 0 ? `There is still ~${est.remainingCBM} CBM available in this container. Increasing order volume slightly will optimize freight costs per unit.` : ''}`;
-          if (!editableEmailBody.value.includes('[Logistics & Container Loading Optimization]')) {
-            editableEmailBody.value += adviceSnippet;
-            showToast('已将 AI 凑柜配载建议写入英文邮件草稿！');
-          } else {
-            showToast('英文邮件中已包含配载建议！');
-          }
-        };
+        // 40HQ 柜型装载分析收起/展开状态 (MVP 默认收起为单行摘要)
+        const containerCollapsed = ref(true);
 
         // 7天免费试用与到期状态管理 (已在 setup 顶部统一声明)
 
@@ -6144,9 +4968,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           window.location.href = portalLandingUrl.value;
         };
 
-        const emailFullscreenModal = ref(false);
-        const openEmailFullscreen = () => { emailFullscreenModal.value = true; };
-        const closeEmailFullscreen = () => { emailFullscreenModal.value = false; };
+
 
         const logoutModal = ref({
           show: false
@@ -6322,8 +5144,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
         const openTrialExpiredModal = () => {
           trialModal.value.show = true;
           trialModal.value.isExpired = true;
-          const expiryStr = trialState.value.formattedExpiresAt || formatExpiryDisplay(trialState.value.expiresAt);
-          trialModal.value.expiredMessage = `您的 7 天全功能免费试用已于 ${expiryStr} 到期（底价库与历史单据已为您安全保留 30 天）。☕ 少喝一杯星巴克，首月特惠仅 ¥39 即可保留整月无限次私人出单特权！试用到期后，每月仍享有 10 笔免费出单额度。如需解锁无限次极速出单与公司 Logo 上传，请升级个人专业版！`;
+          trialModal.value.expiredMessage = '内测期间功能全开';
         };
 
         const applyTrialAuthSuccess = async (data, email) => {
@@ -6706,120 +5527,7 @@ Acme Global Sourcing GmbH, Munich, Germany`;
           }
         };
 
-        const referralModal = ref({
-          show: false,
-          inviteCode: '',
-          shareUrl: '',
-          shareText: '',
-          referralCount: 0,
-          rewardDays: 0,
-          copiedCode: false,
-          copiedLink: false,
-          copiedText: false
-        });
 
-        const openReferralShareModal = async () => {
-          const account = localStorage.getItem('kelvinflow_user_email') || 
-            localStorage.getItem('kelvinflow_user_phone') || 
-            (currentUser.value?.email || '') || 
-            (currentTenant.value?.contactEmail || '') || 
-            (currentTenant.value?.contactPhone || '');
-          
-          const code = account || '外贸同行';
-          let basePortal = window.location.origin;
-          if (window.location.hostname.includes('kelvinflow.com')) {
-            basePortal = 'https://quote.kelvinflow.com';
-          }
-          const shareUrl = `${basePortal}/?ref=${encodeURIComponent(code)}`;
-          const shareText = `推荐你试试这个外贸自动出单神器【KelvinFlow】：买家询盘丢进去，自动匹配出厂底价秒出正规外贸PDF报价单，连英文回复草稿都写好了！\n点击我的专属同行邀请链接注册，立享 7 天完整全功能试用：\n${shareUrl}\n同行邀请码：${code}`;
-
-          referralModal.value.inviteCode = code;
-          referralModal.value.shareUrl = shareUrl;
-          referralModal.value.shareText = shareText;
-          referralModal.value.copiedCode = false;
-          referralModal.value.copiedLink = false;
-          referralModal.value.copiedText = false;
-          referralModal.value.show = true;
-
-          try {
-            const token = getTokenFromUrl();
-            const queryParam = account ? (account.includes('@') ? `email=${encodeURIComponent(account)}` : `phone=${encodeURIComponent(account)}`) : (token ? `token=${encodeURIComponent(token)}` : '');
-            if (queryParam) {
-              const res = await fetch(`/api/v1/auth/referral-info?${queryParam}`);
-              const json = await res.json();
-              if (json.success && json.data) {
-                referralModal.value.referralCount = json.data.referralCount || 0;
-                referralModal.value.rewardDays = json.data.rewardDays || 0;
-                if (json.data.inviteCode) referralModal.value.inviteCode = json.data.inviteCode;
-                if (json.data.shareUrl) referralModal.value.shareUrl = json.data.shareUrl;
-                if (json.data.shareText) referralModal.value.shareText = json.data.shareText;
-                if (json.data.remainingDays !== undefined) {
-                  trialState.value.remainingDays = json.data.remainingDays;
-                }
-              }
-            }
-          } catch (e) {
-            console.warn('获取邀请统计异常:', e);
-          }
-        };
-
-        const closeReferralShareModal = () => {
-          referralModal.value.show = false;
-        };
-
-        const copyShareCode = () => {
-          const code = referralModal.value.inviteCode;
-          if (!code || code === '--') return;
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(code);
-          } else {
-            const ta = document.createElement('textarea');
-            ta.value = code;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-          }
-          referralModal.value.copiedCode = true;
-          showToast('✅ 邀请码已复制到剪贴板！');
-          setTimeout(() => { referralModal.value.copiedCode = false; }, 2500);
-        };
-
-        const copyShareLink = () => {
-          const link = referralModal.value.shareUrl;
-          if (!link) return;
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(link);
-          } else {
-            const ta = document.createElement('textarea');
-            ta.value = link;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-          }
-          referralModal.value.copiedLink = true;
-          showToast('✅ 专属同行直达链接已复制！');
-          setTimeout(() => { referralModal.value.copiedLink = false; }, 2500);
-        };
-
-        const copyShareFullText = () => {
-          const text = referralModal.value.shareText;
-          if (!text) return;
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text);
-          } else {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-          }
-          referralModal.value.copiedText = true;
-          showToast('✅ 完整微信推荐语已复制！直接去微信粘贴即可！', 'success');
-          setTimeout(() => { referralModal.value.copiedText = false; }, 3000);
-        };
 
         const isGuestMode = computed(() => false);
 
@@ -6896,7 +5604,6 @@ Sales Team | KelvinFlow Global Technology`;
               quotation.value = data.quotation;
               if (data.tenant) {
                 currentTenant.value = data.tenant;
-                if (data.tenant.logoUrl) tenantLogoUrl.value = data.tenant.logoUrl;
                 if (data.tenant.companyName) tenantCompanyName.value = data.tenant.companyName;
                 if (data.tenant.companySubtitle) tenantCompanySubtitle.value = data.tenant.companySubtitle;
               }
@@ -7048,23 +5755,6 @@ Sales Team | KelvinFlow Global Technology`;
             editableEmailBody.value = generateStandardEmailText();
           } finally {
             loading.value = false;
-            // 自动唤醒新手聚光灯引导 (沉浸式镂空蒙版，试用到期时自动压制)
-            const urlParams = new URLSearchParams(window.location.search);
-            const tourParam = urlParams.get('tour');
-            if (trialState.value.expired || (trialModal.value.show && trialModal.value.isExpired)) {
-              // 试用到期不触发向导
-            } else if (tourParam) {
-              setTimeout(() => {
-                startTour(parseInt(tourParam, 10) || 1);
-              }, 400);
-            } else {
-              const tourDismissed = localStorage.getItem('kelvinflow_tour_dismissed');
-              if (!tourDismissed) {
-                setTimeout(() => {
-                  startTour(1);
-                }, 400);
-              }
-            }
           }
         };
 
@@ -7243,50 +5933,7 @@ Sales Team | KelvinFlow Global Technology`;
           }
         };
 
-        // -----------------------------------------------------------------
-        // 🗑️ 底价库条目删除交互逻辑 (muse_14 新增)
-        // -----------------------------------------------------------------
-        const confirmDeleteCatalogItem = (prod) => {
-          if (!prod || !prod.sku) return;
-          if (isProtectedCatalogSku(prod.sku)) {
-            showToast(`商品型号 [${prod.sku}] 为系统受保护基准商品，禁止删除！`, 'warning');
-            return;
-          }
-          deleteCatalogModal.value = {
-            show: true,
-            sku: prod.sku,
-            name: prod.name || getCatalogItemShortName(prod.sku) || prod.sku,
-            loading: false
-          };
-        };
 
-        const executeDeleteCatalogItem = async () => {
-          const sku = deleteCatalogModal.value.sku;
-          if (!sku) return;
-          deleteCatalogModal.value.loading = true;
-          try {
-            const token = getTokenFromUrl() || authToken.value || localStorage.getItem('saas_auth_token') || '';
-            const headers = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-            const res = await fetch(`/api/v1/catalog/${encodeURIComponent(sku)}${token ? `?token=${encodeURIComponent(token)}` : ''}`, {
-              method: 'DELETE',
-              headers
-            });
-            const data = await res.json();
-            if (res.ok && data.success) {
-              showToast(`商品型号 [${sku}] 已从出厂底价库中移除`, 'success');
-              // 从前端内存中的底价商品列表移除
-              catalogItems.value = catalogItems.value.filter(c => c.sku !== sku && c.sku.toUpperCase() !== sku.toUpperCase());
-              deleteCatalogModal.value.show = false;
-            } else {
-              showToast(data.error || '删除底价库条目失败', 'error');
-            }
-          } catch (err) {
-            showToast('网络请求异常，删除失败', 'error');
-          } finally {
-            deleteCatalogModal.value.loading = false;
-          }
-        };
 
 
         const computedTotalAmount = computed(() => {
@@ -7598,11 +6245,7 @@ Sales Team | KelvinFlow Global Technology`;
           }
           warningSkuDropdownOpen.value = false;
         };
-        const openCatalogModalFor = (item) => {
-          warningSkuDropdownOpen.value = false;
-          warningModal.value.show = false;
-          openCatalogModal(item);
-        };
+
 
         // 动态置信度评估与诊断证据链 (基于多维算法连续计算与呈现)
         const getConfidenceBadge = (item) => {
@@ -7676,57 +6319,7 @@ Sales Team | KelvinFlow Global Technology`;
           };
         };
 
-        const catalogPage = ref(1);
-        const catalogPageSize = ref(6);
 
-        watch(() => catalogModal.value.search, () => {
-          catalogPage.value = 1;
-        });
-
-        const openCatalogModal = (item, idx) => {
-          catalogPage.value = 1;
-          catalogModal.value = {
-            show: true,
-            item,
-            index: idx,
-            search: ''
-          };
-        };
-
-        const closeCatalogModal = () => {
-          catalogModal.value.show = false;
-        };
-
-        const filteredCatalogList = computed(() => {
-          const q = (catalogModal.value.search || '').trim().toLowerCase();
-          if (!q) return catalogItems.value;
-          return catalogItems.value.filter(c => {
-            return c.sku.toLowerCase().includes(q) ||
-              c.name.toLowerCase().includes(q) ||
-              (c.aliases && c.aliases.some(a => a.toLowerCase().includes(q)));
-          });
-        });
-
-        const totalCatalogPages = computed(() => {
-          return Math.ceil(filteredCatalogList.value.length / catalogPageSize.value) || 1;
-        });
-
-        const paginatedCatalogList = computed(() => {
-          const start = (catalogPage.value - 1) * catalogPageSize.value;
-          return filteredCatalogList.value.slice(start, start + catalogPageSize.value);
-        });
-
-        const selectCatalogModalProduct = (prod) => {
-          if (catalogModal.value.item) {
-            selectCatalogProduct(catalogModal.value.item, prod);
-          }
-          catalogModal.value.show = false;
-        };
-
-        // 📥 询盘原文全屏沉浸编辑弹窗控制
-        const inquiryFullscreenModal = ref(false);
-        const openInquiryFullscreen = () => { inquiryFullscreenModal.value = true; };
-        const closeInquiryFullscreen = () => { inquiryFullscreenModal.value = false; };
 
         const hasZeroPriceItems = computed(() => {
           if (!quotation.value?.items || quotation.value.items.length === 0) return false;
@@ -7955,25 +6548,19 @@ Sales Team | KelvinFlow Global Technology`;
         // 🔒 全局模态窗滚动穿透与背景滚动链锁定 (Scroll Lock，彻底解决弹窗内滚轮导致背景联动滑动问题)
         const isAnyModalOpen = computed(() => {
           return !!(
-            referralModal.value?.show ||
             imapModal.value?.show ||
             upgradeModal.value?.show ||
             pricingModal.value?.show ||
             newPoModal.value?.show ||
             trialModal.value?.show ||
             logoutModal.value?.show ||
-            emailFullscreenModal.value ||
             showConfirmModal.value ||
             quotesHistoryModal.value?.show ||
-            rateDiagnosticModalVisible.value ||
             successModal.value?.show ||
             warningModal.value?.show ||
             deleteModal.value?.show ||
             deleteQuoteModal.value?.show ||
-            deleteCatalogModal.value?.show ||
-            catalogModal.value?.show ||
             wechatQrModal.value?.show ||
-            inquiryFullscreenModal.value ||
             descModal.value?.show ||
             termsModal.value?.show ||
             companyProfileModal.value?.show
@@ -7983,9 +6570,6 @@ Sales Team | KelvinFlow Global Technology`;
         watch(isAnyModalOpen, (isOpen) => {
           if (isOpen) {
             document.body.classList.add('overflow-hidden');
-            if (tourActive.value) {
-              finishTour();
-            }
           } else {
             document.body.classList.remove('overflow-hidden');
           }
@@ -8034,22 +6618,13 @@ Sales Team | KelvinFlow Global Technology`;
           if (refCode && !isLoggedIn.value) {
             trialModal.value.channel = 'form';
             openTrialModal();
-          } else if (!isLoggedIn.value && !localStorage.getItem('kelvinflow_tour_dismissed') && !trialState.value.expired) {
-            // 首次到访访客若未开通，延迟启动新手向导
-            setTimeout(() => {
-              if (!trialModal.value.show && !trialState.value.expired) {
-                startTour(1);
-              }
-            }, 800);
           }
           // 4. 监听全局 Escape 快捷键关闭当前所有弹窗 (优先关闭最上层二次确认弹窗)
           window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
               if (companyProfileModal.value.show) { companyProfileModal.value.show = false; return; }
               if (deleteQuoteModal.value.show) { deleteQuoteModal.value.show = false; return; }
-              if (deleteCatalogModal.value.show) { deleteCatalogModal.value.show = false; return; }
               if (deleteModal.value.show) { deleteModal.value.show = false; return; }
-              if (referralModal.value.show) referralModal.value.show = false;
               if (imapModal.value.show) imapModal.value.show = false;
               if (upgradeModal.value.show) upgradeModal.value.show = false;
               if (pricingModal.value.show) pricingModal.value.show = false;
@@ -8057,20 +6632,16 @@ Sales Team | KelvinFlow Global Technology`;
               if (trialModal.value.show) trialModal.value.show = false;
               if (forgotModal.value.show) forgotModal.value.show = false;
               if (logoutModal.value.show) logoutModal.value.show = false;
-              if (emailFullscreenModal.value) emailFullscreenModal.value = false;
               if (successModal.value.show) successModal.value.show = false;
               if (warningModal.value.show) warningModal.value.show = false;
               if (channelDropdownOpen.value) channelDropdownOpen.value = false;
               if (activeSkuPickerIdx.value !== null) activeSkuPickerIdx.value = null;
-              if (catalogModal.value.show) catalogModal.value.show = false;
               if (wechatQrModal.value.show) wechatQrModal.value.show = false;
-              if (inquiryFullscreenModal.value) inquiryFullscreenModal.value = false;
               if (descModal.value.show) descModal.value.show = false;
               if (termsModal.value.show) termsModal.value.show = false;
               if (warningSkuDropdownOpen.value) warningSkuDropdownOpen.value = false;
               if (currencyDropdownOpen.value) currencyDropdownOpen.value = false;
               if (quotesHistoryModal.value.show) quotesHistoryModal.value.show = false;
-              if (rateDiagnosticModalVisible.value) rateDiagnosticModalVisible.value = false;
             }
           });
 
@@ -8095,25 +6666,11 @@ Sales Team | KelvinFlow Global Technology`;
 
         return {
           quotation,
-          emailFullscreenModal,
-          openEmailFullscreen,
-          closeEmailFullscreen,
           loading,
           saving,
           previewLoading,
           showConfirmModal,
           confirmModalMode,
-          tourActive,
-          tourStep,
-          tourSteps,
-          currentStepInfo,
-          spotlightPos,
-          popoverPos,
-          startTour,
-          nextTourStep,
-          prevTourStep,
-          finishTour,
-          skipTour,
           copiedQuoteId,
           warningModal,
           openWarningModal,
@@ -8139,6 +6696,9 @@ Sales Team | KelvinFlow Global Technology`;
           computedTotalProfitForeign,
           computedAvgMargin,
           computedContainerEstimate,
+          containerCollapsed,
+          showOnboardingCard,
+          dismissOnboardingCard,
           formatNumber,
           formatModelName,
           resetEmailToTemplate,
@@ -8188,7 +6748,6 @@ Sales Team | KelvinFlow Global Technology`;
           preferredMailClientIcon,
           executeCopyAndSendEmail,
           openWebMailDirect,
-          insertLogisticsAdviceToEmail,
           portalLandingUrl,
           navigateToPortal,
           isGuestMode,
@@ -8223,15 +6782,8 @@ Sales Team | KelvinFlow Global Technology`;
           sendForgotPasswordCode,
           verifyForgotCode,
           submitResetPassword,
-          terms,
           copiedWechatRemark,
           copyWechatRemarkWithRef,
-          referralModal,
-          openReferralShareModal,
-          closeReferralShareModal,
-          copyShareCode,
-          copyShareLink,
-          copyShareFullText,
           channelDropdownOpen,
           channelList,
           getChannelDisplay,
@@ -8251,18 +6803,7 @@ Sales Team | KelvinFlow Global Technology`;
           getCatalogItemShortName,
           filteredCatalogItems,
           selectCatalogProduct,
-          catalogModal,
-          openCatalogModal,
-          closeCatalogModal,
-          filteredCatalogList,
-          paginatedCatalogList,
-          catalogPage,
-          totalCatalogPages,
-          selectCatalogModalProduct,
           wechatQrModal,
-          inquiryFullscreenModal,
-          openInquiryFullscreen,
-          closeInquiryFullscreen,
           // 📜 商务附加条款全屏编辑
           termsModal,
           tempTerms,
@@ -8279,8 +6820,6 @@ Sales Team | KelvinFlow Global Technology`;
           baseCurrencyRate,
           rateSafeRange,
           isRateOutOfSafeRange,
-          rateTipVisible: rateDiagnosticModalVisible,
-          rateDiagnosticModalVisible,
           // 🌍 实时汇率引擎与安全垫诊断
           liveRates,
           loadingLiveRates,
@@ -8304,26 +6843,14 @@ Sales Team | KelvinFlow Global Technology`;
           warningSkuSearch,
           filteredWarningCatalogList,
           selectWarningCatalogProduct,
-          openCatalogModalFor,
           getConfidenceBadge,
-          // 🏢 租户品牌与企业专属 Logo 管理
-          tenantLogoUrl,
+          // 🏢 租户品牌与企业资料管理
           tenantCompanyName,
           tenantCompanySubtitle,
-          logoModal,
-          logoResetConfirmModal,
-          openLogoModal,
-          openResetLogoConfirm,
-          closeResetLogoConfirm,
-          executeResetDefaultLogo,
-          onLogoFileSelected,
-          resetDefaultLogo,
-          setNoLogo,
           companyProfileModal,
           openCompanyProfileModal,
           saveCompanyProfile,
           authToken,
-          currentUser,
           onSkuInputMatch,
           getItemAddonsRMB,
           getPriceCalculationFormula,
@@ -8340,10 +6867,6 @@ Sales Team | KelvinFlow Global Technology`;
           confirmDeleteQuote,
           confirmDeleteCurrentQuote,
           executeDeleteQuote,
-          deleteCatalogModal,
-          confirmDeleteCatalogItem,
-          executeDeleteCatalogItem,
-          isProtectedCatalogSku,
           round2,
           round4,
           gmailComposeUrl,

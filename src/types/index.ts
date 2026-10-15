@@ -205,6 +205,7 @@ export interface QuotationResult {
   aiModelUsed: string;
   processedAt: string;
   inquiryMessageId?: string; // 邮件唯一 Message-ID 或防重幂等标识
+  inquiryId?: string;        // 关联的询盘一等实体 ID (INQ-*)
 }
 
 // ==========================================
@@ -233,7 +234,7 @@ export interface TenantProfile {
   logoUrl?: string;            // 企業自定義 Logo 圖片網址 (如 /uploads/logos/default.png)
   logoPath?: string;           // 企業自定義 Logo 本地文件絕對路徑
   noLogo?: boolean;            // 是否強制不顯示任何 Logo (純文字商務排版)
-  hideCostFromSales: boolean;  // 是否對普通業務員隱藏出廠底价 (防洩密)
+  hideCostFromSales?: boolean; // 是否對普通業務員隱藏出廠底价 (防洩密，可選兼容)
   defaultProfitMargin: number; // 默認毛利率 (如 0.3)
   defaultCurrency: string;     // 默認幣種 (如 USD)
   plan?: 'trial' | 'monthly' | 'annual' | 'geek' | 'starter' | 'pro' | 'enterprise';
@@ -271,4 +272,35 @@ export interface ProcessQuoteResponse {
   };
   pdfBase64?: string;
   error?: string;
+}
+
+// ==========================================
+// 7. 询盘一等实体结构 (Inquiry Entity - Task §2.5)
+// ==========================================
+export interface InquiryRecord {
+  inquiryId: string;           // 询盘唯一实体编号 (如 INQ-20261014-xxxx)
+  tenantId: string;            // 租户唯一标识 (D-12 物理隔离)
+  receivedAt: string;          // ISO 8601 接收/入站时间
+  from: string;                // 买家发件人邮箱
+  to?: string;                 // 收件邮箱 (如 rfq-xxx@...)
+  subject: string;             // 询盘邮件主题
+  rawTextHash: string;         // 原始内容 SHA-256 Hash，用于排重与完整性校验
+  content?: string;            // 询盘正文内容
+  parseStatus: 'parsed' | 'pending' | 'failed'; // 状态: parsed (已解析出单) / pending / failed
+  quotationNumber?: string;    // 关联生成的报价单号 (如 QT-xxxxxx)
+  inquiryMessageId?: string;   // 原始邮件 Message-ID (RFC 822)
+  buyerName?: string;          // 提取的买家称呼
+  itemsSummary?: Array<{       // 解析出的品项概要
+    sku: string;
+    description?: string;
+    quantity?: number;
+    unit?: string;
+  }>;
+  attachments?: Array<{        // 附件摘要
+    filename: string;
+    contentType?: string;
+    size?: number;
+  }>;
+  createdAt?: string;
+  updatedAt?: string;
 }

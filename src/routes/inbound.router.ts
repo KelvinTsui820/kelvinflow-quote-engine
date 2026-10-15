@@ -9,120 +9,6 @@ export const inboundRouter = Router();
 // 内存级并发防重互斥锁 (杜绝毫秒级/秒级网络重试并发创建多个重复单据)
 const inFlightInquiries = new Map<string, Promise<any>>();
 
-// 内存级 IP 简易限流 (防刷：单 IP 60 秒内最多 5 次)
-const ipRequestHistory = new Map<string, number[]>();
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const windowMs = 60 * 1000;
-  const maxRequests = 5;
-
-  const timestamps = (ipRequestHistory.get(ip) || []).filter(t => now - t < windowMs);
-  if (timestamps.length >= maxRequests) {
-    return false;
-  }
-  timestamps.push(now);
-  ipRequestHistory.set(ip, timestamps);
-  return true;
-}
-
-/**
- * 推送线索至微信 (支持 PushPlus 与 Server酱)
- */
-async function pushToWeChat(lead: any): Promise<{ pushed: boolean; channel?: string; error?: string }> {
-  const pushplusToken = process.env.PUSHPLUS_TOKEN?.trim();
-  const serverchanKey = process.env.SERVERCHAN_SENDKEY?.trim();
-
-  const title = `🔥【KelvinFlow】收到高意向外贸客户留资！`;
-  const markdownContent = `
-### 🏢 客户企业：${lead.companyName || '未填写'}
-- **联系人**：${lead.customerName || '未提供'}
-- **联系电话/微信**：\`${lead.contact || '未提供'}\`
-- **日均询盘量**：${lead.dailyRfqs || '未提供'}
-- **主营品类**：${lead.productCategory || '通用外贸'}
-- **核验口令/标识**：\`${lead.memoCode || '无'}\`
-- **来源页面**：${lead.source || '官网首页/价格卡片'}
-- **提交时间**：${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
-
----
-> 💡 **建议操作**：建议在 15 分钟内通过微信添加对方或致电沟通，转化率提升 80%！
-`.trim();
-
-  // 1. 尝试 PushPlus (推加)
-  if (pushplusToken) {
-    try {
-      const resp = await fetch('http://www.pushplus.plus/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token: pushplusToken,
-          title,
-          content: markdownContent,
-          template: 'markdown'
-        })
-      });
-      const resJson: any = await resp.json();
-      if (resJson.code === 200) {
-        console.log(`📲 [线索推送成功] 已通过 PushPlus 成功推送至创始人微信`);
-        return { pushed: true, channel: 'PushPlus' };
-      }
-      console.warn(`⚠️ [PushPlus 推送返回异常]:`, resJson);
-    } catch (e: any) {
-      console.error(`❌ PushPlus 推送失败:`, e.message);
-    }
-  }
-
-  // 2. 尝试 Server酱 (ServerChan Turbo)
-  if (serverchanKey) {
-    try {
-      const resp = await fetch(`https://sctapi.ftqq.com/${serverchanKey}.send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          desp: markdownContent
-        })
-      });
-      const resJson: any = await resp.json();
-      if (resJson.code === 0) {
-        console.log(`📲 [线索推送成功] 已通过 Server酱 成功推送至创始人微信`);
-        return { pushed: true, channel: 'ServerChan' };
-      }
-      console.warn(`⚠️ [Server酱 推送返回异常]:`, resJson);
-    } catch (e: any) {
-      console.error(`❌ Server酱 推送失败:`, e.message);
-    }
-  }
-
-  return { pushed: false };
-}
-
-/**
- * 本地持久化保存线索（防止微信推送网络故障时丢失）
- */
-function saveLeadLocally(lead: any): void {
-  try {
-    const leadsDir = path.join(process.cwd(), 'data');
-    if (!fs.existsSync(leadsDir)) {
-      fs.mkdirSync(leadsDir, { recursive: true });
-    }
-    const leadsFile = path.join(leadsDir, 'inbound_leads.json');
-    let list: any[] = [];
-    if (fs.existsSync(leadsFile)) {
-      try {
-        list = JSON.parse(fs.readFileSync(leadsFile, 'utf-8'));
-      } catch {}
-    }
-    list.unshift({
-      ...lead,
-      createdAt: new Date().toISOString()
-    });
-    fs.writeFileSync(leadsFile, JSON.stringify(list, null, 2), 'utf-8');
-  } catch (err: any) {
-    console.error('❌ 保存本地线索失败:', err.message);
-  }
-}
-
 import { GeminiAIService } from '../services/gemini.service.js';
 import { PricingService } from '../services/pricing.service.js';
 import { PDFService, cleanExporterCompanyName } from '../services/pdf.service.js';
@@ -131,6 +17,7 @@ import { TenantService } from '../services/tenant.service.js';
 import { ExcelAdapter } from '../adapters/excel.adapter.js';
 import { DraftService } from '../services/draft.service.js';
 import { InboundProcessorService } from '../services/inbound-processor.service.js';
+import { InquiryService } from '../services/inquiry.service.js';
 import { AuthService } from '../services/auth.service.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 
@@ -138,50 +25,6 @@ inboundRouter.use(authMiddleware);
 
 const aiService = new GeminiAIService();
 
-/**
- * 接收来自官网 Landing Page 的留资线索
- * POST /api/inbound/lead
- */
-inboundRouter.post('/lead', async (req: Request, res: Response): Promise<any> => {
-  const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || 'unknown';
-  if (!checkRateLimit(clientIp)) {
-    return res.status(429).json({
-      success: false,
-      error: '请求过于频繁，请稍后再试。'
-    });
-  }
-
-  const { customerName, companyName, contact, dailyRfqs, productCategory, memoCode, source } = req.body;
-
-  if (!contact && !companyName) {
-    return res.status(400).json({
-      success: false,
-      error: '请提供联系方式（手机/微信）或企业名称'
-    });
-  }
-
-  const leadRecord = {
-    customerName: customerName || '外贸老板',
-    companyName: companyName || '未知企业',
-    contact: contact || '未填',
-    dailyRfqs: dailyRfqs || '5~10 封',
-    productCategory: productCategory || '外贸日用/工贸',
-    memoCode: memoCode || '',
-    source: source || '官网首页',
-    ip: clientIp
-  };
-
-  // 1. 本地落盘
-  saveLeadLocally(leadRecord);
-
-  // 2. 异步微信推送
-  pushToWeChat(leadRecord).catch(err => console.error('异步微信通知出错:', err));
-
-  return res.json({
-    success: true,
-    message: '线索已成功接收，创始人将尽快联系您！'
-  });
-});
 
 /**
  * 接收来自 Cloudflare Email Worker / n8n / 自动化邮件转发的入站邮件 Webhook
@@ -486,6 +329,31 @@ inboundRouter.post('/quick-quote', async (req: Request, res: Response): Promise<
     const pdfBuffer = await PDFService.generateQuotationPDF(quotation);
     QuoteStoreService.saveQuote(quotation, pdfBuffer, tenantId);
 
+    // 4.1 持久化询盘一等实体 (Task §2.5 data/tenants/<tenantId>/inquiries/INQ-*.json)
+    let persistedInquiryId: string | undefined = undefined;
+    try {
+      const itemsSummary = (quotation.items || []).map(it => ({
+        sku: it.sku,
+        description: it.description,
+        quantity: it.quantity,
+        unit: 'pcs'
+      }));
+      const inquiryEntity = InquiryService.createInquiryFromInbound({
+        tenantId,
+        from: 'web-workbench@kelvinflow.com',
+        subject: `Web RFQ Inquiry - ${quotation.customerName || buyerName}`,
+        content: inquiryText,
+        quotationNumber: quotation.quotationNumber,
+        parseStatus: 'parsed',
+        buyerName: quotation.buyerName || quotation.customerName,
+        itemsSummary
+      });
+      persistedInquiryId = inquiryEntity.inquiryId;
+      quotation.inquiryId = persistedInquiryId;
+    } catch (inqErr: any) {
+      console.warn('⚠️ [Web 快速出单询盘落盘异常]:', inqErr.message);
+    }
+
     const baseUrl = process.env.PUBLIC_APP_URL?.replace(/\/+$/, '') || 'https://quote.kelvinflow.com';
     const reviewUrl = `${baseUrl}/review/${quotation.quotationNumber}`;
     const tenantCompany = cleanExporterCompanyName(tenantProfile.companyName);
@@ -499,6 +367,7 @@ inboundRouter.post('/quick-quote', async (req: Request, res: Response): Promise<
     return res.json({
       success: true,
       quotationNumber: quotation.quotationNumber,
+      inquiryId: persistedInquiryId,
       quotation,
       reviewUrl,
       draftText,

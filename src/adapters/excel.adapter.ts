@@ -116,9 +116,20 @@ export class ExcelAdapter {
 
       const normSheetName = sheetName.toLowerCase().replace(/[\s_-]/g, '');
 
-      // 0. 忽略使用說明 / Readme 工作表
-      if (normSheetName.includes('readme') || normSheetName.includes('使用指南') || normSheetName.includes('使用说明') || normSheetName.includes('說明') || normSheetName.includes('指引')) {
-        parsedSheets.push(`${sheetName} (使用指南)`);
+      // 0. 忽略使用說明 / Readme 工作表 及 对外纯净脱敏报价单 (Task §2.6)
+      if (
+        normSheetName.includes('readme') ||
+        normSheetName.includes('使用指南') ||
+        normSheetName.includes('使用说明') ||
+        normSheetName.includes('說明') ||
+        normSheetName.includes('指引') ||
+        normSheetName.includes('脱敏') ||
+        normSheetName.includes('脫敏') ||
+        normSheetName.includes('对外') ||
+        normSheetName.includes('對外')
+      ) {
+        const isDesensitized = normSheetName.includes('脱敏') || normSheetName.includes('脫敏') || normSheetName.includes('对外') || normSheetName.includes('對外');
+        parsedSheets.push(`${sheetName} (${isDesensitized ? '对外脱敏单' : '使用指南'})`);
         continue;
       }
 
