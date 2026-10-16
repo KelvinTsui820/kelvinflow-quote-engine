@@ -40,22 +40,16 @@ const newHeaderLogo = '<a class="group flex items-end gap-1.5 min-h-[44px] trans
 codeHtml = codeHtml.replace(oldHeaderLogo, newHeaderLogo);
 
 // S2 Hero 主图：100% 依循 kelvinflow_faq/code.html 最新设计稿 (方案 1: 全幅大视口极致拉伸 · 沉浸式宽屏展示)
-// 1. 注入无障碍审计属性
+// 1. 注入无障碍审计属性，并添加 pointer-events-none select-none inert 彻底禁用主图内一切点击交互（纯视觉样机展示）
 codeHtml = codeHtml.replace(
   '<div class="w-full max-w-7xl mx-auto rounded-2xl bg-white/80 p-2 md:p-3 border border-slate-200/80 shadow-[0_25px_60px_-15px_rgba(29,78,216,0.12),0_12px_24px_-8px_rgba(15,23,42,0.08)] hover:shadow-2xl hover:-translate-y-0.5 backdrop-blur-sm transition-all duration-300">',
-  '<div class="w-full max-w-7xl mx-auto rounded-2xl bg-white/80 p-2 md:p-3 border border-slate-200/80 shadow-[0_25px_60px_-15px_rgba(29,78,216,0.12),0_12px_24px_-8px_rgba(15,23,42,0.08)] hover:shadow-2xl hover:-translate-y-0.5 backdrop-blur-sm transition-all duration-300" aria-label="KelvinFlow Quotation Review Interface Preview">'
+  '<div class="w-full max-w-7xl mx-auto rounded-2xl bg-white/80 p-2 md:p-3 border border-slate-200/80 shadow-[0_25px_60px_-15px_rgba(29,78,216,0.12),0_12px_24px_-8px_rgba(15,23,42,0.08)] backdrop-blur-sm transition-all duration-300 pointer-events-none select-none cursor-default" inert aria-label="KelvinFlow Quotation Review Interface Preview">'
 );
 
 // 2. 侧边栏 Logo 统一采用黄金比例矢量规范与本地资源，消除负外边距变形
 codeHtml = codeHtml.replace(
   '<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 52px; height: 52px; margin: -10px -16px -10px -6px;">',
   '<img alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0" src="/k_logo.svg">'
-);
-
-// 3. 主图内“生成报价单”交互按钮直通开通试用弹窗
-codeHtml = codeHtml.replace(
-  '<button class="w-full py-2.5 px-4 rounded-xl bg-primary-container text-white font-bold text-[13px] hover:bg-blue-700 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow cursor-pointer" type="button"><span class="">生成报价单</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span></button>',
-  '<button class="w-full py-2.5 px-4 rounded-xl bg-primary-container text-white font-bold text-[13px] hover:bg-blue-700 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow cursor-pointer" onclick="openInboundModal(\'starter\')" type="button"><span>生成报价单</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span></button>'
 );
 
 // Insert favicons and FontAwesome in <head>
