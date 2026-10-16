@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// 1. Read base code.html (v13 design from stitch_kelvinflow_landing_page_design)
-const codeHtmlPath = path.join(__dirname, '..', 'design', 'stitch_kelvinflow_landing_page_design', 'code.html');
+// 1. Read base code.html (v13 design from stitch_kelvinflow_landing_page_design/kelvinflow_faq)
+const codeHtmlPath = path.join(__dirname, '..', 'design', 'stitch_kelvinflow_landing_page_design', 'kelvinflow_faq', 'code.html');
 let codeHtml = fs.readFileSync(codeHtmlPath, 'utf8');
 
 // Truncate at </footer>
@@ -35,80 +35,27 @@ codeHtml = codeHtml.replace(
 
 // 1.1 顶栏 Logo 图标与品牌文字：全站统一采用黄金比例规范 (w-6 h-6, items-end, gap-1.5, text-xl leading-none)
 // 优化 hover 效果：移除整体 scale 防止文字抖动位移，仅对图标做微缩放，文本与 AI 徽章保持平稳
-const oldHeaderLogo = '<a class="flex items-center gap-2 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.99]" data-path="landing-page" href="/"><img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 66px; height: 66px; margin: -12px -20px -12px -8px;"><span class="font-headline-md text-[20px] font-bold tracking-tight text-[#1B2A4A] flex items-center gap-1.5 leading-none">KelvinFlow<span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></a>';
+const oldHeaderLogo = '<a class="flex items-center gap-2 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.99]" data-path="landing-page" href="#"><img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 66px; height: 66px; margin: -12px -20px -12px -8px;"><span class="font-headline-md text-[20px] font-bold tracking-tight text-[#1B2A4A] flex items-center gap-1.5 leading-none">KelvinFlow<span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></a>';
 const newHeaderLogo = '<a class="group flex items-end gap-1.5 min-h-[44px] transition-opacity duration-200 hover:opacity-85 py-2 cursor-pointer" data-path="landing-page" href="/"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0 transition-transform duration-200 group-hover:scale-105"><span class="text-xl font-bold tracking-tight text-[#1B2A4A] leading-none select-none">KelvinFlow</span><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none mb-0.5 uppercase select-none transition-colors duration-200 group-hover:bg-[#FDE68A]">AI</span></a>';
 codeHtml = codeHtml.replace(oldHeaderLogo, newHeaderLogo);
 
-// S2 Hero 主图：1:1 对版 v13 最新设计稿 (KelvinFlow Quotation Studio v2.4 UI mock)
-const oldHeroMockupPattern = /<!-- Product UI Window Frame Preview -->[\s\S]*?<!-- Actual Product Mockup Frame -->[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/;
-const newHeroStudioMockup = `<!-- 高保真报价软件界面 Mockup 预览卡片 (v13 Quotation Studio 参照最新设计稿 1:1 还原) -->
-      <div class="w-full max-w-5xl rounded-2xl border border-outline-variant/30 bg-surface-container-lowest shadow-2xl shadow-primary/10 overflow-hidden text-left flex flex-col" aria-label="KelvinFlow Quotation Review Interface Preview">
-        <!-- Studio Window Header -->
-        <div class="h-10 bg-surface-container-low border-b border-outline-variant/20 px-3 sm:px-4 flex items-center justify-between gap-2 overflow-hidden">
-          <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
-            <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
-              <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-rose-400"></div>
-              <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400"></div>
-              <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400"></div>
-            </div>
-            <span class="ml-1 sm:ml-2 font-label-sm text-label-sm text-outline truncate text-[11px] sm:text-xs">KelvinFlow Quotation Studio v2.4</span>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <span class="text-[10px] sm:text-[11px] font-label-sm px-1.5 sm:px-2 py-0.5 rounded bg-surface-container text-on-surface-variant whitespace-nowrap">USD/CNY 7.2340 (手动设定)</span>
-            <span class="material-symbols-outlined text-outline text-[16px]">more_horiz</span>
-          </div>
-        </div>
-        <!-- Studio Window Body -->
-        <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 bg-surface-container-lowest">
-          <!-- 左侧询盘邮件结构解析 -->
-          <div class="md:col-span-5 rounded-xl bg-surface-container-low p-4 flex flex-col gap-3 border border-outline-variant/20">
-            <div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
-              <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary text-[18px]">mail</span>
-                <span class="font-label-md text-label-md font-semibold text-on-surface">原始询盘邮件 (Incoming RFQ)</span>
-              </div>
-              <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-medium">解析完成</span>
-            </div>
-            <div class="font-body-sm text-body-sm text-on-surface-variant flex flex-col gap-1.5 leading-relaxed">
-              <div class="font-semibold text-on-surface text-[12px]">From: buyer@globalautomotive.de</div>
-              <div class="text-[12px]">Subject: RFQ: 50,000 sets Aluminum Brake Pads &amp; Calipers</div>
-              <div class="p-2.5 rounded bg-surface-container-lowest text-[11px] font-numeric-data text-outline border border-outline-variant/30 mt-1">
-                "Hi Kevin, please quote FOB Ningbo for 50,000 sets Model-KF209. Need target price &lt;$18.5/set, Sea shipment to Hamburg. Spec drawing attached." 
-              </div>
-            </div>
-          </div>
-          <!-- 右侧智能核价与PI生成 -->
-          <div class="md:col-span-7 rounded-xl bg-surface-container-low p-4 flex flex-col gap-3 border border-outline-variant/20">
-            <div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
-              <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary text-[18px]">description</span>
-                <span class="font-label-md text-label-md font-semibold text-on-surface">AI 匹配核算底价 &amp; 英文 Proforma Invoice</span>
-              </div>
-              <span class="text-[11px] font-semibold text-primary">草稿已同步至企业邮箱</span>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div class="p-2.5 rounded-lg bg-surface-container-lowest border border-outline-variant/20">
-                <div class="text-[11px] text-outline">匹配底价型号</div>
-                <div class="font-semibold text-on-surface text-[13px] mt-0.5">KF-209-PRO</div>
-              </div>
-              <div class="p-2.5 rounded-lg bg-surface-container-lowest border border-outline-variant/20">
-                <div class="text-[11px] text-outline">推荐报价 (FOB)</div>
-                <div class="font-semibold text-primary text-[13px] mt-0.5">$17.80 / set</div>
-              </div>
-              <div class="p-2.5 rounded-lg bg-surface-container-lowest border border-outline-variant/20">
-                <div class="text-[11px] text-outline">毛利率预算</div>
-                <div class="font-semibold text-emerald-600 text-[13px] mt-0.5">24.8% (达标)</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>`;
-codeHtml = codeHtml.replace(oldHeroMockupPattern, newHeroStudioMockup);
-
-// 1.2 Hero 副文案按设计稿对版更新
+// S2 Hero 主图：100% 依循 kelvinflow_faq/code.html 最新设计稿 (方案 1: 全幅大视口极致拉伸 · 沉浸式宽屏展示)
+// 1. 注入无障碍审计属性
 codeHtml = codeHtml.replace(
-  '<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mb-10 leading-relaxed font-normal">AI 自动解析客户询盘意向，快速匹配你的出厂底价表，生成专业英文报价单 PDF 并写入邮箱草稿箱。你只需核对、在邮箱中手动发送。</p>',
-  '<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mb-10 leading-relaxed font-normal">针对复杂梯度起订量、海运拼箱、多阶关税与阶梯毛利，KelvinFlow AI 毫秒级重构外贸算价体验。</p>'
+  '<div class="w-full max-w-7xl mx-auto rounded-2xl bg-white/80 p-2 md:p-3 border border-slate-200/80 shadow-[0_25px_60px_-15px_rgba(29,78,216,0.12),0_12px_24px_-8px_rgba(15,23,42,0.08)] hover:shadow-2xl hover:-translate-y-0.5 backdrop-blur-sm transition-all duration-300">',
+  '<div class="w-full max-w-7xl mx-auto rounded-2xl bg-white/80 p-2 md:p-3 border border-slate-200/80 shadow-[0_25px_60px_-15px_rgba(29,78,216,0.12),0_12px_24px_-8px_rgba(15,23,42,0.08)] hover:shadow-2xl hover:-translate-y-0.5 backdrop-blur-sm transition-all duration-300" aria-label="KelvinFlow Quotation Review Interface Preview">'
+);
+
+// 2. 侧边栏 Logo 统一采用黄金比例矢量规范与本地资源，消除负外边距变形
+codeHtml = codeHtml.replace(
+  '<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 52px; height: 52px; margin: -10px -16px -10px -6px;">',
+  '<img alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0" src="/k_logo.svg">'
+);
+
+// 3. 主图内“生成报价单”交互按钮直通开通试用弹窗
+codeHtml = codeHtml.replace(
+  '<button class="w-full py-2.5 px-4 rounded-xl bg-primary-container text-white font-bold text-[13px] hover:bg-blue-700 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow cursor-pointer" type="button"><span class="">生成报价单</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span></button>',
+  '<button class="w-full py-2.5 px-4 rounded-xl bg-primary-container text-white font-bold text-[13px] hover:bg-blue-700 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow cursor-pointer" onclick="openInboundModal(\'starter\')" type="button"><span>生成报价单</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span></button>'
 );
 
 // Insert favicons and FontAwesome in <head>
@@ -260,20 +207,16 @@ codeHtml = codeHtml.replace(
 // ==================== SCROLL REVEAL INJECTIONS ====================
 // Section 2: 3 Metric Cards (依次错开 100ms 并注入高质感 hover 交互动画)
 codeHtml = codeHtml.replace(
-  '<!-- Metric Card 1 -->\n      <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Metric Card 1 -->\n<div class="group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300">',
   '<!-- Metric Card 1 -->\n      <div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 hover:border-primary/40 hover:-translate-y-2 hover:shadow-xl transition-all duration-300 ease-out cursor-pointer flex flex-col justify-between" data-reveal-delay="0">'
 );
 codeHtml = codeHtml.replace(
-  '<!-- Metric Card 2 -->\n      <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Metric Card 2 -->\n<div class="group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300">',
   '<!-- Metric Card 2 -->\n      <div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 hover:border-primary/40 hover:-translate-y-2 hover:shadow-xl transition-all duration-300 ease-out cursor-pointer flex flex-col justify-between" data-reveal-delay="100">'
 );
 codeHtml = codeHtml.replace(
-  '<!-- Metric Card 3 -->\n      <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Metric Card 3 -->\n<div class="group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300">',
   '<!-- Metric Card 3 -->\n      <div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 hover:border-primary/40 hover:-translate-y-2 hover:shadow-xl transition-all duration-300 ease-out cursor-pointer flex flex-col justify-between" data-reveal-delay="200">'
-);
-codeHtml = codeHtml.replaceAll(
-  '<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container">',
-  '<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-white">'
 );
 
 // Section 3: Workflow Header & 3 Step Cards (依次错开 100ms)
@@ -757,32 +700,20 @@ const modalsAndScripts = `
       </button>
 
       <!-- 弹窗 Header -->
-      <div class="flex items-center gap-2.5 mb-2 pr-10">
+      <div class="flex items-center gap-2.5 mb-3 pr-10">
         <div class="w-9 h-9 rounded-xl bg-blue-50 text-primary-container flex items-center justify-center shrink-0">
           <span class="material-symbols-outlined text-[22px]">verified_user</span>
         </div>
         <div>
-          <h3 class="font-headline-md text-[18px] font-bold text-[#1B2A4A] tracking-tight leading-tight">KelvinFlow 合规政策与协议保障</h3>
+          <h3 class="font-headline-md text-[18px] font-bold text-[#1B2A4A] tracking-tight leading-tight">用户服务协议</h3>
           <p class="font-body-sm text-[12px] text-on-surface-variant">版本生效日期：2026 年 10 月 16 日 · 商业级数据安全隔离</p>
         </div>
-      </div>
-
-      <!-- 条款 Tab 切换 -->
-      <div class="flex p-1 bg-surface-container-low rounded-xl mb-4 mt-2">
-        <button id="agreement-tab-terms" onclick="switchAgreementTab('terms')" class="flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer bg-surface-container-lowest text-primary-container shadow-sm border-0" type="button">
-          <span class="material-symbols-outlined text-[16px]">description</span>
-          <span>用户服务协议</span>
-        </button>
-        <button id="agreement-tab-privacy" onclick="switchAgreementTab('privacy')" class="flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer text-on-surface-variant hover:text-on-surface border-0 bg-transparent" type="button">
-          <span class="material-symbols-outlined text-[16px]">security</span>
-          <span>跨境数据隐私承诺</span>
-        </button>
       </div>
 
       <!-- 协议内容滚动容器 -->
       <div id="agreement-scroll-container" class="overflow-y-auto pr-3 py-2 text-left text-on-surface font-body-sm text-[13px] leading-relaxed max-h-[50vh] border-y border-surface-container-high/60 my-1 space-y-4">
         
-        <!-- Tab 1: 服务协议 -->
+        <!-- 用户服务协议正文 -->
         <div id="agreement-pane-terms" class="space-y-4">
           <div class="bg-surface-container-low/70 p-3 rounded-lg border border-outline-variant/30 text-xs text-on-surface-variant">
             签约主体：KelvinFlow 智能报价引擎平台运营方与企业/个人注册用户
@@ -811,33 +742,6 @@ const modalsAndScripts = `
           <div>
             <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">5. 【服务变更、中断与终止】</h4>
             <p class="text-on-surface-variant">本平台有权对系统进行常规升级与维护。若因不可抗力或电信网络中断导致服务偶发不可用，平台将全力进行抢修，但不承担间接商业利润损失。</p>
-          </div>
-        </div>
-
-        <!-- Tab 2: 隐私保密承诺 -->
-        <div id="agreement-pane-privacy" class="space-y-4 hidden">
-          <div class="bg-surface-container-low/70 p-3 rounded-lg border border-outline-variant/30 text-xs text-on-surface-variant">
-            承诺主体：KelvinFlow 安全架构与数据风控委员会 · 核心宗旨：恪守外贸商业底线，保障客户名录与底价核心资产零外泄
-          </div>
-          <div>
-            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">1. 【零密码侵入原则（Zero-Credential Intrusion）】</h4>
-            <p class="text-on-surface-variant mb-1.5"><strong>1.1 专属助理邮箱机制：</strong>本平台采用“专属助理邮箱智能转发（Mail-Forwarding）”机制运行，绝不索取、记录或存储用户企业邮箱、Gmail 或 Outlook 的账号登录密码，绝不要求获取任何邮箱 IMAP/SMTP 高危授权凭据。</p>
-            <p class="text-on-surface-variant"><strong>1.2 绝不越权爬取信件：</strong>本平台绝不通过任何后台脚本扫描、爬取或遍历用户的企业通讯录、历史往来邮件及非询盘类商业机密信件。</p>
-          </div>
-          <div>
-            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">2. 【商业底价表银行级加密存储与物理隔离】</h4>
-            <p class="text-on-surface-variant mb-1.5"><strong>2.1 存储加密：</strong>用户上传的 Excel 标准底价表在落盘时全部采用 AES-256 银行级算法进行不可逆哈希加密与数据块混淆存储。</p>
-            <p class="text-on-surface-variant"><strong>2.2 租户级物理隔离：</strong>每个企业或用户的底价库建立独立的虚拟租户空间，杜绝任何跨账号的数据溢出、串读或索引污染，从根本上防止同行恶意刺探底价与截单。</p>
-          </div>
-          <div>
-            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">3. 【海外买家询盘与客户线索绝对保密】</h4>
-            <p class="text-on-surface-variant mb-1.5"><strong>3.1 商业线索不倒卖承诺：</strong>买家邮箱、询盘产品规格、目标采购预算及企业贸易背景，仅在单次报价生成过程中调用。</p>
-            <p class="text-on-surface-variant"><strong>3.2 严防商业截流：</strong>本平台绝不将用户的海外询盘商机用于任何形式的商业撮合、第三方商机推荐或行业数据打包变现。</p>
-          </div>
-          <div>
-            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">4. 【数据自主权与彻底物理销毁】</h4>
-            <p class="text-on-surface-variant mb-1.5"><strong>4.1 数据自主可控：</strong>用户享有对自己全部商业资产的最高控制权，可随时在后台直接下载全部历史报价单据及底价配置。</p>
-            <p class="text-on-surface-variant"><strong>4.2 彻底销毁保障：</strong>当用户选择注销账户或删除底价表时，系统将在 24 小时内对分布式云存储节点执行 DoD 5220.22-M 擦除擦写，彻底抹除底层磁盘镜像，不保留任何不可见备份。</p>
           </div>
         </div>
 
@@ -949,11 +853,10 @@ const modalsAndScripts = `
       }
     }
 
-    // DEF-13 & DEF-14: 法务协议弹窗核心控制函数
-    function openAgreementModal(tab = 'terms') {
+    // DEF-13 & DEF-14: 法务协议弹窗核心控制函数 (仅保留用户服务协议)
+    function openAgreementModal(tab) {
       const modal = document.getElementById('agreement-modal');
       if (!modal) return;
-      switchAgreementTab(tab);
       lockBodyScroll();
       modal.style.display = 'flex';
       modal.offsetHeight; // 强制回流以触发过渡
@@ -974,30 +877,6 @@ const modalsAndScripts = `
     }
 
     function switchAgreementTab(tab) {
-      const tabTerms = document.getElementById('agreement-tab-terms');
-      const tabPrivacy = document.getElementById('agreement-tab-privacy');
-      const paneTerms = document.getElementById('agreement-pane-terms');
-      const panePrivacy = document.getElementById('agreement-pane-privacy');
-
-      if (tab === 'privacy') {
-        if (tabPrivacy) {
-          tabPrivacy.className = 'flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer bg-surface-container-lowest text-primary-container shadow-sm border-0';
-        }
-        if (tabTerms) {
-          tabTerms.className = 'flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer text-on-surface-variant hover:text-on-surface border-0 bg-transparent';
-        }
-        if (panePrivacy) panePrivacy.classList.remove('hidden');
-        if (paneTerms) paneTerms.classList.add('hidden');
-      } else {
-        if (tabTerms) {
-          tabTerms.className = 'flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer bg-surface-container-lowest text-primary-container shadow-sm border-0';
-        }
-        if (tabPrivacy) {
-          tabPrivacy.className = 'flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer text-on-surface-variant hover:text-on-surface border-0 bg-transparent';
-        }
-        if (paneTerms) paneTerms.classList.remove('hidden');
-        if (panePrivacy) panePrivacy.classList.add('hidden');
-      }
       const scroller = document.getElementById('agreement-scroll-container');
       if (scroller) scroller.scrollTop = 0;
     }
