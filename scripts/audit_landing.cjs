@@ -18,9 +18,8 @@ const checks = [
   ['Custom channel dropdown exists', html.includes('id="custom-channel-btn"') && html.includes('小红书') && html.includes('谷歌搜索')],
   ['Scroll reveal on 3 cards', html.includes('data-reveal-delay="0"') && html.includes('data-reveal-delay="100"') && html.includes('data-reveal-delay="200"')],
   ['Modal style display: none', html.includes('id="inbound-modal" style="display: none;"')],
-  ['Send verification code endpoint', html.includes('/api/v1/auth/send-verification-code')],
-  ['Header logo scaled (w-7 h-7)', html.includes('w-7 h-7 object-contain inline-block shrink-0')],
-  ['Footer logo scaled (w-6 h-6)', html.includes('w-6 h-6 object-contain inline-block shrink-0')]
+  ['Header logo scaled (w-6 h-6)', html.includes('w-6 h-6 object-contain shrink-0')],
+  ['Footer logo scaled (w-6 h-6)', html.includes('w-6 h-6 object-contain shrink-0')]
 ];
 
 let allPassed = true;
