@@ -89,12 +89,12 @@ codeHtml = codeHtml.replace(
 
 // Update Header nav links and action buttons
 const oldNav = `<nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-on-surface font-semibold"><a class="nav-link-subtle font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" data-path="features" href="#">功能特性</a><a class="nav-link-subtle font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" data-path="workflow" href="#">工作流程</a><a class="nav-link-subtle font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" data-path="excel-template" href="#">底价表规范</a><a class="nav-link-subtle font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" data-path="faq" href="#">常见问题</a></nav>`;
-const newNav = `<nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-on-surface font-semibold"><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="features" href="#features">功能特性</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="workflow" href="#workflow">工作流程</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="excel-template" href="#excel-template">底价表规范</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="faq" href="#faq">常见问题</a></nav>`;
+const newNav = `<nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-on-surface font-semibold"><a class="font-body-md text-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150" data-path="features" href="#features">功能特性</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150" data-path="workflow" href="#workflow">工作流程</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150" data-path="excel-template" href="#excel-template">底价表规范</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150" data-path="faq" href="#faq">常见问题</a></nav>`;
 codeHtml = codeHtml.replace(oldNav, newNav);
 
 const oldActions = `<div class="flex items-center gap-space-md"><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" data-path="login" href="#">登录</a><a class="inline-flex items-center justify-center px-space-md py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:scale-[1.02] active:scale-[0.98] hover:shadow-md transition-all duration-200" data-path="signup" href="#">免费试用</a></div>`;
 const newActions = `<div class="flex items-center gap-2 sm:gap-space-md">
-      <a id="nav-login-btn" onclick="openInboundModal('login')" class="hidden md:inline-flex font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer" data-path="login" href="javascript:void(0)">登录</a>
+      <a id="nav-login-btn" onclick="openInboundModal('login')" class="hidden md:inline-flex font-body-md text-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150 cursor-pointer" data-path="login" href="javascript:void(0)">登录</a>
       <a id="nav-trial-btn" onclick="openInboundModal('starter')" class="inline-flex items-center justify-center px-3 py-1.5 sm:px-space-md sm:py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-150 cursor-pointer" data-path="signup" href="javascript:void(0)">免费试用</a>
       <a id="nav-workbench-btn" style="display: none;" class="items-center justify-center px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 transition-all cursor-pointer" href="/review/QT-20260904-888">进入审单台</a>
       <div id="nav-user-chip" style="display: none;" class="items-center gap-2 pl-3 pr-2 py-1 bg-surface-container rounded-full text-xs font-medium text-on-surface border border-outline-variant/30">
@@ -114,10 +114,10 @@ codeHtml = codeHtml.replace(oldActions, newActions);
 // Insert mobile menu drawer right after </header>
 const mobileDrawer = `
   <div id="mobile-nav-drawer" class="hidden md:hidden fixed top-16 left-0 right-0 z-40 px-6 py-4 bg-surface-container-lowest/95 backdrop-blur-md border-b border-[#f1f5f9] shadow-lg space-y-3">
-    <a onclick="closeMobileNav()" href="#features" class="block font-body-md text-on-surface-variant hover:text-on-surface py-1.5">功能特性</a>
-    <a onclick="closeMobileNav()" href="#workflow" class="block font-body-md text-on-surface-variant hover:text-on-surface py-1.5">工作流程</a>
-    <a onclick="closeMobileNav()" href="#excel-template" class="block font-body-md text-on-surface-variant hover:text-on-surface py-1.5">底价表规范</a>
-    <a onclick="closeMobileNav()" href="#faq" class="block font-body-md text-on-surface-variant hover:text-on-surface py-1.5">常见问题</a>
+    <a onclick="closeMobileNav()" href="#features" class="block font-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150 py-1.5">功能特性</a>
+    <a onclick="closeMobileNav()" href="#workflow" class="block font-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150 py-1.5">工作流程</a>
+    <a onclick="closeMobileNav()" href="#excel-template" class="block font-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150 py-1.5">底价表规范</a>
+    <a onclick="closeMobileNav()" href="#faq" class="block font-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150 py-1.5">常见问题</a>
     <div class="pt-3 border-t border-outline-variant/20 flex gap-3">
       <button onclick="closeMobileNav(); openInboundModal('login')" class="flex-1 py-2 text-center text-sm font-medium text-on-surface-variant bg-surface-container rounded-full">登录</button>
       <button onclick="closeMobileNav(); openInboundModal('starter')" class="flex-1 py-2 text-center text-sm font-semibold text-white bg-primary-container rounded-full">免费试用</button>
@@ -169,16 +169,16 @@ codeHtml = codeHtml.replace(
 // ==================== SCROLL REVEAL INJECTIONS ====================
 // Section 2: 3 Metric Cards (依次错开 100ms)
 codeHtml = codeHtml.replace(
-  '<!-- Metric Card 1 -->\n<div class="group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300">',
-  '<!-- Metric Card 1 -->\n<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300" data-reveal-delay="0">'
+  '<!-- Metric Card 1 -->\n      <div class="p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300">',
+  '<!-- Metric Card 1 -->\n      <div class="scroll-reveal group p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300" data-reveal-delay="0">'
 );
 codeHtml = codeHtml.replace(
-  '<!-- Metric Card 2 -->\n<div class="group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300">',
-  '<!-- Metric Card 2 -->\n<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300" data-reveal-delay="100">'
+  '<!-- Metric Card 2 -->\n      <div class="p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300">',
+  '<!-- Metric Card 2 -->\n      <div class="scroll-reveal group p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300" data-reveal-delay="100">'
 );
 codeHtml = codeHtml.replace(
-  '<!-- Metric Card 3 -->\n<div class="group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300">',
-  '<!-- Metric Card 3 -->\n<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300" data-reveal-delay="200">'
+  '<!-- Metric Card 3 -->\n      <div class="p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300">',
+  '<!-- Metric Card 3 -->\n      <div class="scroll-reveal group p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300" data-reveal-delay="200">'
 );
 
 // Section 3: Workflow Header & 3 Step Cards (依次错开 100ms)
@@ -349,30 +349,50 @@ const modalsAndScripts = `
             </div>
           </div>
 
-          <!-- 您从哪里了解到 KelvinFlow？(v13 核心指纹下拉，选填) -->
+          <!-- 您从哪里了解到 KelvinFlow？(v13 核心指纹自定义下拉，选填) -->
           <div class="flex flex-col gap-1.5 text-left">
-            <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center justify-between" for="inbound-channel-select">
+            <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center justify-between" for="custom-channel-btn">
               <span>您从哪里了解到 KelvinFlow？</span>
               <span class="font-label-sm text-label-sm text-outline font-normal">选填</span>
             </label>
-            <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">campaign</span>
-              <select id="inbound-channel-select" class="w-full h-11 pl-10 pr-9 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60 appearance-none cursor-pointer">
-                <option value="" selected>请选择了解渠道</option>
-                <option value="friend">朋友推荐</option>
-                <option value="xiaohongshu">小红书</option>
-                <option value="google">谷歌搜索</option>
-                <option value="other">其他</option>
-              </select>
-              <span class="material-symbols-outlined absolute right-3 text-outline text-[20px] pointer-events-none">arrow_drop_down</span>
+            <div class="relative" id="custom-channel-dropdown">
+              <!-- 兼容提交的隐藏 input，取值逻辑与原有 handleInboundSubmit 完全兼容 -->
+              <input type="hidden" id="inbound-channel-select" name="channel" value="">
+              
+              <!-- 下拉触发按钮 (关闭态样式与原生保持一致) -->
+              <button type="button" id="custom-channel-btn" onclick="toggleCustomChannelDropdown()" class="w-full h-11 pl-10 pr-9 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60 flex items-center justify-between cursor-pointer text-left select-none relative" aria-haspopup="listbox" aria-expanded="false">
+                <span id="custom-channel-label" class="text-outline-variant font-normal">请选择了解渠道</span>
+                <span id="custom-channel-arrow" class="material-symbols-outlined absolute right-3 text-outline text-[20px] transition-transform duration-200 pointer-events-none">arrow_drop_down</span>
+              </button>
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">campaign</span>
+
+              <!-- 展开态：圆角白底列表、hover 行高亮、选中打勾 -->
+              <div id="custom-channel-menu" class="hidden absolute top-full left-0 right-0 mt-1 z-30 py-1 bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant/30 overflow-hidden" role="listbox">
+                <div class="channel-option flex items-center justify-between px-3.5 py-2.5 text-body-md cursor-pointer text-on-surface hover:bg-blue-50 hover:text-primary transition-colors duration-150 select-none" data-value="friend" role="option" tabindex="0">
+                  <span>朋友推荐</span>
+                  <span class="material-symbols-outlined text-[18px] text-primary hidden check-icon" style="font-variation-settings: 'FILL' 1;">check</span>
+                </div>
+                <div class="channel-option flex items-center justify-between px-3.5 py-2.5 text-body-md cursor-pointer text-on-surface hover:bg-blue-50 hover:text-primary transition-colors duration-150 select-none" data-value="xiaohongshu" role="option" tabindex="0">
+                  <span>小红书</span>
+                  <span class="material-symbols-outlined text-[18px] text-primary hidden check-icon" style="font-variation-settings: 'FILL' 1;">check</span>
+                </div>
+                <div class="channel-option flex items-center justify-between px-3.5 py-2.5 text-body-md cursor-pointer text-on-surface hover:bg-blue-50 hover:text-primary transition-colors duration-150 select-none" data-value="google" role="option" tabindex="0">
+                  <span>谷歌搜索</span>
+                  <span class="material-symbols-outlined text-[18px] text-primary hidden check-icon" style="font-variation-settings: 'FILL' 1;">check</span>
+                </div>
+                <div class="channel-option flex items-center justify-between px-3.5 py-2.5 text-body-md cursor-pointer text-on-surface hover:bg-blue-50 hover:text-primary transition-colors duration-150 select-none" data-value="other" role="option" tabindex="0">
+                  <span>其他</span>
+                  <span class="material-symbols-outlined text-[18px] text-primary hidden check-icon" style="font-variation-settings: 'FILL' 1;">check</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- 用户协议勾选 (默认不勾选，需用户主动确认) -->
+          <!-- 用户协议勾选 (默认不勾选，去死链改为纯文本) -->
           <div class="flex items-center gap-2 pt-1 text-left">
             <input class="w-4 h-4 rounded text-primary-container bg-surface-container-lowest focus:ring-0 cursor-pointer accent-primary-container" id="inbound-agreement-checkbox" required type="checkbox">
             <label class="font-label-sm text-label-sm text-on-surface-variant cursor-pointer select-none" for="inbound-agreement-checkbox">
-              我已阅读并同意 <a class="text-primary hover:underline" href="javascript:void(0)">《用户服务协议》</a> 与 <a class="text-primary hover:underline" href="javascript:void(0)">《跨境商业数据隐私保密承诺》</a>
+              我已阅读并同意《用户服务协议》与《跨境商业数据隐私保密承诺》
             </label>
           </div>
 
@@ -697,6 +717,14 @@ const modalsAndScripts = `
       }
     }
 
+    function isAnyModalOpen() {
+      const modals = ['inbound-modal', 'forgot-password-modal', 'logout-dialog-overlay'];
+      return modals.some(id => {
+        const el = document.getElementById(id);
+        return el && !el.classList.contains('hidden') && el.style.display !== 'none';
+      });
+    }
+
     function lockBodyScroll() {
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       if (scrollbarWidth > 0) {
@@ -706,8 +734,10 @@ const modalsAndScripts = `
     }
 
     function unlockBodyScroll() {
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.paddingRight = '';
+      if (!isAnyModalOpen()) {
+        document.documentElement.style.overflow = '';
+        document.documentElement.style.paddingRight = '';
+      }
     }
 
     function togglePasswordVisibility(inputId, iconId) {
@@ -754,6 +784,114 @@ const modalsAndScripts = `
       if (loginErr) loginErr.classList.add('hidden');
     }
 
+    // L4: 自定义了解渠道下拉交互 (打开/关闭/选中/键盘)
+    function toggleCustomChannelDropdown() {
+      const menu = document.getElementById('custom-channel-menu');
+      const arrow = document.getElementById('custom-channel-arrow');
+      const btn = document.getElementById('custom-channel-btn');
+      if (!menu) return;
+      const isOpen = !menu.classList.contains('hidden');
+      if (isOpen) {
+        closeCustomChannelDropdown();
+      } else {
+        menu.classList.remove('hidden');
+        if (arrow) arrow.style.transform = 'rotate(180deg)';
+        if (btn) btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    function closeCustomChannelDropdown() {
+      const menu = document.getElementById('custom-channel-menu');
+      const arrow = document.getElementById('custom-channel-arrow');
+      const btn = document.getElementById('custom-channel-btn');
+      if (menu && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+        if (arrow) arrow.style.transform = '';
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    function selectCustomChannel(val, text) {
+      const input = document.getElementById('inbound-channel-select');
+      const label = document.getElementById('custom-channel-label');
+      if (input) input.value = val;
+      if (label) {
+        label.textContent = text;
+        label.classList.remove('text-outline-variant');
+        label.classList.add('text-on-surface');
+      }
+      const options = document.querySelectorAll('.channel-option');
+      options.forEach(opt => {
+        const check = opt.querySelector('.check-icon');
+        if (opt.getAttribute('data-value') === val) {
+          if (check) check.classList.remove('hidden');
+          opt.classList.add('bg-blue-50/60', 'text-primary');
+        } else {
+          if (check) check.classList.add('hidden');
+          opt.classList.remove('bg-blue-50/60', 'text-primary');
+        }
+      });
+      closeCustomChannelDropdown();
+      const btn = document.getElementById('custom-channel-btn');
+      if (btn) btn.focus();
+    }
+
+    function initCustomChannelDropdown() {
+      const btn = document.getElementById('custom-channel-btn');
+      const menu = document.getElementById('custom-channel-menu');
+      if (!btn || !menu) return;
+
+      const options = Array.from(menu.querySelectorAll('.channel-option'));
+      options.forEach((opt, idx) => {
+        opt.onclick = () => {
+          const val = opt.getAttribute('data-value');
+          const text = opt.querySelector('span')?.textContent || '';
+          selectCustomChannel(val, text);
+        };
+
+        opt.onkeydown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const val = opt.getAttribute('data-value');
+            const text = opt.querySelector('span')?.textContent || '';
+            selectCustomChannel(val, text);
+          } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const nextIdx = (idx + 1) % options.length;
+            options[nextIdx].focus();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prevIdx = (idx - 1 + options.length) % options.length;
+            options[prevIdx].focus();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            closeCustomChannelDropdown();
+            btn.focus();
+          }
+        };
+      });
+
+      btn.onkeydown = (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (menu.classList.contains('hidden')) {
+            toggleCustomChannelDropdown();
+          }
+          if (options.length > 0) {
+            options[0].focus();
+          }
+        }
+      };
+
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('custom-channel-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) {
+          closeCustomChannelDropdown();
+        }
+      });
+    }
+
     function openInboundModal(tier) {
       if (tier && tier !== 'starter' && tier !== 'login') {
         localStorage.setItem('kelvinflow_pending_tier', tier);
@@ -780,6 +918,7 @@ const modalsAndScripts = `
     }
 
     function closeInboundModal() {
+      closeCustomChannelDropdown();
       const modal = document.getElementById('inbound-modal');
       if (!modal) return;
       modal.classList.remove('opacity-100');
@@ -1281,6 +1420,16 @@ const modalsAndScripts = `
     // D1: 全局 Escape 键退出当前最顶层激活的弹窗
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' || e.keyCode === 27) {
+        // L4: 如果了解渠道下拉展开，按 Escape 仅收起下拉，不关闭弹窗
+        const channelMenu = document.getElementById('custom-channel-menu');
+        if (channelMenu && !channelMenu.classList.contains('hidden')) {
+          closeCustomChannelDropdown();
+          const btn = document.getElementById('custom-channel-btn');
+          if (btn) btn.focus();
+          e.stopPropagation();
+          return;
+        }
+
         const forgotModal = document.getElementById('forgot-password-modal');
         const inboundModal = document.getElementById('inbound-modal');
         const logoutModal = document.getElementById('logout-dialog-overlay');
@@ -1355,11 +1504,17 @@ const modalsAndScripts = `
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
       updateNavForLoggedInUser();
       initScrollReveal();
+      initCustomChannelDropdown();
     });
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
       initScrollReveal();
+      initCustomChannelDropdown();
     }
   </script>
 `;
