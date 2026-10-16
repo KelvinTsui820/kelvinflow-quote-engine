@@ -33,24 +33,15 @@ codeHtml = codeHtml.replace(
   'spacing:{"5.5":"1.375rem","gutter-lg":"2rem"'
 );
 
-// 1.1 顶栏 Logo 图标与品牌文字 (DEF-11: 图标 22px / w-5.5 h-5.5, DEF-10: 触控区>=44px)
-codeHtml = codeHtml.replace(
-  /<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0"[^>]*style="[^"]*"[^>]*>/,
-  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-5.5 h-5.5 object-contain inline-block shrink-0" style="width: 22px; height: 22px;">'
-);
+// 1.1 顶栏 Logo 图标与品牌文字：全站统一采用黄金比例规范 (w-6 h-6, items-end, gap-1.5, text-xl leading-none)
+const oldHeaderLogo = '<a class="flex items-center gap-2 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.99]" data-path="landing-page" href="/"><img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 66px; height: 66px; margin: -12px -20px -12px -8px;"><span class="font-headline-md text-[20px] font-bold tracking-tight text-[#1B2A4A] flex items-center gap-1.5 leading-none">KelvinFlow<span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></a>';
+const newHeaderLogo = '<a class="flex items-end gap-1.5 min-h-[44px] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.99] py-2" data-path="landing-page" href="/"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0"><span class="text-xl font-bold tracking-tight text-[#1B2A4A] leading-none">KelvinFlow</span><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none mb-0.5 uppercase">AI</span></a>';
+codeHtml = codeHtml.replace(oldHeaderLogo, newHeaderLogo);
 
-// DEF-04: Hero 主图本地化自承载 (/hero_preview.jpg)
+// DEF-04: Hero 主图本地化自承载 (/hero_preview.jpg: 1280x880 审单核价真实工作台，彻底消除外链报错、嵌套双地址栏与错乱英文)
 codeHtml = codeHtml.replace(
   /<img alt="KelvinFlow Quotation Review Interface Preview" class="w-full h-auto rounded-lg object-contain shadow-sm" src="https:\/\/lh3\.googleusercontent\.com\/aida-public\/[^"]*">/,
-  '<img alt="KelvinFlow Quotation Review Interface Preview" class="w-full h-auto rounded-lg object-contain shadow-sm" src="/hero_preview.jpg">'
-);
-codeHtml = codeHtml.replace(
-  '<a class="flex items-center gap-2 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.99]" data-path="landing-page" href="/">',
-  '<a class="flex items-center gap-2 min-h-[44px] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.99]" data-path="landing-page" href="/">'
-);
-codeHtml = codeHtml.replace(
-  '<span class="font-headline-md text-[20px] font-bold tracking-tight text-[#1B2A4A] flex items-center gap-1.5 leading-none">KelvinFlow<span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span>',
-  '<span class="font-headline-sm text-headline-sm text-[20px] font-bold tracking-tight text-[#1B2A4A] flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span>'
+  '<img alt="KelvinFlow Quotation Review Interface Preview" class="w-full h-auto rounded-lg object-contain shadow-sm aspect-[1280/880]" src="/hero_preview.jpg" width="1280" height="880" fetchpriority="high">'
 );
 
 // 1.2 Hero 副文案按设计稿对版更新
@@ -148,16 +139,28 @@ codeHtml = codeHtml.replace(
   '<button class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.99] transition-all duration-200 cursor-pointer border-0" onclick="openInboundModal(\'starter\')" type="button">免费开始试用</button>'
 );
 
-// DEF-12: Trust & Metrics Bar (Section 2) gets id="features"
+// DEF-12: Trust & Metrics Bar (Section 2) gets id="features" with scroll-mt-20
 codeHtml = codeHtml.replace(
   '<section class="w-full py-12 bg-surface-container-low">',
-  '<section class="w-full py-12 bg-surface-container-low" id="features">'
+  '<section class="w-full py-12 bg-surface-container-low scroll-mt-20 relative" id="features">'
 );
 
-// DEF-12: Decouple features and excel-template (Section 4 retains id="excel-template" only)
+// Section 3: Workflow gets scroll-mt-20
+codeHtml = codeHtml.replace(
+  '<section class="w-full py-24 bg-surface-container-lowest" id="workflow">',
+  '<section class="w-full py-24 bg-surface-container-lowest scroll-mt-20 relative" id="workflow">'
+);
+
+// DEF-12: Decouple features and excel-template (Section 4 retains id="excel-template" with scroll-mt-20)
 codeHtml = codeHtml.replace(
   '<section class="w-full py-24 bg-surface-container-low" id="excel-template">',
-  '<section class="w-full py-24 bg-surface-container-low relative" id="excel-template">'
+  '<section class="w-full py-24 bg-surface-container-low relative scroll-mt-20" id="excel-template">'
+);
+
+// Section 5: FAQ gets scroll-mt-20
+codeHtml = codeHtml.replace(
+  '<section class="w-full py-24 bg-surface-container-lowest" id="faq">',
+  '<section class="w-full py-24 bg-surface-container-lowest scroll-mt-20 relative" id="faq">'
 );
 
 // In Excel feature: update template download link
@@ -178,19 +181,16 @@ codeHtml = codeHtml.replace(
   '<div class="mt-8 flex flex-col md:flex-row items-start md:items-center justify-center gap-3 md:gap-6 text-on-surface-variant text-body-sm font-body-sm">'
 );
 
-// M3 & Footer: 优化页脚在移动端的内边距并增加 id="footer" 与 scroll-reveal (DEF-11: Logo 20px / w-5 h-5)
+// M3 & Footer: 优化页脚在移动端的内边距并增加 id="footer" 与 scroll-reveal
 codeHtml = codeHtml.replace(
   '<footer class="w-full bg-surface-container-lowest border-t border-outline-variant/30 py-8 px-6"><div class="max-w-[1440px] mx-auto px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg">',
   '<footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl" id="footer"><div class="scroll-reveal max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg" data-reveal-delay="0">'
 );
-codeHtml = codeHtml.replace(
-  /<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0"[^>]*style="[^"]*"[^>]*>/,
-  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-5 h-5 object-contain inline-block shrink-0">'
-);
-codeHtml = codeHtml.replace(
-  '<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg">',
-  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-5 h-5 object-contain inline-block shrink-0">'
-);
+
+// 底栏 Logo 图标与品牌文字：全站统一采用黄金比例规范 (w-6 h-6, items-end, gap-1.5, text-xl leading-none)
+const oldFooterLogo = '<div class="flex items-center gap-1.5"><img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 48px; height: 48px; margin: -8px -15px -8px -4px;"><span class="font-headline-sm text-headline-sm text-[#1B2A4A] flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></div>';
+const newFooterLogo = '<div class="flex items-end gap-1.5"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0"><span class="text-xl font-bold tracking-tight text-[#1B2A4A] leading-none">KelvinFlow</span><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none mb-0.5 uppercase">AI</span></div>';
+codeHtml = codeHtml.replace(oldFooterLogo, newFooterLogo);
 codeHtml = codeHtml.replace(
   '<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a>',
   '<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150 inline-flex items-center min-h-[44px] py-2.5 px-2" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a>'
@@ -289,19 +289,19 @@ const modalsAndScripts = `
     <!-- Click Scrim -->
     <div class="absolute inset-0" onclick="closeInboundModal()"></div>
 
-    <!-- Modal Card Body -->
-    <div onclick="event.stopPropagation()" class="max-w-[440px] w-full bg-surface-container-lowest rounded-2xl shadow-2xl p-7 md:p-8 relative overflow-hidden transition-all duration-200 z-10 my-auto">
+    <!-- Modal Card Body (加宽至 480px 并优化内边距以确保协议单行不折行) -->
+    <div onclick="event.stopPropagation()" class="max-w-[480px] w-full bg-surface-container-lowest rounded-2xl shadow-2xl p-6 md:p-8 relative overflow-hidden transition-all duration-200 z-10 my-auto">
       
       <!-- 关闭按钮 (X 图标，与设计稿对齐，满足 44px 触控要求) -->
       <button onclick="closeInboundModal()" aria-label="关闭弹窗" class="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors duration-150 group cursor-pointer focus:outline-none" type="button">
         <span class="material-symbols-outlined text-[20px] transition-transform duration-150 group-hover:rotate-90">close</span>
       </button>
 
-      <!-- 品牌标识与 Logo -->
+      <!-- 品牌标识与 Logo (全站黄金比例规范) -->
       <div class="flex flex-col items-center text-center">
         <div class="flex items-end justify-center gap-1.5 mb-2">
           <img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0">
-          <span class="font-headline-lg text-headline-lg font-bold tracking-tight text-[#1B2A4A] leading-none">KelvinFlow</span>
+          <span class="text-xl font-bold tracking-tight text-[#1B2A4A] leading-none">KelvinFlow</span>
           <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none mb-0.5 uppercase">AI</span>
         </div>
       </div>
@@ -418,13 +418,13 @@ const modalsAndScripts = `
             </div>
           </div>
 
-          <!-- 用户协议勾选 (DEF-13 & DEF-14) -->
-          <div class="flex items-center gap-2 pt-1 text-left">
+          <!-- 用户协议勾选 (DEF-13 & DEF-14: 严禁换行，单行紧凑对齐，移动端原生防溢出) -->
+          <div class="flex items-center gap-1.5 pt-1 text-left">
             <input class="w-4 h-4 rounded text-primary-container bg-surface-container-lowest focus:ring-0 cursor-pointer accent-primary-container shrink-0" id="inbound-agreement-checkbox" required type="checkbox">
-            <label class="font-label-sm text-label-sm text-on-surface-variant select-none" for="inbound-agreement-checkbox">
-              我已阅读并同意
+            <label class="whitespace-nowrap text-[10px] sm:text-[11px] tracking-tighter sm:tracking-tight text-on-surface-variant select-none inline-flex items-center" for="inbound-agreement-checkbox">
+              <span>我已阅读并同意</span>
               <button type="button" onclick="event.preventDefault(); openAgreementModal('terms')" class="text-primary-container hover:underline font-semibold cursor-pointer p-0 bg-transparent border-0 inline">《用户服务协议》</button>
-              与
+              <span>与</span>
               <button type="button" onclick="event.preventDefault(); openAgreementModal('privacy')" class="text-primary-container hover:underline font-semibold cursor-pointer p-0 bg-transparent border-0 inline">《跨境商业数据隐私保密承诺》</button>
             </label>
           </div>
@@ -1748,18 +1748,55 @@ const modalsAndScripts = `
       revealElements.forEach(el => observer.observe(el));
     }
 
+    // 全局页面平滑滚动与固定顶栏 (64px) 72px 偏移量对齐，防止锚点跳跃不准
+    function initSmoothScrollOffset() {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href && href !== '#' && href.startsWith('#')) {
+            const targetEl = document.querySelector(href);
+            if (targetEl) {
+              e.preventDefault();
+              const headerOffset = 72;
+              const elementPosition = targetEl.getBoundingClientRect().top;
+              const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+              window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+              });
+              history.pushState(null, '', href);
+            }
+          }
+        });
+      });
+
+      if (window.location.hash) {
+        setTimeout(() => {
+          const targetEl = document.querySelector(window.location.hash);
+          if (targetEl) {
+            const headerOffset = 72;
+            const elementPosition = targetEl.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          }
+        }, 150);
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
       updateNavForLoggedInUser();
       initScrollReveal();
       initCustomChannelDropdown();
+      initSmoothScrollOffset();
     });
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
       initScrollReveal();
       initCustomChannelDropdown();
+      initSmoothScrollOffset();
     }
   </script>
 `;
