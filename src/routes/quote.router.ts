@@ -128,8 +128,9 @@ function writeAuditLog(event: {
 /**
  * 发送 6 位工作邮箱试用验证码 (Plan C 核心防刷风控)
  * POST /api/v1/auth/send-verification-code
+ * POST /api/v1/auth/send-code (别名兼容)
  */
-quoteRouter.post('/auth/send-verification-code', async (req: Request, res: Response): Promise<any> => {
+const handleSendVerificationCode = async (req: Request, res: Response): Promise<any> => {
   try {
     const { email } = req.body;
     const clientIp = ((req.headers['x-forwarded-for'] as string) || '').split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
@@ -164,7 +165,10 @@ quoteRouter.post('/auth/send-verification-code', async (req: Request, res: Respo
     console.error('❌ 发送邮箱验证码异常:', error);
     return res.status(500).json({ success: false, error: error.message || '发送失败，请稍后再试' });
   }
-});
+};
+
+quoteRouter.post('/auth/send-verification-code', handleSendVerificationCode);
+quoteRouter.post('/auth/send-code', handleSendVerificationCode);
 
 /**
  * 7 天免費全功能試用註冊 (Plan C: 工作邮箱为主 + 6位验证码真验证 + 30天数据保留)

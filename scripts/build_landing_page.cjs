@@ -27,10 +27,14 @@ const googleLogoUrl2 = 'https://lh3.googleusercontent.com/aida/AEtjO1VbWXhvrHa6A
 codeHtml = codeHtml.split(googleLogoUrl1).join('/k_logo.svg');
 codeHtml = codeHtml.split(googleLogoUrl2).join('/k_logo.svg');
 
-// 1.1 顶栏 Logo 图标 w-10 h-10 与 品牌文字 KelvinFlow AI 20px
+// 1.1 顶栏 Logo 图标与品牌文字 (DEF-05: 图标<=34px, DEF-10: 触控区>=44px)
 codeHtml = codeHtml.replace(
   /<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0"[^>]*style="[^"]*"[^>]*>/,
-  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-10 h-10 object-contain inline-block shrink-0">'
+  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-7 h-7 object-contain inline-block shrink-0">'
+);
+codeHtml = codeHtml.replace(
+  '<a class="flex items-center gap-2 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.99]" data-path="landing-page" href="/">',
+  '<a class="flex items-center gap-2 min-h-[44px] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.99]" data-path="landing-page" href="/">'
 );
 codeHtml = codeHtml.replace(
   '<span class="font-headline-md text-[20px] font-bold tracking-tight text-[#1B2A4A] flex items-center gap-1.5 leading-none">KelvinFlow<span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span>',
@@ -95,7 +99,7 @@ codeHtml = codeHtml.replace(oldNav, newNav);
 const oldActions = `<div class="flex items-center gap-space-md"><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" data-path="login" href="#">登录</a><a class="inline-flex items-center justify-center px-space-md py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:scale-[1.02] active:scale-[0.98] hover:shadow-md transition-all duration-200" data-path="signup" href="#">免费试用</a></div>`;
 const newActions = `<div class="flex items-center gap-2 sm:gap-space-md">
       <button id="nav-login-btn" onclick="openInboundModal('login')" class="hidden md:inline-flex font-body-md text-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150 cursor-pointer bg-transparent border-0 p-0 items-center" data-path="login" type="button">登录</button>
-      <button id="nav-trial-btn" onclick="openInboundModal('starter')" class="inline-flex items-center justify-center px-3 py-1.5 sm:px-space-md sm:py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-150 cursor-pointer border-0" data-path="signup" type="button">免费试用</button>
+      <button id="nav-trial-btn" onclick="openInboundModal('starter')" class="inline-flex items-center justify-center min-h-[44px] px-3.5 py-2 sm:px-space-md sm:py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-150 cursor-pointer border-0" data-path="signup" type="button">免费试用</button>
       <a id="nav-workbench-btn" style="display: none;" class="items-center justify-center px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 transition-all cursor-pointer" href="/review/QT-20260904-888">进入审单台</a>
       <div id="nav-user-chip" style="display: none;" class="items-center gap-2 pl-3 pr-2 py-1 bg-surface-container rounded-full text-xs font-medium text-on-surface border border-outline-variant/30">
         <span id="nav-user-phone" class="font-numeric-data text-xs text-on-surface"></span>
@@ -162,23 +166,31 @@ codeHtml = codeHtml.replace(
   '<footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl" id="footer"><div class="scroll-reveal max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg" data-reveal-delay="0">'
 );
 codeHtml = codeHtml.replace(
+  /<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0"[^>]*style="[^"]*"[^>]*>/,
+  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain inline-block shrink-0">'
+);
+codeHtml = codeHtml.replace(
   '<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg">',
-  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" style="width: 48px; height: 48px; margin: -8px -15px -8px -4px;">'
+  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain inline-block shrink-0">'
+);
+codeHtml = codeHtml.replace(
+  '<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a>',
+  '<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150 inline-flex items-center min-h-[44px] py-2.5 px-2" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a>'
 );
 
 // ==================== SCROLL REVEAL INJECTIONS ====================
 // Section 2: 3 Metric Cards (依次错开 100ms)
 codeHtml = codeHtml.replace(
-  '<!-- Metric Card 1 -->\n      <div class="p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300">',
-  '<!-- Metric Card 1 -->\n      <div class="scroll-reveal group p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300" data-reveal-delay="0">'
+  '<!-- Metric Card 1 -->\n      <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Metric Card 1 -->\n      <div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="0">'
 );
 codeHtml = codeHtml.replace(
-  '<!-- Metric Card 2 -->\n      <div class="p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300">',
-  '<!-- Metric Card 2 -->\n      <div class="scroll-reveal group p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300" data-reveal-delay="100">'
+  '<!-- Metric Card 2 -->\n      <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Metric Card 2 -->\n      <div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="100">'
 );
 codeHtml = codeHtml.replace(
-  '<!-- Metric Card 3 -->\n      <div class="p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300">',
-  '<!-- Metric Card 3 -->\n      <div class="scroll-reveal group p-6 md:p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 shadow-sm flex flex-col gap-3 hover:-translate-y-1 hover:shadow-md transition-all duration-300" data-reveal-delay="200">'
+  '<!-- Metric Card 3 -->\n      <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between">',
+  '<!-- Metric Card 3 -->\n      <div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="200">'
 );
 
 // Section 3: Workflow Header & 3 Step Cards (依次错开 100ms)
@@ -461,7 +473,7 @@ const modalsAndScripts = `
           <!-- 记住此设备与忘记密码 -->
           <div class="flex items-center justify-between text-left mt-1 mb-2">
             <label class="flex items-center gap-2 cursor-pointer select-none group">
-              <input checked="" class="w-4 h-4 rounded text-primary-container accent-primary-container focus:ring-0 cursor-pointer" id="inbound-remember-device" type="checkbox">
+              <input class="w-4 h-4 rounded text-primary-container accent-primary-container focus:ring-0 cursor-pointer" id="inbound-remember-device" type="checkbox">
               <span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">
                 记住此设备
               </span>
@@ -1076,7 +1088,7 @@ const modalsAndScripts = `
         }
       }, 1000);
 
-      fetch('/api/v1/auth/send-code', {
+      fetch('/api/v1/auth/send-verification-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email })
@@ -1444,6 +1456,41 @@ const modalsAndScripts = `
         if (inboundModal && !inboundModal.classList.contains('hidden')) {
           closeInboundModal();
           return;
+        }
+      }
+    });
+
+    // DEF-09: 全局 Tab 键模态弹窗焦点陷阱 (Focus Trap)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        const modals = ['inbound-modal', 'forgot-password-modal', 'logout-dialog-overlay'];
+        const activeModal = modals
+          .map(id => document.getElementById(id))
+          .find(m => m && !m.classList.contains('hidden') && m.style.display !== 'none');
+        if (!activeModal) return;
+
+        const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+        const focusables = Array.from(activeModal.querySelectorAll(focusableSelector))
+          .filter(el => {
+            const style = window.getComputedStyle(el);
+            return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetWidth > 0 && el.offsetHeight > 0;
+          });
+
+        if (focusables.length === 0) return;
+
+        const firstEl = focusables[0];
+        const lastEl = focusables[focusables.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstEl || !activeModal.contains(document.activeElement)) {
+            e.preventDefault();
+            lastEl.focus();
+          }
+        } else {
+          if (document.activeElement === lastEl || !activeModal.contains(document.activeElement)) {
+            e.preventDefault();
+            firstEl.focus();
+          }
         }
       }
     });

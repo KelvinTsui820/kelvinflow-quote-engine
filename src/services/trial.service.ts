@@ -676,7 +676,7 @@ export class TrialService {
         return { success: false, message: `未找到手机号或邮箱为 [${query}] 的租户记录。如需直接为主管/朋友新建账号，请使用 --auto-create 参数（CLI 已默认开启自动建号）` };
       }
 
-      // 🌟 支持创始人一键为好友/特邀测试官直接建号与授权
+      // 🌟 支持创始人为好友/特邀测试官直接建号与授权
       const cleanPhone = /^1[3-9]\d{9}$/.test(query) ? query : (query.replace(/\D/g, '') || '13800000000');
       const cleanEmail = query.includes('@') ? query : `${cleanPhone}@friend.kelvinflow.com`;
       const name = params.name || '特邀体验官';
@@ -742,7 +742,7 @@ export class TrialService {
       allTrials.unshift(trial);
       this.saveTrials(allTrials);
       isNewAccount = true;
-      console.log(`✨ [特邀账号一键生成] 手机: ${cleanPhone}, 姓名: ${name}, 初始密码: ${initialPasswordUsed}, 有效期: +${addDays}天`);
+      console.log(`✨ [特邀账号极速生成] 手机: ${cleanPhone}, 姓名: ${name}, 初始密码: ${initialPasswordUsed}, 有效期: +${addDays}天`);
     }
 
     if (!trial) {
@@ -819,7 +819,7 @@ export class TrialService {
 
 
   /**
-   * 创始人 1 秒一键极速激活/升级付费会员 (支持 CLI 脚本与微信转账人工开通)
+   * 创始人 1 秒极速激活/升级付费会员 (支持 CLI 脚本与微信转账人工开通)
    */
   static activatePaidUser(
     phoneOrEmail: string,

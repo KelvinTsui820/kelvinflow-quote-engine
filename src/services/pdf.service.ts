@@ -695,7 +695,7 @@ export class PDFService {
           payRest = ' issued by first-class international bank upon order confirmation. All overseas banking charges for Buyer\'s account.';
         } else if (/O\/?A|Net\s*\d+/i.test(rawPt)) {
           payHighlight = rawPt;
-          payRest = ' open account credit terms subject to Sinosure (China Export & Credit Insurance Corporation) underwriting approval.';
+          payRest = ' open account credit terms subject to export credit insurance underwriting approval.';
         } else if (/EXW/i.test(quotation.incotermUsed || '')) {
           payHighlight = '30% T/T Deposit';
           payRest = ' upon Proforma Invoice (PI) confirmation; 70% balance paid prior to dispatch against photo/video inspection pass certificate. Wire fees outside China for Buyer\'s account.';

@@ -272,7 +272,7 @@ export class DraftService {
 
   /**
    * 模式 1：将生成的待审报价与 PDF 附件发送至业务员工作邮箱 (收件箱)
-   * 零配置兜底交付，业务员在收件箱查阅后一键转发买家
+   * 零配置兜底交付，业务员在收件箱查阅后快速转发买家
    */
   static async sendReviewEmail(options: ReviewEmailOptions): Promise<{ sent: boolean; method: 'smtp' | 'resend' | 'workbench_store' | 'blocked_ghost_quote'; messageId?: string; error?: string }> {
     // 🛡️ 防御性门禁拦截：若指定了单号，严格核验单据在存储中存在且有效，杜绝幽灵邮件外发

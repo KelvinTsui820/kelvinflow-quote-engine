@@ -215,7 +215,7 @@
       20%, 60% { transform: translateX(-4px); }
       40%, 80% { transform: translateX(4px); }
     }
-    /* KelvinFlow 极简高雅输入框一键清空按钮 (iOS/macOS 轻量纯净风格，无厚重灰色实体背景，不喧宾夺主) */
+    /* KelvinFlow 极简高雅输入框清空按钮 (iOS/macOS 轻量纯净风格，无厚重灰色实体背景，不喧宾夺主) */
     .input-clear-btn {
       width: 18px;
       height: 18px;
@@ -321,7 +321,7 @@
     <!-- Main Container (D-08: pb-32 为底部固定黑曜石操作条预留充分安全裕量，杜绝任何滚动位置遮挡) -->
     <main class="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-32 sm:pb-36 space-y-6">
       
-      <!-- 💡 首次使用极简静态 3 步指引卡片 (单张卡片，首次登录展示，可一键关闭) -->
+      <!-- 💡 首次使用极简静态 3 步指引卡片 (单张卡片，首次登录展示，可快速关闭) -->
       <div v-if="showOnboardingCard" class="bg-[#0B132B]/90 border border-blue-500/30 rounded-2xl p-4 sm:p-5 text-xs text-slate-200 flex items-start justify-between gap-4 shadow-xl backdrop-blur-md animate-in fade-in duration-200">
         <div class="flex items-start space-x-3.5 min-w-0">
           <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/40 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-inner">
@@ -352,7 +352,7 @@
                   <span class="w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center">3</span>
                   <span>核对并直达草稿箱</span>
                 </div>
-                <p class="text-slate-400 leading-relaxed">在线核对毛利与条款，一键存入日常企业邮箱草稿箱或直接下载 PDF。</p>
+                <p class="text-slate-400 leading-relaxed">在线核对毛利与条款，存入日常企业邮箱草稿箱或直接下载 PDF。</p>
               </div>
             </div>
           </div>
@@ -449,7 +449,7 @@
                   </div>
                   <div class="relative flex items-center group">
                     <input v-model="quotation.customerName" placeholder="例如 Acme Global Ltd." class="header-input font-bold text-slate-800 pr-7">
-                    <button v-if="quotation.customerName" type="button" @mousedown.prevent="quotation.customerName = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                    <button v-if="quotation.customerName" type="button" @mousedown.prevent="quotation.customerName = ''" title="清空" aria-label="清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -471,12 +471,12 @@
                     <input v-model="quotation.incotermUsed" 
                            placeholder="如 FOB Shenzhen / EXW Factory / CIF..."
                            class="header-input font-bold text-slate-900 font-mono pr-7">
-                    <button v-if="quotation.incotermUsed" type="button" @mousedown.prevent="quotation.incotermUsed = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                    <button v-if="quotation.incotermUsed" type="button" @mousedown.prevent="quotation.incotermUsed = ''" title="清空" aria-label="清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
                 </div>
-                <!-- 底价表动态驱动的常用条款快捷胶囊，点击一键秒切 (单行紧凑排版) -->
+                <!-- 底价表动态驱动的常用条款快捷胶囊，点击快速切换 (单行紧凑排版) -->
                 <div class="h-[28px] flex items-center gap-1.5 overflow-x-auto whitespace-nowrap compact-scroll">
                   <span class="text-[10px] text-slate-400 font-medium mr-0.5 flex-shrink-0">快捷:</span>
                   <button v-for="term in availableIncoterms" :key="term.val"
@@ -499,7 +499,7 @@
                   </div>
                   <div class="relative flex items-center group">
                     <input v-model="quotation.buyerName" placeholder="联系人姓名 (如 Marcus Weber)" class="header-input font-semibold text-slate-800 pr-7">
-                    <button v-if="quotation.buyerName" type="button" @mousedown.prevent="quotation.buyerName = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                    <button v-if="quotation.buyerName" type="button" @mousedown.prevent="quotation.buyerName = ''" title="清空" aria-label="清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -519,7 +519,7 @@
                   </div>
                   <div class="relative flex items-center group">
                     <input v-model="quotation.buyerEmail" placeholder="buyer@example.com" class="header-input font-mono text-slate-700 pr-7">
-                    <button v-if="quotation.buyerEmail" type="button" @mousedown.prevent="quotation.buyerEmail = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                    <button v-if="quotation.buyerEmail" type="button" @mousedown.prevent="quotation.buyerEmail = ''" title="清空" aria-label="清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -580,7 +580,7 @@
                       <input type="number" step="0.0001" role="textbox" v-model.number="quotation.rateUsed" @input="onRateChange" @change="quotation.rateUsed = round4(quotation.rateUsed); onRateChange()"
                              class="w-full h-full px-2.5 pr-7 text-xs font-extrabold text-slate-900 font-mono focus:outline-none bg-transparent"
                              :class="rateDiagnostic.type === 'risk' ? 'text-amber-600 bg-amber-50/30' : ''">
-                      <button v-if="quotation.rateUsed" type="button" @mousedown.prevent="quotation.rateUsed = null" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                      <button v-if="quotation.rateUsed" type="button" @mousedown.prevent="quotation.rateUsed = null" title="清空" aria-label="清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
                     </div>
@@ -590,7 +590,7 @@
                   </div>
                 </div>
 
-                <!-- 底部单行：现汇买入参考牌价 + 一键填入 + 核算逻辑 (与卡片4/5高度严格对齐一致) -->
+                <!-- 底部单行：现汇买入参考牌价 + 填入 + 核算逻辑 (与卡片4/5高度严格对齐一致) -->
                 <div class="h-[28px] flex items-center justify-between text-[10px] text-slate-500 select-none relative">
                   <div v-if="currentLiveRate" class="flex items-center gap-1.5 truncate text-slate-600 min-w-0 pr-1">
                     <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" title="实时结汇牌价正常 (5分钟自动刷新)"></span>
@@ -609,9 +609,9 @@
                   <div class="flex items-center gap-1.5 flex-shrink-0">
                     <button v-if="currentLiveRate" type="button" @click.stop="applyLiveRate"
                             class="text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 border border-blue-200 hover:border-blue-300 px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition cursor-pointer shadow-2xs active:scale-95"
-                            title="一键将今日银行现汇买入参考价填入当前报价">
+                            title="将今日银行现汇买入参考价填入当前报价">
                       <i class="fa-solid fa-wand-magic-sparkles text-[9px] text-blue-500"></i>
-                      <span>一键填入</span>
+                      <span>填入</span>
                     </button>
                   </div>
                 </div>
@@ -628,7 +628,7 @@
                     <input v-model="terms.payment" 
                            placeholder="如 30% T/T Deposit, 70% Balance..."
                            class="header-input font-medium text-slate-800 text-xs pr-7">
-                    <button v-if="terms.payment" type="button" @mousedown.prevent="terms.payment = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                    <button v-if="terms.payment" type="button" @mousedown.prevent="terms.payment = ''" title="清空" aria-label="清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -657,7 +657,7 @@
                     <input v-model="terms.leadTime" 
                            placeholder="如 25-30 days upon receipt of deposit..."
                            class="header-input font-medium text-slate-800 text-xs pr-7">
-                    <button v-if="terms.leadTime" type="button" @mousedown.prevent="terms.leadTime = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                    <button v-if="terms.leadTime" type="button" @mousedown.prevent="terms.leadTime = ''" title="清空" aria-label="清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -694,7 +694,7 @@
                            :title="terms.validity || '报价有效期'"
                            placeholder="如 30 Days (Subject to raw material & exchange fluctuation)..."
                            class="header-input font-medium text-slate-800 text-xs pr-7">
-                    <button v-if="terms.validity" type="button" @mousedown.prevent="terms.validity = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                    <button v-if="terms.validity" type="button" @mousedown.prevent="terms.validity = ''" title="清空" aria-label="清空" class="input-clear-btn absolute right-2 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -929,7 +929,7 @@
                       <input v-model="item.sku" @change="onSkuInputMatch(item)" placeholder="买家 SKU" 
                              class="table-input font-bold text-slate-900 w-36 sm:w-44 pr-6"
                              :class="item.warning ? 'border-amber-300 focus:border-amber-500' : ''">
-                      <button v-if="item.sku" type="button" @mousedown.prevent="item.sku = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                      <button v-if="item.sku" type="button" @mousedown.prevent="item.sku = ''" title="清空" aria-label="清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
                     </div>
@@ -943,8 +943,8 @@
                                placeholder="内部 SKU" 
                                class="table-input font-mono font-bold text-slate-800 w-full pl-2.5 pr-8"
                                :class="item.warning ? 'border-amber-300 focus:border-amber-500' : ''">
-                        <!-- 一键清空按钮 -->
-                        <button v-if="item.matchedSku" type="button" @mousedown.prevent="item.matchedSku = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                        <!-- 清空按钮 -->
+                        <button v-if="item.matchedSku" type="button" @mousedown.prevent="item.matchedSku = ''" title="清空" aria-label="清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                           <i class="fa-solid fa-xmark"></i>
                         </button>
                       </div>
@@ -967,11 +967,11 @@
                                 class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer">
                           <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px]"></i>
                         </button>
-                        <!-- 一键清空按钮 -->
+                        <!-- 清空按钮 -->
                         <button v-if="item.description" 
                                 type="button" 
                                 @mousedown.prevent="item.description = ''" 
-                                title="一键清空" aria-label="一键清空" 
+                                title="清空" aria-label="清空" 
                                 class="input-clear-btn opacity-0 group-focus-within:opacity-100 pointer-events-none group-focus-within:pointer-events-auto">
                           <i class="fa-solid fa-xmark"></i>
                         </button>
@@ -1021,7 +1021,7 @@
                              placeholder="输入底价"
                              class="table-input w-28 text-right font-mono font-black text-xs shadow-xs pr-6"
                              :class="!item.basePriceRMB ? 'bg-rose-50 border-rose-300 focus:border-rose-500 text-rose-700' : 'bg-slate-50/50 hover:bg-white focus:bg-white text-slate-900'">
-                      <button v-if="item.basePriceRMB" type="button" @mousedown.prevent="item.basePriceRMB = null; onBasePriceChange(item)" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                      <button v-if="item.basePriceRMB" type="button" @mousedown.prevent="item.basePriceRMB = null; onBasePriceChange(item)" title="清空" aria-label="清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
                     </div>
@@ -1066,7 +1066,7 @@
                              :title="getPriceCalculationFormula(item)"
                              class="table-input w-28 text-right font-black shadow-sm pr-6 cursor-help"
                              :class="isBelowFloorMargin(item) ? 'border-rose-400 text-rose-700 bg-rose-50/50 focus:border-rose-600' : 'text-blue-700 bg-blue-50/20 focus:bg-white'">
-                      <button v-if="item.unitPriceForeign" type="button" @mousedown.prevent="item.unitPriceForeign = null; onUnitPriceChange(item)" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                      <button v-if="item.unitPriceForeign" type="button" @mousedown.prevent="item.unitPriceForeign = null; onUnitPriceChange(item)" title="清空" aria-label="清空" class="input-clear-btn absolute right-1.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
 
@@ -1145,7 +1145,7 @@
                     <button type="button" @click="openTermsModal('payment')" title="放大编辑付款条款" aria-label="放大编辑付款条款" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer">
                       <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px]"></i>
                     </button>
-                    <button v-if="terms.payment" type="button" @mousedown.prevent="terms.payment = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
+                    <button v-if="terms.payment" type="button" @mousedown.prevent="terms.payment = ''" title="清空" aria-label="清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -1160,7 +1160,7 @@
                     <button type="button" @click="openTermsModal('validity')" title="放大编辑报价有效期" aria-label="放大编辑报价有效期" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer">
                       <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px]"></i>
                     </button>
-                    <button v-if="terms.validity" type="button" @mousedown.prevent="terms.validity = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
+                    <button v-if="terms.validity" type="button" @mousedown.prevent="terms.validity = ''" title="清空" aria-label="清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -1175,7 +1175,7 @@
                     <button type="button" @click="openTermsModal('leadTime')" title="放大编辑交期与装运" aria-label="放大编辑交期与装运" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer">
                       <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px]"></i>
                     </button>
-                    <button v-if="terms.leadTime" type="button" @mousedown.prevent="terms.leadTime = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
+                    <button v-if="terms.leadTime" type="button" @mousedown.prevent="terms.leadTime = ''" title="清空" aria-label="清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -1190,7 +1190,7 @@
                     <button type="button" @click="openTermsModal('samplePolicy')" title="放大编辑样品政策" aria-label="放大编辑样品政策" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer">
                       <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px]"></i>
                     </button>
-                    <button v-if="terms.samplePolicy" type="button" @mousedown.prevent="terms.samplePolicy = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
+                    <button v-if="terms.samplePolicy" type="button" @mousedown.prevent="terms.samplePolicy = ''" title="清空" aria-label="清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -1205,7 +1205,7 @@
                     <button type="button" @click="openTermsModal('remarks')" title="放大编辑备注" aria-label="放大编辑备注" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer">
                       <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px]"></i>
                     </button>
-                    <button v-if="terms.remarks" type="button" @mousedown.prevent="terms.remarks = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
+                    <button v-if="terms.remarks" type="button" @mousedown.prevent="terms.remarks = ''" title="清空" aria-label="清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -1239,7 +1239,7 @@
                   <label class="block text-[11px] text-slate-500 font-bold mb-1">邮件主题 (Subject):</label>
                   <div class="relative flex items-center group">
                     <input v-model="editableEmailSubject" class="w-full bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-lg pl-3 pr-8 py-2 text-xs font-bold text-slate-900 font-mono transition outline-none">
-                    <button v-if="editableEmailSubject" type="button" @mousedown.prevent="editableEmailSubject = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn absolute right-2.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
+                    <button v-if="editableEmailSubject" type="button" @mousedown.prevent="editableEmailSubject = ''" title="清空" aria-label="清空" class="input-clear-btn absolute right-2.5 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition-opacity duration-150">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
@@ -1251,7 +1251,7 @@
                     <textarea v-model="editableEmailBody" rows="18" placeholder="英文报价回复邮件正文..." class="w-full flex-1 min-h-[380px] sm:min-h-[430px] bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 rounded-xl p-3.5 pr-9 text-xs text-slate-800 font-mono leading-relaxed transition resize-y shadow-inner outline-none"></textarea>
                     <!-- 右上角悬浮操作组 (对齐样品政策轻量极简交互：鼠标移入/聚焦时显现) -->
                     <div class="absolute right-2.5 top-2.5 flex items-center space-x-1">
-                      <button v-if="editableEmailBody" type="button" @mousedown.prevent="editableEmailBody = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
+                      <button v-if="editableEmailBody" type="button" @mousedown.prevent="editableEmailBody = ''" title="清空" aria-label="清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
                     </div>
@@ -1335,11 +1335,11 @@
             <span class="sm:hidden">下载</span>
           </button>
 
-          <!-- 一键直达日常邮箱草稿箱 (保留发信兜底链路) -->
+          <!-- 直达日常邮箱草稿箱 (保留发信兜底链路) -->
           <button @click="openConfirmModal('draft')" :disabled="saving" 
                   class="flex-2 sm:flex-none inline-flex items-center justify-center px-3.5 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-indigo-600/30 ring-2 ring-blue-400/50 active:scale-95 transition disabled:opacity-50 whitespace-nowrap cursor-pointer">
             <i class="fa-solid fa-paper-plane mr-1.5 text-xs sm:text-sm text-amber-300"></i>
-            <span class="hidden sm:inline">⚡ 一键直达草稿箱</span>
+            <span class="hidden sm:inline">⚡ 直达草稿箱</span>
             <span class="sm:hidden">直达草稿箱</span>
           </button>
         </div>
@@ -1403,7 +1403,7 @@
             <div>
               <h3 class="text-base font-bold text-slate-900">报价单附加条款与商务规则 · 全景编辑</h3>
               <p class="text-xs text-slate-500">
-                可自由输入定制条款，或点击常用行业快捷预设一键套用，内容实时同步单据与邮件
+                可自由输入定制条款，或点击常用行业快捷预设快速套用，内容实时同步单据与邮件
               </p>
             </div>
           </div>
@@ -1421,7 +1421,7 @@
                 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                 <span>付款条款 (Payment Terms)</span>
               </label>
-              <button v-if="tempTerms.payment" type="button" @click="tempTerms.payment = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <button v-if="tempTerms.payment" type="button" @click="tempTerms.payment = ''" title="清空" aria-label="清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
@@ -1444,7 +1444,7 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span>报价有效期 (Price Validity)</span>
               </label>
-              <button v-if="tempTerms.validity" type="button" @click="tempTerms.validity = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <button v-if="tempTerms.validity" type="button" @click="tempTerms.validity = ''" title="清空" aria-label="清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
@@ -1466,7 +1466,7 @@
                 <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
                 <span>交期与装运 (Lead Time)</span>
               </label>
-              <button v-if="tempTerms.leadTime" type="button" @click="tempTerms.leadTime = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <button v-if="tempTerms.leadTime" type="button" @click="tempTerms.leadTime = ''" title="清空" aria-label="清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
@@ -1488,7 +1488,7 @@
                 <span class="w-2 h-2 rounded-full bg-amber-500"></span>
                 <span>样品政策 (Sample Policy)</span>
               </label>
-              <button v-if="tempTerms.samplePolicy" type="button" @click="tempTerms.samplePolicy = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <button v-if="tempTerms.samplePolicy" type="button" @click="tempTerms.samplePolicy = ''" title="清空" aria-label="清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
@@ -1510,7 +1510,7 @@
                 <span class="w-2 h-2 rounded-full bg-purple-500"></span>
                 <span>备注说明 (Special Remarks)</span>
               </label>
-              <button v-if="tempTerms.remarks" type="button" @click="tempTerms.remarks = ''" title="一键清空" aria-label="一键清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <button v-if="tempTerms.remarks" type="button" @click="tempTerms.remarks = ''" title="清空" aria-label="清空" class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
@@ -1681,7 +1681,7 @@
         <div class="space-y-2">
           <button @click="copyWechatId" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-md shadow-emerald-500/20 active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer">
             <i :class="copiedWechatId ? 'fa-solid fa-check' : 'fa-regular fa-copy'"></i>
-            <span>{{ copiedWechatId ? '✅ 已复制微信号 (kt_data)' : '一键复制微信号: kt_data' }}</span>
+            <span>{{ copiedWechatId ? '✅ 已复制微信号 (kt_data)' : '复制微信号: kt_data' }}</span>
           </button>
           <div class="text-[11px] text-slate-400">
             打开手机微信扫一扫，或添加上方微信号，随时在线答疑
@@ -1807,7 +1807,7 @@ Terms: FOB Shenzhen Port.
 Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr-14 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition resize-none"></textarea>
               <!-- 右上角悬浮操作组 (对齐样品政策极简交互：移入/聚焦显现) -->
               <div class="absolute right-2.5 top-2.5 flex items-center space-x-1">
-                <button v-if="newPoModal.rawText" type="button" @mousedown.prevent="newPoModal.rawText = ''" title="一键清空" aria-label="一键清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
+                <button v-if="newPoModal.rawText" type="button" @mousedown.prevent="newPoModal.rawText = ''" title="清空" aria-label="清空" class="input-clear-btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
               </div>
@@ -2100,7 +2100,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
 
             <!-- 抽屉内容区 (仅在展开时显示) -->
             <div v-if="imapModal.showGuideDrawer" class="p-4 pt-3 border-t border-slate-100 bg-slate-50/50 space-y-3.5 animate-in fade-in duration-150">
-              <!-- 推荐关键词一键复制栏 (常驻清晰置顶) -->
+              <!-- 推荐关键词快捷复制栏 (常驻清晰置顶) -->
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-blue-50/80 border border-blue-200/80">
                 <div class="flex items-center gap-2 text-xs text-slate-700 min-w-0">
                   <i class="fa-solid fa-key text-blue-600 text-xs shrink-0"></i>
@@ -2109,7 +2109,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
                 </div>
                 <button type="button" @click="copyRuleKeywords" class="self-end sm:self-auto shrink-0 text-xs font-bold text-blue-700 hover:text-blue-800 bg-white hover:bg-blue-100 border border-blue-300 px-3 py-1 rounded-lg transition shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-95">
                   <i :class="copiedRuleKeywords ? 'fa-solid fa-check text-emerald-600' : 'fa-regular fa-copy text-blue-600'"></i>
-                  <span>{{ copiedRuleKeywords ? '已复制关键词' : '一键复制关键词' }}</span>
+                  <span>{{ copiedRuleKeywords ? '已复制关键词' : '复制关键词' }}</span>
                 </button>
               </div>
 
@@ -2342,7 +2342,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
             <span class="text-[11px] leading-relaxed">
               <strong v-if="imapModal.savedConfig?.enabled">已激活【草稿箱直达】：</strong>
               <strong v-else>当前采用【邮件自动转发】：</strong>
-              {{ imapModal.savedConfig?.enabled ? 'AI 生成的正式报价单与英文回信将静默注入您的邮箱草稿箱，点开即发！' : 'AI 生成的正式报价单与英文回信将直接发回您的收件箱与审单台，打开一键转发买家！' }}
+              {{ imapModal.savedConfig?.enabled ? 'AI 生成的正式报价单与英文回信将静默注入您的邮箱草稿箱，点开即发！' : 'AI 生成的正式报价单与英文回信将直接发回您的收件箱与审单台，打开快速转发买家！' }}
             </span>
           </div>
         </div>
@@ -2977,7 +2977,7 @@ Best regards, Marcus Weber (Acme Global)" class="w-full text-xs font-mono p-3 pr
           </div>
           <div class="flex items-center gap-2 text-emerald-300 whitespace-nowrap">
             <i class="fa-solid fa-bolt text-xs flex-shrink-0"></i>
-            <span class="truncate"><strong>智能出单与微调</strong>：一键核算汇率港杂，秒出正规 A4 报价单</span>
+            <span class="truncate"><strong>智能出单与微调</strong>：快速核算汇率港杂，秒出正规 A4 报价单</span>
           </div>
           <div class="flex items-center gap-2 text-amber-300 whitespace-nowrap">
             <i class="fa-solid fa-envelope-circle-check text-xs flex-shrink-0"></i>
@@ -6380,7 +6380,7 @@ Sales Team | KelvinFlow Global Technology`;
               return '复制邮件并打开 Outlook 网页版';
             case 'copy':
             default:
-              return '一键复制完整英文邮件内容 (已就绪)';
+              return '复制完整英文邮件内容 (已就绪)';
           }
         });
 
@@ -6517,7 +6517,7 @@ Sales Team | KelvinFlow Global Technology`;
                     mailbox: data.draftInjection.mailbox || '草稿箱',
                     error: ''
                   };
-                  showToast(`🎉 成功存入您的邮箱【${data.draftInjection.mailbox || '草稿箱'}】！打开邮箱即可一键直发！`, 'success');
+                  showToast(`🎉 成功存入您的邮箱【${data.draftInjection.mailbox || '草稿箱'}】！打开邮箱即可直接发送！`, 'success');
                 } else {
                   draftInjectionStatus.value = {
                     injected: false,
@@ -6820,7 +6820,7 @@ Sales Team | KelvinFlow Global Technology`;
           baseCurrencyRate,
           rateSafeRange,
           isRateOutOfSafeRange,
-          // 🌍 实时汇率引擎与安全垫诊断
+          // 🌍 外汇参考牌价与安全垫诊断
           liveRates,
           loadingLiveRates,
           fetchLiveRates,
