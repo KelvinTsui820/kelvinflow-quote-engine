@@ -94,16 +94,16 @@ codeHtml = codeHtml.replace(oldNav, newNav);
 
 const oldActions = `<div class="flex items-center gap-space-md"><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" data-path="login" href="#">登录</a><a class="inline-flex items-center justify-center px-space-md py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:scale-[1.02] active:scale-[0.98] hover:shadow-md transition-all duration-200" data-path="signup" href="#">免费试用</a></div>`;
 const newActions = `<div class="flex items-center gap-2 sm:gap-space-md">
-      <a id="nav-login-btn" onclick="openInboundModal('login')" class="hidden md:inline-flex font-body-md text-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150 cursor-pointer" data-path="login" href="javascript:void(0)">登录</a>
-      <a id="nav-trial-btn" onclick="openInboundModal('starter')" class="inline-flex items-center justify-center px-3 py-1.5 sm:px-space-md sm:py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-150 cursor-pointer" data-path="signup" href="javascript:void(0)">免费试用</a>
+      <button id="nav-login-btn" onclick="openInboundModal('login')" class="hidden md:inline-flex font-body-md text-body-md text-on-surface-variant hover:text-[#1D4ED8] transition-colors duration-150 cursor-pointer bg-transparent border-0 p-0 items-center" data-path="login" type="button">登录</button>
+      <button id="nav-trial-btn" onclick="openInboundModal('starter')" class="inline-flex items-center justify-center px-3 py-1.5 sm:px-space-md sm:py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-150 cursor-pointer border-0" data-path="signup" type="button">免费试用</button>
       <a id="nav-workbench-btn" style="display: none;" class="items-center justify-center px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 transition-all cursor-pointer" href="/review/QT-20260904-888">进入审单台</a>
       <div id="nav-user-chip" style="display: none;" class="items-center gap-2 pl-3 pr-2 py-1 bg-surface-container rounded-full text-xs font-medium text-on-surface border border-outline-variant/30">
         <span id="nav-user-phone" class="font-numeric-data text-xs text-on-surface"></span>
-        <button onclick="openLogoutModal()" title="退出当前账号" class="w-6 h-6 rounded-full bg-surface-container-high hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center transition cursor-pointer text-slate-500">
+        <button onclick="openLogoutModal()" title="退出当前账号" class="w-6 h-6 rounded-full bg-surface-container-high hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center transition cursor-pointer text-slate-500 border-0">
           <i class="fa-solid fa-arrow-right-from-bracket text-[10px]"></i>
         </button>
       </div>
-      <button id="mobile-menu-btn" onclick="toggleMobileNav()" class="md:hidden text-[#1B2A4A] p-1.5 transition-colors cursor-pointer flex items-center justify-center rounded-lg hover:bg-surface-container" aria-label="切换移动端导航">
+      <button id="mobile-menu-btn" onclick="toggleMobileNav()" class="md:hidden text-[#1B2A4A] w-11 h-11 p-2 transition-colors cursor-pointer flex items-center justify-center rounded-lg hover:bg-surface-container border-0 bg-transparent" aria-label="切换移动端导航" type="button">
         <svg id="mobile-menu-icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
@@ -128,8 +128,8 @@ codeHtml = codeHtml.replace('</header>', `</header>${mobileDrawer}`);
 
 // In Hero: update CTA button
 codeHtml = codeHtml.replace(
-  '<a class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.99] transition-all duration-200" href="#trial">',
-  '<a class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.99] transition-all duration-200 cursor-pointer" onclick="openInboundModal(\'starter\')" href="javascript:void(0)">'
+  '<a class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.99] transition-all duration-200" href="#trial">\n          免费开始试用\n        </a>',
+  '<button class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.99] transition-all duration-200 cursor-pointer border-0" onclick="openInboundModal(\'starter\')" type="button">免费开始试用</button>'
 );
 
 // In Excel feature section: add id="features" and anchor id="excel-template"
@@ -146,8 +146,8 @@ codeHtml = codeHtml.replace(
 
 // In Pre-footer conversion callout: update CTA button
 codeHtml = codeHtml.replace(
-  '<a class="group w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(29,78,216,0.32)] active:translate-y-0 active:scale-[0.98] transition-all duration-200" href="#">',
-  '<a class="group w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(29,78,216,0.32)] active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer" onclick="openInboundModal(\'starter\')" href="javascript:void(0)">'
+  '<a class="group w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(29,78,216,0.32)] active:translate-y-0 active:scale-[0.98] transition-all duration-200" href="#">免费开始试用</a>',
+  '<button class="group w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(29,78,216,0.32)] active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer border-0" onclick="openInboundModal(\'starter\')" type="button">免费开始试用</button>'
 );
 
 // M2: 底部 CTA 区三个勾选卖点在移动端改为垂直排列，每行一个卖点、勾选图标左对齐；桌面端保持横向三列
@@ -262,8 +262,8 @@ const modalsAndScripts = `
     <!-- Modal Card Body -->
     <div onclick="event.stopPropagation()" class="max-w-[440px] w-full bg-surface-container-lowest rounded-2xl shadow-2xl p-7 md:p-8 relative overflow-hidden transition-all duration-200 z-10 my-auto">
       
-      <!-- 关闭按钮 (X 图标，与设计稿对齐) -->
-      <button onclick="closeInboundModal()" aria-label="关闭弹窗" class="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors duration-150 group cursor-pointer focus:outline-none" type="button">
+      <!-- 关闭按钮 (X 图标，与设计稿对齐，满足 44px 触控要求) -->
+      <button onclick="closeInboundModal()" aria-label="关闭弹窗" class="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors duration-150 group cursor-pointer focus:outline-none" type="button">
         <span class="material-symbols-outlined text-[20px] transition-transform duration-150 group-hover:rotate-90">close</span>
       </button>
 
@@ -410,7 +410,7 @@ const modalsAndScripts = `
           </p>
           <p class="font-body-sm text-body-sm text-on-surface-variant">
             已有 KelvinFlow 账号？
-            <a class="font-medium text-primary-container hover:underline transition-all cursor-pointer" onclick="switchInboundFormMode('login')" href="javascript:void(0)">直接登录</a>
+            <button type="button" class="font-medium text-primary-container hover:underline transition-all cursor-pointer bg-transparent border-0 p-0 inline" onclick="switchInboundFormMode('login')">直接登录</button>
           </p>
         </div>
       </div>
@@ -466,9 +466,9 @@ const modalsAndScripts = `
                 记住此设备
               </span>
             </label>
-            <a class="font-body-sm text-body-sm font-medium text-primary-container hover:underline transition-all cursor-pointer" onclick="openForgotPasswordModal()" href="javascript:void(0)">
+            <button type="button" class="font-body-sm text-body-sm font-medium text-primary-container hover:underline transition-all cursor-pointer bg-transparent border-0 p-0 inline" onclick="openForgotPasswordModal()">
               忘记密码？
-            </a>
+            </button>
           </div>
 
           <!-- 登录工作台主按钮 -->
@@ -478,11 +478,11 @@ const modalsAndScripts = `
           </button>
         </form>
 
-        <!-- 登录底部切换注册 -->
+        <!-- 登录底部切换注册 (对版设计稿：去注册) -->
         <div class="text-center pt-3 pb-1 border-t border-surface-container-high mt-4">
           <p class="font-body-sm text-body-sm text-on-surface-variant">
             还没有账号？
-            <a class="font-medium text-primary-container hover:underline transition-all cursor-pointer" onclick="switchInboundFormMode('register')" href="javascript:void(0)">免费开通 7 天试用</a>
+            <button type="button" class="font-medium text-primary-container hover:underline transition-all cursor-pointer bg-transparent border-0 p-0 inline" onclick="switchInboundFormMode('register')">去注册</button>
           </p>
         </div>
       </div>
@@ -495,8 +495,8 @@ const modalsAndScripts = `
     <div class="absolute inset-0" onclick="closeForgotPasswordModal()"></div>
     <div onclick="event.stopPropagation()" class="max-w-[440px] w-full bg-surface-container-lowest rounded-2xl shadow-2xl p-7 md:p-8 relative overflow-hidden transition-all duration-200 z-10 my-auto">
       
-      <!-- 关闭按钮 -->
-      <button onclick="closeForgotPasswordModal()" aria-label="关闭密码重置窗口" class="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors duration-150 group cursor-pointer focus:outline-none" type="button">
+      <!-- 关闭按钮 (满足 44px 触控要求) -->
+      <button onclick="closeForgotPasswordModal()" aria-label="关闭密码重置窗口" class="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors duration-150 group cursor-pointer focus:outline-none" type="button">
         <span class="material-symbols-outlined text-[20px] transition-transform duration-150 group-hover:rotate-90">close</span>
       </button>
 
@@ -591,10 +591,10 @@ const modalsAndScripts = `
       </form>
 
       <div class="text-center pt-3 border-t border-surface-container-high mt-4">
-        <a class="font-body-sm text-body-sm font-medium text-primary-container hover:underline transition-all cursor-pointer flex items-center justify-center gap-1" onclick="backToLoginFromForgot()" href="javascript:void(0)">
+        <button type="button" class="font-body-sm text-body-sm font-medium text-primary-container hover:underline transition-all cursor-pointer flex items-center justify-center gap-1 bg-transparent border-0 p-0 inline mx-auto" onclick="backToLoginFromForgot()">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span>
           <span>返回登录</span>
-        </a>
+        </button>
       </div>
 
     </div>
@@ -604,8 +604,8 @@ const modalsAndScripts = `
   <div id="logout-dialog-overlay" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/45 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
     <div class="absolute inset-0" onclick="closeLogoutModal()"></div>
     <div onclick="event.stopPropagation()" class="relative w-full max-w-sm rounded-[24px] bg-surface-container-lowest p-6 sm:p-8 shadow-[0_20px_50px_rgba(19,27,46,0.14),0_4px_12px_rgba(19,27,46,0.06)] transform transition-all duration-200 scale-100 flex flex-col items-center text-center z-10 my-auto" id="logout-modal-card">
-      <!-- 关闭图标 -->
-      <button onclick="closeLogoutModal()" aria-label="关闭弹窗" class="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200 hover:rotate-90 cursor-pointer" id="close-modal-btn" type="button">
+      <!-- 关闭图标 (满足 44px 触控要求) -->
+      <button onclick="closeLogoutModal()" aria-label="关闭弹窗" class="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200 hover:rotate-90 cursor-pointer focus:outline-none" id="close-modal-btn" type="button">
         <span class="material-symbols-outlined text-[18px]">close</span>
       </button>
 
