@@ -69,6 +69,7 @@ const headInsert = `
   <style>
     html {
       overflow-x: clip;
+      scrollbar-gutter: stable;
     }
     body {
       overflow-x: clip;
@@ -95,6 +96,12 @@ const headInsert = `
   </style>
 `;
 codeHtml = codeHtml.replace('</head>', `${headInsert}\n</head>`);
+
+// Fix header layout shift: remove transition-all to eliminate any horizontal gliding when modals toggle
+codeHtml = codeHtml.replace(
+  '<header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_0_0_#f1f5f9] transition-all">',
+  '<header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_0_0_#f1f5f9] transition-colors duration-150">'
+);
 
 // Update Header container for mobile responsive padding
 codeHtml = codeHtml.replace(
@@ -201,7 +208,7 @@ const newFooterLogo = '<a href="/" class="group flex items-end gap-1.5 transitio
 codeHtml = codeHtml.replace(oldFooterLogo, newFooterLogo);
 codeHtml = codeHtml.replace(
   '<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a>',
-  '<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150 inline-flex items-center min-h-[44px] py-2.5 px-2" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a>'
+  '<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150 inline-flex items-center min-h-[44px] py-2.5 px-2" href="mailto:sales@kelvinflow.com">sales@kelvinflow.com</a>'
 );
 
 // ==================== SCROLL REVEAL INJECTIONS ====================
@@ -839,17 +846,12 @@ const modalsAndScripts = `
     }
 
     function lockBodyScroll() {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      if (scrollbarWidth > 0) {
-        document.documentElement.style.paddingRight = scrollbarWidth + 'px';
-      }
       document.documentElement.style.overflow = 'hidden';
     }
 
     function unlockBodyScroll() {
       if (!isAnyModalOpen()) {
         document.documentElement.style.overflow = '';
-        document.documentElement.style.paddingRight = '';
       }
     }
 
