@@ -27,10 +27,22 @@ const googleLogoUrl2 = 'https://lh3.googleusercontent.com/aida/AEtjO1VbWXhvrHa6A
 codeHtml = codeHtml.split(googleLogoUrl1).join('/k_logo.svg');
 codeHtml = codeHtml.split(googleLogoUrl2).join('/k_logo.svg');
 
-// 1.1 顶栏 Logo 图标与品牌文字 (DEF-05: 图标<=34px, DEF-10: 触控区>=44px)
+// 1.0 扩展 Tailwind spacing 配置以原生支持 5.5 (22px)
+codeHtml = codeHtml.replace(
+  'spacing:{"gutter-lg":"2rem"',
+  'spacing:{"5.5":"1.375rem","gutter-lg":"2rem"'
+);
+
+// 1.1 顶栏 Logo 图标与品牌文字 (DEF-11: 图标 22px / w-5.5 h-5.5, DEF-10: 触控区>=44px)
 codeHtml = codeHtml.replace(
   /<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0"[^>]*style="[^"]*"[^>]*>/,
-  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-7 h-7 object-contain inline-block shrink-0">'
+  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-5.5 h-5.5 object-contain inline-block shrink-0" style="width: 22px; height: 22px;">'
+);
+
+// DEF-04: Hero 主图本地化自承载 (/hero_preview.jpg)
+codeHtml = codeHtml.replace(
+  /<img alt="KelvinFlow Quotation Review Interface Preview" class="w-full h-auto rounded-lg object-contain shadow-sm" src="https:\/\/lh3\.googleusercontent\.com\/aida-public\/[^"]*">/,
+  '<img alt="KelvinFlow Quotation Review Interface Preview" class="w-full h-auto rounded-lg object-contain shadow-sm" src="/hero_preview.jpg">'
 );
 codeHtml = codeHtml.replace(
   '<a class="flex items-center gap-2 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.99]" data-path="landing-page" href="/">',
@@ -107,7 +119,7 @@ const newActions = `<div class="flex items-center gap-2 sm:gap-space-md">
           <i class="fa-solid fa-arrow-right-from-bracket text-[10px]"></i>
         </button>
       </div>
-      <button id="mobile-menu-btn" onclick="toggleMobileNav()" class="md:hidden text-[#1B2A4A] w-11 h-11 p-2 transition-colors cursor-pointer flex items-center justify-center rounded-lg hover:bg-surface-container border-0 bg-transparent" aria-label="切换移动端导航" type="button">
+      <button id="mobile-menu-btn" onclick="toggleMobileNav()" class="md:hidden text-[#1B2A4A] w-11 h-11 min-w-[44px] min-h-[44px] shrink-0 p-2 transition-colors cursor-pointer flex items-center justify-center rounded-lg hover:bg-surface-container border-0 bg-transparent" aria-label="切换移动端导航" type="button">
         <svg id="mobile-menu-icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
@@ -136,10 +148,16 @@ codeHtml = codeHtml.replace(
   '<button class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.99] transition-all duration-200 cursor-pointer border-0" onclick="openInboundModal(\'starter\')" type="button">免费开始试用</button>'
 );
 
-// In Excel feature section: add id="features" and anchor id="excel-template"
+// DEF-12: Trust & Metrics Bar (Section 2) gets id="features"
+codeHtml = codeHtml.replace(
+  '<section class="w-full py-12 bg-surface-container-low">',
+  '<section class="w-full py-12 bg-surface-container-low" id="features">'
+);
+
+// DEF-12: Decouple features and excel-template (Section 4 retains id="excel-template" only)
 codeHtml = codeHtml.replace(
   '<section class="w-full py-24 bg-surface-container-low" id="excel-template">',
-  '<section class="w-full py-24 bg-surface-container-low relative" id="features"><div id="excel-template" class="absolute -top-20"></div>'
+  '<section class="w-full py-24 bg-surface-container-low relative" id="excel-template">'
 );
 
 // In Excel feature: update template download link
@@ -160,18 +178,18 @@ codeHtml = codeHtml.replace(
   '<div class="mt-8 flex flex-col md:flex-row items-start md:items-center justify-center gap-3 md:gap-6 text-on-surface-variant text-body-sm font-body-sm">'
 );
 
-// M3 & Footer: 优化页脚在移动端的内边距并增加 id="footer" 与 scroll-reveal
+// M3 & Footer: 优化页脚在移动端的内边距并增加 id="footer" 与 scroll-reveal (DEF-11: Logo 20px / w-5 h-5)
 codeHtml = codeHtml.replace(
   '<footer class="w-full bg-surface-container-lowest border-t border-outline-variant/30 py-8 px-6"><div class="max-w-[1440px] mx-auto px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg">',
   '<footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl" id="footer"><div class="scroll-reveal max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg" data-reveal-delay="0">'
 );
 codeHtml = codeHtml.replace(
   /<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0"[^>]*style="[^"]*"[^>]*>/,
-  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain inline-block shrink-0">'
+  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-5 h-5 object-contain inline-block shrink-0">'
 );
 codeHtml = codeHtml.replace(
   '<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg">',
-  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain inline-block shrink-0">'
+  '<img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-5 h-5 object-contain inline-block shrink-0">'
 );
 codeHtml = codeHtml.replace(
   '<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a>',
@@ -282,7 +300,7 @@ const modalsAndScripts = `
       <!-- 品牌标识与 Logo -->
       <div class="flex flex-col items-center text-center">
         <div class="flex items-end justify-center gap-1.5 mb-2">
-          <img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-8 h-8 object-contain shrink-0">
+          <img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0">
           <span class="font-headline-lg text-headline-lg font-bold tracking-tight text-[#1B2A4A] leading-none">KelvinFlow</span>
           <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none mb-0.5 uppercase">AI</span>
         </div>
@@ -400,11 +418,14 @@ const modalsAndScripts = `
             </div>
           </div>
 
-          <!-- 用户协议勾选 (默认不勾选，去死链改为纯文本) -->
+          <!-- 用户协议勾选 (DEF-13 & DEF-14) -->
           <div class="flex items-center gap-2 pt-1 text-left">
-            <input class="w-4 h-4 rounded text-primary-container bg-surface-container-lowest focus:ring-0 cursor-pointer accent-primary-container" id="inbound-agreement-checkbox" required type="checkbox">
-            <label class="font-label-sm text-label-sm text-on-surface-variant cursor-pointer select-none" for="inbound-agreement-checkbox">
-              我已阅读并同意《用户服务协议》与《跨境商业数据隐私保密承诺》
+            <input class="w-4 h-4 rounded text-primary-container bg-surface-container-lowest focus:ring-0 cursor-pointer accent-primary-container shrink-0" id="inbound-agreement-checkbox" required type="checkbox">
+            <label class="font-label-sm text-label-sm text-on-surface-variant select-none" for="inbound-agreement-checkbox">
+              我已阅读并同意
+              <button type="button" onclick="event.preventDefault(); openAgreementModal('terms')" class="text-primary-container hover:underline font-semibold cursor-pointer p-0 bg-transparent border-0 inline">《用户服务协议》</button>
+              与
+              <button type="button" onclick="event.preventDefault(); openAgreementModal('privacy')" class="text-primary-container hover:underline font-semibold cursor-pointer p-0 bg-transparent border-0 inline">《跨境商业数据隐私保密承诺》</button>
             </label>
           </div>
 
@@ -659,6 +680,119 @@ const modalsAndScripts = `
     </div>
   </div>
 
+  <!-- E. 合规政策与协议保障模态弹窗 (Agreement Modal - DEF-13 & DEF-14) -->
+  <div id="agreement-modal" style="display: none;" class="fixed inset-0 z-[60] bg-[#0F172A]/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4 overflow-y-auto">
+    <!-- Click Scrim -->
+    <div class="absolute inset-0" onclick="closeAgreementModal()"></div>
+
+    <!-- Modal Card Body -->
+    <div onclick="event.stopPropagation()" class="max-w-[620px] w-full bg-surface-container-lowest rounded-2xl shadow-2xl p-6 md:p-8 relative flex flex-col max-h-[90vh] z-10 my-auto">
+      
+      <!-- Close Button (满足 44px 触控要求) -->
+      <button onclick="closeAgreementModal()" aria-label="关闭协议弹窗" class="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors duration-150 group cursor-pointer focus:outline-none border-0 bg-transparent" type="button">
+        <span class="material-symbols-outlined text-[20px] transition-transform duration-150 group-hover:rotate-90">close</span>
+      </button>
+
+      <!-- 弹窗 Header -->
+      <div class="flex items-center gap-2.5 mb-2 pr-10">
+        <div class="w-9 h-9 rounded-xl bg-blue-50 text-primary-container flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-[22px]">verified_user</span>
+        </div>
+        <div>
+          <h3 class="font-headline-md text-[18px] font-bold text-[#1B2A4A] tracking-tight leading-tight">KelvinFlow 合规政策与协议保障</h3>
+          <p class="font-body-sm text-[12px] text-on-surface-variant">版本生效日期：2026 年 10 月 16 日 · 商业级数据安全隔离</p>
+        </div>
+      </div>
+
+      <!-- 条款 Tab 切换 -->
+      <div class="flex p-1 bg-surface-container-low rounded-xl mb-4 mt-2">
+        <button id="agreement-tab-terms" onclick="switchAgreementTab('terms')" class="flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer bg-surface-container-lowest text-primary-container shadow-sm border-0" type="button">
+          <span class="material-symbols-outlined text-[16px]">description</span>
+          <span>用户服务协议</span>
+        </button>
+        <button id="agreement-tab-privacy" onclick="switchAgreementTab('privacy')" class="flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer text-on-surface-variant hover:text-on-surface border-0 bg-transparent" type="button">
+          <span class="material-symbols-outlined text-[16px]">security</span>
+          <span>跨境数据隐私承诺</span>
+        </button>
+      </div>
+
+      <!-- 协议内容滚动容器 -->
+      <div id="agreement-scroll-container" class="overflow-y-auto pr-3 py-2 text-left text-on-surface font-body-sm text-[13px] leading-relaxed max-h-[50vh] border-y border-surface-container-high/60 my-1 space-y-4">
+        
+        <!-- Tab 1: 服务协议 -->
+        <div id="agreement-pane-terms" class="space-y-4">
+          <div class="bg-surface-container-low/70 p-3 rounded-lg border border-outline-variant/30 text-xs text-on-surface-variant">
+            签约主体：KelvinFlow 智能报价引擎平台运营方与企业/个人注册用户
+          </div>
+          <div>
+            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">1. 【导言与服务说明】</h4>
+            <p class="text-on-surface-variant">欢迎使用 KelvinFlow（以下简称“本平台”）。本平台是专为外贸业务员、跨境 SOHO 及出口制造企业打造的智能化外贸算价与询盘解析辅助工具。用户通过工作邮箱注册并启用本服务，即表示完全理解并自愿遵守本协议所有条款。</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">2. 【核心服务范畴与业务边界】</h4>
+            <p class="text-on-surface-variant mb-1.5"><strong>2.1 询盘要素解析：</strong>基于深度自然语言理解技术，对用户主动转发的外贸询盘邮件正文进行品名、型号规格、采购数量（MOQ）及国际贸易术语（Incoterms：FOB/CIF/CFR 等）的结构化抽取。</p>
+            <p class="text-on-surface-variant mb-1.5"><strong>2.2 底价规则智能匹配：</strong>将抽取的询盘要素与用户私有上传的 Excel 底价表进行阶梯价位、关税加价、海运拼箱成本及汇率结算规则匹配。</p>
+            <p class="text-on-surface-variant mb-1.5"><strong>2.3 商业单据草稿生成：</strong>基于匹配结果，自动生成符合国际商务标准的英文报价单（Proforma Invoice / Quotation Sheet）PDF 草稿，并投递至用户工作邮箱草稿箱。</p>
+            <p class="text-on-surface-variant"><strong>2.4 商业决策免责声明：</strong>本平台生成的所有报价单均为“待核对草稿”，不构成任何最终具有法律效力的对外商业要约。用户在正式向海外买家发送邮件前，拥有且必须履行最终核实与确认职责，本平台不对因用户未核实单据而产生的商业贸易纠纷承担连带责任。</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">3. 【用户数据与知识产权归属】</h4>
+            <p class="text-on-surface-variant mb-1.5"><strong>3.1 用户私有数据绝对归属：</strong>用户上传的任何企业底价表（Excel/CSV）、产品规格明细、客户采购商名录及往来邮件正文，其知识产权与商业机密权利 100% 独家归属于用户或用户所属企业。</p>
+            <p class="text-on-surface-variant"><strong>3.2 严禁用于公共模型训练承诺：</strong>本平台严正承诺，绝对不会将用户的私有产品底价、成本公式及客户采购信息用于任何公共大语言模型（LLM）的无监督微调或公开知识库沉淀。</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">4. 【账号安全与使用守则】</h4>
+            <p class="text-on-surface-variant mb-1.5">4.1 用户应妥善保管登录密码及工作邮箱访问权限，凡使用该账号进行的操作均视为用户本人行为。</p>
+            <p class="text-on-surface-variant">4.2 严禁利用本平台从事任何违反出口管制法律法规、侵犯第三方知识产权或伪造欺诈性外贸商业单据的非法活动。</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">5. 【服务变更、中断与终止】</h4>
+            <p class="text-on-surface-variant">本平台有权对系统进行常规升级与维护。若因不可抗力或电信网络中断导致服务偶发不可用，平台将全力进行抢修，但不承担间接商业利润损失。</p>
+          </div>
+        </div>
+
+        <!-- Tab 2: 隐私保密承诺 -->
+        <div id="agreement-pane-privacy" class="space-y-4 hidden">
+          <div class="bg-surface-container-low/70 p-3 rounded-lg border border-outline-variant/30 text-xs text-on-surface-variant">
+            承诺主体：KelvinFlow 安全架构与数据风控委员会 · 核心宗旨：恪守外贸商业底线，保障客户名录与底价核心资产零外泄
+          </div>
+          <div>
+            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">1. 【零密码侵入原则（Zero-Credential Intrusion）】</h4>
+            <p class="text-on-surface-variant mb-1.5"><strong>1.1 专属助理邮箱机制：</strong>本平台采用“专属助理邮箱智能转发（Mail-Forwarding）”机制运行，绝不索取、记录或存储用户企业邮箱、Gmail 或 Outlook 的账号登录密码，绝不要求获取任何邮箱 IMAP/SMTP 高危授权凭据。</p>
+            <p class="text-on-surface-variant"><strong>1.2 绝不越权爬取信件：</strong>本平台绝不通过任何后台脚本扫描、爬取或遍历用户的企业通讯录、历史往来邮件及非询盘类商业机密信件。</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">2. 【商业底价表银行级加密存储与物理隔离】</h4>
+            <p class="text-on-surface-variant mb-1.5"><strong>2.1 存储加密：</strong>用户上传的 Excel 标准底价表在落盘时全部采用 AES-256 银行级算法进行不可逆哈希加密与数据块混淆存储。</p>
+            <p class="text-on-surface-variant"><strong>2.2 租户级物理隔离：</strong>每个企业或用户的底价库建立独立的虚拟租户空间，杜绝任何跨账号的数据溢出、串读或索引污染，从根本上防止同行恶意刺探底价与截单。</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">3. 【海外买家询盘与客户线索绝对保密】</h4>
+            <p class="text-on-surface-variant mb-1.5"><strong>3.1 商业线索不倒卖承诺：</strong>买家邮箱、询盘产品规格、目标采购预算及企业贸易背景，仅在单次报价生成过程中调用。</p>
+            <p class="text-on-surface-variant"><strong>3.2 严防商业截流：</strong>本平台绝不将用户的海外询盘商机用于任何形式的商业撮合、第三方商机推荐或行业数据打包变现。</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-[#1B2A4A] text-sm mb-1">4. 【数据自主权与彻底物理销毁】</h4>
+            <p class="text-on-surface-variant mb-1.5"><strong>4.1 数据自主可控：</strong>用户享有对自己全部商业资产的最高控制权，可随时在后台直接下载全部历史报价单据及底价配置。</p>
+            <p class="text-on-surface-variant"><strong>4.2 彻底销毁保障：</strong>当用户选择注销账户或删除底价表时，系统将在 24 小时内对分布式云存储节点执行 DoD 5220.22-M 擦除擦写，彻底抹除底层磁盘镜像，不保留任何不可见备份。</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 弹窗底部操作区 -->
+      <div class="flex items-center justify-end gap-3 pt-4">
+        <button onclick="closeAgreementModal()" class="py-2.5 px-5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-sm font-semibold transition-all duration-150 active:scale-95 cursor-pointer border-0" type="button">
+          关闭
+        </button>
+        <button onclick="acceptAgreementFromModal()" class="py-2.5 px-6 rounded-full bg-primary-container hover:bg-blue-700 text-on-primary font-headline-sm text-sm font-semibold shadow-sm hover:shadow transition-all duration-150 active:scale-95 cursor-pointer flex items-center gap-1.5 border-0" type="button">
+          <span class="material-symbols-outlined text-[16px]">check_circle</span>
+          <span>我已了解并同意</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // =========================================================================
     // 前端核心驱动脚本 (试用/登录/找回密码/Escape退出/60s倒计时防抖)
@@ -730,7 +864,7 @@ const modalsAndScripts = `
     }
 
     function isAnyModalOpen() {
-      const modals = ['inbound-modal', 'forgot-password-modal', 'logout-dialog-overlay'];
+      const modals = ['agreement-modal', 'inbound-modal', 'forgot-password-modal', 'logout-dialog-overlay'];
       return modals.some(id => {
         const el = document.getElementById(id);
         return el && !el.classList.contains('hidden') && el.style.display !== 'none';
@@ -750,6 +884,65 @@ const modalsAndScripts = `
         document.documentElement.style.overflow = '';
         document.documentElement.style.paddingRight = '';
       }
+    }
+
+    // DEF-13 & DEF-14: 法务协议弹窗核心控制函数
+    function openAgreementModal(tab = 'terms') {
+      const modal = document.getElementById('agreement-modal');
+      if (!modal) return;
+      switchAgreementTab(tab);
+      lockBodyScroll();
+      modal.style.display = 'flex';
+      modal.offsetHeight; // 强制回流以触发过渡
+      modal.classList.remove('hidden', 'opacity-0');
+      const scroller = document.getElementById('agreement-scroll-container');
+      if (scroller) scroller.scrollTop = 0;
+    }
+
+    function closeAgreementModal() {
+      const modal = document.getElementById('agreement-modal');
+      if (!modal) return;
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        unlockBodyScroll();
+      }, 150);
+    }
+
+    function switchAgreementTab(tab) {
+      const tabTerms = document.getElementById('agreement-tab-terms');
+      const tabPrivacy = document.getElementById('agreement-tab-privacy');
+      const paneTerms = document.getElementById('agreement-pane-terms');
+      const panePrivacy = document.getElementById('agreement-pane-privacy');
+
+      if (tab === 'privacy') {
+        if (tabPrivacy) {
+          tabPrivacy.className = 'flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer bg-surface-container-lowest text-primary-container shadow-sm border-0';
+        }
+        if (tabTerms) {
+          tabTerms.className = 'flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer text-on-surface-variant hover:text-on-surface border-0 bg-transparent';
+        }
+        if (panePrivacy) panePrivacy.classList.remove('hidden');
+        if (paneTerms) paneTerms.classList.add('hidden');
+      } else {
+        if (tabTerms) {
+          tabTerms.className = 'flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer bg-surface-container-lowest text-primary-container shadow-sm border-0';
+        }
+        if (tabPrivacy) {
+          tabPrivacy.className = 'flex-1 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer text-on-surface-variant hover:text-on-surface border-0 bg-transparent';
+        }
+        if (paneTerms) paneTerms.classList.remove('hidden');
+        if (panePrivacy) panePrivacy.classList.add('hidden');
+      }
+      const scroller = document.getElementById('agreement-scroll-container');
+      if (scroller) scroller.scrollTop = 0;
+    }
+
+    function acceptAgreementFromModal() {
+      const checkbox = document.getElementById('inbound-agreement-checkbox');
+      if (checkbox) checkbox.checked = true;
+      closeAgreementModal();
     }
 
     function togglePasswordVisibility(inputId, iconId) {
@@ -1442,6 +1635,11 @@ const modalsAndScripts = `
           return;
         }
 
+        const agreementModal = document.getElementById('agreement-modal');
+        if (agreementModal && !agreementModal.classList.contains('hidden') && agreementModal.style.display !== 'none') {
+          closeAgreementModal();
+          return;
+        }
         const forgotModal = document.getElementById('forgot-password-modal');
         const inboundModal = document.getElementById('inbound-modal');
         const logoutModal = document.getElementById('logout-dialog-overlay');
@@ -1463,7 +1661,7 @@ const modalsAndScripts = `
     // DEF-09: 全局 Tab 键模态弹窗焦点陷阱 (Focus Trap)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
-        const modals = ['inbound-modal', 'forgot-password-modal', 'logout-dialog-overlay'];
+        const modals = ['agreement-modal', 'inbound-modal', 'forgot-password-modal', 'logout-dialog-overlay'];
         const activeModal = modals
           .map(id => document.getElementById(id))
           .find(m => m && !m.classList.contains('hidden') && m.style.display !== 'none');
