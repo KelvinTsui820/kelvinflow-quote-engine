@@ -1,5 +1,101 @@
-<!DOCTYPE html><html lang="zh-CN" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>KelvinFlow - AI 智能外贸报价引擎</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-error":"#ffffff","secondary-fixed-dim":"#b7c4ff","on-primary-fixed":"#001551","outline":"#747686","outline-variant":"#c4c5d7","on-primary":"#ffffff","on-tertiary-fixed-variant":"#832700","surface-bright":"#faf8ff","primary-fixed-dim":"#b7c4ff","error":"#ba1a1a","primary":"#0037b0","inverse-primary":"#b7c4ff","on-secondary":"#ffffff","on-tertiary":"#ffffff","surface-container-lowest":"#ffffff","surface":"#faf8ff","on-surface":"#131b2e","surface-container-low":"#f2f3ff","inverse-surface":"#283044","on-primary-container":"#cad3ff","primary-fixed":"#dce1ff","inverse-on-surface":"#eef0ff","on-surface-variant":"#434655","error-container":"#ffdad6","on-primary-fixed-variant":"#0039b5","on-tertiary-fixed":"#390c00","tertiary":"#7f2500","secondary-container":"#b0befe","tertiary-fixed-dim":"#ffb59c","on-secondary-container":"#3d4c83","surface-dim":"#d2d9f4","secondary-fixed":"#dce1ff","secondary":"#4d5b94","surface-tint":"#2151da","surface-container-high":"#e2e7ff","background":"#faf8ff","surface-variant":"#dae2fd","on-secondary-fixed-variant":"#35437b","on-tertiary-container":"#ffc9b7","primary-container":"#1d4ed8","tertiary-fixed":"#ffdbcf","on-secondary-fixed":"#03164d","surface-container":"#eaedff","on-background":"#131b2e","surface-container-highest":"#dae2fd","on-error-container":"#93000a","tertiary-container":"#a73400"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"gutter-lg":"2rem",margin:"2rem","margin-mobile":"1rem","space-lg":"1.5rem",gutter:"1.5rem","space-md":"1rem","space-sm":"0.5rem","space-xs":"0.25rem","margin-desktop":"3rem","gutter-sm":"1rem","space-xl":"2.5rem"},fontFamily:{"display-lg-mobile":["Plus Jakarta Sans"],"numeric-data":["Inter"],"headline-sm":["Plus Jakarta Sans"],"label-sm":["Inter"],"body-lg":["Inter"],"headline-lg":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"body-sm":["Inter"],"headline-xl":["Plus Jakarta Sans"],"display-lg":["Plus Jakarta Sans"],"label-md":["Inter"],"body-md":["Inter"],"headline-md":["Plus Jakarta Sans"]},fontSize:{"display-lg-mobile":["32px",{lineHeight:"40px",letterSpacing:"-0.025em",fontWeight:"700"}],"numeric-data":["14px",{lineHeight:"20px",letterSpacing:"-0.01em",fontWeight:"500"}],"headline-sm":["16px",{lineHeight:"24px",letterSpacing:"-0.01em",fontWeight:"600"}],"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"600"}],"body-lg":["16px",{lineHeight:"26px",letterSpacing:"-0.01em",fontWeight:"400"}],"headline-lg":["24px",{lineHeight:"32px",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-xl-mobile":["24px",{lineHeight:"32px",letterSpacing:"-0.02em",fontWeight:"600"}],"body-sm":["13px",{lineHeight:"18px",letterSpacing:"0em",fontWeight:"400"}],"headline-xl":["32px",{lineHeight:"40px",letterSpacing:"-0.025em",fontWeight:"600"}],"display-lg":["48px",{lineHeight:"56px",letterSpacing:"-0.03em",fontWeight:"700"}],"label-md":["12px",{lineHeight:"16px",letterSpacing:"0.02em",fontWeight:"500"}],"body-md":["14px",{lineHeight:"22px",letterSpacing:"-0.005em",fontWeight:"400"}],"headline-md":["20px",{lineHeight:"28px",letterSpacing:"-0.015em",fontWeight:"600"}]}}}};</script>
+<!DOCTYPE html><html lang="zh-CN" style="scroll-behavior: smooth;"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>KelvinFlow - AI 智能外贸报价引擎</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>
+@layer base{html,body{margin:0;padding:0;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}
+
+html{scroll-behavior:smooth;}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 0.9; box-shadow: 0 0 0 0 rgba(29, 78, 216, 0.15); }
+  50% { opacity: 1; box-shadow: 0 0 10px 2px rgba(29, 78, 216, 0.22); }
+}
+
+@keyframes ping-slow {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.animate-float-gentle {
+  animation: float-gentle 4s ease-in-out infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+.animate-ping-slow {
+  animation: ping-slow 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* 导航链接微动效下划线与柔和颜色过渡 */
+.nav-link-subtle {
+  position: relative;
+  transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-link-subtle::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #0037b0;
+  border-radius: 9999px;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-link-subtle:hover::after {
+  width: 100%;
+}
+
+/* 手风琴丝滑 CSS Grid 折叠动画 */
+.faq-accordion-item {
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+.faq-accordion-item.is-open {
+  border-color: rgba(29, 78, 216, 0.25) !important;
+  background-color: #f8f9ff !important;
+  box-shadow: 0 4px 16px -2px rgba(29, 78, 216, 0.06);
+}
+.faq-accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.faq-accordion-item.is-open .faq-accordion-panel {
+  grid-template-rows: 1fr;
+}
+.faq-accordion-content {
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.faq-accordion-item.is-open .faq-accordion-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+.faq-icon {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+.faq-accordion-item.is-open .faq-icon {
+  transform: rotate(180deg);
+  color: #1d4ed8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-error":"#ffffff","secondary-fixed-dim":"#b7c4ff","on-primary-fixed":"#001551","outline":"#747686","outline-variant":"#c4c5d7","on-primary":"#ffffff","on-tertiary-fixed-variant":"#832700","surface-bright":"#faf8ff","primary-fixed-dim":"#b7c4ff","error":"#ba1a1a","primary":"#0037b0","inverse-primary":"#b7c4ff","on-secondary":"#ffffff","on-tertiary":"#ffffff","surface-container-lowest":"#ffffff","surface":"#faf8ff","on-surface":"#131b2e","surface-container-low":"#f2f3ff","inverse-surface":"#283044","on-primary-container":"#cad3ff","primary-fixed":"#dce1ff","inverse-on-surface":"#eef0ff","on-surface-variant":"#434655","error-container":"#ffdad6","on-primary-fixed-variant":"#0039b5","on-tertiary-fixed":"#390c00","tertiary":"#7f2500","secondary-container":"#b0befe","tertiary-fixed-dim":"#ffb59c","on-secondary-container":"#3d4c83","surface-dim":"#d2d9f4","secondary-fixed":"#dce1ff","secondary":"#4d5b94","surface-tint":"#2151da","surface-container-high":"#e2e7ff","background":"#faf8ff","surface-variant":"#dae2fd","on-secondary-fixed-variant":"#35437b","on-tertiary-container":"#ffc9b7","primary-container":"#1d4ed8","tertiary-fixed":"#ffdbcf","on-secondary-fixed":"#03164d","surface-container":"#eaedff","on-background":"#131b2e","surface-container-highest":"#dae2fd","on-error-container":"#93000a","tertiary-container":"#a73400"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"gutter-lg":"2rem",margin:"2rem","margin-mobile":"1rem","space-lg":"1.5rem",gutter:"1.5rem","space-md":"1rem","space-sm":"0.5rem","space-xs":"0.25rem","margin-desktop":"3rem","gutter-sm":"1rem","space-xl":"2.5rem"},fontFamily:{"display-lg-mobile":["Plus Jakarta Sans"],"numeric-data":["Inter"],"headline-sm":["Plus Jakarta Sans"],"label-sm":["Inter"],"body-lg":["Inter"],"headline-lg":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"body-sm":["Inter"],"headline-xl":["Plus Jakarta Sans"],"display-lg":["Plus Jakarta Sans"],"label-md":["Inter"],"body-md":["Inter"],"headline-md":["Plus Jakarta Sans"]},fontSize:{"display-lg-mobile":["32px",{lineHeight:"40px",letterSpacing:"-0.025em",fontWeight:"700"}],"numeric-data":["14px",{lineHeight:"20px",letterSpacing:"-0.01em",fontWeight:"500"}],"headline-sm":["16px",{lineHeight:"24px",letterSpacing:"-0.01em",fontWeight:"600"}],"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"600"}],"body-lg":["16px",{lineHeight:"26px",letterSpacing:"-0.01em",fontWeight:"400"}],"headline-lg":["24px",{lineHeight:"32px",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-xl-mobile":["24px",{lineHeight:"32px",letterSpacing:"-0.02em",fontWeight:"600"}],"body-sm":["13px",{lineHeight:"18px",letterSpacing:"0em",fontWeight:"400"}],"headline-xl":["32px",{lineHeight:"40px",letterSpacing:"-0.025em",fontWeight:"600"}],"display-lg":["48px",{lineHeight:"56px",letterSpacing:"-0.03em",fontWeight:"700"}],"label-md":["12px",{lineHeight:"16px",letterSpacing:"0.02em",fontWeight:"500"}],"body-md":["14px",{lineHeight:"22px",letterSpacing:"-0.005em",fontWeight:"400"}],"headline-md":["20px",{lineHeight:"28px",letterSpacing:"-0.015em",fontWeight:"600"}]}}}};</script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="shortcut icon" href="/favicon.ico">
@@ -7,8 +103,11 @@
   <link rel="manifest" href="/site.webmanifest">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    html, body {
-      overflow-x: hidden;
+    html {
+      overflow-x: clip;
+    }
+    body {
+      overflow-x: clip;
       max-width: 100vw;
     }
     /* 滚动渐入动画 (克制自然上浮 20px，耗时 550ms) */
@@ -31,7 +130,7 @@
     }
   </style>
 
-</head><body class="bg-surface-container-lowest text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_0_0_#f1f5f9]"><div class="h-16 max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex items-center justify-between"><div class="flex items-center gap-space-md"><a class="flex items-center gap-1.5" data-path="landing-page" href="#"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-10 h-10 object-contain inline-block shrink-0"><span class="font-headline-sm text-headline-sm text-[20px] font-bold tracking-tight text-[#1B2A4A] flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></a></div><nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-on-surface font-semibold"><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="features" href="#features">功能特性</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="workflow" href="#workflow">工作流程</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="excel-template" href="#excel-template">底价表规范</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="faq" href="#faq">常见问题</a></nav><div class="flex items-center gap-2 sm:gap-space-md">
+</head><body class="bg-surface-container-lowest text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_0_0_#f1f5f9] transition-all"><div class="h-16 max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex items-center justify-between"><div class="flex items-center gap-space-md"><a class="flex items-center gap-2 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.99]" data-path="landing-page" href="#"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-10 h-10 object-contain inline-block shrink-0"><span class="font-headline-sm text-headline-sm text-[20px] font-bold tracking-tight text-[#1B2A4A] flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></a></div><nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-on-surface font-semibold"><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="features" href="#features">功能特性</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="workflow" href="#workflow">工作流程</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="excel-template" href="#excel-template">底价表规范</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="faq" href="#faq">常见问题</a></nav><div class="flex items-center gap-2 sm:gap-space-md">
       <a id="nav-login-btn" onclick="openInboundModal('login')" class="hidden md:inline-flex font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150 cursor-pointer" data-path="login" href="javascript:void(0)">登录</a>
       <a id="nav-trial-btn" onclick="openInboundModal('starter')" class="inline-flex items-center justify-center px-3 py-1.5 sm:px-space-md sm:py-space-xs rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-150 cursor-pointer" data-path="signup" href="javascript:void(0)">免费试用</a>
       <a id="nav-workbench-btn" style="display: none;" class="items-center justify-center px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full bg-primary-container text-on-primary font-body-md text-sm sm:text-body-md font-semibold shadow-[0_1px_3px_rgba(29,78,216,0.25)] hover:opacity-95 transition-all cursor-pointer" href="/review/QT-20260904-888">进入审单台</a>
@@ -57,12 +156,12 @@
       <button onclick="closeMobileNav(); openInboundModal('starter')" class="flex-1 py-2 text-center text-sm font-semibold text-white bg-primary-container rounded-full">免费试用</button>
     </div>
   </div>
-<main class="w-full pt-16 bg-surface-container-lowest min-h-screen"><div class="flex flex-col w-full bg-surface-container-lowest text-on-surface">
+<main class="w-full pt-16 bg-surface-container-lowest"><div class="flex flex-col w-full bg-surface-container-lowest text-on-surface">
 <!-- ==================== HERO SECTION ==================== -->
-<section class="relative w-full pt-12 pb-20 md:pt-16 md:pb-28 overflow-hidden">
+<section class="relative w-full pt-12 pb-20 md:pt-16 md:pb-28 overflow-hidden animate-fade-up">
 <div class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop flex flex-col items-center text-center">
 <!-- Top Pill Badge -->
-<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-container border border-outline-variant/30 text-primary-container shadow-sm mb-8 transition-transform duration-200 hover:scale-[1.02]"><span class="material-symbols-outlined text-[16px] text-primary-container">bolt</span><span class="font-label-md text-label-md font-semibold tracking-normal text-on-surface">专为外贸员与 SOHO 打造的 <span class="text-primary-container font-bold">AI</span> 智能报价引擎</span></div>
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-container border border-outline-variant/30 text-primary-container shadow-sm mb-8 transition-all duration-200 hover:scale-[1.02] hover:border-primary-container/40 hover:shadow-md hover:bg-blue-50/50 cursor-default"><span class="material-symbols-outlined text-[16px] text-primary-container">bolt</span><span class="font-label-md text-label-md font-semibold tracking-normal text-on-surface">专为外贸员与 SOHO 打造的 <span class="text-primary-container font-bold animate-pulse-subtle inline-block px-1 rounded">AI</span> 智能报价引擎</span></div>
 <!-- Main Headline -->
 <h1 class="font-display-lg text-display-lg-mobile md:text-display-lg max-w-4xl tracking-tight text-on-surface mb-6 font-bold">
         询盘邮件转发一下，<span class="text-primary-container">10 秒生成</span>英文报价单
@@ -71,35 +170,38 @@
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mb-10 leading-relaxed font-normal">针对复杂梯度起订量、海运拼箱、多阶关税与阶梯毛利，KelvinFlow AI 毫秒级重构外贸算价体验。</p>
 <!-- Action Buttons -->
 <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto mb-16">
-<a class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-150 cursor-pointer" onclick="openInboundModal('starter')" href="javascript:void(0)">
+<a class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.99] transition-all duration-200 cursor-pointer" onclick="openInboundModal('starter')" href="javascript:void(0)">
           免费开始试用
         </a>
-<a class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-surface-container-lowest text-on-surface-variant font-headline-sm text-headline-sm font-medium shadow-sm hover:text-on-surface hover:bg-surface-container-low transition-all duration-150" href="#workflow">
-          看看怎么工作 →
-        </a>
+<a class="group w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-8 py-3.5 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-primary font-headline-sm text-headline-sm font-medium shadow-sm border border-outline-variant/30 hover:bg-blue-50/80 hover:border-blue-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200" href="#workflow">
+<span class="transition-colors duration-200">看看怎么工作</span>
+<span class="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
+</a>
 </div>
-<!-- Product UI Window Frame Preview -->
-<div class="w-full max-w-5xl rounded-2xl bg-surface-container-lowest p-2 md:p-3 shadow-xl">
-<div class="rounded-xl bg-surface-container-low overflow-hidden">
-<!-- Browser Tab Bar Simulation -->
-<div class="h-10 px-4 bg-surface-container flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="w-3 h-3 rounded-full bg-outline-variant inline-block"></span>
-<span class="w-3 h-3 rounded-full bg-outline-variant inline-block"></span>
-<span class="w-3 h-3 rounded-full bg-outline-variant inline-block"></span>
+<!-- Product UI Window Frame Preview (方案 1: 全幅大视口极致拉伸 · 沉浸式宽屏展示) -->
+<div class="w-full max-w-7xl mx-auto rounded-2xl bg-white/80 p-2 md:p-3 border border-slate-200/80 shadow-[0_25px_60px_-15px_rgba(29,78,216,0.12),0_12px_24px_-8px_rgba(15,23,42,0.08)] hover:shadow-2xl hover:-translate-y-0.5 backdrop-blur-sm transition-all duration-300">
+<div class="rounded-xl overflow-hidden border border-slate-200/90 bg-white">
+<!-- macOS Style Browser Tab Bar -->
+<div class="h-11 px-4 bg-[#f8fafc] border-b border-slate-200 flex items-center justify-between">
+<div class="flex items-center gap-2 shrink-0">
+<span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block transition-transform duration-150 hover:scale-125 cursor-pointer"></span>
+<span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block transition-transform duration-150 hover:scale-125 cursor-pointer"></span>
+<span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block transition-transform duration-150 hover:scale-125 cursor-pointer"></span>
 </div>
-<div class="hidden sm:flex items-center gap-2 px-3 py-1 bg-surface-container-lowest rounded-md text-xs text-on-surface-variant font-numeric-data">
-<span class="material-symbols-outlined text-[14px] text-outline">lock</span>
-<span class="">quote.kelvinflow.com/quotes/rfq-88492</span>
+<div class="flex items-center justify-center flex-1 max-w-md mx-4">
+<div class="w-full flex items-center justify-center gap-2 px-3 py-1 bg-white rounded-lg text-xs text-slate-600 font-numeric-data border border-slate-200 shadow-2xs hover:border-blue-300 transition-colors">
+<span class="material-symbols-outlined text-[14px] text-emerald-600">lock</span>
+<span class="font-medium text-slate-700">quote.kelvinflow.com/inbox</span>
+<span class="inline-flex items-center gap-1 ml-1 px-1.5 py-0.2 rounded-full bg-emerald-50 text-[10px] text-emerald-700 font-semibold border border-emerald-200/80"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping-slow"></span>TLS 加密通道</span>
 </div>
-<div class="w-12 flex justify-end">
-<span class="material-symbols-outlined text-outline text-[16px]">tune</span>
+</div>
+<div class="w-16 flex items-center justify-end gap-2 shrink-0 text-slate-400">
+<span class="material-symbols-outlined text-[16px] hover:text-slate-700 hover:rotate-180 transition-all duration-300 cursor-pointer">refresh</span>
+<span class="material-symbols-outlined text-[16px] hover:text-slate-700 hover:scale-110 transition-transform cursor-pointer">more_horiz</span>
 </div>
 </div>
-<!-- Actual Product Mockup Frame -->
-<div class="relative bg-surface-container-lowest p-2 md:p-4">
-<img alt="KelvinFlow Quotation Review Interface Preview" class="w-full h-auto rounded-lg object-contain shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCos8uMnr34u9N2szHdsvSCLXUdzBe64aCQxQpy2yZMnaxtEwXAgEw8y_mZt72yRW3YENjb_SmIhu6gbD5iCsA6dzwgB72bGBvbiqAal5eztVcba2aAli0a8wC_RNp-E7P-wV66MY6FHPFS0bClGNCYZLd34q3ImgIUzoW2dj6GB_1Q-zuBvcEkNLB0h99LC0v3qW17t7OGBzvbIzvHfbOhT3B8VrKJhwTJ3nOaBXS38AjmYdmxEJaFLg">
-</div>
+<!-- Full Resolution High-Definition Product Mockup Image -->
+<div class="w-full bg-[#f8f9ff] flex text-left select-none overflow-hidden relative font-sans text-on-surface"><aside class="w-[210px] bg-white border-r border-slate-200 shrink-0 hidden md:flex flex-col justify-between py-4 select-none"><div class="flex flex-col"><div class="px-4 pb-3 flex flex-col gap-1"><div class="flex items-center gap-1.5"><img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 52px; height: 52px; margin: -10px -16px -10px -6px;"><span class="text-[17px] text-slate-800 tracking-tight font-bold leading-none flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></div></div><nav class="flex flex-col gap-1 px-2.5 mt-2"><a class="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-primary-container font-semibold relative before:content-[''] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:bg-primary-container before:rounded-r text-[13px] transition-all" href="#"><span class="material-symbols-outlined text-[18px]">inbox</span><span class="">询盘箱</span></a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-primary transition-all text-[13px]" href="#"><span class="material-symbols-outlined text-[18px]">request_quote</span><span class="">报价单</span></a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-primary transition-all text-[13px]" href="#"><span class="material-symbols-outlined text-[18px]">inventory_2</span><span class="">底价库</span></a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-primary transition-all text-[13px]" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span class="">设置</span></a></nav></div><div class="flex flex-col p-2.5 gap-2 border-t border-slate-100"><a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors text-[12px]" href="#"><span class="material-symbols-outlined text-[16px]">help</span><span class="">帮助与文档</span></a><div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors"><div class="relative shrink-0"><div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-white text-[15px]">person</span></div><span class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"></span></div><div class="flex flex-col min-w-0 flex-1"><span class="text-[12px] text-slate-800 font-semibold truncate">张伟 Leo</span><span class="text-[10px] text-slate-400 truncate leading-none mt-0.5">华东进出口公司</span></div></div></div></aside><div class="flex-1 flex flex-col min-w-0 bg-[#f8f9ff]"><header class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-5 shrink-0"><div class="flex items-center gap-2 text-slate-500 text-[12px]"><span class="material-symbols-outlined text-[16px]">domain</span><span class="font-medium text-slate-700">外贸 SOHO 智能报价工作台</span></div><div class="flex items-center gap-3"><button class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-700 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[18px]">notifications</span></button><div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center text-white text-[13px] hover:scale-105 transition-transform"><span class="material-symbols-outlined text-[15px]">person</span></div></div></header><div class="p-4 md:p-5 flex flex-col gap-4 overflow-y-auto"><div class="flex flex-col gap-3"><div class="flex items-center justify-between flex-wrap gap-2"><div class="flex items-center gap-3"><h1 class="text-[20px] font-bold text-slate-800 tracking-tight">询盘箱</h1><div class="flex items-center gap-1.5 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="text-[11px] text-primary-container font-medium">助理邮箱同步中</span></div></div><div class="flex items-center gap-2"><button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-container text-white text-[12px] font-medium shadow-sm hover:bg-blue-700 hover:shadow active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[16px]">sync</span><span class="">手动拉取最新邮件</span></button></div></div><div class="w-full bg-white rounded-xl p-3 border border-slate-200 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3"><div class="flex items-center gap-3 min-w-0"><div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-primary-container shrink-0"><span class="material-symbols-outlined text-[18px]">mail</span></div><div class="flex flex-col min-w-0"><span class="text-[11px] text-slate-400">专属 AI 助理邮箱</span><div class="flex items-center gap-2 mt-0.5 min-w-0"><span class="font-mono text-[12px] font-semibold text-slate-800 truncate">quote-trial@assistant.kelvinflow.com</span><span class="px-1.5 py-0.2 rounded-full bg-blue-50 text-primary-container text-[10px] font-medium border border-blue-200/60 shrink-0">TLS加密通道</span></div></div></div><div class="flex items-center gap-2 shrink-0"><button class="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 active:scale-95 transition-all text-[11px] font-medium" type="button"><span class="material-symbols-outlined text-[14px]">content_copy</span><span class="">复制地址</span></button><button class="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 active:scale-95 transition-all text-[11px] font-medium" type="button"><span class="material-symbols-outlined text-[14px]">tune</span><span class="">设置自动转发规则</span></button></div></div></div><div class="flex items-center gap-1 p-1 bg-slate-100 rounded-lg w-fit text-[11px]"><button class="px-3 py-1 rounded-md bg-white text-primary-container font-semibold shadow-2xs flex items-center gap-1 transition-all" type="button"><span class="">全部询盘</span><span class="px-1.5 py-0.2 rounded-full bg-blue-50 text-primary-container text-[10px]">24</span></button><button class="px-3 py-1 rounded-md text-slate-600 hover:text-slate-800 hover:bg-white/60 flex items-center gap-1 transition-all" type="button"><span class="">待处理</span><span class="px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800 text-[10px]">5</span></button><button class="px-3 py-1 rounded-md text-slate-600 hover:text-slate-800 hover:bg-white/60 flex items-center gap-1 transition-all" type="button"><span class="">已解析</span><span class="px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 text-[10px]">18</span></button><button class="px-3 py-1 rounded-md text-slate-600 hover:text-slate-800 hover:bg-white/60 flex items-center gap-1 transition-all" type="button"><span class="">解析失败</span><span class="px-1.5 py-0.2 rounded-full bg-red-100 text-red-700 text-[10px]">1</span></button></div><div class="grid grid-cols-1 xl:grid-cols-12 gap-4"><div class="xl:col-span-7 flex flex-col gap-2.5 bg-white rounded-xl p-3.5 border border-slate-200 shadow-2xs h-full justify-between"><div class="flex items-center justify-between pb-1"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[18px]">mark_email_unread</span><span class="text-[14px] font-bold text-slate-800">收件流</span></div><div class="flex items-center gap-1 text-[11px] text-slate-400"><span class="">排序:</span><button class="text-slate-600 font-medium flex items-center hover:text-primary transition-colors" type="button">时间倒序 <span class="material-symbols-outlined text-[13px]">arrow_drop_down</span></button></div></div><div class="flex flex-col gap-2"><div class="relative flex flex-col gap-1.5 p-3 rounded-xl bg-blue-50/60 border border-blue-200/80 hover:border-blue-400 hover:shadow-xs cursor-pointer transition-all shadow-2xs"><div class="absolute left-0 top-3 bottom-3 w-1 bg-primary-container rounded-r"></div><div class="flex items-start justify-between gap-2 pl-1"><div class="flex items-center gap-1.5 min-w-0"><div class="w-6 h-6 rounded bg-blue-100 text-primary-container flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px]">business</span></div><span class="text-[13px] font-bold text-slate-800 truncate">mark.stevens@apexindustrial.co.uk</span><span class="text-[10px] px-1.5 py-0.2 rounded bg-white text-slate-600 border border-slate-200 shrink-0">英国</span></div><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] text-[10px] font-semibold shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>已解析</span></div><div class="pl-1 flex flex-col gap-0.5"><p class="text-[12px] font-bold text-slate-800 truncate">RFQ: Hydraulic Hose Fittings 20,000pcs for Q3</p><p class="text-[11px] text-slate-500 truncate">Target delivery Rotterdam, standard SAE flange requirement attached with specifications...</p></div><div class="flex items-center justify-between pt-1 pl-1 text-[10px] text-slate-400"><div class="flex items-center gap-2"><span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-white text-primary-container font-semibold border border-blue-200"><span class="material-symbols-outlined text-[12px]">link</span>已关联 QT-20250518-04</span><span class="">3 种品类</span><span class="">21,500 PCS</span></div><span class="text-slate-400 font-mono">10 分钟前</span></div></div><div class="relative flex flex-col gap-1.5 p-3 rounded-xl bg-white border border-slate-200/80 hover:bg-slate-50 hover:border-slate-300 cursor-pointer transition-all"><div class="flex items-start justify-between gap-2"><div class="flex items-center gap-1.5 min-w-0"><div class="w-6 h-6 rounded bg-slate-100 text-slate-600 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px]">business</span></div><span class="text-[12px] font-bold text-slate-800 truncate">helena@nordictech.de</span><span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 shrink-0">德国</span></div><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FFFBEB] text-[#B45309] text-[10px] font-semibold shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>待处理</span></div><div class="flex flex-col gap-0.5"><p class="text-[12px] font-semibold text-slate-800 truncate">Urgent Inquiry - SS316 Ball Valves DN50</p><p class="text-[11px] text-slate-500 truncate">Need urgent estimation for Hamburg port delivery, testing certs EN10204 3.1 mandatory.</p></div><div class="flex items-center justify-between pt-1 text-[10px] text-slate-400"><div class="flex items-center gap-2"><span class="text-slate-400">- 暂未关联报价单 -</span><span class="">1 种品类</span><span class="">1,500 SET</span></div><span class="text-slate-400 font-mono">1 小时前</span></div></div><div class="relative flex flex-col gap-1.5 p-3 rounded-xl bg-white border border-slate-200/80 hover:bg-slate-50 hover:border-slate-300 cursor-pointer transition-all"><div class="flex items-start justify-between gap-2"><div class="flex items-center gap-1.5 min-w-0"><div class="w-6 h-6 rounded bg-slate-100 text-slate-600 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px]">business</span></div><span class="text-[12px] font-medium text-slate-800 truncate">carlos@solarglobals.mx</span><span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 shrink-0">墨西哥</span></div><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] text-[10px] font-semibold shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>已解析</span></div><div class="flex flex-col gap-0.5"><p class="text-[12px] font-semibold text-slate-800 truncate">Price validation for Solar Bracket Aluminum Extrusions 40x40</p><p class="text-[11px] text-slate-500 truncate">Attached technical drawings for profile 4040. Anodized black finish, 6.2m length.</p></div><div class="flex items-center justify-between pt-1 text-[10px] text-slate-400"><div class="flex items-center gap-2"><span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-white text-primary-container font-semibold border border-blue-200"><span class="material-symbols-outlined text-[12px]">link</span>已关联 QT-20250517-09</span><span class="">4 种品类</span><span class="">45,000 MTR</span></div><span class="text-slate-400 font-mono">昨天 17:42</span></div></div><div class="relative flex flex-col gap-1.5 p-3 rounded-xl bg-white border border-slate-200/80 hover:bg-slate-50 hover:border-slate-300 cursor-pointer transition-all"><div class="flex items-start justify-between gap-2"><div class="flex items-center gap-1.5 min-w-0"><div class="w-6 h-6 rounded bg-red-100 text-red-600 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px]">priority_high</span></div><span class="text-[12px] font-medium text-slate-800 truncate">purchasing@tokyo-precision.co.jp</span><span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 shrink-0">日本</span></div><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#B91C1C] text-[10px] font-semibold shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-[#EF4444]"></span>解析失败</span></div><div class="flex flex-col gap-0.5"><p class="text-[12px] font-semibold text-slate-800 truncate">見積もり依頼 (PDF 暗号化)</p><p class="text-[11px] text-red-600 truncate">文档含有只读密码保护，AI 引擎无法提取表格矢量流，需人工解锁。</p></div><div class="flex items-center justify-between pt-1 text-[10px] text-slate-400"><span class="text-red-600 font-medium">待人工干预</span><span class="text-slate-400 font-mono">昨天 14:15</span></div></div><div class="relative flex flex-col gap-1.5 p-3 rounded-xl bg-white border border-slate-200/80 hover:bg-slate-50 hover:border-slate-300 cursor-pointer transition-all"><div class="flex items-start justify-between gap-2"><div class="flex items-center gap-1.5 min-w-0"><div class="w-6 h-6 rounded bg-slate-100 text-slate-600 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px]">business</span></div><span class="text-[12px] font-medium text-slate-800 truncate">s.lefevre@valves-europe.fr</span><span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 shrink-0">法国</span></div><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] text-[10px] font-semibold shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>已解析</span></div><div class="flex flex-col gap-0.5"><p class="text-[12px] font-semibold text-slate-800 truncate">Demande de prix: Vannes industrielles API 600</p><p class="text-[11px] text-slate-500 truncate">Veuillez trouver ci-joint notre bordereau de commande prévisionnelle.</p></div><div class="flex items-center justify-between pt-1 text-[10px] text-slate-400"><div class="flex items-center gap-2"><span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-white text-primary-container font-semibold border border-blue-200"><span class="material-symbols-outlined text-[12px]">link</span>已关联 QT-20250516-01</span><span class="">2 种品类</span><span class="">600 PCS</span></div><span class="text-slate-400 font-mono">5月16日</span></div></div></div><div class="flex items-center justify-between pt-2 px-1 text-[11px] text-slate-500 border-t border-slate-100"><span class="">显示 1 至 5 共 24 条记录</span><div class="flex items-center gap-1"><button class="w-6 h-6 rounded flex items-center justify-center hover:bg-slate-100 text-slate-400 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[14px]">chevron_left</span></button><span class="w-6 h-6 rounded bg-blue-50 text-primary-container flex items-center justify-center font-bold text-[11px]">1</span><button class="w-6 h-6 rounded flex items-center justify-center hover:bg-slate-100 text-slate-600 active:scale-95 transition-all" type="button">2</button><button class="w-6 h-6 rounded flex items-center justify-center hover:bg-slate-100 text-slate-600 active:scale-95 transition-all" type="button">3</button><button class="w-6 h-6 rounded flex items-center justify-center hover:bg-slate-100 text-slate-400 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[14px]">chevron_right</span></button></div></div></div><div class="xl:col-span-5 flex flex-col bg-white rounded-xl p-3.5 border border-slate-200 shadow-2xs gap-2.5 h-full justify-between"><div class="flex items-center justify-between pb-2 border-b border-slate-100"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary-container"></span><h2 class="text-[14px] font-bold text-slate-800">询盘解析详情</h2></div><div class="flex items-center gap-1.5"><button class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:scale-95 text-[11px] font-medium transition-all" title="查看邮件原件" type="button"><span class="material-symbols-outlined text-[14px]">mail</span><span class="">查看邮件原件</span></button><button class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 active:scale-95 transition-all" title="关闭" type="button"><span class="material-symbols-outlined text-[16px]">close</span></button></div></div><div class="flex flex-col gap-1.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100"><div class="flex items-center justify-between text-[11px] text-slate-500"><div class="flex items-center gap-1 font-medium"><span class="material-symbols-outlined text-[14px]">alternate_email</span><span class="text-slate-800 font-bold">mark.stevens@apexindustrial.co.uk</span></div><span class="font-mono text-[10px]">今天 10:24</span></div><div class="text-[11px] text-slate-600 leading-relaxed italic">“Dear Sales Team, Please quote CIF Rotterdam for the attached RFQ items. Target delivery July 2025. Standard hydraulic requirements must comply with ISO 1436. Look forward to your competitive pricing.”</div><div class="flex items-center gap-1 pt-0.5 text-[11px] text-primary-container font-medium"><span class="material-symbols-outlined text-[13px]">attachment</span><span class="">Apex_Hydraulics_RFQ_2025Q3.xlsx (124 KB)</span><span class="text-[10px] text-slate-400 ml-1">（附件解析为二期功能）</span></div></div><div class="flex flex-col gap-1.5"><div class="flex items-center justify-between"><span class="text-[12px] font-bold text-slate-800">结构化商品明细提取</span></div><div class="w-full overflow-hidden rounded-lg border border-slate-200 text-[11px]"><table class="w-full text-left"><thead class="bg-slate-50 text-slate-500 font-medium border-b border-slate-200"><tr><th class="py-1.5 px-2 font-semibold">型号</th><th class="py-1.5 px-2 font-semibold">规格描述</th><th class="py-1.5 px-2 font-semibold text-right">数量</th><th class="py-1.5 px-2 font-semibold">单位</th></tr></thead><tbody class="text-slate-800 divide-y divide-slate-100 font-mono"><tr class="hover:bg-blue-50/40 transition-colors"><td class="py-1.5 px-2 font-bold text-primary-container">HH-F-902</td><td class="py-1.5 px-2 text-slate-500 font-sans">DN25 100R2AT</td><td class="py-1.5 px-2 text-right font-semibold">12,000</td><td class="py-1.5 px-2 text-slate-400 font-sans">PCS</td></tr><tr class="hover:bg-blue-50/40 transition-colors"><td class="py-1.5 px-2 font-bold text-primary-container">HH-F-908</td><td class="py-1.5 px-2 text-slate-500 font-sans">DN38 100R2AT</td><td class="py-1.5 px-2 text-right font-semibold">8,000</td><td class="py-1.5 px-2 text-slate-400 font-sans">PCS</td></tr><tr class="hover:bg-blue-50/40 transition-colors"><td class="py-1.5 px-2 font-bold text-primary-container">V-SS316-DN50</td><td class="py-1.5 px-2 text-slate-500 font-sans">1000 WOG</td><td class="py-1.5 px-2 text-right font-semibold">1,500</td><td class="py-1.5 px-2 text-slate-400 font-sans">SET</td></tr><tr class="hover:bg-blue-50/40 transition-colors"><td class="py-1.5 px-2 font-bold text-primary-container">AD-FLG-SAE3</td><td class="py-1.5 px-2 text-slate-500 font-sans">SAE 3000 PSI 1-1/4"</td><td class="py-1.5 px-2 text-right font-semibold">4,000</td><td class="py-1.5 px-2 text-slate-400 font-sans">PCS</td></tr><tr class="hover:bg-blue-50/40 transition-colors"><td class="py-1.5 px-2 font-bold text-primary-container">SEAL-NBR-90</td><td class="py-1.5 px-2 text-slate-500 font-sans">O-Ring NBR Shore 90</td><td class="py-1.5 px-2 text-right font-semibold">20,000</td><td class="py-1.5 px-2 text-slate-400 font-sans">SET</td></tr></tbody></table></div><div class="flex flex-col gap-1.5 p-2 rounded-lg bg-blue-50/60 border border-blue-200/50 text-[11px]"><div class="flex items-center justify-between"><div class="flex items-center gap-1.5 text-emerald-700 font-medium"><span class="material-symbols-outlined text-[15px] text-emerald-600">check_circle</span><span class="">已匹配内部底价物料库：5/5 项全部命中</span></div><button class="text-primary-container hover:text-primary hover:underline font-semibold text-[11px] transition-colors" type="button">调整映射</button></div><div class="grid grid-cols-2 gap-1.5 pt-1 border-t border-blue-200/60 text-[10px] text-slate-600"><div class="flex items-center justify-between px-1.5 py-0.5 rounded bg-white/80 border border-blue-200/50"><span class="text-slate-500">目标综合毛利率</span><span class="font-bold text-primary-container font-mono">22.5%</span></div><div class="flex items-center justify-between px-1.5 py-0.5 rounded bg-white/80 border border-blue-200/50"><span class="text-slate-500">预估海运装柜</span><span class="font-bold text-slate-800 font-mono">1×40'HQ</span></div></div></div></div><div class="grid grid-cols-3 gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100 text-center"><div class="flex flex-col"><span class="text-[10px] text-slate-400">贸易术语</span><span class="text-[11px] font-bold text-slate-800">CIF Rotterdam</span></div><div class="flex flex-col"><span class="text-[10px] text-slate-400">交货周期预估</span><span class="text-[11px] font-bold text-slate-800">2025-07</span></div><div class="flex flex-col"><span class="text-[10px] text-slate-400">报价币种</span><span class="text-[11px] font-bold text-slate-800">USD ($)</span></div></div><div class="pt-1.5 flex flex-col items-center justify-center"><span class="text-[10px] text-slate-400 mb-1.5">下一步：带入底价库自动核算海运费与目标利润率</span><button class="w-full py-2.5 px-4 rounded-xl bg-primary-container text-white font-bold text-[13px] hover:bg-blue-700 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow cursor-pointer" type="button"><span class="">生成报价单</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span></button></div></div></div></div></div></div>
 </div>
 </div>
 </div>
@@ -107,47 +209,45 @@
 <!-- ==================== TRUST & METRICS BAR ==================== -->
 <section class="w-full py-12 bg-surface-container-low">
 <div class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop">
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<!-- Metric Card 1 -->
-<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="0">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6"><!-- Metric Card 1 -->
+<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300" data-reveal-delay="0">
 <div class="flex items-center justify-between mb-4">
-<span class="font-display-lg text-display-lg font-bold text-primary-container tracking-tight">逐行解析</span>
-<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[20px]">psychology</span></div>
+<span class="font-display-lg text-display-lg font-bold text-primary-container tracking-tight transition-colors duration-200 group-hover:text-primary">逐行解析</span>
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-white"><span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-105">psychology</span></div>
 </div>
 <div>
-<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface mb-2">AI 询盘要素逐行解析</h2>
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface mb-2 transition-colors duration-200 group-hover:text-primary-container">AI 询盘要素逐行解析</h2>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
               智能抓取海外买家品名、具体型号规格、MOQ 及 Incoterms 交付贸易条款，无漏项误读。
             </p>
 </div>
 </div>
 <!-- Metric Card 2 -->
-<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="100">
+<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300" data-reveal-delay="100">
 <div class="flex items-center justify-between mb-4">
-<span class="font-display-lg text-display-lg font-bold text-primary-container tracking-tight">10 秒</span>
-<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container">
-<span class="material-symbols-outlined text-[20px]">bolt</span>
+<span class="font-display-lg text-display-lg font-bold text-primary-container tracking-tight transition-colors duration-200 group-hover:text-primary">10 秒</span>
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-white">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-105">bolt</span>
 </div>
 </div>
 <div>
-<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface mb-2">平均出单交付耗时</h2>
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface mb-2 transition-colors duration-200 group-hover:text-primary-container">平均出单交付耗时</h2>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">较传统手工翻底价表、按计算器、复核公式，省下大量重复时间。</p>
 </div>
 </div>
 <!-- Metric Card 3 -->
-<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="200">
+<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/50 transition-all duration-300" data-reveal-delay="200">
 <div class="flex items-center justify-between mb-4">
-<span class="font-display-lg text-display-lg font-bold text-primary-container tracking-tight">零密码</span>
-<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container">
-<span class="material-symbols-outlined text-[20px]">description</span>
+<span class="font-display-lg text-display-lg font-bold text-primary-container tracking-tight transition-colors duration-200 group-hover:text-primary">零密码</span>
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-white">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:scale-105">description</span>
 </div>
 </div>
 <div>
-<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface mb-2">无需邮箱密码</h2>
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface mb-2 transition-colors duration-200 group-hover:text-primary-container">无需邮箱密码</h2>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">转发到专属助理邮箱即用，也支持 Gmail / Outlook 自动转发规则。</p>
 </div>
-</div>
-</div>
+</div></div>
 </div>
 </section>
 <!-- ==================== THREE-STEP WORKFLOW ==================== -->
@@ -164,38 +264,35 @@
         </p>
 </div>
 <!-- Step Cards Grid -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-<!-- Step 1 -->
-<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1" data-reveal-delay="0">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8"><!-- Step 1 -->
+<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/25 flex flex-col relative cursor-default hover:-translate-y-1.5 hover:shadow-lg hover:border-primary/30 transition-all duration-300" data-reveal-delay="0">
 <div class="flex items-center justify-between mb-6">
-<span class="font-headline-lg text-headline-lg font-bold text-primary-container font-numeric-data">01</span>
-<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[20px]">psychology</span></div>
+<span class="font-headline-lg text-headline-lg font-bold text-primary-container font-numeric-data transition-transform duration-200 group-hover:translate-x-0.5">01</span>
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary-container transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-white"><span class="material-symbols-outlined text-[20px]">psychology</span></div>
 </div>
-<div class="w-full h-44 mb-6 rounded-xl bg-surface-container-low/50 border border-outline-variant/30 flex items-center justify-center p-4 overflow-hidden"><svg class="w-full h-full" viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="24" y="58" width="88" height="60" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"></rect><path d="M24 64L68 94L112 64" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="38" cy="74" r="3" fill="#b0befe"></circle><circle cx="48" cy="74" r="3" fill="#b0befe"></circle><path d="M88 56C120 20 180 20 208 64" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"></path><path d="M204 54L210 66L198 68" fill="#1d4ed8"></path><rect x="204" y="88" width="92" height="56" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"></rect><path d="M204 116H232C236 116 238 126 250 126C262 126 264 116 268 116H296" stroke="#1d4ed8" stroke-width="2" fill="#eaedff"></path><rect x="216" y="68" width="68" height="36" rx="4" fill="#f2f3ff" stroke="#1d4ed8" stroke-width="1.5"></rect><line x1="224" y1="78" x2="264" y2="78" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"></line><line x1="224" y1="86" x2="252" y2="86" stroke="#747686" stroke-width="1.5" stroke-linecap="round"></line><circle cx="154" cy="34" r="12" fill="#eaedff" stroke="#1d4ed8" stroke-width="1.5"></circle><path d="M154 28V40M148 34H160" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"></path></svg></div><h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3">转发询盘邮件</h3>
+<div class="w-full h-44 mb-6 rounded-xl bg-surface-container-low/50 border border-outline-variant/30 flex items-center justify-center p-4 overflow-hidden group-hover:border-primary-container/30 transition-colors duration-300"><svg class="w-full h-full transition-transform duration-300 group-hover:scale-[1.02]" fill="none" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg"><rect fill="#ffffff" height="60" rx="8" stroke="#1d4ed8" stroke-width="2" width="88" x="24" y="58"></rect><path d="M24 64L68 94L112 64" stroke="#1d4ed8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><circle cx="38" cy="74" fill="#b0befe" r="3"></circle><circle cx="48" cy="74" fill="#b0befe" r="3"></circle><path d="M88 56C120 20 180 20 208 64" stroke="#1d4ed8" stroke-dasharray="4 4" stroke-linecap="round" stroke-width="2"></path><path d="M204 54L210 66L198 68" fill="#1d4ed8"></path><rect fill="#ffffff" height="56" rx="8" stroke="#1d4ed8" stroke-width="2" width="92" x="204" y="88"></rect><path d="M204 116H232C236 116 238 126 250 126C262 126 264 116 268 116H296" fill="#eaedff" stroke="#1d4ed8" stroke-width="2"></path><rect fill="#f2f3ff" height="36" rx="4" stroke="#1d4ed8" stroke-width="1.5" width="68" x="216" y="68"></rect><line stroke="#1d4ed8" stroke-linecap="round" stroke-width="1.5" x1="224" x2="264" y1="78" y2="78"></line><line stroke="#747686" stroke-linecap="round" stroke-width="1.5" x1="224" x2="252" y1="86" y2="86"></line><circle cx="154" cy="34" fill="#eaedff" r="12" stroke="#1d4ed8" stroke-width="1.5"></circle><path d="M154 28V40M148 34H160" stroke="#1d4ed8" stroke-linecap="round" stroke-width="1.5"></path></svg></div><h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3 transition-colors duration-200 group-hover:text-primary-container">转发询盘邮件</h3>
 <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed flex-grow">将收到的海外买家询盘邮件直接转发至专属助理邮箱，系统自动识别邮件正文意向。（附件解析为二期功能，当前仅解析正文）</p>
-<div class="mt-6 pt-4 bg-surface-container-low p-4 rounded-xl">
+<div class="mt-6 pt-4 bg-surface-container-low p-4 rounded-xl transition-colors duration-200 group-hover:bg-blue-50/50">
 <span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">自动识别来源</span>
 <span class="font-body-sm text-body-sm text-on-surface font-medium">Outlook / Gmail / 阿里国际站 / 自建站询盘</span>
 </div>
 </div>
 <!-- Step 2 -->
-<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1" data-reveal-delay="100"><div class="flex items-center justify-between mb-6"><span class="font-headline-lg text-headline-lg font-bold text-primary-container font-numeric-data">02</span><div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[20px]">psychology</span></div></div><div class="w-full h-44 mb-6 rounded-xl bg-surface-container-low/50 border border-outline-variant/30 flex items-center justify-center p-4 overflow-hidden"><svg class="w-full h-full" viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="36" width="90" height="112" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"></rect><line x1="44" y1="54" x2="96" y2="54" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"></line><line x1="44" y1="68" x2="106" y2="68" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><line x1="44" y1="80" x2="90" y2="80" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><line x1="44" y1="92" x2="100" y2="92" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><rect x="42" y="108" width="66" height="24" rx="4" fill="#eaedff" stroke="#1d4ed8" stroke-width="1"></rect><line x1="48" y1="120" x2="86" y2="120" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"></line><rect x="198" y="36" width="96" height="112" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"></rect><rect x="198" y="36" width="96" height="24" rx="8" fill="#eaedff"></rect><line x1="198" y1="60" x2="294" y2="60" stroke="#1d4ed8" stroke-width="1.5"></line><line x1="246" y1="36" x2="246" y2="148" stroke="#1d4ed8" stroke-width="1.5"></line><line x1="198" y1="88" x2="294" y2="88" stroke="#dae2fd" stroke-width="1"></line><line x1="198" y1="116" x2="294" y2="116" stroke="#dae2fd" stroke-width="1"></line><circle cx="160" cy="82" r="28" fill="#f2f3ff" stroke="#1d4ed8" stroke-width="2.5"></circle><circle cx="160" cy="82" r="20" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="3 3"></circle><line x1="180" y1="102" x2="200" y2="122" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"></line><path d="M154 82H166M160 76V88" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"></path><path d="M124 38L126 30L128 38L136 40L128 42L126 50L124 42L116 40Z" fill="#F59E0B"></path><path d="M190 28L191.5 22L193 28L199 29.5L193 31L191.5 37L190 31L184 29.5Z" fill="#F59E0B"></path><path d="M164 140L165.5 134L167 140L173 141.5L167 143L165.5 149L164 143L158 141.5Z" fill="#F59E0B"></path></svg></div><h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3">AI 解析 ＋ 匹配底价</h3><p class="font-body-md text-body-md text-on-surface-variant leading-relaxed flex-grow">大模型深度抽取品名、数量与 FOB/CIF 条款，智能联动内部 Excel 底价表，锁定阶梯价与你设定的结算汇率。</p><div class="mt-6 pt-4 bg-surface-container-low p-4 rounded-xl"><span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">核心匹配技术</span><span class="font-body-sm text-body-sm text-on-surface font-medium">智能模糊匹配、阶梯起订量换算、汇率手动设定</span></div></div>
+<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/25 flex flex-col relative cursor-default hover:-translate-y-1.5 hover:shadow-lg hover:border-primary/30 transition-all duration-300" data-reveal-delay="100"><div class="flex items-center justify-between mb-6"><span class="font-headline-lg text-headline-lg font-bold text-primary-container font-numeric-data transition-transform duration-200 group-hover:translate-x-0.5">02</span><div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-white"><span class="material-symbols-outlined text-[20px]">psychology</span></div></div><div class="w-full h-44 mb-6 rounded-xl bg-surface-container-low/50 border border-outline-variant/30 flex items-center justify-center p-4 overflow-hidden group-hover:border-primary-container/30 transition-colors duration-300"><svg class="w-full h-full transition-transform duration-300 group-hover:scale-[1.02]" fill="none" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg"><rect fill="#ffffff" height="112" rx="8" stroke="#1d4ed8" stroke-width="2" width="90" x="30" y="36"></rect><line stroke="#1d4ed8" stroke-linecap="round" stroke-width="2" x1="44" x2="96" y1="54" y2="54"></line><line stroke="#c4c5d7" stroke-linecap="round" stroke-width="1.5" x1="44" x2="106" y1="68" y2="68"></line><line stroke="#c4c5d7" stroke-linecap="round" stroke-width="1.5" x1="44" x2="90" y1="80" y2="80"></line><line stroke="#c4c5d7" stroke-linecap="round" stroke-width="1.5" x1="44" x2="100" y1="92" y2="92"></line><rect fill="#eaedff" height="24" rx="4" stroke="#1d4ed8" stroke-width="1" width="66" x="42" y="108"></rect><line stroke="#1d4ed8" stroke-linecap="round" stroke-width="1.5" x1="48" x2="86" y1="120" y2="120"></line><rect fill="#ffffff" height="112" rx="8" stroke="#1d4ed8" stroke-width="2" width="96" x="198" y="36"></rect><rect fill="#eaedff" height="24" rx="8" width="96" x="198" y="36"></rect><line stroke="#1d4ed8" stroke-width="1.5" x1="198" x2="294" y1="60" y2="60"></line><line stroke="#1d4ed8" stroke-width="1.5" x1="246" x2="246" y1="36" y2="148"></line><line stroke="#dae2fd" stroke-width="1" x1="198" x2="294" y1="88" y2="88"></line><line stroke="#dae2fd" stroke-width="1" x1="198" x2="294" y1="116" y2="116"></line><circle cx="160" cy="82" fill="#f2f3ff" r="28" stroke="#1d4ed8" stroke-width="2.5"></circle><circle cx="160" cy="82" fill="#ffffff" r="20" stroke="#1d4ed8" stroke-dasharray="3 3" stroke-width="1.5"></circle><line stroke="#1d4ed8" stroke-linecap="round" stroke-width="4" x1="180" x2="200" y1="102" y2="122"></line><path d="M154 82H166M160 76V88" stroke="#1d4ed8" stroke-linecap="round" stroke-width="2"></path><path d="M124 38L126 30L128 38L136 40L128 42L126 50L124 42L116 40Z" fill="#F59E0B"></path><path d="M190 28L191.5 22L193 28L199 29.5L193 31L191.5 37L190 31L184 29.5Z" fill="#F59E0B"></path><path d="M164 140L165.5 134L167 140L173 141.5L167 143L165.5 149L164 143L158 141.5Z" fill="#F59E0B"></path></svg></div><h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3 transition-colors duration-200 group-hover:text-primary-container">AI 解析 ＋ 匹配底价</h3><p class="font-body-md text-body-md text-on-surface-variant leading-relaxed flex-grow">大模型深度抽取品名、数量与 FOB/CIF 条款，智能联动内部 Excel 底价表，锁定阶梯价与你设定的结算汇率。</p><div class="mt-6 pt-4 bg-surface-container-low p-4 rounded-xl transition-colors duration-200 group-hover:bg-blue-50/50"><span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">核心匹配技术</span><span class="font-body-sm text-body-sm text-on-surface font-medium">智能模糊匹配、阶梯起订量换算、汇率手动设定</span></div></div>
 <!-- Step 3 -->
-<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col relative transition-all duration-200 hover:-translate-y-1" data-reveal-delay="200">
+<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/25 flex flex-col relative cursor-default hover:-translate-y-1.5 hover:shadow-lg hover:border-primary/30 transition-all duration-300" data-reveal-delay="200">
 <div class="flex items-center justify-between mb-6">
-<span class="font-headline-lg text-headline-lg font-bold text-primary-container font-numeric-data">03</span>
-<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container">
+<span class="font-headline-lg text-headline-lg font-bold text-primary-container font-numeric-data transition-transform duration-200 group-hover:translate-x-0.5">03</span>
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary-container transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-white">
 <span class="material-symbols-outlined text-[20px]">send</span>
 </div>
 </div>
-<div class="w-full h-44 mb-6 rounded-xl bg-surface-container-low/50 border border-outline-variant/30 flex items-center justify-center p-4 overflow-hidden"><svg class="w-full h-full" viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="36" y="48" width="100" height="94" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"></rect><rect x="36" y="48" width="100" height="20" rx="8" fill="#eaedff"></rect><line x1="48" y1="58" x2="84" y2="58" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"></line><circle cx="122" cy="58" r="4" fill="#1d4ed8"></circle><line x1="48" y1="80" x2="116" y2="80" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><line x1="48" y1="94" x2="100" y2="94" stroke="#c4c5d7" stroke-width="1.5" stroke-linecap="round"></line><rect x="48" y="110" width="40" height="18" rx="4" fill="#eaedff" stroke="#1d4ed8" stroke-width="1"></rect><path d="M54 119L58 123L66 115" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M116 112C150 112 188 100 216 66" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"></path><g transform="translate(200, 36)"><path d="M58 8L6 44L26 48L32 64L42 50L58 8Z" fill="#ffffff" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round"></path><path d="M26 48L58 8" stroke="#1d4ed8" stroke-width="1.5"></path><polygon points="58,8 26,48 42,50" fill="#eaedff"></polygon></g><circle cx="278" cy="118" r="16" fill="#f2f3ff" stroke="#1d4ed8" stroke-width="1.5"></circle><path d="M272 118L276 122L284 114" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M250 148L251.5 142L253 148L259 149.5L253 151L251.5 157L250 151L244 149.5Z" fill="#F59E0B"></path></svg></div><h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3">检查草稿箱手动发送</h3><p class="font-body-md text-body-md text-on-surface-variant leading-relaxed flex-grow">符合国际商务标准排版的英文报价单 PDF 已妥善存入你的邮箱草稿箱，附带地道英文回复，核对后手动发出。</p>
-
-<div class="mt-6 pt-4 bg-surface-container-low p-4 rounded-xl">
+<div class="w-full h-44 mb-6 rounded-xl bg-surface-container-low/50 border border-outline-variant/30 flex items-center justify-center p-4 overflow-hidden group-hover:border-primary-container/30 transition-colors duration-300"><svg class="w-full h-full transition-transform duration-300 group-hover:scale-[1.02]" fill="none" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg"><rect fill="#ffffff" height="94" rx="8" stroke="#1d4ed8" stroke-width="2" width="100" x="36" y="48"></rect><rect fill="#eaedff" height="20" rx="8" width="100" x="36" y="48"></rect><line stroke="#1d4ed8" stroke-linecap="round" stroke-width="1.5" x1="48" x2="84" y1="58" y2="58"></line><circle cx="122" cy="58" fill="#1d4ed8" r="4"></circle><line stroke="#c4c5d7" stroke-linecap="round" stroke-width="1.5" x1="48" x2="116" y1="80" y2="80"></line><line stroke="#c4c5d7" stroke-linecap="round" stroke-width="1.5" x1="48" x2="100" y1="94" y2="94"></line><rect fill="#eaedff" height="18" rx="4" stroke="#1d4ed8" stroke-width="1" width="40" x="48" y="110"></rect><path d="M54 119L58 123L66 115" stroke="#1d4ed8" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M116 112C150 112 188 100 216 66" stroke="#1d4ed8" stroke-dasharray="4 4" stroke-linecap="round" stroke-width="2"></path><g transform="translate(200, 36)"><path d="M58 8L6 44L26 48L32 64L42 50L58 8Z" fill="#ffffff" stroke="#1d4ed8" stroke-linejoin="round" stroke-width="2"></path><path d="M26 48L58 8" stroke="#1d4ed8" stroke-width="1.5"></path><polygon fill="#eaedff" points="58,8 26,48 42,50"></polygon></g><circle cx="278" cy="118" fill="#f2f3ff" r="16" stroke="#1d4ed8" stroke-width="1.5"></circle><path d="M272 118L276 122L284 114" stroke="#1d4ed8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M250 148L251.5 142L253 148L259 149.5L253 151L251.5 157L250 151L244 149.5Z" fill="#F59E0B"></path></svg></div><h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3 transition-colors duration-200 group-hover:text-primary-container">检查草稿箱手动发送</h3><p class="font-body-md text-body-md text-on-surface-variant leading-relaxed flex-grow">符合国际商务标准排版的英文报价单 PDF 已妥善存入你的邮箱草稿箱，附带地道英文回复，核对后手动发出。</p>
+<div class="mt-6 pt-4 bg-surface-container-low p-4 rounded-xl transition-colors duration-200 group-hover:bg-blue-50/50">
 <span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">无缝写入</span>
 <span class="font-body-sm text-body-sm text-on-surface font-medium">标准规范 PDF 附件 ＋ 礼貌专业商务正文</span>
 </div>
-</div>
-</div>
+</div></div>
 </div>
 </section>
 <!-- ==================== EXCEL BASE PRICE TEMPLATE FEATURE ==================== -->
@@ -213,28 +310,24 @@
           </p>
 </div>
 <div>
-<a class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-surface-container-lowest text-primary-container font-headline-sm text-headline-sm font-semibold shadow-sm hover:shadow-md transition-all" href="/api/v1/template/pricing-sheet" download="kelvinflow-pricing-template.xlsx">
-<span class="">下载标准底价模板</span>
-<span class="material-symbols-outlined text-[18px]">download</span>
-</a>
+<a class="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-surface-container-lowest text-primary-container hover:text-primary font-headline-sm text-headline-sm font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 border border-outline-variant/30 hover:border-primary-container/40" href="/api/v1/template/pricing-sheet" download="kelvinflow-pricing-template.xlsx"><span class="transition-colors duration-200">下载标准底价模板</span><span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-hover:translate-y-0.5">download</span></a>
 </div>
 </div>
 <!-- Features Grid -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-<!-- Feature 1 -->
-<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="0">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8"><!-- Feature 1 -->
+<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/40 transition-all duration-300" data-reveal-delay="0">
 <div>
-<div class="w-12 h-12 rounded-xl bg-surface-container-low text-primary-container flex items-center justify-center mb-6">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low text-primary-container flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-white">
 <span class="material-symbols-outlined text-[24px]">layers</span>
 </div>
-<h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3">
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3 transition-colors duration-200 group-hover:text-primary-container">
               阶梯价与起订量 (MOQ) 自动对齐
             </h3>
 <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-6">
               无论是 500 件试订单还是 50,000 件批量大单，系统根据采购规模自动锁定对应区间出厂价，杜绝人脑记忆错配。
             </p>
 </div>
-<div class="p-4 bg-surface-container-low rounded-xl">
+<div class="p-4 bg-surface-container-low rounded-xl transition-colors duration-200 group-hover:bg-blue-50/50">
 <div class="flex justify-between items-center text-xs font-numeric-data text-on-surface-variant mb-2">
 <span class="">1k - 5k pcs</span>
 <span class="font-semibold text-on-surface">$2.40 / unit</span>
@@ -246,18 +339,18 @@
 </div>
 </div>
 <!-- Feature 2 -->
-<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="100">
+<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/40 transition-all duration-300" data-reveal-delay="100">
 <div>
-<div class="w-12 h-12 rounded-xl bg-surface-container-low text-primary-container flex items-center justify-center mb-6">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low text-primary-container flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-white">
 <span class="material-symbols-outlined text-[24px]">currency_exchange</span>
 </div>
-<h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3">汇率换算与币种锁定</h3>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3 transition-colors duration-200 group-hover:text-primary-container">汇率换算与币种锁定</h3>
 <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-6">全面支持 USD、EUR、GBP、AUD 等主流结算币种，支持手动设定结算汇率（含汇率兜底）或锁定企业固定汇率。</p>
 </div>
-<div class="p-4 bg-surface-container-low rounded-xl">
+<div class="p-4 bg-surface-container-low rounded-xl transition-colors duration-200 group-hover:bg-blue-50/50">
 <div class="flex items-center justify-between text-xs font-numeric-data text-on-surface">
 <span class="flex items-center gap-1.5 font-medium">
-<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse-subtle"></span>
                 USD / CNY 实时参考价
               </span>
 <span class="font-semibold text-primary-container">7.2345</span>
@@ -265,24 +358,22 @@
 </div>
 </div>
 <!-- Feature 3 -->
-<div class="scroll-reveal bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between" data-reveal-delay="200">
+<div class="scroll-reveal group bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-col justify-between cursor-default hover:-translate-y-1 hover:shadow-md hover:border-outline-variant/40 transition-all duration-300" data-reveal-delay="200">
 <div>
-<div class="w-12 h-12 rounded-xl bg-surface-container-low text-primary-container flex items-center justify-center mb-6">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low text-primary-container flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-white">
 <span class="material-symbols-outlined text-[24px]">security</span>
 </div>
-<h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3">
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-3 transition-colors duration-200 group-hover:text-primary-container">
               核心公式锁定与防改错机制
             </h3><p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-6">保护商业利润率底线、退税率与内陆运费摊销规则，杜绝新人业务员因 Excel 手滑改坏公式导致亏本接单的惨剧。</p>
-
 </div>
-<div class="p-4 bg-surface-container-low rounded-xl">
+<div class="p-4 bg-surface-container-low rounded-xl transition-colors duration-200 group-hover:bg-blue-50/50">
 <div class="flex items-center gap-2 text-xs text-on-surface">
 <span class="material-symbols-outlined text-primary-container text-[16px]">lock</span>
 <span class="font-medium">利润底线预警与公式只读隔离保护</span>
 </div>
 </div>
-</div>
-</div>
+</div></div>
 </div>
 </section>
 <!-- ==================== FAQ SECTION ==================== -->
@@ -299,59 +390,77 @@
         </p>
 </div>
 <!-- FAQ Accordion List -->
-<div class="flex flex-col gap-4">
-<!-- FAQ Item 1 -->
-<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="0">
-<div class="flex items-start justify-between gap-4 cursor-pointer" onclick="toggleFaq(this)">
-<h3 class="font-headline-md text-headline-md font-semibold text-on-surface">
+<div class="flex flex-col gap-4" id="faq-accordion-group">
+<!-- FAQ Item 1 (首项展开，展示完整交互) -->
+<div class="scroll-reveal faq-accordion-item is-open bg-surface-container-low rounded-2xl p-6 md:p-8 border border-transparent shadow-sm" data-reveal-delay="0">
+<button class="w-full flex items-start justify-between gap-4 text-left cursor-pointer group focus:outline-none" onclick="toggleFaqItem(this)" type="button">
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface group-hover:text-primary-container transition-colors duration-200">
               我的出厂底价与客户数据安全吗？存储在哪里？
             </h3>
-<span class="material-symbols-outlined text-on-surface-variant transition-transform duration-200">expand_more</span>
-</div>
+<span class="faq-icon material-symbols-outlined text-on-surface-variant shrink-0 mt-0.5 group-hover:text-primary-container">expand_more</span>
+</button>
+<div class="faq-accordion-panel">
+<div class="faq-accordion-content">
 <div class="mt-4 pt-4 border-t border-outline-variant/30 text-on-surface-variant font-body-md text-body-md leading-relaxed">您的底价表与客户数据保存在私有工作区并加密存储，模型仅在单次报价时读取比对，不会用于公共模型训练。</div>
 </div>
+</div>
+</div>
 <!-- FAQ Item 2 -->
-<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="100">
-<div class="flex items-start justify-between gap-4 cursor-pointer" onclick="toggleFaq(this)">
-<h3 class="font-headline-md text-headline-md font-semibold text-on-surface">
+<div class="scroll-reveal faq-accordion-item bg-surface-container-low rounded-2xl p-6 md:p-8 border border-transparent shadow-sm" data-reveal-delay="100">
+<button class="w-full flex items-start justify-between gap-4 text-left cursor-pointer group focus:outline-none" onclick="toggleFaqItem(this)" type="button">
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface group-hover:text-primary-container transition-colors duration-200">
               使用 KelvinFlow 需要绑定我的私人或企业邮箱吗？
             </h3>
-<span class="material-symbols-outlined text-on-surface-variant transition-transform duration-200">expand_more</span>
-</div>
+<span class="faq-icon material-symbols-outlined text-on-surface-variant shrink-0 mt-0.5 group-hover:text-primary-container">expand_more</span>
+</button>
+<div class="faq-accordion-panel">
+<div class="faq-accordion-content">
 <div class="mt-4 pt-4 border-t border-outline-variant/30 text-on-surface-variant font-body-md text-body-md leading-relaxed">不需要提供邮箱登录密码。注册后你会得到一个专属助理邮箱，把询盘邮件转发过去即可，也支持 Gmail / Outlook 自动转发规则，设置一次之后零操作。进阶用户可在设置中自愿开启 IMAP 授权（使用应用专用密码，可随时撤销），让报价草稿直接写入你的邮箱草稿箱。</div>
 </div>
+</div>
+</div>
 <!-- FAQ Item 3 -->
-<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="200">
-<div class="flex items-start justify-between gap-4 cursor-pointer" onclick="toggleFaq(this)">
-<h3 class="font-headline-md text-headline-md font-semibold text-on-surface">
+<div class="scroll-reveal faq-accordion-item bg-surface-container-low rounded-2xl p-6 md:p-8 border border-transparent shadow-sm" data-reveal-delay="200">
+<button class="w-full flex items-start justify-between gap-4 text-left cursor-pointer group focus:outline-none" onclick="toggleFaqItem(this)" type="button">
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface group-hover:text-primary-container transition-colors duration-200">
               免费试用期间需要绑定信用卡或预付款吗？
             </h3>
-<span class="material-symbols-outlined text-on-surface-variant transition-transform duration-200">expand_more</span>
-</div>
+<span class="faq-icon material-symbols-outlined text-on-surface-variant shrink-0 mt-0.5 group-hover:text-primary-container">expand_more</span>
+</button>
+<div class="faq-accordion-panel">
+<div class="faq-accordion-content">
 <div class="mt-4 pt-4 border-t border-outline-variant/30 text-on-surface-variant font-body-md text-body-md leading-relaxed">
             完全不需要。注册即享免费体验额度，无须输入信用卡信息，支持所有外贸业务员、SOHO 及团队开箱体验真实提效闭环。
           </div>
 </div>
+</div>
+</div>
 <!-- FAQ Item 4 -->
-<div class="scroll-reveal bg-surface-container-low rounded-2xl p-6 md:p-8 transition-all" data-reveal-delay="300">
-<div class="flex items-start justify-between gap-4 cursor-pointer" onclick="toggleFaq(this)">
-<h3 class="font-headline-md text-headline-md font-semibold text-on-surface">
+<div class="scroll-reveal faq-accordion-item bg-surface-container-low rounded-2xl p-6 md:p-8 border border-transparent shadow-sm" data-reveal-delay="300">
+<button class="w-full flex items-start justify-between gap-4 text-left cursor-pointer group focus:outline-none" onclick="toggleFaqItem(this)" type="button">
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface group-hover:text-primary-container transition-colors duration-200">
               支持非标准产品或定制化询盘吗？
             </h3>
-<span class="material-symbols-outlined text-on-surface-variant transition-transform duration-200">expand_more</span>
-</div>
+<span class="faq-icon material-symbols-outlined text-on-surface-variant shrink-0 mt-0.5 group-hover:text-primary-container">expand_more</span>
+</button>
+<div class="faq-accordion-panel">
+<div class="faq-accordion-content">
 <div class="mt-4 pt-4 border-t border-outline-variant/30 text-on-surface-variant font-body-md text-body-md leading-relaxed">
             支持。针对非标定制需求，AI 会自动高亮特殊规格并给出参数差异提示，方便业务员在审核面板中快速微调参数后再确认生成 PDF 报价单。
           </div>
 </div>
 </div>
 </div>
+</div>
+</div>
 </section>
 <!-- ==================== PRE-FOOTER CONVERSION CALLOUT ==================== -->
-<section class="w-full py-20 bg-surface-container-low" id="trial">
+<section class="w-full bg-surface-container-low py-12" id="trial">
 <div class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop">
-<div class="scroll-reveal bg-surface-container-lowest rounded-3xl p-10 md:p-16 shadow-lg text-center flex flex-col items-center" data-reveal-delay="0">
-<div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center text-primary-container mb-6 shadow-sm">
+<div class="scroll-reveal bg-surface-container-lowest rounded-3xl p-10 md:p-16 shadow-lg text-center flex flex-col items-center border border-outline-variant/20 hover:border-blue-200/80 hover:shadow-[0_20px_50px_rgba(29,78,216,0.08)] transition-all duration-300 relative overflow-hidden" data-reveal-delay="0">
+<div class="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-blue-100/40 blur-3xl"></div>
+<div class="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-blue-100/30 blur-3xl"></div>
+<div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center text-primary-container mb-6 shadow-sm transition-transform duration-300 hover:scale-110 hover:rotate-3">
 <span class="material-symbols-outlined text-[32px]">outgoing_mail</span>
 </div>
 <h2 class="font-display-lg text-display-lg-mobile md:text-headline-xl font-bold text-on-surface tracking-tight mb-4 max-w-2xl">
@@ -359,20 +468,18 @@
         </h2>
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl mb-10 leading-relaxed">无需改变习惯，上传底价表、转发第一封询盘即刻启用。</p>
 <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-<a class="w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 cursor-pointer" onclick="openInboundModal('starter')" href="javascript:void(0)">
-            免费开始试用
-          </a>
+<a class="group w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(29,78,216,0.32)] active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer" onclick="openInboundModal('starter')" href="javascript:void(0)">免费开始试用</a>
 </div>
 <div class="mt-8 flex flex-col md:flex-row items-start md:items-center justify-center gap-3 md:gap-6 text-on-surface-variant text-body-sm font-body-sm">
-<span class="flex items-center gap-1.5">
+<span class="flex items-center gap-1.5 transition-colors duration-150 hover:text-on-surface">
 <span class="material-symbols-outlined text-primary-container text-[16px]">check_circle</span>
             无需信用卡
           </span>
-<span class="flex items-center gap-1.5">
+<span class="flex items-center gap-1.5 transition-colors duration-150 hover:text-on-surface">
 <span class="material-symbols-outlined text-primary-container text-[16px]">check_circle</span>
             开箱即用 10 秒出单
           </span>
-<span class="flex items-center gap-1.5">
+<span class="flex items-center gap-1.5 transition-colors duration-150 hover:text-on-surface">
 <span class="material-symbols-outlined text-primary-container text-[16px]">check_circle</span>
             企业私有加密保护
           </span>
@@ -382,25 +489,36 @@
 </section>
 </div>
 <script>
-  function toggleFaq(headerEl) {
-    const content = headerEl.nextElementSibling;
-    const icon = headerEl.querySelector('.material-symbols-outlined');
-    if (content.style.display === 'none') {
-      content.style.display = 'block';
-      icon.style.transform = 'rotate(180deg)';
+  function toggleFaqItem(buttonEl) {
+    const currentItem = buttonEl.closest('.faq-accordion-item');
+    const isCurrentlyOpen = currentItem.classList.contains('is-open');
+    const container = document.getElementById('faq-accordion-group');
+    
+    // 手风琴模式：先收起其它已展开项
+    if (container) {
+      const allItems = container.querySelectorAll('.faq-accordion-item');
+      allItems.forEach(item => {
+        if (item !== currentItem) {
+          item.classList.remove('is-open');
+        }
+      });
+    }
+
+    // 切换当前项
+    if (isCurrentlyOpen) {
+      currentItem.classList.remove('is-open');
     } else {
-      content.style.display = 'none';
-      icon.style.transform = 'rotate(0deg)';
+      currentItem.classList.add('is-open');
     }
   }
-</script></main><footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl" id="footer"><div class="scroll-reveal max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg" data-reveal-delay="0"><div class="flex flex-col items-center md:items-start gap-space-xs"><div class="flex items-center gap-1.5"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" style="width: 48px; height: 48px; margin: -8px -15px -8px -4px;"><span class="font-headline-sm text-headline-sm text-[#1B2A4A] flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></div><p class="font-body-sm text-body-sm text-on-surface-variant">© 2026 KelvinFlow. All rights reserved.</p></div><div class="flex flex-col md:flex-row items-center gap-space-lg"><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a></div></div></footer>
+</script></main><footer class="w-full bg-surface-container-lowest border-t border-[#f1f5f9] py-space-xl" id="footer"><div class="scroll-reveal max-w-[1440px] mx-auto px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-lg" data-reveal-delay="0"><div class="flex flex-col items-center md:items-start gap-space-xs"><div class="flex items-center gap-1.5"><img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 48px; height: 48px; margin: -8px -15px -8px -4px;"><span class="font-headline-sm text-headline-sm text-[#1B2A4A] flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></div><p class="font-body-sm text-body-sm text-on-surface-variant">专为外贸员与 SOHO 打造的 AI 智能报价引擎</p></div><div class="flex flex-col md:flex-row items-center gap-space-md"><p class="font-body-sm text-body-sm text-on-surface-variant">© 2026 KelvinFlow. All rights reserved.</p><span class="font-body-sm text-body-sm text-outline-variant hidden md:inline">|</span><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a></div></div></footer>
 
   <!-- ========================================================================= -->
   <!-- 弹窗交互组件群 (Precision Trade Minimal v13 Modals)                       -->
   <!-- ========================================================================= -->
 
   <!-- A. 试用开通 & 密码登录弹窗 (Inbound Modal) -->
-  <div id="inbound-modal" class="fixed inset-0 z-50 bg-[#0F172A]/45 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4 overflow-y-auto">
+  <div id="inbound-modal" style="display: none;" class="fixed inset-0 z-50 bg-[#0F172A]/45 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4 overflow-y-auto">
     <!-- Click Scrim -->
     <div class="absolute inset-0" onclick="closeInboundModal()"></div>
 
@@ -455,128 +573,111 @@
               <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">mail</span>
               <input class="w-full h-11 pl-10 pr-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="inbound-email" placeholder="name@company.com" required type="email">
             </div>
-            <p id="email-risk-error-msg" class="hidden text-error font-label-sm text-label-sm mt-0.5 flex items-center gap-1"><span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">error</span><span id="email-risk-error-text"></span></p>
+            <p id="email-risk-error-msg" class="hidden text-error text-[11px] mt-0.5"></p>
           </div>
 
-          <!-- 验证码组合行 -->
+          <!-- 邮箱验证码输入项 -->
           <div class="flex flex-col gap-1.5 text-left">
-            <div class="flex items-center justify-between">
-              <label class="font-label-md text-label-md text-on-surface font-semibold" for="inbound-code">
-                邮箱验证码
-              </label>
-              <span id="code-sent-tip" class="hidden font-label-sm text-label-sm text-primary font-medium">已发送至工作邮箱</span>
-            </div>
-            <div class="flex items-center gap-2">
+            <label class="font-label-md text-label-md text-on-surface font-semibold" for="inbound-code">
+              邮箱验证码
+            </label>
+            <div class="flex gap-2">
               <div class="relative flex-1 flex items-center">
                 <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">verified_user</span>
-                <input class="w-full h-11 pl-10 pr-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-numeric-data text-numeric-data tracking-wider shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="inbound-code" maxlength="6" placeholder="6 位数字验证码" required type="text">
+                <input class="w-full h-11 pl-10 pr-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="inbound-code" maxlength="6" placeholder="6 位验证码" required type="text">
               </div>
-              <button class="h-11 px-4 rounded-full bg-primary-container text-on-primary font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all duration-150 shrink-0 flex items-center gap-1.5 select-none cursor-pointer border-none disabled:bg-surface-container disabled:text-outline disabled:cursor-not-allowed" id="btn-send-code" onclick="sendInboundVerificationCode()" type="button">
+              <button class="h-11 px-4 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-semibold text-xs transition-colors shrink-0 flex items-center justify-center cursor-pointer min-w-[100px]" id="btn-send-code" onclick="sendInboundVerificationCode()" type="button">
                 <span id="btn-send-code-text">获取验证码</span>
               </button>
             </div>
-            <!-- 错误校验提示状态 -->
-            <div id="inbound-error-feedback" class="hidden flex items-center gap-1 mt-0.5 px-0.5 text-error">
-              <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">error</span>
-              <span id="inbound-error-text" class="font-label-sm text-label-sm">验证码已失效或输入有误，请核对后重试</span>
-            </div>
-            <div id="inbound-success-feedback" class="hidden flex items-center gap-1 mt-0.5 px-0.5 text-emerald-600 font-label-sm text-label-sm"></div>
           </div>
 
-          <!-- 设置密码输入项 -->
+          <!-- 错误态反馈信息条 (设计稿对版：红字"验证码已失效或输入有误，请核对后重试") -->
+          <div id="inbound-error-feedback" class="hidden flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 border border-red-200/60 text-error text-[12px]">
+            <span class="material-symbols-outlined text-[16px] shrink-0" style="font-variation-settings: 'FILL' 1;">error</span>
+            <span id="inbound-error-feedback-text">验证码已失效或输入有误，请核对后重试</span>
+          </div>
+
+          <!-- 设置登录密码输入项 -->
           <div class="flex flex-col gap-1.5 text-left">
             <label class="font-label-md text-label-md text-on-surface font-semibold" for="inbound-password">
               设置登录密码
             </label>
             <div class="relative flex items-center">
               <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">lock</span>
-              <input class="w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="inbound-password" minlength="6" maxlength="20" placeholder="不少于 6 位字符（包含字母与数字）" required type="password">
-              <button aria-label="显示或隐藏密码" class="absolute right-3 w-7 h-7 rounded-full flex items-center justify-center text-outline hover:text-on-surface transition-colors cursor-pointer" onclick="togglePasswordVisibility('inbound-password', 'inbound-pwd-icon')" type="button">
-                <span class="material-symbols-outlined text-[18px]" id="inbound-pwd-icon">visibility_off</span>
+              <input class="w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="inbound-password" minlength="6" placeholder="至少 6 位字符" required type="password">
+              <button aria-label="切换密码可见性" class="absolute right-3 text-outline hover:text-on-surface transition-colors cursor-pointer" onclick="togglePasswordVisibility('inbound-password', 'pwd-toggle-icon-reg')" type="button">
+                <span class="material-symbols-outlined text-[18px]" id="pwd-toggle-icon-reg">visibility</span>
               </button>
             </div>
           </div>
 
-          <!-- 从哪里了解到 KelvinFlow 选填下拉 -->
+          <!-- 您从哪里了解到 KelvinFlow？(v13 核心指纹下拉，选填) -->
           <div class="flex flex-col gap-1.5 text-left">
-            <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center justify-between" for="inbound-channel-source">
-              <span>从哪里了解到 KelvinFlow</span>
+            <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center justify-between" for="inbound-channel-select">
+              <span>您从哪里了解到 KelvinFlow？</span>
               <span class="font-label-sm text-label-sm text-outline font-normal">选填</span>
             </label>
             <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">explore</span>
-              <select class="w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all cursor-pointer appearance-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="inbound-channel-source">
-                <option disabled="" selected="" value="">请选择渠道（选填）</option>
+              <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">campaign</span>
+              <select id="inbound-channel-select" class="w-full h-11 pl-10 pr-9 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60 appearance-none cursor-pointer">
+                <option value="" selected>请选择了解渠道</option>
                 <option value="friend">朋友推荐</option>
                 <option value="xiaohongshu">小红书</option>
                 <option value="google">谷歌搜索</option>
                 <option value="other">其他</option>
               </select>
-              <span class="material-symbols-outlined absolute right-3.5 text-outline text-[20px] pointer-events-none">expand_more</span>
+              <span class="material-symbols-outlined absolute right-3 text-outline text-[20px] pointer-events-none">arrow_drop_down</span>
             </div>
           </div>
 
-          <!-- 服务协议与隐私条款勾选 -->
+          <!-- 用户协议勾选 (默认不勾选，需用户主动确认) -->
           <div class="flex items-center gap-2 pt-1 text-left">
-            <input checked="" class="w-4 h-4 rounded text-primary-container bg-surface-container-lowest focus:ring-0 cursor-pointer accent-primary-container" id="inbound-agreement-checkbox" required type="checkbox">
+            <input class="w-4 h-4 rounded text-primary-container bg-surface-container-lowest focus:ring-0 cursor-pointer accent-primary-container" id="inbound-agreement-checkbox" required type="checkbox">
             <label class="font-label-sm text-label-sm text-on-surface-variant cursor-pointer select-none" for="inbound-agreement-checkbox">
               我已阅读并同意 <a class="text-primary hover:underline" href="javascript:void(0)">《用户服务协议》</a> 与 <a class="text-primary hover:underline" href="javascript:void(0)">《跨境商业数据隐私保密承诺》</a>
             </label>
           </div>
 
-          <!-- 主操作按钮：立即开通 7 天免费试用 -->
-          <button class="w-full py-3.5 px-6 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:bg-primary active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-2 mt-2 group cursor-pointer" id="inbound-submit-btn" type="submit">
-            <span>立即开通 7 天免费试用</span>
-            <span class="material-symbols-outlined text-[18px] transition-transform duration-150 group-hover:translate-x-0.5">arrow_forward</span>
+          <!-- 开通试用主按钮 -->
+          <button class="w-full h-12 rounded-xl bg-primary-container hover:bg-blue-700 active:scale-[0.99] text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md transition-all duration-150 flex items-center justify-center gap-2 mt-1 cursor-pointer" id="btn-inbound-submit" type="submit">
+            <span id="btn-inbound-submit-text">立即开通 7 天免费试用</span>
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
           </button>
         </form>
 
-        <!-- 试用专属包含权益条带 -->
-        <div class="mt-4 px-3 py-2 rounded-xl bg-surface-container-low flex items-center justify-between text-left">
-          <div class="flex items-center gap-1.5 text-on-surface-variant">
-            <span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-            <span class="font-label-sm text-label-sm">赠送 100 次 AI 深度询盘解析</span>
-          </div>
-          <div class="flex items-center gap-1.5 text-on-surface-variant">
-            <span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-            <span class="font-label-sm text-label-sm">免绑定信用卡</span>
-          </div>
-        </div>
-
-        <!-- 底部切换入口：已有账号？直接登录 -->
-        <div class="mt-5 pt-4 text-center">
-          <div class="w-full h-px bg-surface-container mb-4"></div>
-          <p class="font-body-sm text-body-sm text-on-surface-variant flex items-center justify-center gap-1.5">
-            <span>已有 KelvinFlow 账号？</span>
-            <a class="font-headline-sm text-headline-sm text-primary font-semibold hover:underline inline-flex items-center cursor-pointer" onclick="switchInboundFormMode('login')" href="javascript:void(0)">
-              直接登录
-            </a>
+        <!-- 注册底部说明与切换登录 -->
+        <div class="text-center pt-3 pb-1 border-t border-surface-container-high mt-3.5">
+          <p class="font-label-sm text-label-sm text-outline mb-2">
+            赠送 100 次 AI 深度询盘解析 · 免绑定信用卡
+          </p>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">
+            已有 KelvinFlow 账号？
+            <a class="font-medium text-primary-container hover:underline transition-all cursor-pointer" onclick="switchInboundFormMode('login')" href="javascript:void(0)">直接登录</a>
           </p>
         </div>
       </div>
 
       <!-- 2. 登录视图 (kelvinflow_1 对版) -->
       <div id="inbound-login-view" class="hidden">
-        <div class="text-center mb-4">
+        <div class="text-center mb-3">
           <h2 class="font-headline-lg text-headline-lg font-bold text-[#1B2A4A] tracking-tight mt-1 mb-1">
             欢迎回到 KelvinFlow
           </h2>
-          <p class="font-body-sm text-body-sm text-on-surface-variant max-w-[320px] mx-auto">
+          <p class="font-body-sm text-body-sm text-on-surface-variant max-w-[280px] mx-auto leading-normal">
             登录工作台，继续高效流转海外询盘与报价
           </p>
         </div>
 
-        <form id="inbound-login-form" novalidate onsubmit="handleInboundLoginSubmit(event)" class="flex flex-col gap-4">
+        <form id="inbound-login-form" onsubmit="handleInboundLoginSubmit(event)" class="flex flex-col gap-3.5">
           <!-- 工作邮箱 -->
           <div class="flex flex-col gap-1.5 text-left">
             <label class="font-label-md text-label-md text-on-surface font-semibold" for="inbound-login-email">
               工作邮箱
             </label>
             <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-3.5 text-[18px] text-outline pointer-events-none">
-                mail
-              </span>
-              <input class="w-full h-11 pl-10 pr-4 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="inbound-login-email" name="username" autocomplete="username" placeholder="name@company.com" required type="email">
+              <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">mail</span>
+              <input class="w-full h-11 pl-10 pr-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="inbound-login-email" placeholder="name@company.com" required type="email">
             </div>
           </div>
 
@@ -586,23 +687,21 @@
               登录密码
             </label>
             <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-3.5 text-[18px] text-outline pointer-events-none">
-                lock
-              </span>
-              <input class="w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="inbound-login-password" name="password" autocomplete="current-password" placeholder="••••••••" required type="password">
-              <button aria-label="显示或隐藏密码" class="absolute right-3 w-7 h-7 rounded flex items-center justify-center text-outline hover:text-on-surface focus:outline-none transition-colors cursor-pointer" id="inbound-login-toggle-pwd" onclick="togglePasswordVisibility('inbound-login-password', 'inbound-login-pwd-icon')" type="button">
-                <span class="material-symbols-outlined text-[18px]" id="inbound-login-pwd-icon">visibility_off</span>
+              <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">lock</span>
+              <input class="w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="inbound-login-password" placeholder="••••••••" required type="password">
+              <button aria-label="切换密码可见性" class="absolute right-3 text-outline hover:text-on-surface transition-colors cursor-pointer" onclick="togglePasswordVisibility('inbound-login-password', 'pwd-toggle-icon-login')" type="button">
+                <span class="material-symbols-outlined text-[18px]" id="pwd-toggle-icon-login">visibility</span>
               </button>
             </div>
-            <!-- Active Error Cue (错误态红字) -->
-            <div id="inbound-login-error-feedback" class="hidden flex items-center gap-1.5 mt-0.5 text-error">
-              <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">error</span>
-              <span id="inbound-login-error-text" class="font-label-sm text-label-sm">密码错误，请重试</span>
-            </div>
-            <div id="inbound-login-success-feedback" class="hidden flex items-center gap-1 mt-0.5 px-0.5 text-emerald-600 font-label-sm text-label-sm"></div>
           </div>
 
-          <!-- 记住此设备 与 忘记密码 -->
+          <!-- 登录错误反馈条 (设计稿对版：红字"密码错误，请重试") -->
+          <div id="inbound-login-error" class="hidden flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 border border-red-200/60 text-error text-[12px]">
+            <span class="material-symbols-outlined text-[16px] shrink-0" style="font-variation-settings: 'FILL' 1;">error</span>
+            <span id="inbound-login-error-text">密码错误，请重试</span>
+          </div>
+
+          <!-- 记住此设备与忘记密码 -->
           <div class="flex items-center justify-between text-left mt-1 mb-2">
             <label class="flex items-center gap-2 cursor-pointer select-none group">
               <input checked="" class="w-4 h-4 rounded text-primary-container accent-primary-container focus:ring-0 cursor-pointer" id="inbound-remember-device" type="checkbox">
@@ -615,21 +714,18 @@
             </a>
           </div>
 
-          <!-- 主按钮：登录工作台 -->
-          <button class="w-full h-12 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold flex items-center justify-center gap-2 shadow-sm shadow-primary/20 hover:opacity-95 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-150 cursor-pointer" id="inbound-login-submit-btn" type="submit">
-            <span id="inbound-login-btn-text">登录工作台</span>
+          <!-- 登录工作台主按钮 -->
+          <button class="w-full h-12 rounded-xl bg-primary-container hover:bg-blue-700 active:scale-[0.99] text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer" id="btn-inbound-login-submit" type="submit">
+            <span id="btn-inbound-login-text">登录工作台</span>
             <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
           </button>
         </form>
 
-        <!-- 底部去注册 -->
-        <div class="mt-6 pt-5 bg-surface-container-low/40 -mx-7 md:-mx-8 -mb-7 md:-mb-8 px-7 md:px-8 pb-7 rounded-b-2xl text-center">
+        <!-- 登录底部切换注册 -->
+        <div class="text-center pt-3 pb-1 border-t border-surface-container-high mt-4">
           <p class="font-body-sm text-body-sm text-on-surface-variant">
             还没有账号？
-            <a class="font-medium text-primary-container hover:underline ml-1 inline-flex items-center gap-0.5 cursor-pointer" onclick="switchInboundFormMode('register')" href="javascript:void(0)">
-              去注册
-              <span class="material-symbols-outlined text-[14px]">arrow_outward</span>
-            </a>
+            <a class="font-medium text-primary-container hover:underline transition-all cursor-pointer" onclick="switchInboundFormMode('register')" href="javascript:void(0)">免费开通 7 天试用</a>
           </p>
         </div>
       </div>
@@ -637,8 +733,8 @@
     </div>
   </div>
 
-  <!-- B. 密码重置弹窗 (Forgot Password Modal) -->
-  <div id="forgot-password-modal" class="fixed inset-0 z-50 bg-[#0F172A]/45 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4 overflow-y-auto">
+  <!-- B. 找回密码弹窗 (Forgot Password Modal) -->
+  <div id="forgot-password-modal" style="display: none;" class="fixed inset-0 z-50 bg-[#0F172A]/45 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4 overflow-y-auto">
     <div class="absolute inset-0" onclick="closeForgotPasswordModal()"></div>
     <div onclick="event.stopPropagation()" class="max-w-[440px] w-full bg-surface-container-lowest rounded-2xl shadow-2xl p-7 md:p-8 relative overflow-hidden transition-all duration-200 z-10 my-auto">
       
@@ -647,130 +743,108 @@
         <span class="material-symbols-outlined text-[20px] transition-transform duration-150 group-hover:rotate-90">close</span>
       </button>
 
-      <!-- 顶部 Badge -->
-      <div class="flex justify-center mb-3">
+      <!-- 品牌 Header -->
+      <div class="flex flex-col items-center text-center mb-3">
         <span class="px-3 py-1 rounded-full font-label-md text-label-md font-semibold text-primary bg-primary-fixed flex items-center gap-1.5 w-fit">
-          <span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">shield</span>
-          <span>账号安全中心 · 找回密码</span>
+          <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">security</span>
+          安全密码重置
         </span>
+        <h2 class="font-headline-lg text-headline-lg font-bold text-[#1B2A4A] tracking-tight mt-2 mb-1">重置登录密码</h2>
+        <p class="font-body-sm text-body-sm text-on-surface-variant max-w-[280px] leading-normal" id="forgot-modal-desc">
+          输入您注册时的工作邮箱，验证身份后设置新密码
+        </p>
       </div>
 
-      <!-- 阶段 1：核验工作邮箱验证码 -->
-      <div id="forgot-step-1">
-        <div class="text-center mb-5">
-          <h3 class="font-headline-lg text-headline-lg font-bold text-[#1B2A4A] tracking-tight mb-1">重置登录密码</h3>
-          <p class="font-body-sm text-body-sm text-on-surface-variant">输入注册工作邮箱获取验证码，核验后即可设置新密码</p>
+      <!-- Step 1: 验证工作邮箱 -->
+      <form id="forgot-step1-form" onsubmit="handleForgotStep1Submit(event)" class="flex flex-col gap-3.5">
+        <div class="flex flex-col gap-1.5 text-left">
+          <label class="font-label-md text-label-md text-on-surface font-semibold" for="forgot-email">
+            注册工作邮箱
+          </label>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">mail</span>
+            <input class="w-full h-11 pl-10 pr-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="forgot-email" placeholder="name@company.com" required type="email">
+          </div>
         </div>
 
-        <form id="forgot-step1-form" onsubmit="handleForgotStep1Submit(event)" class="flex flex-col gap-4">
-          <div class="flex flex-col gap-1.5 text-left">
-            <label class="font-label-md text-label-md text-on-surface font-semibold" for="forgot-email">
-              注册工作邮箱
-            </label>
-            <div class="flex items-center gap-2">
-              <div class="relative flex-1 flex items-center">
-                <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">mail</span>
-                <input type="email" id="forgot-email" placeholder="请输入注册时的工作邮箱" required class="w-full h-11 pl-10 pr-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60">
-              </div>
-              <button type="button" id="btn-forgot-send-code" onclick="sendForgotPasswordCode()" class="h-11 px-4 rounded-full bg-primary-container text-on-primary font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all duration-150 shrink-0 flex items-center gap-1.5 select-none cursor-pointer border-none disabled:bg-surface-container disabled:text-outline disabled:cursor-not-allowed">
-                <span id="btn-forgot-send-code-text">获取验证码</span>
-              </button>
-            </div>
-            <p id="forgot-email-error" class="hidden text-error font-label-sm text-label-sm mt-0.5 flex items-center gap-1"><span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">error</span><span id="forgot-email-error-text"></span></p>
-          </div>
-
-          <div class="flex flex-col gap-1.5 text-left">
-            <div class="flex items-center justify-between">
-              <label class="font-label-md text-label-md text-on-surface font-semibold" for="forgot-code">
-                邮箱验证码
-              </label>
-              <span id="forgot-code-sent-tip" class="hidden font-label-sm text-label-sm text-primary font-medium">已发送至工作邮箱</span>
-            </div>
-            <div class="relative flex items-center">
+        <div class="flex flex-col gap-1.5 text-left">
+          <label class="font-label-md text-label-md text-on-surface font-semibold" for="forgot-code">
+            邮箱验证码
+          </label>
+          <div class="flex gap-2">
+            <div class="relative flex-1 flex items-center">
               <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">verified_user</span>
-              <input type="text" id="forgot-code" maxlength="6" placeholder="请输入 6 位邮箱验证码" required class="w-full h-11 pl-10 pr-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-numeric-data text-numeric-data tracking-wider shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60">
+              <input class="w-full h-11 pl-10 pr-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="forgot-code" maxlength="6" placeholder="6 位验证码" required type="text">
             </div>
-          </div>
-
-          <div id="forgot-step1-error-feedback" class="hidden flex items-center gap-1.5 mt-0.5 text-error">
-            <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">error</span>
-            <span id="forgot-step1-error-text" class="font-label-sm text-label-sm"></span>
-          </div>
-          <div id="forgot-step1-success-feedback" class="hidden flex items-center gap-1 mt-0.5 px-0.5 text-emerald-600 font-label-sm text-label-sm"></div>
-
-          <button type="submit" id="btn-forgot-step1-submit" class="w-full h-12 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2">
-            <span id="btn-forgot-step1-text">下一步：设置新密码</span>
-            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-          </button>
-
-          <div class="text-center pt-2">
-            <button type="button" onclick="cancelForgotPasswordAndReturnLogin()" class="font-body-sm text-body-sm text-outline hover:text-on-surface transition cursor-pointer inline-flex items-center gap-1">
-              <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-              <span>返回密码登录</span>
+            <button class="h-11 px-4 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-semibold text-xs transition-colors shrink-0 flex items-center justify-center cursor-pointer min-w-[100px]" id="btn-forgot-send-code" onclick="sendForgotVerificationCode()" type="button">
+              <span id="btn-forgot-send-code-text">获取验证码</span>
             </button>
           </div>
-        </form>
-      </div>
-
-      <!-- 阶段 2：输入新密码 -->
-      <div id="forgot-step-2" class="hidden">
-        <div class="text-center mb-5">
-          <h3 class="font-headline-lg text-headline-lg font-bold text-[#1B2A4A] tracking-tight mb-1">输入新密码</h3>
-          <p class="font-body-sm text-body-sm text-on-surface-variant">验证码已核验通过，请设置并确认您的新登录密码</p>
         </div>
 
-        <form id="forgot-step2-form" onsubmit="handleForgotStep2Submit(event)" class="flex flex-col gap-4">
-          <div class="flex flex-col gap-1.5 text-left">
-            <label class="font-label-md text-label-md text-on-surface font-semibold" for="forgot-new-password">
-              重置新密码
-            </label>
-            <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">lock</span>
-              <input type="password" id="forgot-new-password" minlength="6" maxlength="20" placeholder="请输入新密码 (不少于 6 位字符)" required class="w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60">
-              <button type="button" onclick="togglePasswordVisibility('forgot-new-password', 'forgot-new-pwd-icon')" aria-label="切换新密码显示" class="absolute right-3 w-7 h-7 rounded-full flex items-center justify-center text-outline hover:text-on-surface transition-colors cursor-pointer">
-                <span class="material-symbols-outlined text-[18px]" id="forgot-new-pwd-icon">visibility_off</span>
-              </button>
-            </div>
-          </div>
+        <div id="forgot-step1-error-feedback" class="hidden flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 border border-red-200/60 text-error text-[12px]">
+          <span class="material-symbols-outlined text-[16px] shrink-0" style="font-variation-settings: 'FILL' 1;">error</span>
+          <span id="forgot-step1-error-text">验证码有误或已过期</span>
+        </div>
 
-          <div class="flex flex-col gap-1.5 text-left">
-            <label class="font-label-md text-label-md text-on-surface font-semibold" for="forgot-confirm-password">
-              再次输入新密码
-            </label>
-            <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">lock</span>
-              <input type="password" id="forgot-confirm-password" minlength="6" maxlength="20" placeholder="请再次输入新密码 (须与上方一致)" required class="w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60">
-              <button type="button" onclick="togglePasswordVisibility('forgot-confirm-password', 'forgot-confirm-pwd-icon')" aria-label="切换确认密码显示" class="absolute right-3 w-7 h-7 rounded-full flex items-center justify-center text-outline hover:text-on-surface transition-colors cursor-pointer">
-                <span class="material-symbols-outlined text-[18px]" id="forgot-confirm-pwd-icon">visibility_off</span>
-              </button>
-            </div>
-          </div>
+        <button class="w-full h-12 rounded-xl bg-primary-container hover:bg-blue-700 active:scale-[0.99] text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md transition-all duration-150 flex items-center justify-center gap-2 mt-2 cursor-pointer" id="btn-forgot-step1-submit" type="submit">
+          <span>下一步：设置新密码</span>
+          <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        </button>
+      </form>
 
-          <div id="forgot-step2-error-feedback" class="hidden flex items-center gap-1.5 mt-0.5 text-error">
-            <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">error</span>
-            <span id="forgot-step2-error-text" class="font-label-sm text-label-sm"></span>
-          </div>
-          <div id="forgot-step2-success-feedback" class="hidden flex items-center gap-1 mt-0.5 px-0.5 text-emerald-600 font-label-sm text-label-sm"></div>
-
-          <button type="submit" id="btn-forgot-step2-submit" class="w-full h-12 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-headline-sm text-headline-sm font-semibold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-2">
-            <span class="material-symbols-outlined text-[18px]">check</span>
-            <span id="btn-forgot-step2-text">确认更改</span>
-          </button>
-
-          <div class="text-center pt-2">
-            <button type="button" onclick="backToForgotStep1()" class="font-body-sm text-body-sm text-outline hover:text-on-surface transition cursor-pointer inline-flex items-center gap-1">
-              <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-              <span>返回上一步</span>
+      <!-- Step 2: 设置新密码 -->
+      <form id="forgot-step2-form" onsubmit="handleForgotStep2Submit(event)" class="hidden flex flex-col gap-3.5">
+        <div class="flex flex-col gap-1.5 text-left">
+          <label class="font-label-md text-label-md text-on-surface font-semibold" for="forgot-new-password">
+            设置新密码
+          </label>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">lock</span>
+            <input class="w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="forgot-new-password" minlength="6" placeholder="新密码 (至少 6 位字符)" required type="password">
+            <button aria-label="切换密码可见性" class="absolute right-3 text-outline hover:text-on-surface transition-colors cursor-pointer" onclick="togglePasswordVisibility('forgot-new-password', 'pwd-toggle-icon-new')" type="button">
+              <span class="material-symbols-outlined text-[18px]" id="pwd-toggle-icon-new">visibility</span>
             </button>
           </div>
-        </form>
+        </div>
+
+        <div class="flex flex-col gap-1.5 text-left">
+          <label class="font-label-md text-label-md text-on-surface font-semibold" for="forgot-confirm-password">
+            确认新密码
+          </label>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-3.5 text-outline text-[18px] pointer-events-none">lock_reset</span>
+            <input class="w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md shadow-sm outline-none transition-all placeholder:text-outline-variant focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container/20 border border-outline-variant/60" id="forgot-confirm-password" minlength="6" placeholder="再次输入新密码" required type="password">
+            <button aria-label="切换密码可见性" class="absolute right-3 text-outline hover:text-on-surface transition-colors cursor-pointer" onclick="togglePasswordVisibility('forgot-confirm-password', 'pwd-toggle-icon-confirm')" type="button">
+              <span class="material-symbols-outlined text-[18px]" id="pwd-toggle-icon-confirm">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="forgot-step2-error-feedback" class="hidden flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 border border-red-200/60 text-error text-[12px]">
+          <span class="material-symbols-outlined text-[16px] shrink-0" style="font-variation-settings: 'FILL' 1;">error</span>
+          <span id="forgot-step2-error-text">密码更新失败</span>
+        </div>
+        <div id="forgot-step2-success-feedback" class="hidden flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-[12px]"></div>
+
+        <button class="w-full h-12 rounded-xl bg-primary-container hover:bg-blue-700 active:scale-[0.99] text-on-primary font-headline-sm text-headline-sm font-semibold shadow-md transition-all duration-150 flex items-center justify-center gap-2 mt-2 cursor-pointer" id="btn-forgot-step2-submit" type="submit">
+          <span id="btn-forgot-step2-text">确认并保存新密码</span>
+          <span class="material-symbols-outlined text-[18px]">check</span>
+        </button>
+      </form>
+
+      <div class="text-center pt-3 border-t border-surface-container-high mt-4">
+        <a class="font-body-sm text-body-sm font-medium text-primary-container hover:underline transition-all cursor-pointer flex items-center justify-center gap-1" onclick="backToLoginFromForgot()" href="javascript:void(0)">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          <span>返回登录</span>
+        </a>
       </div>
 
     </div>
   </div>
 
-  <!-- C. 退出登录确认弹窗 (kelvinflow_2 对版，预置隐藏组件供 4b 调用) -->
-  <div id="logout-dialog-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/45 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+  <!-- C. 退出登录确认弹窗 (kelvinflow_2 对版，预埋供 4b 使用) -->
+  <div id="logout-dialog-overlay" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F172A]/45 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
     <div class="absolute inset-0" onclick="closeLogoutModal()"></div>
     <div onclick="event.stopPropagation()" class="relative w-full max-w-sm rounded-[24px] bg-surface-container-lowest p-6 sm:p-8 shadow-[0_20px_50px_rgba(19,27,46,0.14),0_4px_12px_rgba(19,27,46,0.06)] transform transition-all duration-200 scale-100 flex flex-col items-center text-center z-10 my-auto" id="logout-modal-card">
       <!-- 关闭图标 -->
@@ -778,96 +852,73 @@
         <span class="material-symbols-outlined text-[18px]">close</span>
       </button>
 
-      <!-- 红色退出图标 -->
-      <div class="w-14 h-14 rounded-full bg-error-container/40 flex items-center justify-center mb-4 transition-transform hover:scale-105 duration-200">
-        <div class="w-10 h-10 rounded-full bg-error-container/70 flex items-center justify-center text-error">
-          <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 0, 'wght' 500;">logout</span>
-        </div>
+      <!-- 红色警示图标容器 -->
+      <div class="w-14 h-14 rounded-full bg-error-container/40 flex items-center justify-center text-error mb-4 shadow-sm">
+        <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">logout</span>
       </div>
 
-      <!-- 当前账号徽章 -->
-      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors duration-200 select-none cursor-default text-on-surface-variant mb-3">
-        <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
-        <span id="logout-user-email" class="font-label-sm text-label-sm tracking-wider">kelvin.chen@tradecorp.com</span>
+      <!-- 用户身份徽章 -->
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-label-md mb-3 border border-outline-variant/30">
+        <span class="material-symbols-outlined text-[14px]">account_circle</span>
+        <span id="logout-user-email">user@company.com</span>
       </div>
 
-      <!-- 标题与说明 -->
-      <h2 class="font-headline-lg text-headline-lg text-on-surface mb-2 font-bold tracking-tight">退出登录</h2>
-      <p class="font-body-md text-body-md text-on-surface-variant mb-5 leading-relaxed">确定要退出当前账号吗？</p>
+      <!-- 标题与说明文案 -->
+      <h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-2 tracking-tight">退出登录</h3>
+      <p class="font-body-md text-body-md text-on-surface-variant mb-6 leading-relaxed">
+        确定要退出当前账号吗？
+      </p>
 
-      <!-- 提示条 -->
-      <div class="w-full bg-surface-container-low rounded-xl p-3 mb-6 text-left flex items-start gap-2.5">
-        <span class="material-symbols-outlined text-outline text-[18px] shrink-0 mt-0.5">info</span>
-        <p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
-          退出后将需要重新验证工作邮箱登录，未保存的底价表与汇率草稿已自动加密同步至服务器。
+      <!-- 信息安全提示条 -->
+      <div class="w-full bg-surface-container-low rounded-xl p-3 mb-6 text-left flex items-start gap-2.5 border border-outline-variant/20">
+        <span class="material-symbols-outlined text-outline text-[16px] mt-0.5 shrink-0">info</span>
+        <p class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed">
+          退出后需重新验证工作邮箱登录，未保存的单据草稿已加密同步至服务器。
         </p>
       </div>
 
-      <!-- 操作按钮组 -->
+      <!-- 按钮操作区 -->
       <div class="flex items-center gap-3 w-full">
-        <button onclick="closeLogoutModal()" class="flex-1 py-2.5 px-5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-body-md text-body-md font-semibold transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow text-center cursor-pointer border-none" id="cancel-logout-btn" type="button">
+        <button onclick="closeLogoutModal()" class="flex-1 py-2.5 px-5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-sm font-semibold transition-all duration-150 active:scale-95 cursor-pointer" type="button">
           取消
         </button>
-        <button onclick="confirmLogoutAction()" class="flex-1 py-2.5 px-5 rounded-full bg-error-container hover:bg-error hover:text-on-error text-on-error-container font-body-md text-body-md font-semibold transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group border-none" id="confirm-logout-btn" type="button">
-          <span class="material-symbols-outlined text-[16px] transition-transform duration-200 group-hover:scale-110">power_settings_new</span>
+        <button onclick="confirmLogoutUser()" class="flex-1 py-2.5 px-5 rounded-full bg-error hover:bg-red-700 text-white font-headline-sm text-sm font-semibold shadow-sm hover:shadow transition-all duration-150 active:scale-95 cursor-pointer flex items-center justify-center gap-1.5" type="button">
+          <span class="material-symbols-outlined text-[16px]">power_settings_new</span>
           <span>确认退出</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- 核心前端交互与状态机 (Functional JavaScript Engine)                       -->
-  <!-- ========================================================================= -->
   <script>
-    let currentInboundTier = 'general';
+    // =========================================================================
+    // 前端核心驱动脚本 (试用/登录/找回密码/Escape退出/60s倒计时防抖)
+    // =========================================================================
+
     let currentInboundFormMode = 'register';
-    let verificationCooldownTimer = null;
-    let forgotPasswordCooldownTimer = null;
+    let codeCountdownTimer = null;
+    let codeCountdownSeconds = 0;
+    let forgotCountdownTimer = null;
+    let forgotCountdownSeconds = 0;
     let forgotResetToken = '';
 
-    // FAQ 手风琴展开与收起
-    function toggleFaq(headerEl) {
-      const content = headerEl.nextElementSibling;
-      const icon = headerEl.querySelector('.material-symbols-outlined');
-      if (!content || !icon) return;
-      if (content.style.display === 'none' || !content.style.display) {
-        content.style.display = 'block';
-        icon.style.transform = 'rotate(180deg)';
-      } else {
-        content.style.display = 'none';
-        icon.style.transform = 'rotate(0deg)';
-      }
-    }
-
-    // 移动端菜单切换
     function toggleMobileNav() {
       const drawer = document.getElementById('mobile-nav-drawer');
-      const icon = document.getElementById('mobile-menu-icon');
-      if (!drawer) return;
-      const isHidden = drawer.classList.contains('hidden');
-      if (isHidden) {
-        drawer.classList.remove('hidden');
-        if (icon) icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
-      } else {
+      if (drawer) {
+        drawer.classList.toggle('hidden');
+      }
+    }
+    function closeMobileNav() {
+      const drawer = document.getElementById('mobile-nav-drawer');
+      if (drawer) {
         drawer.classList.add('hidden');
-        if (icon) icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
       }
     }
 
-    function closeMobileNav() {
-      const drawer = document.getElementById('mobile-nav-drawer');
-      const icon = document.getElementById('mobile-menu-icon');
-      if (drawer) drawer.classList.add('hidden');
-      if (icon) icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
-    }
-
-    // 登录与试用状态自适应
     function updateNavForLoggedInUser() {
-      const email = localStorage.getItem('kelvinflow_user_email') || localStorage.getItem('kelvinflow_user_phone');
       const token = localStorage.getItem('saas_auth_token');
-      const wbUrl = token ? '/review/QT-20260904-888?token=' + encodeURIComponent(token) : '/review/QT-20260904-888';
-
+      const email = localStorage.getItem('kelvinflow_user_email');
+      const tenant = localStorage.getItem('kelvinflow_active_tenant');
       const trialBtn = document.getElementById('nav-trial-btn');
       const loginBtn = document.getElementById('nav-login-btn');
       const wbBtn = document.getElementById('nav-workbench-btn');
@@ -875,7 +926,8 @@
       const userPhone = document.getElementById('nav-user-phone');
       const logoutEmail = document.getElementById('logout-user-email');
 
-      if (email) {
+      if (token && email) {
+        const wbUrl = tenant ? ('/review/QT-20260904-888?tenant=' + encodeURIComponent(tenant)) : '/review/QT-20260904-888';
         if (trialBtn) trialBtn.style.display = 'none';
         if (loginBtn) loginBtn.style.display = 'none';
         if (wbBtn) { wbBtn.style.display = 'inline-flex'; wbBtn.href = wbUrl; }
@@ -958,21 +1010,22 @@
         if (regView) regView.classList.remove('hidden');
         if (loginView) loginView.classList.add('hidden');
       }
+
+      const regErr = document.getElementById('inbound-error-feedback');
+      const loginErr = document.getElementById('inbound-login-error');
+      if (regErr) regErr.classList.add('hidden');
+      if (loginErr) loginErr.classList.add('hidden');
     }
 
     function openInboundModal(tier) {
-      currentInboundTier = tier || 'general';
-
-      const token = localStorage.getItem('saas_auth_token');
-      if (token && tier !== 'login') {
-        const redirectBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-          ? '/review/QT-20260904-888'
-          : 'https://quote.kelvinflow.com/';
-        window.location.href = redirectBase + '?token=' + encodeURIComponent(token);
-        return;
+      if (tier && tier !== 'starter' && tier !== 'login') {
+        localStorage.setItem('kelvinflow_pending_tier', tier);
+      } else if (tier === 'starter') {
+        localStorage.setItem('kelvinflow_pending_tier', 'starter');
       }
 
       const modal = document.getElementById('inbound-modal');
+      if (!modal) return;
 
       if (tier === 'login') {
         switchInboundFormMode('login');
@@ -980,13 +1033,13 @@
         switchInboundFormMode('register');
       }
 
-      if (!modal) return;
       lockBodyScroll();
+      modal.style.display = 'flex';
       modal.classList.remove('hidden');
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         modal.classList.remove('opacity-0');
         modal.classList.add('opacity-100');
-      }, 10);
+      });
     }
 
     function closeInboundModal() {
@@ -996,6 +1049,7 @@
       modal.classList.add('opacity-0');
       setTimeout(() => {
         modal.classList.add('hidden');
+        modal.style.display = 'none';
         unlockBodyScroll();
       }, 200);
     }
@@ -1005,49 +1059,42 @@
       if (inboundModal) {
         inboundModal.classList.remove('opacity-100');
         inboundModal.classList.add('opacity-0');
-        setTimeout(() => inboundModal.classList.add('hidden'), 200);
+        setTimeout(() => {
+          inboundModal.classList.add('hidden');
+          inboundModal.style.display = 'none';
+        }, 200);
       }
 
-      const step1 = document.getElementById('forgot-step-1');
-      const step2 = document.getElementById('forgot-step-2');
-      if (step1) step1.classList.remove('hidden');
-      if (step2) step2.classList.add('hidden');
+      const step1Form = document.getElementById('forgot-step1-form');
+      const step2Form = document.getElementById('forgot-step2-form');
+      const desc = document.getElementById('forgot-modal-desc');
+      const errFeedback1 = document.getElementById('forgot-step1-error-feedback');
+      const errFeedback2 = document.getElementById('forgot-step2-error-feedback');
+      const succFeedback2 = document.getElementById('forgot-step2-success-feedback');
 
-      const loginEmail = document.getElementById('inbound-login-email')?.value?.trim();
-      const savedEmail = localStorage.getItem('kelvinflow_user_email') || '';
-      const emailInput = document.getElementById('forgot-email');
-      if (emailInput) {
-        emailInput.value = loginEmail || savedEmail || '';
-      }
-
-      const codeInput = document.getElementById('forgot-code');
-      if (codeInput) codeInput.value = '';
-      const newPwdInput = document.getElementById('forgot-new-password');
-      if (newPwdInput) newPwdInput.value = '';
-      const confirmPwdInput = document.getElementById('forgot-confirm-password');
-      if (confirmPwdInput) confirmPwdInput.value = '';
-
-      const err1 = document.getElementById('forgot-step1-error-feedback');
-      if (err1) { err1.classList.add('hidden'); }
-      const emailErr = document.getElementById('forgot-email-error');
-      if (emailErr) { emailErr.classList.add('hidden'); }
-      const err2 = document.getElementById('forgot-step2-error-feedback');
-      if (err2) { err2.classList.add('hidden'); }
-      const codeTip = document.getElementById('forgot-code-sent-tip');
-      if (codeTip) codeTip.classList.add('hidden');
-
+      if (step1Form) step1Form.classList.remove('hidden');
+      if (step2Form) step2Form.classList.add('hidden');
+      if (desc) desc.textContent = '输入您注册时的工作邮箱，验证身份后设置新密码';
+      if (errFeedback1) errFeedback1.classList.add('hidden');
+      if (errFeedback2) errFeedback2.classList.add('hidden');
+      if (succFeedback2) succFeedback2.classList.add('hidden');
       forgotResetToken = '';
 
       const modal = document.getElementById('forgot-password-modal');
       if (!modal) return;
       lockBodyScroll();
+      modal.style.display = 'flex';
       modal.classList.remove('hidden');
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         modal.classList.remove('opacity-0');
         modal.classList.add('opacity-100');
-        if (emailInput && !emailInput.value) emailInput.focus();
-        else if (codeInput) codeInput.focus();
-      }, 10);
+      });
+
+      const loginEmail = document.getElementById('inbound-login-email')?.value || '';
+      const forgotEmailInput = document.getElementById('forgot-email');
+      if (loginEmail && forgotEmailInput && !forgotEmailInput.value) {
+        forgotEmailInput.value = loginEmail;
+      }
     }
 
     function closeForgotPasswordModal() {
@@ -1057,25 +1104,19 @@
       modal.classList.add('opacity-0');
       setTimeout(() => {
         modal.classList.add('hidden');
+        modal.style.display = 'none';
         unlockBodyScroll();
       }, 200);
     }
 
-    function cancelForgotPasswordAndReturnLogin() {
+    function backToLoginFromForgot() {
       closeForgotPasswordModal();
       setTimeout(() => {
         openInboundModal('login');
       }, 220);
     }
 
-    function backToForgotStep1() {
-      const step1 = document.getElementById('forgot-step-1');
-      const step2 = document.getElementById('forgot-step-2');
-      if (step1) step1.classList.remove('hidden');
-      if (step2) step2.classList.add('hidden');
-    }
-
-    // 退出确认弹窗控制 (kelvinflow_2 对版，预置隐藏组件)
+    // 退出确认弹窗 (kelvinflow_2 对版，预埋)
     function openLogoutModal() {
       const modal = document.getElementById('logout-dialog-overlay');
       if (!modal) return;
@@ -1084,11 +1125,12 @@
       if (emailEl) emailEl.textContent = email;
 
       lockBodyScroll();
+      modal.style.display = 'flex';
       modal.classList.remove('hidden');
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         modal.classList.remove('opacity-0');
         modal.classList.add('opacity-100');
-      }, 10);
+      });
     }
 
     function closeLogoutModal() {
@@ -1098,506 +1140,385 @@
       modal.classList.add('opacity-0');
       setTimeout(() => {
         modal.classList.add('hidden');
+        modal.style.display = 'none';
         unlockBodyScroll();
       }, 200);
     }
 
-    function confirmLogoutAction() {
+    function confirmLogoutUser() {
+      localStorage.removeItem('kelvinflow_user_phone');
       localStorage.removeItem('saas_auth_token');
       localStorage.removeItem('kelvinflow_user_email');
       localStorage.removeItem('kelvinflow_user_name');
       localStorage.removeItem('kelvinflow_user_plan');
+      localStorage.removeItem('kelvinflow_user_is_paid');
       localStorage.removeItem('kelvinflow_remaining_days');
       localStorage.removeItem('kelvinflow_user_expired');
-      localStorage.removeItem('kelvinflow_user_is_paid');
-      updateNavForLoggedInUser();
+      localStorage.removeItem('kelvinflow_active_tenant');
+      sessionStorage.clear();
       closeLogoutModal();
+      updateNavForLoggedInUser();
+      window.location.href = '/?logged_out=1';
     }
 
-    async function sendInboundVerificationCode() {
+    // D2: 立即进入倒计时与禁用态
+    function sendInboundVerificationCode() {
       const emailInput = document.getElementById('inbound-email');
       const email = (emailInput?.value || '').trim();
       const btn = document.getElementById('btn-send-code');
       const btnText = document.getElementById('btn-send-code-text');
-      const riskErr = document.getElementById('email-risk-error-msg');
-      const riskText = document.getElementById('email-risk-error-text');
-      const codeTip = document.getElementById('code-sent-tip');
+      const errFeedback = document.getElementById('inbound-error-feedback');
+      const errText = document.getElementById('inbound-error-feedback-text');
 
-      if (riskErr) { riskErr.classList.add('hidden'); if (riskText) riskText.textContent = ''; }
-
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        if (riskErr) {
-          if (riskText) riskText.textContent = '请输入合法的电子邮箱地址（用于接收验证码）';
-          riskErr.classList.remove('hidden');
+      if (!email || !email.includes('@')) {
+        if (errFeedback && errText) {
+          errText.textContent = '请输入有效的工作邮箱';
+          errFeedback.classList.remove('hidden');
         }
-        emailInput?.focus();
+        if (emailInput) emailInput.focus();
         return;
       }
 
-      // D2: 立即进入禁用＋60s 倒计时（不依赖 API 返回，失败不提前恢复）
       if (btn) btn.disabled = true;
-      let secondsLeft = 60;
-      if (btnText) btnText.textContent = secondsLeft + 's可重发';
-      if (verificationCooldownTimer) clearInterval(verificationCooldownTimer);
-      verificationCooldownTimer = setInterval(() => {
-        secondsLeft--;
-        if (secondsLeft <= 0) {
-          clearInterval(verificationCooldownTimer);
-          verificationCooldownTimer = null;
-          if (btn) btn.disabled = false;
-          if (btnText) btnText.textContent = '获取验证码';
+      codeCountdownSeconds = 60;
+      if (btnText) btnText.textContent = '60s可重发';
+      if (btn) btn.classList.add('opacity-60', 'cursor-not-allowed');
+
+      if (codeCountdownTimer) clearInterval(codeCountdownTimer);
+      codeCountdownTimer = setInterval(() => {
+        codeCountdownSeconds--;
+        if (codeCountdownSeconds > 0) {
+          if (btnText) btnText.textContent = codeCountdownSeconds + 's可重发';
         } else {
-          if (btnText) btnText.textContent = secondsLeft + 's可重发';
+          clearInterval(codeCountdownTimer);
+          codeCountdownTimer = null;
+          if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
+          if (btnText) btnText.textContent = '获取验证码';
         }
       }, 1000);
 
-      try {
-        const res = await fetch('/api/v1/auth/trial-register/send-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-        const data = await res.json();
-
+      fetch('/api/v1/auth/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      })
+      .then(res => res.json())
+      .then(data => {
         if (!data.success) {
-          if (riskErr) {
-            if (riskText) riskText.textContent = data.error || '验证码发送受阻，请稍后再试';
-            riskErr.classList.remove('hidden');
+          if (errFeedback && errText) {
+            errText.textContent = data.error || '验证码发送失败，请稍后重试';
+            errFeedback.classList.remove('hidden');
           }
-          return;
         }
-
-        if (codeTip) {
-          codeTip.textContent = '验证码已发送至工作邮箱';
-          codeTip.classList.remove('hidden');
+      })
+      .catch(err => {
+        console.error('获取验证码网络异常:', err);
+        if (errFeedback && errText) {
+          errText.textContent = '网络连接异常，请重试';
+          errFeedback.classList.remove('hidden');
         }
-
-        document.getElementById('inbound-code')?.focus();
-
-      } catch (err) {
-        console.error('发送验证码网络异常:', err);
-        if (riskErr) {
-          if (riskText) riskText.textContent = '网络连接异常，请重试';
-          riskErr.classList.remove('hidden');
-        }
-      }
+      });
     }
 
-    async function handleInboundSubmit(e) {
+    function handleInboundSubmit(e) {
       e.preventDefault();
       const email = (document.getElementById('inbound-email')?.value || '').trim();
       const code = (document.getElementById('inbound-code')?.value || '').trim();
       const password = (document.getElementById('inbound-password')?.value || '').trim();
-      const channelSource = (document.getElementById('inbound-channel-source')?.value || '').trim();
-      const riskErr = document.getElementById('email-risk-error-msg');
-      const riskText = document.getElementById('email-risk-error-text');
-      const errorBox = document.getElementById('inbound-error-feedback');
-      const errorText = document.getElementById('inbound-error-text');
-      const successBox = document.getElementById('inbound-success-feedback');
-      const submitBtn = document.getElementById('inbound-submit-btn');
+      const channelSelect = document.getElementById('inbound-channel-select');
+      const channel = channelSelect ? channelSelect.value : '';
+      const agree = document.getElementById('inbound-agreement-checkbox')?.checked;
+      const errFeedback = document.getElementById('inbound-error-feedback');
+      const errText = document.getElementById('inbound-error-feedback-text');
+      const submitBtn = document.getElementById('btn-inbound-submit');
+      const submitBtnText = document.getElementById('btn-inbound-submit-text');
 
-      if (riskErr) { riskErr.classList.add('hidden'); if (riskText) riskText.textContent = ''; }
-      if (errorBox) { errorBox.classList.add('hidden'); }
-      if (successBox) { successBox.classList.add('hidden'); successBox.innerHTML = ''; }
+      if (errFeedback) errFeedback.classList.add('hidden');
 
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        if (riskErr) {
-          if (riskText) riskText.textContent = '请输入合法的电子邮箱地址';
-          riskErr.classList.remove('hidden');
+      if (!agree) {
+        if (errFeedback && errText) {
+          errText.textContent = '请先阅读并同意用户服务协议与隐私保密承诺';
+          errFeedback.classList.remove('hidden');
         }
-        document.getElementById('inbound-email')?.focus();
         return;
       }
 
-      if (!code || code.length !== 6) {
-        if (errorBox) {
-          if (errorText) errorText.textContent = '验证码已失效或输入有误，请核对后重试';
-          errorBox.classList.remove('hidden');
+      if (!code || code.length < 6) {
+        if (errFeedback && errText) {
+          errText.textContent = '验证码已失效或输入有误，请核对后重试';
+          errFeedback.classList.remove('hidden');
         }
-        document.getElementById('inbound-code')?.focus();
         return;
       }
 
-      if (!password || password.length < 6) {
-        if (errorBox) {
-          if (errorText) errorText.textContent = '登录密码长度至少需要 6 位字符';
-          errorBox.classList.remove('hidden');
-        }
-        document.getElementById('inbound-password')?.focus();
-        return;
-      }
+      if (submitBtn) submitBtn.disabled = true;
+      if (submitBtnText) submitBtnText.textContent = '开通试用中...';
 
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>正在为您开通工作台...</span>';
-      }
-
-      try {
-        const payload = {
-          email,
-          code,
-          password,
-          channel: channelSource || '未选择',
-          tier: currentInboundTier
-        };
-
-        const res = await fetch('/api/v1/auth/trial-register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-
+      fetch('/api/v1/auth/trial-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          code: code,
+          password: password,
+          sourceChannel: channel || 'direct'
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
         if (!data.success) {
-          if (errorBox) {
-            if (errorText) errorText.textContent = data.error || '验证码已失效或输入有误，请核对后重试';
-            errorBox.classList.remove('hidden');
+          if (errFeedback && errText) {
+            errText.textContent = data.error || '验证码已失效或输入有误，请核对后重试';
+            errFeedback.classList.remove('hidden');
           }
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span>立即开通 7 天免费试用</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
-          }
+          if (submitBtn) submitBtn.disabled = false;
+          if (submitBtnText) submitBtnText.textContent = '立即开通 7 天免费试用';
           return;
         }
 
-        if (data.token) {
-          localStorage.setItem('saas_auth_token', data.token);
-          localStorage.setItem('kelvinflow_user_email', email);
-          if (data.user?.name) localStorage.setItem('kelvinflow_user_name', data.user.name);
-          if (data.remainingDays !== undefined) localStorage.setItem('kelvinflow_remaining_days', String(data.remainingDays));
-          if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);
-          if (data.isPaid !== undefined) localStorage.setItem('kelvinflow_user_is_paid', String(data.isPaid));
-          updateNavForLoggedInUser();
-        }
+        if (data.token) localStorage.setItem('saas_auth_token', data.token);
+        if (data.email) localStorage.setItem('kelvinflow_user_email', data.email);
+        if (data.tenantId) localStorage.setItem('kelvinflow_active_tenant', data.tenantId);
+        if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);
+        if (data.remainingDays) localStorage.setItem('kelvinflow_remaining_days', data.remainingDays);
 
-        if (successBox) {
-          successBox.innerHTML = '<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: \'FILL\' 1;">check_circle</span><span>开通成功！欢迎体验，正在为您跳转至审单工作台...</span>';
-          successBox.classList.remove('hidden');
-        }
+        updateNavForLoggedInUser();
+        closeInboundModal();
 
-        setTimeout(() => {
-          const redirectBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? '/review/QT-20260904-888'
-            : 'https://quote.kelvinflow.com/';
-          window.location.href = redirectBase + '?token=' + encodeURIComponent(data.token);
-        }, 800);
-
-      } catch (err) {
-        console.error('开通试用网络异常:', err);
-        if (errorBox) {
-          if (errorText) errorText.textContent = '网络连接异常，请稍后重试';
-          errorBox.classList.remove('hidden');
+        const targetTenant = data.tenantId || 'tenant_trial';
+        window.location.href = '/review/QT-20260904-888?tenant=' + encodeURIComponent(targetTenant);
+      })
+      .catch(err => {
+        console.error('注册提交网络异常:', err);
+        if (errFeedback && errText) {
+          errText.textContent = '网络连接异常，请重试';
+          errFeedback.classList.remove('hidden');
         }
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span>立即开通 7 天免费试用</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
-        }
-      }
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtnText) submitBtnText.textContent = '立即开通 7 天免费试用';
+      });
     }
 
-    async function handleInboundLoginSubmit(e) {
+    function handleInboundLoginSubmit(e) {
       e.preventDefault();
       const email = (document.getElementById('inbound-login-email')?.value || '').trim();
       const password = (document.getElementById('inbound-login-password')?.value || '').trim();
-      const errorBox = document.getElementById('inbound-login-error-feedback');
-      const errorText = document.getElementById('inbound-login-error-text');
-      const successBox = document.getElementById('inbound-login-success-feedback');
-      const submitBtn = document.getElementById('inbound-login-submit-btn');
+      const errBox = document.getElementById('inbound-login-error');
+      const errText = document.getElementById('inbound-login-error-text');
+      const submitBtn = document.getElementById('btn-inbound-login-submit');
+      const submitBtnText = document.getElementById('btn-inbound-login-text');
 
-      if (errorBox) { errorBox.classList.add('hidden'); }
-      if (successBox) { successBox.classList.add('hidden'); successBox.innerHTML = ''; }
+      if (errBox) errBox.classList.add('hidden');
 
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        if (errorBox) {
-          if (errorText) errorText.textContent = '请输入合法的电子邮箱地址';
-          errorBox.classList.remove('hidden');
+      if (!email || !password) {
+        if (errBox && errText) {
+          errText.textContent = '请输入工作邮箱与登录密码';
+          errBox.classList.remove('hidden');
         }
-        document.getElementById('inbound-login-email')?.focus();
         return;
       }
 
-      if (!password) {
-        if (errorBox) {
-          if (errorText) errorText.textContent = '请输入登录密码';
-          errorBox.classList.remove('hidden');
-        }
-        document.getElementById('inbound-login-password')?.focus();
-        return;
-      }
+      if (submitBtn) submitBtn.disabled = true;
+      if (submitBtnText) submitBtnText.textContent = '正在登录工作台...';
 
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>正在验证并登录...</span>';
-      }
-
-      try {
-        const res = await fetch('/api/v1/auth/password-login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-
+      fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password })
+      })
+      .then(res => res.json())
+      .then(data => {
         if (!data.success) {
-          if (errorBox) {
-            if (errorText) errorText.textContent = '密码错误，请重试';
-            errorBox.classList.remove('hidden');
+          if (errBox && errText) {
+            errText.textContent = data.error || '密码错误，请重试';
+            errBox.classList.remove('hidden');
           }
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span>登录工作台</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
-          }
+          if (submitBtn) submitBtn.disabled = false;
+          if (submitBtnText) submitBtnText.textContent = '登录工作台';
           return;
         }
 
-        if (data.token) {
-          localStorage.setItem('saas_auth_token', data.token);
-          localStorage.setItem('kelvinflow_user_email', data.user?.email || email);
-          if (data.user?.name) localStorage.setItem('kelvinflow_user_name', data.user.name);
-          if (data.remainingDays !== undefined) localStorage.setItem('kelvinflow_remaining_days', String(data.remainingDays));
-          if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);
-          if (data.isPaid !== undefined) localStorage.setItem('kelvinflow_user_is_paid', String(data.isPaid));
-          updateNavForLoggedInUser();
-        }
+        if (data.token) localStorage.setItem('saas_auth_token', data.token);
+        if (data.email) localStorage.setItem('kelvinflow_user_email', data.email);
+        if (data.tenantId) localStorage.setItem('kelvinflow_active_tenant', data.tenantId);
+        if (data.plan) localStorage.setItem('kelvinflow_user_plan', data.plan);
+        if (data.remainingDays) localStorage.setItem('kelvinflow_remaining_days', data.remainingDays);
 
-        if (successBox) {
-          successBox.innerHTML = '<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: \'FILL\' 1;">check_circle</span><span>登录成功！欢迎回到工作台，正在跳转...</span>';
-          successBox.classList.remove('hidden');
-        }
+        updateNavForLoggedInUser();
+        closeInboundModal();
 
-        setTimeout(() => {
-          const redirectBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? '/review/QT-20260904-888'
-            : 'https://quote.kelvinflow.com/';
-          window.location.href = redirectBase + '?token=' + encodeURIComponent(data.token);
-        }, 600);
-
-      } catch (err) {
-        if (errorBox) {
-          if (errorText) errorText.textContent = '网络连接异常，请稍后重试';
-          errorBox.classList.remove('hidden');
+        const targetTenant = data.tenantId || 'tenant_trial';
+        window.location.href = '/review/QT-20260904-888?tenant=' + encodeURIComponent(targetTenant);
+      })
+      .catch(err => {
+        console.error('登录提交异常:', err);
+        if (errBox && errText) {
+          errText.textContent = '网络连接异常，请重试';
+          errBox.classList.remove('hidden');
         }
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span>登录工作台</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
-        }
-      }
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtnText) submitBtnText.textContent = '登录工作台';
+      });
     }
 
-    async function sendForgotPasswordCode() {
-      const emailInput = document.getElementById('forgot-email');
-      const email = (emailInput?.value || '').trim();
+    function sendForgotVerificationCode() {
+      const email = (document.getElementById('forgot-email')?.value || '').trim();
       const btn = document.getElementById('btn-forgot-send-code');
       const btnText = document.getElementById('btn-forgot-send-code-text');
-      const emailErr = document.getElementById('forgot-email-error');
-      const emailErrText = document.getElementById('forgot-email-error-text');
       const errFeedback = document.getElementById('forgot-step1-error-feedback');
       const errText = document.getElementById('forgot-step1-error-text');
-      const codeTip = document.getElementById('forgot-code-sent-tip');
 
-      if (emailErr) { emailErr.classList.add('hidden'); }
-      if (errFeedback) { errFeedback.classList.add('hidden'); }
-
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        if (emailErr) {
-          if (emailErrText) emailErrText.textContent = '请输入合法的注册工作邮箱地址';
-          emailErr.classList.remove('hidden');
+      if (!email || !email.includes('@')) {
+        if (errFeedback && errText) {
+          errText.textContent = '请输入注册使用的工作邮箱';
+          errFeedback.classList.remove('hidden');
         }
-        emailInput?.focus();
         return;
       }
 
       if (btn) btn.disabled = true;
-      let secondsLeft = 60;
-      if (btnText) btnText.textContent = secondsLeft + 's可重发';
-      if (forgotPasswordCooldownTimer) clearInterval(forgotPasswordCooldownTimer);
-      forgotPasswordCooldownTimer = setInterval(() => {
-        secondsLeft--;
-        if (secondsLeft <= 0) {
-          clearInterval(forgotPasswordCooldownTimer);
-          forgotPasswordCooldownTimer = null;
-          if (btn) btn.disabled = false;
-          if (btnText) btnText.textContent = '获取验证码';
+      forgotCountdownSeconds = 60;
+      if (btnText) btnText.textContent = '60s可重发';
+      if (btn) btn.classList.add('opacity-60', 'cursor-not-allowed');
+
+      if (forgotCountdownTimer) clearInterval(forgotCountdownTimer);
+      forgotCountdownTimer = setInterval(() => {
+        forgotCountdownSeconds--;
+        if (forgotCountdownSeconds > 0) {
+          if (btnText) btnText.textContent = forgotCountdownSeconds + 's可重发';
         } else {
-          if (btnText) btnText.textContent = secondsLeft + 's可重发';
+          clearInterval(forgotCountdownTimer);
+          forgotCountdownTimer = null;
+          if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
+          if (btnText) btnText.textContent = '获取验证码';
         }
       }, 1000);
 
-      try {
-        const res = await fetch('/api/v1/auth/forgot-password/send-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-        const data = await res.json();
-
+      fetch('/api/v1/auth/forgot-password/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      })
+      .then(res => res.json())
+      .then(data => {
         if (!data.success) {
-          if (errFeedback) {
-            if (errText) errText.textContent = data.error || '验证码发送受阻，请稍后再试';
+          if (errFeedback && errText) {
+            errText.textContent = data.error || '验证码发送失败，请核对邮箱后重试';
             errFeedback.classList.remove('hidden');
           }
-          return;
         }
-
-        if (codeTip) {
-          codeTip.textContent = '验证码已发送至工作邮箱';
-          codeTip.classList.remove('hidden');
-        }
-
-        document.getElementById('forgot-code')?.focus();
-
-      } catch (err) {
-        console.error('找回密码发码网络异常:', err);
-        if (errFeedback) {
-          if (errText) errText.textContent = '网络连接异常，请重试';
+      })
+      .catch(err => {
+        console.error('找回密码发码异常:', err);
+        if (errFeedback && errText) {
+          errText.textContent = '网络连接异常，请重试';
           errFeedback.classList.remove('hidden');
         }
-      }
+      });
     }
 
-    async function handleForgotStep1Submit(e) {
+    function handleForgotStep1Submit(e) {
       e.preventDefault();
       const email = (document.getElementById('forgot-email')?.value || '').trim();
       const code = (document.getElementById('forgot-code')?.value || '').trim();
-      const emailErr = document.getElementById('forgot-email-error');
-      const emailErrText = document.getElementById('forgot-email-error-text');
       const errFeedback = document.getElementById('forgot-step1-error-feedback');
       const errText = document.getElementById('forgot-step1-error-text');
       const submitBtn = document.getElementById('btn-forgot-step1-submit');
 
-      if (emailErr) { emailErr.classList.add('hidden'); }
-      if (errFeedback) { errFeedback.classList.add('hidden'); }
+      if (errFeedback) errFeedback.classList.add('hidden');
 
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        if (emailErr) {
-          if (emailErrText) emailErrText.textContent = '请输入合法的注册工作邮箱地址';
-          emailErr.classList.remove('hidden');
-        }
-        document.getElementById('forgot-email')?.focus();
-        return;
-      }
-
-      if (!code || code.length !== 6) {
-        if (errFeedback) {
-          if (errText) errText.textContent = '请输入 6 位数字验证码';
+      if (!code || code.length < 6) {
+        if (errFeedback && errText) {
+          errText.textContent = '请输入 6 位邮箱验证码';
           errFeedback.classList.remove('hidden');
         }
-        document.getElementById('forgot-code')?.focus();
         return;
       }
 
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>正在核验验证码...</span>';
-      }
+      if (submitBtn) submitBtn.disabled = true;
 
-      try {
-        const res = await fetch('/api/v1/auth/forgot-password/verify-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, code })
-        });
-        const data = await res.json();
-
+      fetch('/api/v1/auth/forgot-password/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, code: code })
+      })
+      .then(res => res.json())
+      .then(data => {
         if (!data.success) {
-          if (errFeedback) {
-            if (errText) errText.textContent = data.error || '验证码核验失败或已过期';
+          if (errFeedback && errText) {
+            errText.textContent = data.error || '验证码有误或已过期，请核对后重试';
             errFeedback.classList.remove('hidden');
           }
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span>下一步：设置新密码</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
-          }
+          if (submitBtn) submitBtn.disabled = false;
           return;
         }
 
-        forgotResetToken = data.resetToken || '';
-
-        const step1 = document.getElementById('forgot-step-1');
-        const step2 = document.getElementById('forgot-step-2');
-        if (step1) step1.classList.add('hidden');
-        if (step2) step2.classList.remove('hidden');
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span>下一步：设置新密码</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
-        }
-
-        const newPwdInput = document.getElementById('forgot-new-password');
-        if (newPwdInput) newPwdInput.focus();
-
-      } catch (err) {
+        forgotResetToken = data.resetToken;
+        document.getElementById('forgot-step1-form')?.classList.add('hidden');
+        document.getElementById('forgot-step2-form')?.classList.remove('hidden');
+        const desc = document.getElementById('forgot-modal-desc');
+        if (desc) desc.textContent = '身份验证已通过，请为您的账号设置全新登录密码';
+        if (submitBtn) submitBtn.disabled = false;
+      })
+      .catch(err => {
         console.error('核验找回密码验证码异常:', err);
-        if (errFeedback) {
-          if (errText) errText.textContent = '网络连接异常，请重试';
+        if (errFeedback && errText) {
+          errText.textContent = '网络连接异常，请重试';
           errFeedback.classList.remove('hidden');
         }
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span>下一步：设置新密码</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
-        }
-      }
+        if (submitBtn) submitBtn.disabled = false;
+      });
     }
 
-    async function handleForgotStep2Submit(e) {
+    function handleForgotStep2Submit(e) {
       e.preventDefault();
-      const email = (document.getElementById('forgot-email')?.value || '').trim();
       const newPassword = (document.getElementById('forgot-new-password')?.value || '').trim();
       const confirmPassword = (document.getElementById('forgot-confirm-password')?.value || '').trim();
       const errFeedback = document.getElementById('forgot-step2-error-feedback');
       const errText = document.getElementById('forgot-step2-error-text');
       const succFeedback = document.getElementById('forgot-step2-success-feedback');
       const submitBtn = document.getElementById('btn-forgot-step2-submit');
-      const submitBtnText = document.getElementById('btn-forgot-step2-text');
 
-      if (errFeedback) { errFeedback.classList.add('hidden'); }
-      if (succFeedback) { succFeedback.classList.add('hidden'); }
+      if (errFeedback) errFeedback.classList.add('hidden');
+      if (succFeedback) succFeedback.classList.add('hidden');
 
       if (!newPassword || newPassword.length < 6) {
-        if (errFeedback) {
-          if (errText) errText.textContent = '新密码长度至少需要 6 位字符';
+        if (errFeedback && errText) {
+          errText.textContent = '新密码长度至少需要 6 位字符';
           errFeedback.classList.remove('hidden');
         }
-        document.getElementById('forgot-new-password')?.focus();
         return;
       }
 
       if (newPassword !== confirmPassword) {
-        if (errFeedback) {
-          if (errText) errText.textContent = '两次输入的密码不一致，请核对后重新输入！';
+        if (errFeedback && errText) {
+          errText.textContent = '两次输入的密码不一致，请核对后重新输入！';
           errFeedback.classList.remove('hidden');
         }
-        document.getElementById('forgot-confirm-password')?.focus();
         return;
       }
 
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        if (submitBtnText) submitBtnText.textContent = '正在更改密码...';
-      }
+      if (submitBtn) submitBtn.disabled = true;
 
-      try {
-        const res = await fetch('/api/v1/auth/forgot-password/reset', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            resetToken: forgotResetToken,
-            code: (document.getElementById('forgot-code')?.value || '').trim(),
-            newPassword,
-            confirmPassword
-          })
-        });
-        const data = await res.json();
-
+      fetch('/api/v1/auth/forgot-password/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resetToken: forgotResetToken, newPassword: newPassword })
+      })
+      .then(res => res.json())
+      .then(data => {
         if (!data.success) {
-          if (errFeedback) {
-            if (errText) errText.textContent = data.error || '密码更改失败，请稍后重试';
+          if (errFeedback && errText) {
+            errText.textContent = data.error || '密码更改失败，请稍后重试';
             errFeedback.classList.remove('hidden');
           }
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            if (submitBtnText) submitBtnText.textContent = '确认更改';
-          }
+          if (submitBtn) submitBtn.disabled = false;
           return;
         }
 
@@ -1607,30 +1528,17 @@
         }
 
         setTimeout(() => {
-          closeForgotPasswordModal();
-          setTimeout(() => {
-            openInboundModal('login');
-            const loginEmailInput = document.getElementById('inbound-login-email');
-            if (loginEmailInput) loginEmailInput.value = email;
-            const loginPwdInput = document.getElementById('inbound-login-password');
-            if (loginPwdInput) {
-              loginPwdInput.value = '';
-              loginPwdInput.focus();
-            }
-          }, 250);
-        }, 1200);
-
-      } catch (err) {
+          backToLoginFromForgot();
+        }, 1500);
+      })
+      .catch(err => {
         console.error('重置密码提交异常:', err);
-        if (errFeedback) {
-          if (errText) errText.textContent = '网络连接异常，请重试';
+        if (errFeedback && errText) {
+          errText.textContent = '网络连接异常，请重试';
           errFeedback.classList.remove('hidden');
         }
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          if (submitBtnText) submitBtnText.textContent = '确认更改';
-        }
-      }
+        if (submitBtn) submitBtn.disabled = false;
+      });
     }
 
     // D1: 全局 Escape 键退出当前最顶层激活的弹窗
@@ -1658,7 +1566,7 @@
     // 滚动渐入动画 (Scroll Reveal via IntersectionObserver)
     // =========================================================================
     function initScrollReveal() {
-      // 3. prefers-reduced-motion 时禁用动画，内容直接显示
+      // prefers-reduced-motion 时禁用动画，内容直接显示
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.querySelectorAll('.scroll-reveal').forEach(el => {
           el.classList.remove('scroll-reveal');
@@ -1681,17 +1589,14 @@
         const intersecting = entries.filter(e => e.isIntersecting);
         intersecting.forEach((entry, idx) => {
           const el = entry.target;
-          // 2. 进入视口触发一次，立即取消监听（不重复触发）
           obs.unobserve(el);
 
-          // 1. 依次错开约 80–120ms (默认取 100ms 错开)
           const customDelay = el.dataset.revealDelay;
           const delay = customDelay !== undefined ? parseInt(customDelay, 10) : (idx * 100);
 
           setTimeout(() => {
             el.classList.add('revealed');
 
-            // 4. 动画完成后清理类名，确保原有 hover / transition 100% 不受影响
             const cleanup = () => {
               el.classList.remove('scroll-reveal', 'revealed');
               el.removeEventListener('transitionend', onEnd);
@@ -1700,7 +1605,7 @@
               if (e.propertyName === 'transform') cleanup();
             };
             el.addEventListener('transitionend', onEnd);
-            setTimeout(cleanup, 750); // 兜底清理
+            setTimeout(cleanup, 750);
           }, delay);
         });
       }, {
