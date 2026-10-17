@@ -888,10 +888,10 @@ const modalsAndScripts = `
       if (!input || !icon) return;
       if (input.type === 'password') {
         input.type = 'text';
-        icon.textContent = 'visibility';
+        icon.textContent = 'visibility_off';
       } else {
         input.type = 'password';
-        icon.textContent = 'visibility_off';
+        icon.textContent = 'visibility';
       }
     }
 
@@ -1220,7 +1220,7 @@ const modalsAndScripts = `
         'sohu.com', 'aliyun.com', '139.com', '189.com', 'wo.cn'
       ]);
 
-      const isValidEnterpriseDomain = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/.test(domain) &&
+      const isValidEnterpriseDomain = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\\.[a-zA-Z]{2,}$/.test(domain) &&
         !domain.endsWith('.local') &&
         !domain.endsWith('.test') &&
         !domain.endsWith('.invalid');
