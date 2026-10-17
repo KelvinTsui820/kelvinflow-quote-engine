@@ -5,9 +5,9 @@ const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.html'),
 
 const checks = [
   ['Hero Product Mockup Preview', html.includes('KelvinFlow Quotation Review Interface Preview')],
-  ['Hero Headline 10秒生成', html.includes('10 秒生成') || html.includes('10秒生成')],
+  ['Hero Headline 快速生成', html.includes('快速生成')],
   ['Metric Card 逐行解析', html.includes('逐行解析')],
-  ['Metric Card 10 秒', html.includes('10 秒')],
+  ['Metric Card 高效', html.includes('高效') && html.includes('出单交付省时省力')],
   ['Metric Card 零密码', html.includes('零密码')],
   ['NO overscroll-behavior:none', !html.includes('overscroll-behavior:none')],
   ['NO webkit-scrollbar display:none', !html.includes('::-webkit-scrollbar{display:none;}')],
@@ -28,7 +28,7 @@ checks.forEach(([name, passed]) => {
   if (!passed) allPassed = false;
 });
 
-const prohibitedWords = ['99.4%', '180,000+', '95%', '一键', '实时汇率', '中国银行', '自动获取', 'Sinosure'];
+const prohibitedWords = ['99.4%', '180,000+', '95%', '一键', '实时汇率', '中国银行', '自动获取', 'Sinosure', '10 秒', '10秒'];
 prohibitedWords.forEach(w => {
   const count = (html.split(w).length - 1);
   console.log('Prohibited word: "' + w + '" count = ' + count);

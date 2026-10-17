@@ -333,7 +333,7 @@ const modalsAndScripts = `
           <!-- 特色徽章 Pill -->
           <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed text-primary font-label-md text-label-md mt-1 mb-2">
             <span class="material-symbols-outlined text-[15px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
-            <span>无需信用卡 · 即刻开启 10 秒出单</span>
+            <span>无需信用卡 · 即刻开启，快速出单</span>
           </div>
         </div>
 
@@ -1749,7 +1749,9 @@ const prohibitedWords = [
   '实时汇率',
   '中国银行',
   '自动获取',
-  'Sinosure'
+  'Sinosure',
+  '10 秒',
+  '10秒'
 ];
 
 let hasProhibited = false;
