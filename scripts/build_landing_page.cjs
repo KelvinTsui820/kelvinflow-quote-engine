@@ -46,11 +46,10 @@ codeHtml = codeHtml.replace(
   '<div class="w-full max-w-7xl mx-auto rounded-2xl bg-white/80 p-2 md:p-3 border border-slate-200/80 shadow-[0_25px_60px_-15px_rgba(29,78,216,0.12),0_12px_24px_-8px_rgba(15,23,42,0.08)] backdrop-blur-sm transition-all duration-300 pointer-events-none select-none cursor-default" inert aria-label="KelvinFlow Quotation Review Interface Preview">'
 );
 
-// 2. 侧边栏 Logo 统一采用黄金比例矢量规范与本地资源，消除负外边距变形
-codeHtml = codeHtml.replace(
-  '<img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 52px; height: 52px; margin: -10px -16px -10px -6px;">',
-  '<img alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0" src="/k_logo.svg">'
-);
+// 2. 侧边栏 Logo 与品牌文字：以左上角顶栏 Logo 为绝对对齐基准 (w-6 h-6, items-end, gap-1.5, text-xl leading-none, mb-0.5 AI badge)
+const oldSidebarLogo = '<div class="flex items-center gap-1.5"><img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 52px; height: 52px; margin: -10px -16px -10px -6px;"><span class="text-[17px] text-slate-800 tracking-tight font-bold leading-none flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></div>';
+const newSidebarLogo = '<div class="flex items-end gap-1.5 min-h-[44px] py-2"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0"><span class="text-xl font-bold tracking-tight text-[#1B2A4A] leading-none select-none">KelvinFlow</span><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none mb-0.5 uppercase select-none">AI</span></div>';
+codeHtml = codeHtml.replace(oldSidebarLogo, newSidebarLogo);
 
 // Insert favicons and FontAwesome in <head>
 const headInsert = `
@@ -198,7 +197,7 @@ codeHtml = codeHtml.replace(
 
 // 底栏 Logo 图标与品牌文字：全站统一采用黄金比例规范 (w-6 h-6, items-end, gap-1.5, text-xl leading-none) 与顶部导航完全一致的无抖动交互微动效
 const oldFooterLogo = '<div class="flex items-center gap-1.5"><img alt="KelvinFlow Logo" class="object-contain inline-block shrink-0" src="/k_logo.svg" style="width: 48px; height: 48px; margin: -8px -15px -8px -4px;"><span class="font-headline-sm text-headline-sm text-[#1B2A4A] flex items-center gap-1.5">KelvinFlow<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none">AI</span></span></div>';
-const newFooterLogo = '<a href="/" class="group inline-flex items-center gap-1.5 min-h-[44px] py-2.5 transition-opacity duration-200 hover:opacity-85 cursor-pointer w-fit" aria-label="KelvinFlow 首页"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0 transition-transform duration-200 group-hover:scale-105"><span class="text-xl font-bold tracking-tight text-[#1B2A4A] leading-none select-none">KelvinFlow</span><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none mb-0.5 uppercase select-none transition-colors duration-200 group-hover:bg-[#FDE68A]">AI</span></a>';
+const newFooterLogo = '<a href="/" class="group flex items-end gap-1.5 min-h-[44px] py-2 transition-opacity duration-200 hover:opacity-85 cursor-pointer w-fit" aria-label="KelvinFlow 首页"><img src="/k_logo.svg" alt="KelvinFlow Logo" class="w-6 h-6 object-contain shrink-0 transition-transform duration-200 group-hover:scale-105"><span class="text-xl font-bold tracking-tight text-[#1B2A4A] leading-none select-none">KelvinFlow</span><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#D97706] border border-[#F59E0B]/30 leading-none mb-0.5 uppercase select-none transition-colors duration-200 group-hover:bg-[#FDE68A]">AI</span></a>';
 codeHtml = codeHtml.replace(oldFooterLogo, newFooterLogo);
 codeHtml = codeHtml.replace(
   '<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150" href="mailto:hi@kelvinflow.com">hi@kelvinflow.com</a>',
