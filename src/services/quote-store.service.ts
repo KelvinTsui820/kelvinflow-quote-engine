@@ -19,12 +19,6 @@ export class QuoteStoreService {
     return quotesDir;
   }
 
-  private static ensureLegacyDir() {
-    if (!fs.existsSync(this.legacyStorageDir)) {
-      fs.mkdirSync(this.legacyStorageDir, { recursive: true });
-    }
-  }
-
   /**
    * 保存報價單數據與生成的 PDF (支持租戶物理隔離)
    */
@@ -40,17 +34,6 @@ export class QuoteStoreService {
     if (pdfBuffer) {
       const pdfPath = path.join(tenantQuotesDir, `${id}.pdf`);
       fs.writeFileSync(pdfPath, pdfBuffer);
-    }
-
-    // 若為默認租戶，同步向後兼容維護一份 legacy 文件
-    if (tenantId === 'default') {
-      this.ensureLegacyDir();
-      const legacyJson = path.join(this.legacyStorageDir, `${id}.json`);
-      fs.writeFileSync(legacyJson, JSON.stringify(quotation, null, 2), 'utf-8');
-      if (pdfBuffer) {
-        const legacyPdf = path.join(this.legacyStorageDir, `${id}.pdf`);
-        fs.writeFileSync(legacyPdf, pdfBuffer);
-      }
     }
   }
 
@@ -200,17 +183,6 @@ export class QuoteStoreService {
     if (newPdfBuffer) {
       const pdfPath = path.join(tenantQuotesDir, `${cleanId}.pdf`);
       fs.writeFileSync(pdfPath, newPdfBuffer);
-    }
-
-    // 同步更新 default 租戶的 legacy
-    if (tenantId === 'default') {
-      this.ensureLegacyDir();
-      const legacyJson = path.join(this.legacyStorageDir, `${cleanId}.json`);
-      fs.writeFileSync(legacyJson, JSON.stringify(updatedQuotation, null, 2), 'utf-8');
-      if (newPdfBuffer) {
-        const legacyPdf = path.join(this.legacyStorageDir, `${cleanId}.pdf`);
-        fs.writeFileSync(legacyPdf, newPdfBuffer);
-      }
     }
 
     return true;
