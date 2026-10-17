@@ -42,7 +42,7 @@ app.get('/', (req, res) => {
   }
 
   const host = (req.headers['x-forwarded-host'] || req.get('host') || '').toString().toLowerCase();
-  if ((host.startsWith('quote.') || host.includes('quote')) && (req.query.review === '1' || req.query.id)) {
+  if (host.startsWith('quote.') || host.includes('quote')) {
     return res.sendFile(path.join(process.cwd(), 'public', 'review.html'));
   }
 
