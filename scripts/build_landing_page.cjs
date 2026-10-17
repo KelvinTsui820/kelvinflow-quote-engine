@@ -1258,7 +1258,7 @@ const modalsAndScripts = `
 
       if (!agree) {
         if (errFeedback && errText) {
-          errText.textContent = '请先阅读并同意用户服务协议与隐私保密承诺';
+          errText.textContent = '请先阅读并同意用户服务协议';
           errFeedback.classList.remove('hidden');
         }
         return;
