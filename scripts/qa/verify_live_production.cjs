@@ -16,13 +16,29 @@ const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
     const mailLink = links.find(a => a.href.includes('sales@kelvinflow.com') || a.textContent.includes('sales@kelvinflow.com'));
     const heroMockup = document.querySelector('[aria-label="KelvinFlow Quotation Review Interface Preview"]');
     const heroStyle = heroMockup ? window.getComputedStyle(heroMockup) : null;
+    const getLogoAlignment = (selector) => {
+      const el = document.querySelector(selector);
+      if (!el) return null;
+      const style = window.getComputedStyle(el);
+      const text = el.querySelector('span');
+      const textStyle = text ? window.getComputedStyle(text) : null;
+      return {
+        alignItems: style.alignItems,
+        fontSize: textStyle ? textStyle.fontSize : null,
+        color: textStyle ? textStyle.color : null
+      };
+    };
+
     return {
       title: document.title,
       footerEmailText: mailLink ? mailLink.textContent.trim() : null,
       footerEmailHref: mailLink ? mailLink.href : null,
       heroPointerEvents: heroStyle ? heroStyle.pointerEvents : null,
       heroInert: heroMockup ? heroMockup.hasAttribute('inert') : false,
-      hasScrollbarGutter: getComputedStyle(document.documentElement).scrollbarGutter.includes('stable')
+      hasScrollbarGutter: getComputedStyle(document.documentElement).scrollbarGutter.includes('stable'),
+      headerLogo: getLogoAlignment('header a[data-path="landing-page"]'),
+      footerLogo: getLogoAlignment('footer a[aria-label="KelvinFlow 首页"]'),
+      sidebarLogo: getLogoAlignment('[aria-label="KelvinFlow Quotation Review Interface Preview"] aside .flex.items-end')
     };
   });
 
