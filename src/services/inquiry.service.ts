@@ -179,6 +179,7 @@ export class InquiryService {
     buyerName?: string;
     itemsSummary?: Array<{ sku: string; description?: string; quantity?: number; unit?: string }>;
     attachments?: Array<{ filename: string; contentType?: string; size?: number }>;
+    manualProcessingReason?: string;
   }): InquiryRecord {
     const rawHash = this.computeTextHash(params.content);
     const inquiry: InquiryRecord = {
@@ -195,7 +196,8 @@ export class InquiryService {
       inquiryMessageId: params.inquiryMessageId,
       buyerName: params.buyerName,
       itemsSummary: params.itemsSummary,
-      attachments: params.attachments
+      attachments: params.attachments,
+      manualProcessingReason: params.manualProcessingReason
     };
 
     return this.saveInquiry(inquiry);

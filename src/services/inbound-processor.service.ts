@@ -36,6 +36,8 @@ export interface InboundProcessResult {
   reviewEmailSent?: boolean;
   reviewEmailRecipient?: string;
   error?: string;
+  requiresManualProcessing?: boolean;
+  manualProcessingReason?: string;
 }
 
 export class InboundProcessorService {
@@ -142,15 +144,44 @@ export class InboundProcessorService {
       }
     }
 
-    // 若检测到附件但未识别出有效商品（如纯图片扫描件），在占位商品中明确注明附件文件名
-    if (detectedAttachmentNames.length > 0 && poData?.Items) {
-      const isOnlyPlaceholder = poData.Items.length === 1 && poData.Items[0].SKU === 'PENDING-SKU-01';
-      if (isOnlyPlaceholder) {
-        poData.Items[0].Description = `Inquiry Item (Pending SKU Confirmation - Detected Attachment: ${detectedAttachmentNames.join(', ')})`;
-        poData.Items[0].ConfidenceRemark = `检测到附件 [${detectedAttachmentNames.join(', ')}]，请人工确认明细`;
-        if (!poData.MissingInfo) poData.MissingInfo = [];
-        poData.MissingInfo.unshift(`检测到附件 [${detectedAttachmentNames.join(', ')}]，未能自动提取文本，已生成待核验单据，请人工核对`);
-      }
+    // 4b §5.4 & 红线 7: 纯附件邮件文本型表格正常走报价链路；扫描件/加密 PDF/无法识别型号询盘严禁生成静默 PENDING-SKU-01 占位单，必须在询盘箱明示“需人工处理”
+    const hasOnlyPlaceholder = !poData?.Items || poData.Items.length === 0 || (poData.Items.length === 1 && poData.Items[0].SKU === 'PENDING-SKU-01');
+    if (hasOnlyPlaceholder) {
+      const reason = detectedAttachmentNames.length > 0
+        ? `检测到附件 [${detectedAttachmentNames.join(', ')}] 为扫描件或加密文件，无法自动提取表格，需人工处理`
+        : '询盘内容未识别到有效商品型号，需人工处理';
+
+      const attachmentsMeta = (attachments || []).map(att => ({
+        filename: att.filename,
+        contentType: att.contentType,
+        size: att.content?.length
+      }));
+
+      const inquiryEntity = InquiryService.createInquiryFromInbound({
+        tenantId,
+        from: from || '',
+        to: to || '',
+        subject: subject || 'RFQ Inquiry',
+        content: emailContent,
+        quotationNumber: undefined, // 严禁生成静默占位单
+        inquiryMessageId: payload.messageId ? payload.messageId.replace(/[<>]/g, '').trim() : undefined,
+        parseStatus: 'pending', // 标记为待处理
+        buyerName: poData?.BuyerContact?.Name || poData?.CustomerName || 'Valued Customer',
+        itemsSummary: [],
+        attachments: attachmentsMeta.length > 0 ? attachmentsMeta : undefined,
+        manualProcessingReason: reason
+      });
+
+      console.log(`📥 [询盘箱明示需人工处理] 租户 [${tenantId}] 询盘 [${inquiryEntity.inquiryId}] 无法提取有效型号，已转入人工处理，未自动生成报价单`);
+
+      return {
+        success: true,
+        requiresManualProcessing: true,
+        inquiryId: inquiryEntity.inquiryId,
+        quotationNumber: undefined,
+        manualProcessingReason: reason,
+        error: reason
+      };
     }
 
     // 3. 自动精准核价

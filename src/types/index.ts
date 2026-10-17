@@ -301,6 +301,7 @@ export interface InquiryRecord {
     contentType?: string;
     size?: number;
   }>;
+  manualProcessingReason?: string; // 需人工处理的具体原因 (如扫描件/加密附件/无有效型号)
   createdAt?: string;
   updatedAt?: string;
 }

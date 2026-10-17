@@ -20,6 +20,7 @@ import { InboundProcessorService } from '../services/inbound-processor.service.j
 import { InquiryService } from '../services/inquiry.service.js';
 import { AuthService } from '../services/auth.service.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { ASSISTANT_EMAIL_CONFIG } from '../config/assistant-email.config.js';
 
 inboundRouter.use(authMiddleware);
 
@@ -83,12 +84,17 @@ inboundRouter.post('/email', async (req: Request, res: Response): Promise<any> =
       }
     }
 
-    // 2. 从收件人中解析专属别名 (如 rfq-13800000000@quote.kelvinflow.com -> tenantId: 'tenant_trial_13800000000')
+    // 2. 从收件人中解析专属助理邮箱别名 (Task 4b §5.5)
     let tenantId = req.body.tenantId;
     if (!tenantId && to && typeof to === 'string') {
-      const aliasMatch = to.match(/rfq-([a-zA-Z0-9_-]+)@/i);
-      if (aliasMatch && aliasMatch[1]) {
-        tenantId = TenantService.resolveTenantId(aliasMatch[1]);
+      const extractedId = ASSISTANT_EMAIL_CONFIG.extractTenantId(to);
+      if (extractedId) {
+        tenantId = TenantService.resolveTenantId(extractedId);
+      } else {
+        const legacyAliasMatch = to.match(/rfq-([a-zA-Z0-9_-]+)@/i);
+        if (legacyAliasMatch && legacyAliasMatch[1]) {
+          tenantId = TenantService.resolveTenantId(legacyAliasMatch[1]);
+        }
       }
     }
     if (!tenantId) {

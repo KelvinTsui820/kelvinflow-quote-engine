@@ -6,6 +6,7 @@ import { InboundProcessorService } from '../src/services/inbound-processor.servi
 import { AttachmentExtractorService } from '../src/services/attachment-extractor.service.js';
 import { QuoteStoreService } from '../src/services/quote-store.service.js';
 import { TenantService } from '../src/services/tenant.service.js';
+import { InquiryService } from '../src/services/inquiry.service.js';
 
 describe('Robustness QA Test Suite (Reports 18, 19, 20)', () => {
   jest.setTimeout(45000);
@@ -158,7 +159,7 @@ describe('Robustness QA Test Suite (Reports 18, 19, 20)', () => {
       expect(savedQuote?.items.some(i => i.sku === 'TEST-002' && i.quantity === 400)).toBe(true);
     });
 
-    it('should explicitly note unreadable attachment on placeholder line item', async () => {
+    it('should route unreadable attachment to manual processing in inquiry box without placeholder quote (Task 4b §5.4 & B8)', async () => {
       // Empty unreadable buffer
       const dummyBuffer = Buffer.from('NOT_A_VALID_PDF_STREAM');
 
@@ -177,9 +178,14 @@ describe('Robustness QA Test Suite (Reports 18, 19, 20)', () => {
       });
 
       expect(result.success).toBe(true);
-      const savedQuote = QuoteStoreService.getQuote(result.quotationNumber!, 'default');
-      expect(savedQuote?.items[0].sku).toBe('PENDING-SKU-01');
-      expect(savedQuote?.items[0].description).toContain('Scanned_Doc.pdf');
+      expect(result.requiresManualProcessing).toBe(true);
+      expect(result.quotationNumber).toBeUndefined();
+      expect(result.inquiryId).toBeDefined();
+
+      const inq = InquiryService.getInquiry(result.inquiryId!, 'default');
+      expect(inq).toBeDefined();
+      expect(inq?.parseStatus).toBe('pending');
+      expect(inq?.manualProcessingReason).toContain('Scanned_Doc.pdf');
     });
   });
 
