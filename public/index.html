@@ -1403,7 +1403,7 @@ html{scroll-behavior:smooth;}
       window.location.href = '/?logged_out=1';
     }
 
-    // D2: 立即进入倒计时与禁用态
+    // DEF-05: 仅在工作邮箱通过格式与域名合法性校验后才启动 60 秒倒计时
     function sendInboundVerificationCode() {
       const emailInput = document.getElementById('inbound-email');
       const email = (emailInput?.value || '').trim();
@@ -1412,6 +1412,9 @@ html{scroll-behavior:smooth;}
       const errFeedback = document.getElementById('inbound-error-feedback');
       const errText = document.getElementById('inbound-error-feedback-text');
 
+      if (errFeedback) errFeedback.classList.add('hidden');
+
+      // 1. 邮箱非空与基础格式校验
       if (!email || !email.includes('@')) {
         if (errFeedback && errText) {
           errText.textContent = '请输入有效的工作邮箱';
@@ -1421,6 +1424,41 @@ html{scroll-behavior:smooth;}
         return;
       }
 
+      // 2. 邮箱域名合法性严格校验 (对齐服务端合规规范)
+      const emailParts = email.toLowerCase().split('@');
+      if (emailParts.length !== 2 || !emailParts[0] || !emailParts[1]) {
+        if (errFeedback && errText) {
+          errText.textContent = '请输入有效的工作邮箱';
+          errFeedback.classList.remove('hidden');
+        }
+        if (emailInput) emailInput.focus();
+        return;
+      }
+
+      const domain = emailParts[1];
+      const commonDomains = new Set([
+        'gmail.com', 'googlemail.com', 'qq.com', 'vip.qq.com', 'foxmail.com',
+        '163.com', '126.com', 'yeah.net', 'hotmail.com', 'outlook.com',
+        'live.com', 'msn.com', 'yahoo.com', 'yahoo.com.cn', 'yahoo.com.hk',
+        'yahoo.co.uk', 'icloud.com', 'me.com', 'sina.com', 'sina.cn',
+        'sohu.com', 'aliyun.com', '139.com', '189.com', 'wo.cn'
+      ]);
+
+      const isValidEnterpriseDomain = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*.[a-zA-Z]{2,}$/.test(domain) &&
+        !domain.endsWith('.local') &&
+        !domain.endsWith('.test') &&
+        !domain.endsWith('.invalid');
+
+      if (!commonDomains.has(domain) && !isValidEnterpriseDomain) {
+        if (errFeedback && errText) {
+          errText.textContent = '请提供真实的企业域名工作邮箱或常用公用邮箱（如 Gmail/QQ/163/Hotmail）';
+          errFeedback.classList.remove('hidden');
+        }
+        if (emailInput) emailInput.focus();
+        return;
+      }
+
+      // 3. 校验完全通过，启动 60 秒倒计时与置灰防重
       if (btn) btn.disabled = true;
       codeCountdownSeconds = 60;
       if (btnText) btnText.textContent = '60s可重发';
@@ -1450,6 +1488,18 @@ html{scroll-behavior:smooth;}
       .then(res => res.json())
       .then(data => {
         if (!data.success) {
+          // 若后端异常或业务阻断，复位倒计时与按钮状态
+          if (codeCountdownTimer) {
+            clearInterval(codeCountdownTimer);
+            codeCountdownTimer = null;
+          }
+          codeCountdownSeconds = 0;
+          if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
+          if (btnText) btnText.textContent = '获取验证码';
+
           if (errFeedback && errText) {
             errText.textContent = data.error || '验证码发送失败，请稍后重试';
             errFeedback.classList.remove('hidden');
@@ -1458,6 +1508,17 @@ html{scroll-behavior:smooth;}
       })
       .catch(err => {
         console.error('获取验证码网络异常:', err);
+        if (codeCountdownTimer) {
+          clearInterval(codeCountdownTimer);
+          codeCountdownTimer = null;
+        }
+        codeCountdownSeconds = 0;
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove('opacity-60', 'cursor-not-allowed');
+        }
+        if (btnText) btnText.textContent = '获取验证码';
+
         if (errFeedback && errText) {
           errText.textContent = '网络连接异常，请重试';
           errFeedback.classList.remove('hidden');
