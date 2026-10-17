@@ -487,6 +487,7 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
       const remainingDays = isExpired ? 0 : TrialService.calculateRemainingDays(trial.expiresAt);
       const profile = TenantService.getTenantProfile(trial.tenantId);
       const isPaidUser = Boolean((profile && profile.plan && profile.plan !== 'trial') || trial.status === 'converted');
+      const quota = TrialService.checkQuota(trial.tenantId);
       return res.json({
         success: true,
         exists: true,
@@ -502,6 +503,9 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
         email: trial.email,
         name: trial.name,
         companyName: trial.company,
+        quotaUsed: trial.quotaUsed || 0,
+        maxQuota: trial.maxQuota || 100,
+        remainingQuota: quota.remaining,
         user: {
           id: trial.userId,
           email: trial.email,
@@ -520,6 +524,7 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
         const remainingDays = isExpired ? 0 : TrialService.calculateRemainingDays(trial.expiresAt);
         const profile = TenantService.getTenantProfile(trial.tenantId);
         const isPaidUser = Boolean((profile && profile.plan && profile.plan !== 'trial') || trial.status === 'converted');
+        const quota = TrialService.checkQuota(trial.tenantId);
         return res.json({
           success: true,
           exists: true,
@@ -534,7 +539,10 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
           phone: trial.phone,
           email: trial.email,
           name: trial.name,
-          companyName: trial.company
+          companyName: trial.company,
+          quotaUsed: trial.quotaUsed || 0,
+          maxQuota: trial.maxQuota || 100,
+          remainingQuota: quota.remaining
         });
       }
     }
@@ -545,6 +553,7 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
         const { expired, expiresAt } = TenantService.isTenantExpired(tenantId);
         const remainingDays = expired ? 0 : (expiresAt ? TrialService.calculateRemainingDays(expiresAt) : 7);
         const isPaid = Boolean(profile.plan && profile.plan !== 'trial');
+        const quota = TrialService.checkQuota(tenantId);
         return res.json({
           success: true,
           exists: true,
@@ -558,11 +567,15 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
           tenantId,
           email: req.user?.email || profile.contactEmail,
           name: req.user?.name || profile.managerName || profile.companyName,
-          companyName: profile.companyName
+          companyName: profile.companyName,
+          quotaUsed: quota.used,
+          maxQuota: quota.maxQuota,
+          remainingQuota: quota.remaining
         });
       }
     }
 
+    const defaultQuota = TrialService.checkQuota(tenantId || 'default');
     return res.json({
       success: true,
       exists: true,
@@ -571,7 +584,28 @@ quoteRouter.get('/auth/trial-status', async (req: Request, res: Response): Promi
       status: 'active',
       email: req.user?.email,
       name: req.user?.name,
-      tenantId
+      tenantId,
+      quotaUsed: defaultQuota.used,
+      maxQuota: defaultQuota.maxQuota,
+      remainingQuota: defaultQuota.remaining
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * 查詢當前租戶的試用額度硬控狀態 (Task 4b §5.1)
+ * GET /api/v1/tenant/quota
+ */
+quoteRouter.get('/tenant/quota', async (req: Request, res: Response): Promise<any> => {
+  try {
+    const tenantId = req.tenantId || 'default';
+    const quota = TrialService.checkQuota(tenantId);
+    return res.json({
+      success: true,
+      tenantId,
+      ...quota
     });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
@@ -1039,6 +1073,21 @@ Items to Quote:
         });
       }
 
+      // 4b §5.1: 试用额度服务端硬控 (100 封/7 天原子硬控)
+      const quotaCheck = TrialService.checkQuota(tenantId);
+      if (!quotaCheck.allowed) {
+        return res.status(403).json({
+          success: false,
+          error: quotaCheck.reason || '当前账号试用出单额度已用尽或已到期，请升级正式版继续出单',
+          code: quotaCheck.isExpired ? 'TRIAL_EXPIRED' : 'QUOTA_EXHAUSTED',
+          quota: {
+            used: quotaCheck.used,
+            max: quotaCheck.maxQuota,
+            remaining: quotaCheck.remaining
+          }
+        });
+      }
+
       // 1. 智能解析底價與匯率數據（優先租戶隔離存儲）
       let priceItems: StandardPriceItem[] = [];
       let exchangeRates: StandardExchangeRate[] = [];
@@ -1186,6 +1235,11 @@ ${tenantCompany}`;
       // 4.1 保存報價單至持久化存儲以支持在線微調 (按租戶物理隔離)
       QuoteStoreService.saveQuote(quotation, pdfBuffer, tenantId);
 
+      // 4b §5.1: 扣减试用额度 & P2 频控监控
+      TrialService.consumeQuota(tenantId, 1);
+      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip;
+      TrialService.recordAndCheckVelocity(tenantId, clientIp);
+
       const reqHost = req.get('host') || 'localhost:3000';
       const reqProtocol = req.protocol || 'http';
       const isLocalHost = reqHost.includes('localhost') || reqHost.includes('127.0.0.1');
@@ -1194,13 +1248,13 @@ ${tenantCompany}`;
       const reviewUrl = `${baseUrl}/review/${quotation.quotationNumber}${tokenParam}`;
 
       // 在郵件草稿頭部附加微調入口
-      const emailWithReviewLink = `[📌 業務員在線核對與微調入口]: ${reviewUrl}\n(如需微調單價、折扣或交期，點擊上方鏈接即可 10 秒在線修改，系統將自動重新渲染 PDF 並更新草稿)\n\n` + emailBody;
+      const emailWithReviewLink = `[📌 業務員在線核對與微調入口]: ${reviewUrl}\n(如需微調單價、折扣或交期，點擊上方鏈接即可在線快速修改，系統將自動重新渲染 PDF 並更新草稿)\n\n` + emailBody;
 
       // 5.1 構造富文本 HTML 郵件草稿 (適配騰訊企郵、阿里、網易、Foxmail、Outlook 等通用 IMAP/SMTP 客戶端)
       const emailHtmlBody = `
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; color: #1e293b; line-height: 1.6; max-width: 680px;">
   <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px;">
-    <div style="font-weight: bold; color: #166534; font-size: 14px; margin-bottom: 4px;">📌 業務員在線核對與微調入口 (10 秒極速修改)</div>
+    <div style="font-weight: bold; color: #166534; font-size: 14px; margin-bottom: 4px;">📌 業務員在線核對與微調入口 (在線快速修改)</div>
     <div style="font-size: 12px; color: #15803d; margin-bottom: 10px;">如需微調單價、折扣或交期，點擊下方按鈕即可在線修改，系統將自動重新生成正式 PDF 報價單並同步更新：</div>
     <a href="${reviewUrl}" target="_blank" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; font-size: 13px;">點擊前往在線核單 ➔</a>
   </div>

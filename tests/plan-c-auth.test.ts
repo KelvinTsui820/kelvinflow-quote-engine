@@ -147,13 +147,13 @@ describe('Plan C: Work Email Authentication & Risk Control Tests', () => {
   // =========================================================================
   // 3. 同一 IP 7 天内最多注册 3 个试用账号频控 (IP Rate Limit)
   // =========================================================================
-  describe('IP Rate Limiting (7 Days Max 3 Accounts per IP)', () => {
-    it('allows 3 registrations from the same IP, but blocks the 4th registration', async () => {
+  describe('IP Rate Limiting (24 Hours Max 5 Accounts per IP, 6th Rejected - Task 4b §5.2 & B7)', () => {
+    it('allows 5 registrations from the same IP, but blocks the 6th registration', async () => {
       const testIp = `198.51.100.${Math.floor(Math.random() * 200 + 10)}`;
       const prefix = Date.now().toString().slice(-6);
 
-      // 注册前 3 个账号
-      for (let i = 1; i <= 3; i++) {
+      // 注册前 5 个账号
+      for (let i = 1; i <= 5; i++) {
         const email = `user_${prefix}_${i}@enterprise-test${i}.com`;
         const res = await TrialService.registerOrLoginTrial({
           email,
@@ -164,17 +164,82 @@ describe('Plan C: Work Email Authentication & Risk Control Tests', () => {
         expect(res.success).toBe(true);
       }
 
-      // 第 4 个账号应被严格拦截
-      const fourthEmail = `user_${prefix}_4@enterprise-test4.com`;
+      // 第 6 个账号应被严格拦截
+      const sixthEmail = `user_${prefix}_6@enterprise-test6.com`;
       const blockedRes = await TrialService.registerOrLoginTrial({
-        email: fourthEmail,
+        email: sixthEmail,
         code: '888888',
         password: 'Password123!',
         ip: testIp
       });
 
       expect(blockedRes.success).toBe(false);
-      expect(blockedRes.error).toContain('同一个IP地址7天内最多注册3个试用账号');
+      expect(blockedRes.error).toContain('最多注册5个试用账号');
+    });
+  });
+
+  // =========================================================================
+  // 3.5 服务端 100 封试用额度硬控校验 (Server Quota Hard Control - Task 4b §5.1 & B6)
+  // =========================================================================
+  describe('Server-Side 100-Quote Trial Quota Hard Control (Task 4b §5.1 & B6)', () => {
+    it('starts with 100 quotes quota, decrements on consumption, and blocks when exhausted', async () => {
+      const email = `quota_user_${Date.now()}@acme-quota-test.com`;
+      const reg = await TrialService.registerOrLoginTrial({
+        email,
+        code: '888888',
+        password: 'Password123!'
+      });
+
+      expect(reg.success).toBe(true);
+      const tenantId = reg.tenantId!;
+
+      // 初始额度检查
+      const initialQuota = TrialService.checkQuota(tenantId);
+      expect(initialQuota.allowed).toBe(true);
+      expect(initialQuota.used).toBe(0);
+      expect(initialQuota.remaining).toBe(100);
+      expect(initialQuota.maxQuota).toBe(100);
+
+      // 扣减 50 封
+      TrialService.consumeQuota(tenantId, 50);
+      const midQuota = TrialService.checkQuota(tenantId);
+      expect(midQuota.allowed).toBe(true);
+      expect(midQuota.used).toBe(50);
+      expect(midQuota.remaining).toBe(50);
+
+      // 扣减至 100 封 (耗尽)
+      TrialService.consumeQuota(tenantId, 50);
+      const exhaustedQuota = TrialService.checkQuota(tenantId);
+      expect(exhaustedQuota.allowed).toBe(false);
+      expect(exhaustedQuota.used).toBe(100);
+      expect(exhaustedQuota.remaining).toBe(0);
+      expect(exhaustedQuota.reason).toContain('试用出单额度已用尽');
+
+      // 额度耗尽后进一步调用必须被拒
+      const checkAfter = TrialService.checkQuota(tenantId);
+      expect(checkAfter.allowed).toBe(false);
+    });
+
+    it('strictly blocks quote generation for expired trials regardless of remaining quota', async () => {
+      const email = `expired_quota_${Date.now()}@acme-expired.com`;
+      const reg = await TrialService.registerOrLoginTrial({
+        email,
+        code: '888888',
+        password: 'Password123!'
+      });
+
+      const tenantId = reg.tenantId!;
+      // 模拟试用期已过 7 天
+      const trials = TrialService.getAllTrials();
+      const trial = trials.find(t => t.tenantId === tenantId);
+      expect(trial).toBeDefined();
+      trial!.expiresAt = new Date(Date.now() - 3600 * 1000).toISOString();
+      TrialService.saveTrials(trials);
+
+      const check = TrialService.checkQuota(tenantId);
+      expect(check.allowed).toBe(false);
+      expect(check.isExpired).toBe(true);
+      expect(check.reason).toContain('到期');
     });
   });
 

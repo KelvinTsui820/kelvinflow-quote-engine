@@ -30,6 +30,8 @@ export interface TrialRecord {
   paidPlan?: 'geek' | 'pro' | 'enterprise';
   amountPaid?: number;
   paidAt?: string;
+  quotaUsed?: number;
+  maxQuota?: number;
 }
 
 export interface TrialRegisterResult {
@@ -54,6 +56,9 @@ export interface TrialRegisterResult {
   plan?: string;
   formattedExpiresAt?: string;
   monthlyQuota?: number;
+  quotaUsed?: number;
+  maxQuota?: number;
+  remainingQuota?: number;
 }
 
 export class TrialService {
@@ -132,6 +137,170 @@ export class TrialService {
     const trials = this.getAllTrials();
     const cleanId = tenantId.toLowerCase().trim();
     return trials.find(t => t.tenantId.toLowerCase() === cleanId) || null;
+  }
+
+  private static parseVelocityHistory: Array<{ tenantId: string; ip?: string; timestamp: number }> = [];
+
+  /**
+   * 服务端硬控：检查指定租户的试用额度与有效期 (Task 4b §5.1 & §7.B6)
+   * 100 封/7 天原子硬控；无额度时 fail closed 拦截并明确报错
+   */
+  static checkQuota(tenantId: string): {
+    allowed: boolean;
+    remaining: number;
+    used: number;
+    maxQuota: number;
+    isTrial: boolean;
+    isExpired: boolean;
+    reason?: string;
+  } {
+    const cleanTenantId = TenantService.resolveTenantId(tenantId || 'default');
+
+    // 默认租户 (沙盒演示/本地体验): 放行
+    if (cleanTenantId === 'default') {
+      return {
+        allowed: true,
+        remaining: 999,
+        used: 0,
+        maxQuota: 999,
+        isTrial: false,
+        isExpired: false
+      };
+    }
+
+    const trial = this.getTrialByTenantId(cleanTenantId);
+    const tenantProfile = TenantService.getTenantProfile(cleanTenantId);
+
+    // 付费租户 (已转正或付费计划): 无 100 封试用硬顶
+    const isPaid = Boolean((tenantProfile?.plan && tenantProfile.plan !== 'trial') || trial?.status === 'converted' || trial?.paidPlan);
+    if (isPaid) {
+      return {
+        allowed: true,
+        remaining: 99999,
+        used: trial?.quotaUsed || 0,
+        maxQuota: 99999,
+        isTrial: false,
+        isExpired: false
+      };
+    }
+
+    // 试用租户硬控
+    if (trial) {
+      const now = new Date();
+      const expiryDate = new Date(trial.expiresAt);
+      const isExpired = now > expiryDate;
+      const maxQuota = trial.maxQuota ?? 100;
+      const used = trial.quotaUsed ?? 0;
+      const remaining = Math.max(0, maxQuota - used);
+
+      if (isExpired) {
+        return {
+          allowed: false,
+          remaining: 0,
+          used,
+          maxQuota,
+          isTrial: true,
+          isExpired: true,
+          reason: `7天免费试用期已于 ${this.formatExpiryDateTime(trial.expiresAt)} 到期。请联系微信 kt_data 升级正式版继续出单！`
+        };
+      }
+
+      if (used >= maxQuota) {
+        return {
+          allowed: false,
+          remaining: 0,
+          used,
+          maxQuota,
+          isTrial: true,
+          isExpired: false,
+          reason: `试用出单额度已用尽（已达 ${maxQuota} 封上限）。请升级为正式版或联系创始人微信 kt_data 申请扩容！`
+        };
+      }
+
+      return {
+        allowed: true,
+        remaining,
+        used,
+        maxQuota,
+        isTrial: true,
+        isExpired: false
+      };
+    }
+
+    // 未在 trials.json 登记的独立租户，检查 TenantProfile
+    if (tenantProfile.expiresAt) {
+      const now = new Date();
+      const expiryDate = new Date(tenantProfile.expiresAt);
+      if (now > expiryDate) {
+        return {
+          allowed: false,
+          remaining: 0,
+          used: 100,
+          maxQuota: 100,
+          isTrial: true,
+          isExpired: true,
+          reason: '租户使用期已到期，请升级正式版继续出单'
+        };
+      }
+    }
+
+    return {
+      allowed: true,
+      remaining: 100,
+      used: 0,
+      maxQuota: 100,
+      isTrial: true,
+      isExpired: false
+    };
+  }
+
+  /**
+   * 原子扣减试用额度 (解析/出单成功后调用)
+   */
+  static consumeQuota(tenantId: string, count: number = 1): { success: boolean; used: number; remaining: number } {
+    const cleanTenantId = TenantService.resolveTenantId(tenantId || 'default');
+    if (cleanTenantId === 'default') {
+      return { success: true, used: 0, remaining: 999 };
+    }
+
+    const trials = this.getAllTrials();
+    const trial = trials.find(t => t.tenantId.toLowerCase() === cleanTenantId.toLowerCase());
+    if (!trial) {
+      return { success: true, used: 0, remaining: 100 };
+    }
+
+    const currentUsed = trial.quotaUsed ?? 0;
+    const maxQuota = trial.maxQuota ?? 100;
+    trial.quotaUsed = currentUsed + count;
+    this.saveTrials(trials);
+
+    return {
+      success: true,
+      used: trial.quotaUsed,
+      remaining: Math.max(0, maxQuota - trial.quotaUsed)
+    };
+  }
+
+  /**
+   * P2 监控：单账号 1h >20 封告警；同 IP 多账号跑量告警
+   */
+  static recordAndCheckVelocity(tenantId: string, ip?: string): void {
+    const now = Date.now();
+    const oneHourAgo = now - 3600 * 1000;
+    this.parseVelocityHistory = this.parseVelocityHistory.filter(item => item.timestamp >= oneHourAgo);
+    this.parseVelocityHistory.push({ tenantId, ip, timestamp: now });
+
+    const tenantHourCount = this.parseVelocityHistory.filter(item => item.tenantId === tenantId).length;
+    if (tenantHourCount > 20) {
+      console.warn(`🚨 [防刷监控告警] 单账号 1 小时内解析已达 ${tenantHourCount} 封！租户: [${tenantId}], IP: [${ip || 'unknown'}]`);
+    }
+
+    if (ip && ip !== '127.0.0.1' && ip !== 'localhost') {
+      const ipDistinctTenants = new Set(this.parseVelocityHistory.filter(item => item.ip === ip).map(item => item.tenantId));
+      if (ipDistinctTenants.size >= 3 && this.parseVelocityHistory.filter(item => item.ip === ip).length > 30) {
+        console.warn(`🚨 [防刷监控告警] 同一 IP [${ip}] 存在多账号跑量行为 (${ipDistinctTenants.size} 个租户，1小时内累计 ${this.parseVelocityHistory.filter(item => item.ip === ip).length} 封)`);
+      }
+    }
   }
 
   /**
@@ -223,19 +392,19 @@ export class TrialService {
       };
     }
 
-    // 2. IP 频控防薅羊毛：同一个 IP 地址 7 天内最多注册 3 个试用账号
+    // 2. IP 频控防薅羊毛：同一个 IP 地址 24 小时内最多注册 5 个试用账号 (Task 4b §5.2 & B7)
     if (ip && ip !== '127.0.0.1' && ip !== 'localhost') {
-      const sevenDaysAgo = Date.now() - 7 * 24 * 3600 * 1000;
+      const oneDayAgo = Date.now() - 24 * 3600 * 1000;
       const recentTrialsFromSameIp = this.getAllTrials().filter(t => {
         if (!t.ip || t.ip !== ip) return false;
         const regTime = new Date(t.createdAt).getTime();
-        return !isNaN(regTime) && regTime >= sevenDaysAgo;
+        return !isNaN(regTime) && regTime >= oneDayAgo;
       });
 
-      if (recentTrialsFromSameIp.length >= 3) {
+      if (recentTrialsFromSameIp.length >= 5) {
         return {
           success: false,
-          error: '当前网络环境试用申请次数已达上限 (同一个IP地址7天内最多注册3个试用账号)。如需为团队增加席位，请联系创始人微信！'
+          error: '当前网络环境试用申请频次已达上限 (同一个IP地址24小时内最多注册5个试用账号)。如需为团队增加席位，请联系创始人微信！'
         };
       }
     }
@@ -359,7 +528,9 @@ export class TrialService {
       createdAt: now.toISOString(),
       expiresAt,
       status: 'active',
-      ip
+      ip,
+      quotaUsed: 0,
+      maxQuota: 100
     };
 
     const allTrials = this.getAllTrials();
@@ -407,7 +578,10 @@ export class TrialService {
       remainingDays: trialDays,
       expiresAt,
       user,
-      tenant
+      tenant,
+      quotaUsed: 0,
+      maxQuota: 100,
+      remainingQuota: 100
     };
   }
 
@@ -519,6 +693,9 @@ export class TrialService {
         message: expiredText,
         error: expiredText,
         monthlyQuota: 10,
+        quotaUsed: existing.quotaUsed || 0,
+        maxQuota: existing.maxQuota || 100,
+        remainingQuota: 0,
         founderWechat: 'kt_data'
       };
     }
@@ -554,7 +731,10 @@ export class TrialService {
       tenant,
       isLegacyBound: isLegacyBound || undefined,
       isPaid,
-      plan: tenant?.plan || (isPaid ? 'geek' : 'trial')
+      plan: tenant?.plan || (isPaid ? 'geek' : 'trial'),
+      quotaUsed: existing.quotaUsed || 0,
+      maxQuota: existing.maxQuota || 100,
+      remainingQuota: Math.max(0, (existing.maxQuota || 100) - (existing.quotaUsed || 0))
     };
   }
 

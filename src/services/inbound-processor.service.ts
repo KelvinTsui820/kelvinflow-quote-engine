@@ -97,6 +97,16 @@ export class InboundProcessorService {
 
     const emailContent = cleanedContent || combinedContent;
 
+    // 4b §5.1: 试用额度服务端硬控 (100 封/7 天原子硬控)
+    const quotaCheck = TrialService.checkQuota(tenantId);
+    if (!quotaCheck.allowed) {
+      console.warn(`🚨 [Inbound Processor] 租户 [${tenantId}] 询盘解析被额度拦截: ${quotaCheck.reason}`);
+      return {
+        success: false,
+        error: quotaCheck.reason || '当前账号试用出单额度已用尽或已到期，无法继续出单'
+      };
+    }
+
     // 1. 加载租户底价表
     const tenantPricing = TenantService.getActivePricingBuffer(tenantId) || TenantService.getActivePricingBuffer('default');
     if (!tenantPricing) {
@@ -279,7 +289,7 @@ export class InboundProcessorService {
         `🔗 专属在线工作台核单/调价链接: ${reviewUrl}\n` +
         `📊 本单 AI 综合置信度: ${Math.round(minItemConfidence)}% (全项精准匹配，底价核对无误)\n` +
         attachmentBanner +
-        `💡 提示：如需微调单价、给折扣或确认交期，点击上方链接 10 秒修改并快速刷新 PDF！\n` +
+        `💡 提示：如需微调单价、给折扣或确认交期，点击上方链接快速修改并刷新 PDF！\n` +
         `✂️━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━✂️\n\n`;
     } else {
       // 黄色预警通道：包含低置信度/非标定制品，在剪切框内醒目列出待核验明细
@@ -414,6 +424,10 @@ export class InboundProcessorService {
         });
       }
     }
+
+    // 4b §5.1: 扣减试用额度 & P2 频控监控
+    TrialService.consumeQuota(tenantId, 1);
+    TrialService.recordAndCheckVelocity(tenantId);
 
     console.log(`🏁 [Inbound Processor] 询盘出单闭环完成: 租户 [${tenantId}], 单号 [${quotation.quotationNumber}], 交付模式: ${deliveryMode}`);
 
